@@ -23,7 +23,6 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #111827; /* Fallback dark background */
-            /* 1. Subtle Gradient, Textured, and Layered Background */
             /* A base linear gradient overlaid with soft, abstract radial glows for depth. */
             background-image:
                 radial-gradient(at 20% 80%, hsla(260, 50%, 30%, 0.2) 0px, transparent 50%),
@@ -31,7 +30,7 @@
                 linear-gradient(to bottom right, #111827, #131b31, #111827);
         }
 
-        /* 3. Elegant Colors (Gold Accent for Active States) */
+        /* Gold Accent for Active States */
         .btn-active {
             background-color: #f59e0b; /* amber-500 */
             color: #111827; /* Dark text for contrast on gold */
@@ -44,19 +43,17 @@
             border-color: rgba(255, 255, 255, 0.1);
             color: #f1f5f9; /* slate-100 */
         }
-        .premium-input::placeholder {
-            color: #64748b; /* slate-500 */
-        }
+        .premium-input::placeholder { color: #64748b; /* slate-500 */ }
         .premium-input:focus {
              border-color: #f59e0b; /* amber-500 */
              box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4); /* Subtle glow effect */
         }
 
-        /* Chart container for responsiveness */
-        .chart-container {
-            position: relative;
-            height: 280px;
-            width: 280px;
+        .chart-container { position: relative; height: 280px; width: 280px; }
+
+        /* Smooth transition for showing explanations */
+        .explanation-content {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
     </style>
 </head>
@@ -73,7 +70,7 @@
         <!-- Main Container with Frosted Glass Effect -->
         <main class="bg-slate-900/60 backdrop-blur-xl p-6 sm:p-8 rounded-2xl shadow-2xl border border-white/10">
 
-            <!-- Income Input -->
+            <!-- Step 1: Income Input -->
             <section id="income-section">
                 <label for="income" class="block text-lg font-semibold mb-2 text-slate-200">Enter Your Income</label>
                 <div class="flex flex-col sm:flex-row gap-3">
@@ -85,7 +82,7 @@
                 </div>
             </section>
 
-            <!-- Budgeting System Selector -->
+            <!-- Step 2: Budgeting System Selector -->
             <section id="system-selector" class="mt-8">
                  <h2 class="text-lg font-semibold mb-3 text-slate-200">Choose Your Budgeting Method</h2>
                  <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
@@ -95,9 +92,33 @@
                      <button data-system="zero-based" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500">Zero-Based</button>
                  </div>
             </section>
+            
+            <!-- NEW: Explanation Section -->
+            <section id="explanation-section" class="mt-6 p-5 bg-slate-800/50 rounded-lg border border-white/10">
+                <div class="explanation-content" data-system="50-30-20">
+                    <h4 class="font-bold text-lg text-slate-100">The 50/30/20 Rule</h4>
+                    <p class="text-slate-300 mt-1">This method provides a balanced framework by splitting your after-tax income into three simple categories: 50% for Needs, 30% for Wants, and 20% for Savings & Investments.</p>
+                    <p class="mt-2"><strong class="text-amber-400">Best for:</strong> Beginners looking for a straightforward, flexible guideline without intensive tracking.</p>
+                </div>
+                <div class="explanation-content hidden" data-system="80-20">
+                    <h4 class="font-bold text-lg text-slate-100">The 80/20 Method (Pay Yourself First)</h4>
+                    <p class="text-slate-300 mt-1">A simple yet powerful strategy where you prioritize your financial goals by saving 20% of your income first. The remaining 80% is yours to spend on needs and wants without strict rules.</p>
+                    <p class="mt-2"><strong class="text-amber-400">Best for:</strong> Those who find detailed budgeting tedious but are committed to consistent saving.</p>
+                </div>
+                <div class="explanation-content hidden" data-system="envelope">
+                    <h4 class="font-bold text-lg text-slate-100">The Envelope System</h4>
+                    <p class="text-slate-300 mt-1">A hands-on approach to control overspending. You allocate a fixed cash amount to different "envelopes" (categories). Once an envelope is empty, you stop spending in that area for the month.</p>
+                    <p class="mt-2"><strong class="text-amber-400">Best for:</strong> Visual budgeters and anyone who struggles with overspending on debit or credit cards.</p>
+                </div>
+                <div class="explanation-content hidden" data-system="zero-based">
+                    <h4 class="font-bold text-lg text-slate-100">Zero-Based Budgeting</h4>
+                    <p class="text-slate-300 mt-1">This meticulous method ensures every single dollar of your income is assigned a purpose, so that your Income minus your Expenses equals zero. No money is left unaccounted for.</p>
+                    <p class="mt-2"><strong class="text-amber-400">Best for:</strong> Detail-oriented individuals who want maximum control over their finances and to optimize every dollar.</p>
+                </div>
+            </section>
 
             <!-- Results Display -->
-            <section id="results-section" class="mt-10 min-h-[280px]">
+            <section id="results-section" class="mt-8 pt-6 border-t border-white/10 min-h-[280px]">
                 <div class="flex flex-col md:flex-row gap-8 items-center justify-between">
                     <!-- Text Breakdown -->
                     <div id="breakdown-details" class="w-full md:w-1/2 space-y-3">
@@ -110,13 +131,11 @@
                         </div>
                     </div>
                 </div>
-                 <!-- Dynamic help text for certain systems -->
-                <div id="system-helper-text" class="mt-6 p-4 bg-slate-800/50 border-l-4 border-amber-500 text-slate-300 rounded-r-lg hidden"></div>
             </section>
         </main>
 
         <!-- CTA & Upsell Section -->
-        <section class="mt-8 text-center bg-black/20 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl">
+        <footer class="mt-8 text-center bg-black/20 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl">
             <h3 class="text-2xl font-bold text-slate-100">Ready to Take the Next Step?</h3>
             <p class="mt-2 max-w-xl mx-auto text-slate-400">Get a personalized plan or automate your entire financial system with our premium tools.</p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center mt-6">
@@ -126,7 +145,7 @@
                 </form>
                 <button class="bg-amber-500 text-slate-900 font-bold px-6 py-3 rounded-lg hover:bg-amber-400 transition-colors">Automate My Finances</button>
             </div>
-        </section>
+        </footer>
 
     </div>
 
@@ -136,14 +155,13 @@
             const monthlyBtn = document.getElementById('monthly-btn');
             const annualBtn = document.getElementById('annual-btn');
             const budgetBtns = document.querySelectorAll('.budget-btn');
+            const explanationContents = document.querySelectorAll('.explanation-content');
             const breakdownDetails = document.getElementById('breakdown-details');
-            const systemHelperText = document.getElementById('system-helper-text');
             const chartCanvas = document.getElementById('budget-chart');
 
             let state = { income: 0, period: 'monthly', system: '50-30-20' };
             let budgetChart = null;
 
-            // 7. Consistent & Elegant Palette for Chart
             const chartColors = {
                 'Needs': '#f59e0b',                 // amber-500 (Gold Accent)
                 'Wants': '#818cf8',                 // indigo-400 (Muted Pastel)
@@ -161,28 +179,10 @@
             const initializeChart = () => {
                 const ctx = chartCanvas.getContext('2d');
                 budgetChart = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderColor: '#1e293b', borderWidth: 4, hoverOffset: 15 }] },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '70%',
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        let label = context.label || '';
-                                        if (label) {
-                                            label += ': ';
-                                        }
-                                        if (context.parsed !== null) {
-                                            label += formatCurrency(context.parsed);
-                                        }
-                                        return label;
-                                    }
-                                }
-                            }
+                    type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderColor: 'rgba(30, 41, 59, 0.6)', borderWidth: 4, hoverOffset: 15 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%',
+                        plugins: { legend: { display: false },
+                            tooltip: { callbacks: { label: (c) => `${c.label}: ${formatCurrency(c.parsed)}` } }
                         },
                         animation: { animateScale: true, animateRotate: true }
                     }
@@ -192,74 +192,38 @@
             const calculateAndDisplay = () => {
                 const monthlyIncome = state.period === 'annual' ? state.income / 12 : state.income;
                 if (monthlyIncome < 0) return;
-
-                let breakdown, title, helperText = '';
+                let breakdown, title;
                 switch (state.system) {
-                    case '80-20':
-                        title = 'Your 80/20 Breakdown';
-                        breakdown = { 'Savings': monthlyIncome * 0.20, 'Everything Else': monthlyIncome * 0.80 };
-                        helperText = "Prioritize saving 20% of your income first, then spend the rest freely on your needs and wants.";
-                        break;
-                    case 'envelope':
-                        title = 'Your Envelope System Plan';
-                        const discretionary = monthlyIncome * 0.50;
-                        breakdown = { 'Groceries': discretionary * 0.30, 'Entertainment': discretionary * 0.20, 'Shopping': discretionary * 0.15, 'Unbudgeted': monthlyIncome - (discretionary * 0.65) };
-                        helperText = "A simplified cash-based plan for variable expenses. 'Unbudgeted' covers fixed costs and savings.";
-                        break;
-                    case 'zero-based':
-                        title = 'Your Zero-Based Plan';
-                        breakdown = { 'Needs': monthlyIncome * 0.50, 'Wants': monthlyIncome * 0.30, 'Savings & Investments': monthlyIncome * 0.20 };
-                        helperText = "Assign every dollar a job so 'Income - Expenses = $0'. This is a starting point based on the 50/30/20 rule.";
-                        break;
-                    default: // 50-30-20
-                        title = 'Your 50/30/20 Breakdown';
-                        breakdown = { 'Needs': monthlyIncome * 0.50, 'Wants': monthlyIncome * 0.30, 'Savings & Investments': monthlyIncome * 0.20 };
-                        helperText = "Allocate 50% of your income to needs, 30% to wants, and 20% to your financial future.";
+                    case '80-20': title = '80/20 Method Breakdown'; breakdown = { 'Savings': monthlyIncome * 0.20, 'Everything Else': monthlyIncome * 0.80 }; break;
+                    case 'envelope': title = 'Envelope System Example'; const d = monthlyIncome * 0.50; breakdown = { 'Groceries': d * 0.30, 'Entertainment': d * 0.20, 'Shopping': d * 0.15, 'Unbudgeted': monthlyIncome - (d * 0.65) }; break;
+                    case 'zero-based': title = 'Zero-Based Plan Example'; breakdown = { 'Needs': monthlyIncome * 0.50, 'Wants': monthlyIncome * 0.30, 'Savings & Investments': monthlyIncome * 0.20 }; break;
+                    default: title = '50/30/20 Rule Breakdown'; breakdown = { 'Needs': monthlyIncome * 0.50, 'Wants': monthlyIncome * 0.30, 'Savings & Investments': monthlyIncome * 0.20 };
                 }
-                
-                updateDisplay(breakdown, title, helperText, monthlyIncome);
+                updateDisplay(breakdown, title);
                 updateChart(breakdown);
             };
 
-            const updateDisplay = (breakdown, title, helperText, monthlyIncome) => {
+            const updateDisplay = (breakdown, title) => {
                 let headerHTML = `<h2 class="text-2xl font-bold text-slate-100 mb-4">${title}</h2>`;
                 breakdownDetails.innerHTML = headerHTML;
                 
-                if (!monthlyIncome || monthlyIncome <= 0) {
-                     breakdownDetails.innerHTML += '<p class="text-slate-500 py-10">Enter an income to start.</p>';
+                if (!state.income || state.income <= 0) {
+                     breakdownDetails.innerHTML += '<p class="text-slate-500 py-10">Enter your income to see the calculation.</p>';
                      return;
                 }
-                
                 const percentageMapping = { 'Needs': 50, 'Wants': 30, 'Savings & Investments': 20, 'Savings': 20, 'Everything Else': 80 };
-
                 for (const category in breakdown) {
-                    const amount = breakdown[category];
-                    const percent = percentageMapping[category];
-                    const colorValue = chartColors[category] || chartColors['Unbudgeted'];
-                    
+                    const amount = breakdown[category], percent = percentageMapping[category], colorValue = chartColors[category] || chartColors['Unbudgeted'];
                     const div = document.createElement('div');
                     div.className = 'bg-slate-800/50 p-4 rounded-lg border border-white/10 flex items-center justify-between';
-                    div.innerHTML = `
-                        <div class="flex items-center">
-                            <span class="w-3 h-3 rounded-full mr-4 flex-shrink-0" style="background-color: ${colorValue};"></span>
-                            <p class="font-semibold text-slate-200">${category} ${percent ? `(${percent}%)` : ''}</p>
-                        </div>
-                        <p class="font-bold text-lg text-slate-100">${formatCurrency(amount)}</p>`;
+                    div.innerHTML = `<div class="flex items-center"><span class="w-3 h-3 rounded-full mr-4 flex-shrink-0" style="background-color: ${colorValue};"></span><p class="font-semibold text-slate-200">${category} ${percent ? `(${percent}%)` : ''}</p></div><p class="font-bold text-lg text-slate-100">${formatCurrency(amount)}</p>`;
                     breakdownDetails.appendChild(div);
-                }
-                
-                if (helperText) {
-                    systemHelperText.textContent = helperText;
-                    systemHelperText.classList.remove('hidden');
-                } else {
-                     systemHelperText.classList.add('hidden');
                 }
             };
             
             const updateChart = (breakdown) => {
                 if (!budgetChart) initializeChart();
-                const labels = Object.keys(breakdown);
-                const data = Object.values(breakdown);
+                const labels = Object.keys(breakdown), data = Object.values(breakdown);
                 budgetChart.data.labels = labels;
                 budgetChart.data.datasets[0].data = data;
                 budgetChart.data.datasets[0].backgroundColor = labels.map(label => chartColors[label] || chartColors['Unbudgeted']);
@@ -272,7 +236,7 @@
             });
 
             monthlyBtn.addEventListener('click', () => {
-                if (state.period === 'annual') {
+                if (state.period !== 'monthly') {
                     state.period = 'monthly';
                     monthlyBtn.classList.add('btn-active');
                     annualBtn.classList.remove('btn-active');
@@ -284,7 +248,7 @@
             });
 
             annualBtn.addEventListener('click', () => {
-                if (state.period === 'monthly') {
+                if (state.period !== 'annual') {
                     state.period = 'annual';
                     annualBtn.classList.add('btn-active');
                     monthlyBtn.classList.remove('btn-active');
@@ -297,9 +261,20 @@
 
             budgetBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
+                    // Update button active state
                     budgetBtns.forEach(b => b.classList.remove('btn-active'));
                     btn.classList.add('btn-active');
                     state.system = btn.dataset.system;
+
+                    // Update explanation visibility
+                    explanationContents.forEach(content => {
+                        if (content.dataset.system === state.system) {
+                            content.classList.remove('hidden');
+                        } else {
+                            content.classList.add('hidden');
+                        }
+                    });
+
                     calculateAndDisplay();
                 });
             });
