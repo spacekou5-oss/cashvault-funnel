@@ -121,7 +121,6 @@
                 <div class="flex flex-col md:flex-row gap-8 items-center justify-between">
                     <div id="breakdown-details" class="w-full md:w-1/2 space-y-3"></div>
                     <div class="w-full md:w-1/2 flex items-center justify-center">
-                        <!-- UPDATED: Container now holds two canvases -->
                         <div class="chart-container">
                             <canvas id="budget-chart"></canvas>
                             <canvas id="blossom-canvas"></canvas>
@@ -131,17 +130,11 @@
             </section>
         </main>
 
-        <footer class="mt-8 text-center bg-black/20 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl">
-            <h3 class="text-2xl font-bold text-slate-100">Ready to Take the Next Step?</h3>
-            <p class="mt-2 max-w-xl mx-auto text-slate-400">Get a personalized plan or automate your entire financial system with our premium tools.</p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center mt-6">
-                 <form class="flex flex-grow sm:flex-grow-0 gap-3">
-                    <input type="email" placeholder="Enter your email" class="flex-grow w-full p-3 border rounded-lg outline-none premium-input" required>
-                    <button type="submit" class="bg-slate-200 text-slate-900 font-bold px-5 py-3 rounded-lg hover:bg-white transition-colors">Get My Plan</button>
-                </form>
-                <button class="bg-amber-500 text-slate-900 font-bold px-6 py-3 rounded-lg hover:bg-amber-400 transition-colors">Automate My Finances</button>
-            </div>
+        <!-- === UPDATED FOOTER SECTION === -->
+        <footer class="text-center mt-8 py-4">
+            <p class="text-sm text-slate-500">made by kiko</p>
         </footer>
+        <!-- === END OF UPDATED FOOTER === -->
 
     </div>
 
@@ -149,14 +142,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             const incomeInput = document.getElementById('income'), monthlyBtn = document.getElementById('monthly-btn'), annualBtn = document.getElementById('annual-btn'), budgetBtns = document.querySelectorAll('.budget-btn'), explanationContents = document.querySelectorAll('.explanation-content'), breakdownDetails = document.getElementById('breakdown-details');
             
-            // UPDATED: Get references to both canvases
             const chartCanvas = document.getElementById('budget-chart');
             const blossomCanvas = document.getElementById('blossom-canvas');
             const blossomCtx = blossomCanvas.getContext('2d');
 
             let state = { income: 0, period: 'monthly', system: '50-30-20' }, budgetChart = null;
             
-            // --- CHERRY BLOSSOM ANIMATION LOGIC ---
             let blossoms = [];
             let animationFrameId = null;
             const BLOSSOM_COUNT = 50;
@@ -203,7 +194,7 @@
             }
 
             function startBlossomAnimation() {
-                if (!animationFrameId) { // Prevent multiple loops
+                if (!animationFrameId) {
                     blossomCanvas.style.display = 'block';
                     initBlossoms();
                     animateBlossoms();
@@ -218,7 +209,7 @@
                     blossomCanvas.style.display = 'none';
                 }
             }
-             // Handle resizing
+            
             const chartContainer = document.querySelector('.chart-container');
             new ResizeObserver(() => {
                 blossomCanvas.width = chartContainer.clientWidth;
@@ -227,8 +218,6 @@
                     initBlossoms();
                 }
             }).observe(chartContainer);
-            // --- END OF ANIMATION LOGIC ---
-
 
             const chartColors = { 
                 'Needs': '#f59e0b', 'Wants': '#818cf8', 'Savings & Debt': '#60a5fa', 'Savings': '#60a5fa', 'Everything Else': '#818cf8', 'Investing': '#22c55e',
