@@ -30,6 +30,9 @@
         .btn-active {
             background-color: #f59e0b; color: #111827; border-color: #f59e0b;
         }
+        .btn-special-active {
+            background-color: #ec4899; color: #111827; border-color: #ec4899;
+        }
         .premium-input {
             background-color: rgba(17, 24, 39, 0.5); border-color: rgba(255, 255, 255, 0.1); color: #f1f5f9;
         }
@@ -37,7 +40,24 @@
         .premium-input:focus {
              border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4);
         }
-        .chart-container { position: relative; height: 300px; width: 300px; }
+        /* UPDATED: Container now needs to be relative for stacking */
+        .chart-container { 
+            position: relative; 
+            height: 300px; 
+            width: 300px; 
+        }
+        /* ADDED: Styles for the stacked canvases */
+        .chart-container canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        /* Make blossom canvas interactive-proof */
+        #blossom-canvas {
+            pointer-events: none; 
+        }
         .explanation-content { transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out; }
     </style>
 </head>
@@ -65,13 +85,11 @@
 
             <section id="system-selector" class="mt-8">
                  <h2 class="text-lg font-semibold mb-3 text-slate-200">Choose Your Budgeting Method</h2>
-                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
                      <button data-system="50-30-20" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500 btn-active">50/30/20 Rule</button>
-                     <button data-system="zbb" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500">Zero-Based</button>
-                     <button data-system="envelope" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500">Envelope</button>
                      <button data-system="pay-yourself-first" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500">Pay Yourself First</button>
-                     <button data-system="80-20" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500">80/20 Budget</button>
                      <button data-system="kiko" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500">Kiko's System</button>
+                     <button data-system="fatima" class="budget-btn p-3 text-sm font-semibold border border-pink-400/50 rounded-lg transition-colors text-pink-300 hover:bg-pink-500 hover:border-pink-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-pink-500">For Fatima</button>
                  </div>
             </section>
             
@@ -81,25 +99,16 @@
                     <p class="text-slate-300 mt-2"><strong class="text-amber-400">The Split:</strong> Your income is divided into three simple categories: 50% for Needs (rent, bills), 30% for Wants (entertainment), and 20% for Savings & Debt Repayment.</p>
                     <p class="mt-2"><strong class="text-amber-400">Advantages for Beginners:</strong> The primary advantage is simplicity. The clear percentages are easy to remember and apply without intensive tracking, making it a flexible and less intimidating way to start.</p>
                 </div>
-                <div class="explanation-content hidden" data-system="zbb">
-                    <h4 class="font-bold text-lg text-slate-100">Zero-Based Budgeting (ZBB)</h4>
-                    <p class="text-slate-300 mt-2"><strong class="text-amber-400">The Split:</strong> You must assign every single dollar of your income a specific "job." Your entire income is allocated to expenses, savings, and debt until the remaining balance is zero.</p>
-                    <p class="mt-2"><strong class="text-amber-400">Advantages for Beginners:</strong> This method forces you to be highly intentional with your money. It eliminates wasteful spending and provides complete awareness of where every dollar is going.</p>
-                </div>
-                <div class="explanation-content hidden" data-system="envelope">
-                    <h4 class="font-bold text-lg text-slate-100">Envelope (Cash/Category) System</h4>
-                    <p class="text-slate-300 mt-2"><strong class="text-amber-400">The Split:</strong> You divide your cash into designated envelopes for various spending categories (e.g., Groceries, Gas, Fun). You can only spend the money available in each envelope.</p>
-                    <p class="mt-2"><strong class="text-amber-400">Advantages for Beginners:</strong> This system provides a tangible, visual limit on spending. It is incredibly effective for those who tend to overspend with cards because once the cash is gone, the spending must stop.</p>
-                </div>
                 <div class="explanation-content hidden" data-system="pay-yourself-first">
                     <h4 class="font-bold text-lg text-slate-100">Pay Yourself First Budget</h4>
                     <p class="text-slate-300 mt-2"><strong class="text-amber-400">The Split:</strong> The moment you receive your income, you immediately transfer a fixed percentage (e.g., 20%) directly into your savings or investment accounts. The rest is available for all other expenses.</p>
                     <p class="mt-2"><strong class="text-amber-400">Advantages for Beginners:</strong> This method automates the habit of saving and investing. It removes the temptation to spend your savings, as the money is set aside before you can even touch it.</p>
                 </div>
-                <div class="explanation-content hidden" data-system="80-20">
-                    <h4 class="font-bold text-lg text-slate-100">80/20 Budget (Simplified FIRE-Friendly)</h4>
-                    <p class="text-slate-300 mt-2"><strong class="text-amber-400">The Split:</strong> You allocate 20% of your income to Savings, Debt Repayment, & Investing. The remaining 80% is a single, flexible pool of money for all your Needs and Wants combined.</p>
-                    <p class="mt-2"><strong class="text-amber-400">Advantages for Beginners:</strong> This is one of the easiest systems to follow. It focuses on the most important goal—saving—while providing maximum freedom and minimal tracking for the rest of your spending.</p>
+                 <div class="explanation-content hidden" data-system="fatima">
+                    <h4 class="font-bold text-lg text-pink-300">The System Kiko Made For Fatima</h4>
+                    <p class="text-slate-300 mt-2"><strong class="text-pink-400">The Split:</strong> A balanced approach: 45% for Needs, 25% for Wants, 15% for Savings, and 15% for Investing.</p>
+                    <p class="mt-2 text-slate-300 italic">"I have made this system specifically for you knowing how you are as a person, and I hope that you use it and can lead you to a great financial future."</p>
+                    <p class="mt-1 text-right text-pink-400/80">- Love, Kiko</p>
                 </div>
                 <div class="explanation-content hidden" data-system="kiko">
                     <h4 class="font-bold text-lg text-slate-100">Kiko's Budgeting System</h4>
@@ -112,7 +121,11 @@
                 <div class="flex flex-col md:flex-row gap-8 items-center justify-between">
                     <div id="breakdown-details" class="w-full md:w-1/2 space-y-3"></div>
                     <div class="w-full md:w-1/2 flex items-center justify-center">
-                        <div class="chart-container"><canvas id="budget-chart"></canvas></div>
+                        <!-- UPDATED: Container now holds two canvases -->
+                        <div class="chart-container">
+                            <canvas id="budget-chart"></canvas>
+                            <canvas id="blossom-canvas"></canvas>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -134,13 +147,94 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const incomeInput = document.getElementById('income'), monthlyBtn = document.getElementById('monthly-btn'), annualBtn = document.getElementById('annual-btn'), budgetBtns = document.querySelectorAll('.budget-btn'), explanationContents = document.querySelectorAll('.explanation-content'), breakdownDetails = document.getElementById('breakdown-details'), chartCanvas = document.getElementById('budget-chart');
+            const incomeInput = document.getElementById('income'), monthlyBtn = document.getElementById('monthly-btn'), annualBtn = document.getElementById('annual-btn'), budgetBtns = document.querySelectorAll('.budget-btn'), explanationContents = document.querySelectorAll('.explanation-content'), breakdownDetails = document.getElementById('breakdown-details');
+            
+            // UPDATED: Get references to both canvases
+            const chartCanvas = document.getElementById('budget-chart');
+            const blossomCanvas = document.getElementById('blossom-canvas');
+            const blossomCtx = blossomCanvas.getContext('2d');
+
             let state = { income: 0, period: 'monthly', system: '50-30-20' }, budgetChart = null;
+            
+            // --- CHERRY BLOSSOM ANIMATION LOGIC ---
+            let blossoms = [];
+            let animationFrameId = null;
+            const BLOSSOM_COUNT = 50;
+
+            class BlossomParticle {
+                constructor() {
+                    this.x = Math.random() * blossomCanvas.width;
+                    this.y = Math.random() * blossomCanvas.height;
+                    this.size = Math.random() * 2 + 1;
+                    this.speedX = Math.random() * 1 - 0.5;
+                    this.speedY = Math.random() * 1 + 0.5;
+                    this.color = `rgba(236, 72, 153, ${Math.random() * 0.7 + 0.3})`;
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.y > blossomCanvas.height) {
+                        this.y = -5;
+                        this.x = Math.random() * blossomCanvas.width;
+                    }
+                }
+                draw() {
+                    blossomCtx.fillStyle = this.color;
+                    blossomCtx.beginPath();
+                    blossomCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    blossomCtx.fill();
+                }
+            }
+
+            function initBlossoms() {
+                blossoms = [];
+                for (let i = 0; i < BLOSSOM_COUNT; i++) {
+                    blossoms.push(new BlossomParticle());
+                }
+            }
+
+            function animateBlossoms() {
+                blossomCtx.clearRect(0, 0, blossomCanvas.width, blossomCanvas.height);
+                for (let i = 0; i < blossoms.length; i++) {
+                    blossoms[i].update();
+                    blossoms[i].draw();
+                }
+                animationFrameId = requestAnimationFrame(animateBlossoms);
+            }
+
+            function startBlossomAnimation() {
+                if (!animationFrameId) { // Prevent multiple loops
+                    blossomCanvas.style.display = 'block';
+                    initBlossoms();
+                    animateBlossoms();
+                }
+            }
+
+            function stopBlossomAnimation() {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                    blossomCtx.clearRect(0, 0, blossomCanvas.width, blossomCanvas.height);
+                    blossomCanvas.style.display = 'none';
+                }
+            }
+             // Handle resizing
+            const chartContainer = document.querySelector('.chart-container');
+            new ResizeObserver(() => {
+                blossomCanvas.width = chartContainer.clientWidth;
+                blossomCanvas.height = chartContainer.clientHeight;
+                if(state.system === 'fatima'){
+                    initBlossoms();
+                }
+            }).observe(chartContainer);
+            // --- END OF ANIMATION LOGIC ---
+
 
             const chartColors = { 
-                'Needs': '#f59e0b', 'Wants': '#818cf8', 'Savings & Debt': '#60a5fa', 'Savings': '#60a5fa', 'Everything Else': '#818cf8', 
-                'Groceries': '#f472b6', 'Fun': '#a78bfa', 'Shopping': '#34d399', 'Fixed': '#9ca3af', 'Emergency Fund': '#f43f5e', 'Investing': '#22c55e' 
+                'Needs': '#f59e0b', 'Wants': '#818cf8', 'Savings & Debt': '#60a5fa', 'Savings': '#60a5fa', 'Everything Else': '#818cf8', 'Investing': '#22c55e',
+                'Emergency Fund': '#f43f5e'
             };
+
             const formatCurrency = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
             
             const centerTextPlugin = {
@@ -179,12 +273,10 @@
             const calculateAndDisplay = () => {
                 const monthlyIncome = state.period === 'annual' ? state.income / 12 : state.income; if (monthlyIncome < 0) return; let breakdown, title;
                 switch (state.system) {
-                    case 'zbb': title = 'Zero-Based Budget Example'; breakdown = { 'Needs': monthlyIncome * 0.50, 'Wants': monthlyIncome * 0.30, 'Savings': monthlyIncome * 0.20 }; break;
-                    case 'envelope': title = 'Envelope System Example'; const d = monthlyIncome * 0.50; breakdown = { 'Groceries': d * 0.30, 'Fun': d * 0.20, 'Shopping': d * 0.15, 'Fixed': monthlyIncome - (d * 0.65) }; break;
-                    case 'pay-yourself-first': title = 'Pay Yourself First Breakdown'; breakdown = { 'Savings': monthlyIncome * 0.20, 'Everything Else': monthlyIncome * 0.80 }; break;
-                    case '80-20': title = '80/20 Budget Breakdown'; breakdown = { 'Savings & Debt': monthlyIncome * 0.20, 'Everything Else': monthlyIncome * 0.80 }; break;
-                    case 'kiko': title = "Kiko's System Breakdown"; const fixedNeeds = 40.00; const wants = monthlyIncome * 0.12; const emergency = monthlyIncome * 0.08; const investing = Math.max(0, monthlyIncome - fixedNeeds - wants - emergency); breakdown = { 'Needs': fixedNeeds, 'Wants': wants, 'Emergency Fund': emergency, 'Investing': investing }; break;
-                    default: title = '50/30/20 Rule Breakdown'; breakdown = { 'Needs': monthlyIncome * 0.50, 'Wants': monthlyIncome * 0.30, 'Savings & Debt': monthlyIncome * 0.20 };
+                    case 'pay-yourself-first': title = 'Pay Yourself First'; breakdown = { 'Savings': monthlyIncome * 0.20, 'Everything Else': monthlyIncome * 0.80 }; break;
+                    case 'fatima': title = "For Fatima's Future"; breakdown = { 'Needs': monthlyIncome * 0.45, 'Wants': monthlyIncome * 0.25, 'Savings': monthlyIncome * 0.15, 'Investing': monthlyIncome * 0.15 }; break;
+                    case 'kiko': title = "Kiko's System"; const wants = monthlyIncome * 0.12; const emergency = monthlyIncome * 0.08; const investing = Math.max(0, monthlyIncome - 40 - wants - emergency); breakdown = { 'Needs': 40, 'Wants': wants, 'Emergency Fund': emergency, 'Investing': investing }; break;
+                    default: title = '50/30/20 Rule'; breakdown = { 'Needs': monthlyIncome * 0.50, 'Wants': monthlyIncome * 0.30, 'Savings & Debt': monthlyIncome * 0.20 };
                 }
                 updateDisplay(breakdown, title, monthlyIncome);
                 updateChart(breakdown, monthlyIncome);
@@ -192,11 +284,15 @@
 
             const updateDisplay = (breakdown, title, monthlyIncome) => {
                 breakdownDetails.innerHTML = `<h2 class="text-2xl font-bold text-slate-100 mb-4">${title}</h2>`;
-                if (!state.income || state.income <= 0) { breakdownDetails.innerHTML += '<p class="text-slate-500 py-10">Enter your income to see the calculation.</p>'; return; }
+                if (!state.income || state.income <= 0) { breakdownDetails.innerHTML += '<p class="text-slate-500 py-10">Enter income to see calculation.</p>'; return; }
                 const staticPercentages = { 'Needs': 50, 'Wants': 30, 'Savings & Debt': 20, 'Savings': 20, 'Everything Else': 80 };
+                const fatimaPercentages = { 'Needs': 45, 'Wants': 25, 'Savings': 15, 'Investing': 15 };
+
                 for (const category in breakdown) {
                     const amount = breakdown[category], colorValue = chartColors[category] || '#9ca3af'; let categoryText = `${category}`;
-                    if (state.system === 'kiko') {
+                    if(state.system === 'fatima') {
+                        categoryText += ` (${fatimaPercentages[category]}%)`;
+                    } else if (state.system === 'kiko') {
                         if (category === 'Needs') categoryText += ' (Fixed)'; else if (category === 'Wants') categoryText += ' (12%)'; else if (category === 'Emergency Fund') categoryText += ' (8%)'; else if (category === 'Investing') { const p = monthlyIncome > 0 ? ((amount / monthlyIncome) * 100).toFixed(0) : 0; categoryText += ` (~${p}%)`; }
                     } else if (staticPercentages[category]) { categoryText += ` (${staticPercentages[category]}%)`; }
                     const div = document.createElement('div'); div.className = 'bg-slate-800/50 p-4 rounded-lg border border-white/10 flex items-center justify-between';
@@ -216,12 +312,27 @@
             monthlyBtn.addEventListener('click', () => { if (state.period !== 'monthly') { state.period = 'monthly'; monthlyBtn.classList.add('btn-active'); annualBtn.classList.remove('btn-active'); if(state.income > 0) { incomeInput.value = (state.income / 12).toFixed(0); incomeInput.dispatchEvent(new Event('input')); } } });
             annualBtn.addEventListener('click', () => { if (state.period !== 'annual') { state.period = 'annual'; annualBtn.classList.add('btn-active'); monthlyBtn.classList.remove('btn-active'); if(state.income > 0) { incomeInput.value = (state.income * 12).toFixed(0); incomeInput.dispatchEvent(new Event('input')); } } });
             budgetBtns.forEach(btn => btn.addEventListener('click', () => {
-                budgetBtns.forEach(b => b.classList.remove('btn-active')); btn.classList.add('btn-active'); state.system = btn.dataset.system;
+                budgetBtns.forEach(b => {
+                    b.classList.remove('btn-active');
+                    b.classList.remove('btn-special-active');
+                }); 
+
+                if (btn.dataset.system === 'fatima') {
+                    btn.classList.add('btn-special-active');
+                    startBlossomAnimation();
+                } else {
+                    btn.classList.add('btn-active');
+                    stopBlossomAnimation();
+                }
+                
+                state.system = btn.dataset.system;
                 explanationContents.forEach(content => content.classList.toggle('hidden', content.dataset.system !== state.system));
                 calculateAndDisplay();
             }));
 
-            initializeChart(); calculateAndDisplay();
+            initializeChart(); 
+            calculateAndDisplay();
+            stopBlossomAnimation(); // Ensure it's off by default
         });
     </script>
 </body>
