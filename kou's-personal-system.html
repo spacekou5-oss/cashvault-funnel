@@ -30,8 +30,12 @@
         .btn-active {
             background-color: #f59e0b; color: #111827; border-color: #f59e0b;
         }
+        /* UPDATED: Added pink glow effect for Fatima's active button */
         .btn-special-active {
-            background-color: #ec4899; color: #111827; border-color: #ec4899;
+            background-color: #ec4899; 
+            color: #111827; 
+            border-color: #ec4899;
+            box-shadow: 0 0 4px #ec4899, 0 0 8px #ec4899, 0 0 12px #f472b6; /* Pink glow */
         }
         .premium-input {
             background-color: rgba(17, 24, 39, 0.5); border-color: rgba(255, 255, 255, 0.1); color: #f1f5f9;
@@ -40,13 +44,11 @@
         .premium-input:focus {
              border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4);
         }
-        /* UPDATED: Container now needs to be relative for stacking */
-        .chart-container { 
-            position: relative; 
-            height: 300px; 
-            width: 300px; 
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 300px;
         }
-        /* ADDED: Styles for the stacked canvases */
         .chart-container canvas {
             position: absolute;
             top: 0;
@@ -54,11 +56,55 @@
             width: 100% !important;
             height: 100% !important;
         }
-        /* Make blossom canvas interactive-proof */
         #blossom-canvas {
-            pointer-events: none; 
+            pointer-events: none;
         }
         .explanation-content { transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out; }
+        
+        .btn-fatima {
+            position: relative;
+            overflow: visible; 
+        }
+
+        .btn-fatima::before,
+        .btn-fatima::after {
+            content: '❀';
+            position: absolute;
+            color: #ec4899;
+            font-size: 18px;
+            opacity: 0.8;
+            transition: all 0.2s ease-in-out;
+            pointer-events: none;
+        }
+
+        .btn-fatima::before { 
+            top: -8px;
+            left: -6px;
+            transform: rotate(-25deg); 
+        }
+        .btn-fatima::after { 
+            bottom: -8px;
+            right: -6px; 
+            transform: rotate(200deg); 
+        }
+        .btn-fatima:hover::before, .btn-fatima:hover::after { opacity: 1; transform: scale(1.2); }
+        .btn-fatima.btn-special-active::before, .btn-fatima.btn-special-active::after { color: #111827; }
+        
+        .btn-kiko {
+            color: #93c5fd; 
+            border-color: #93c5fd;
+        }
+        .btn-kiko:hover {
+            background-color: #3b82f6; 
+            border-color: #3b82f6;
+            color: #f1f5f9;
+        }
+        .btn-kiko.btn-active {
+            background-color: #1e3a8a; 
+            color: #f1f5f9;
+            border-color: #60a5fa; 
+            box-shadow: 0 0 4px #60a5fa, 0 0 8px #60a5fa, 0 0 12px #3b82f6; 
+        }
     </style>
 </head>
 <body class="text-slate-300">
@@ -88,32 +134,32 @@
                  <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
                      <button data-system="50-30-20" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500 btn-active">50/30/20 Rule</button>
                      <button data-system="pay-yourself-first" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500">Pay Yourself First</button>
-                     <button data-system="kiko" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500">Kiko's System</button>
-                     <button data-system="fatima" class="budget-btn p-3 text-sm font-semibold border border-pink-400/50 rounded-lg transition-colors text-pink-300 hover:bg-pink-500 hover:border-pink-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-pink-500">For Fatima</button>
+                     <button data-system="kiko" class="btn-kiko budget-btn p-3 text-sm font-semibold border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-blue-500">Kiko's System</button>
+                     <button data-system="fatima" class="btn-fatima budget-btn p-3 text-sm font-semibold border border-pink-400/50 rounded-lg transition-colors text-pink-300 hover:bg-pink-500 hover:border-pink-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-pink-500">For Fatima</button>
                  </div>
             </section>
             
             <section id="explanation-section" class="mt-6 p-5 bg-slate-800/50 rounded-lg border border-white/10">
                 <div class="explanation-content" data-system="50-30-20">
                     <h4 class="font-bold text-lg text-slate-100">50/30/20 Rule (Simple Split Budget)</h4>
-                    <p class="text-slate-300 mt-2"><strong class="text-amber-400">The Split:</strong> Your income is divided into three simple categories: 50% for Needs (rent, bills), 30% for Wants (entertainment), and 20% for Savings & Debt Repayment.</p>
+                    <p class="text-slate-300 mt-2"><strong class="text-amber-400">The Split:</strong> Your income is divided into three simple categories: <span class="text-amber-400 font-semibold">50% for Needs</span> (rent, bills), <span class="text-amber-400 font-semibold">30% for Wants</span> (entertainment), and <span class="text-amber-400 font-semibold">20% for Savings & Debt Repayment</span>.</p>
                     <p class="mt-2"><strong class="text-amber-400">Advantages for Beginners:</strong> The primary advantage is simplicity. The clear percentages are easy to remember and apply without intensive tracking, making it a flexible and less intimidating way to start.</p>
                 </div>
                 <div class="explanation-content hidden" data-system="pay-yourself-first">
                     <h4 class="font-bold text-lg text-slate-100">Pay Yourself First Budget</h4>
-                    <p class="text-slate-300 mt-2"><strong class="text-amber-400">The Split:</strong> The moment you receive your income, you immediately transfer a fixed percentage (e.g., 20%) directly into your savings or investment accounts. The rest is available for all other expenses.</p>
+                    <p class="text-slate-300 mt-2"><strong class="text-amber-400">The Split:</strong> The moment you receive your income, you immediately transfer a fixed percentage (e.g., <span class="text-amber-400 font-semibold">20%</span>) directly into your <span class="text-amber-400 font-semibold">savings or investment accounts</span>. The rest is available for all other expenses.</p>
                     <p class="mt-2"><strong class="text-amber-400">Advantages for Beginners:</strong> This method automates the habit of saving and investing. It removes the temptation to spend your savings, as the money is set aside before you can even touch it.</p>
                 </div>
                  <div class="explanation-content hidden" data-system="fatima">
                     <h4 class="font-bold text-lg text-pink-300">The System Kiko Made For Fatima</h4>
-                    <p class="text-slate-300 mt-2"><strong class="text-pink-400">The Split:</strong> A balanced approach: 45% for Needs, 25% for Wants, 15% for Savings, and 15% for Investing.</p>
+                    <p class="text-slate-300 mt-2"><strong class="text-pink-400">The Split:</strong> A balanced approach: <span class="text-pink-400 font-semibold">45% for Needs</span>, <span class="text-pink-400 font-semibold">25% for Wants</span>, <span class="text-pink-400 font-semibold">15% for Savings</span>, and <span class="text-pink-400 font-semibold">15% for Investing</span>.</p>
                     <p class="mt-2 text-slate-300 italic">"I have made this system specifically for you knowing how you are as a person, and I hope that you use it and can lead you to a great financial future."</p>
                     <p class="mt-1 text-right text-pink-400/80">- Love, Kiko</p>
                 </div>
                 <div class="explanation-content hidden" data-system="kiko">
                     <h4 class="font-bold text-lg text-slate-100">Kiko's Budgeting System</h4>
-                    <p class="text-slate-300 mt-2"><strong class="text-amber-400">The Split:</strong> An aggressive, investment-focused strategy: Needs are a fixed $40, Wants get 12%, an Emergency Fund gets 8%, and the entire rest of your income is dedicated to Investing.</p>
-                    <p class="mt-2"><strong class="text-amber-400">Advantages for Beginners:</strong> Ideal for disciplined people with low living costs. It automates essential allocations and maximizes the amount going towards wealth-building above all else.</p>
+                    <p class="text-slate-300 mt-2"><strong class="text-blue-400">The Split:</strong> An aggressive, investment-focused strategy: <span class="text-blue-400 font-semibold">Needs are a fixed $40</span>, <span class="text-blue-400 font-semibold">Wants get 15%</span>, <span class="text-blue-400 font-semibold">Savings get 10%</span>, and the entire rest of your income is dedicated to <span class="text-blue-400 font-semibold">Investing</span>.</p>
+                    <p class="mt-2"><strong class="text-blue-400">Advantages for Beginners:</strong> Ideal for disciplined people with low living costs. It automates essential allocations and maximizes the amount going towards wealth-building above all else.</p>
                 </div>
             </section>
 
@@ -139,13 +185,13 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const incomeInput = document.getElementById('income'), monthlyBtn = document.getElementById('monthly-btn'), annualBtn = document.getElementById('annual-btn'), budgetBtns = document.querySelectorAll('.budget-btn'), explanationContents = document.querySelectorAll('.explanation-content'), breakdownDetails = document.getElementById('breakdown-details');
-            
+
             const chartCanvas = document.getElementById('budget-chart');
             const blossomCanvas = document.getElementById('blossom-canvas');
             const blossomCtx = blossomCanvas.getContext('2d');
 
             let state = { income: 0, period: 'monthly', system: '50-30-20' }, budgetChart = null;
-            
+
             let blossoms = [];
             let animationFrameId = null;
             const BLOSSOM_COUNT = 50;
@@ -207,7 +253,7 @@
                     blossomCanvas.style.display = 'none';
                 }
             }
-            
+
             const chartContainer = document.querySelector('.chart-container');
             new ResizeObserver(() => {
                 blossomCanvas.width = chartContainer.clientWidth;
@@ -217,13 +263,12 @@
                 }
             }).observe(chartContainer);
 
-            const chartColors = { 
-                'Needs': '#f59e0b', 'Wants': '#818cf8', 'Savings & Debt': '#60a5fa', 'Savings': '#60a5fa', 'Everything Else': '#818cf8', 'Investing': '#22c55e',
-                'Emergency Fund': '#f43f5e'
+            const chartColors = {
+                'Needs': '#f59e0b', 'Wants': '#818cf8', 'Savings & Debt': '#60a5fa', 'Savings': '#60a5fa', 'Everything Else': '#818cf8', 'Investing': '#22c55e'
             };
 
             const formatCurrency = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
-            
+
             const centerTextPlugin = {
                 id: 'centerText',
                 afterDraw: (chart) => {
@@ -237,12 +282,12 @@
                     }
                 }
             };
-            
+
             const initializeChart = () => {
                 Chart.register(ChartDataLabels, centerTextPlugin);
-                budgetChart = new Chart(chartCanvas.getContext('2d'), { 
-                    type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderColor: 'rgba(30, 41, 59, 0.6)', borderWidth: 5, hoverOffset: 15 }] }, 
-                    options: { 
+                budgetChart = new Chart(chartCanvas.getContext('2d'), {
+                    type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderColor: 'rgba(30, 41, 59, 0.6)', borderWidth: 5, hoverOffset: 15 }] },
+                    options: {
                         responsive: true, maintainAspectRatio: false, cutout: '75%',
                         plugins: {
                             legend: { display: false }, tooltip: { enabled: false }, centerText: { display: true, mainText: '$0', subText: 'Monthly Income' },
@@ -251,18 +296,24 @@
                                 formatter: (value, context) => { const sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); const percentage = (value / sum * 100).toFixed(0) + '%'; const label = context.chart.data.labels[context.dataIndex]; return `${label}\n${percentage}`; },
                                 display: (context) => context.dataset.data[context.dataIndex] > 0
                             }
-                        }, 
+                        },
                         animation: { animateScale: true, animateRotate: true }
-                    } 
+                    }
                 });
             };
-            
+
             const calculateAndDisplay = () => {
                 const monthlyIncome = state.period === 'annual' ? state.income / 12 : state.income; if (monthlyIncome < 0) return; let breakdown, title;
                 switch (state.system) {
                     case 'pay-yourself-first': title = 'Pay Yourself First'; breakdown = { 'Savings': monthlyIncome * 0.20, 'Everything Else': monthlyIncome * 0.80 }; break;
                     case 'fatima': title = "For Fatima's Future"; breakdown = { 'Needs': monthlyIncome * 0.45, 'Wants': monthlyIncome * 0.25, 'Savings': monthlyIncome * 0.15, 'Investing': monthlyIncome * 0.15 }; break;
-                    case 'kiko': title = "Kiko's System"; const wants = monthlyIncome * 0.12; const emergency = monthlyIncome * 0.08; const investing = Math.max(0, monthlyIncome - 40 - wants - emergency); breakdown = { 'Needs': 40, 'Wants': wants, 'Emergency Fund': emergency, 'Investing': investing }; break;
+                    case 'kiko':
+                        title = "Kiko's System";
+                        const wants = monthlyIncome * 0.15;
+                        const savings = monthlyIncome * 0.10;
+                        const investing = Math.max(0, monthlyIncome - 40 - wants - savings);
+                        breakdown = { 'Needs': 40, 'Wants': wants, 'Savings': savings, 'Investing': investing };
+                        break;
                     default: title = '50/30/20 Rule'; breakdown = { 'Needs': monthlyIncome * 0.50, 'Wants': monthlyIncome * 0.30, 'Savings & Debt': monthlyIncome * 0.20 };
                 }
                 updateDisplay(breakdown, title, monthlyIncome);
@@ -280,14 +331,19 @@
                     if(state.system === 'fatima') {
                         categoryText += ` (${fatimaPercentages[category]}%)`;
                     } else if (state.system === 'kiko') {
-                        if (category === 'Needs') categoryText += ' (Fixed)'; else if (category === 'Wants') categoryText += ' (12%)'; else if (category === 'Emergency Fund') categoryText += ' (8%)'; else if (category === 'Investing') { const p = monthlyIncome > 0 ? ((amount / monthlyIncome) * 100).toFixed(0) : 0; categoryText += ` (~${p}%)`; }
-                    } else if (staticPercentages[category]) { categoryText += ` (${staticPercentages[category]}%)`; }
+                        if (category === 'Needs') categoryText += ' (Fixed)';
+                        else if (category === 'Wants') categoryText += ' (15%)';
+                        else if (category === 'Savings') categoryText += ' (10%)';
+                        else if (category === 'Investing') { const p = monthlyIncome > 0 ? ((amount / monthlyIncome) * 100).toFixed(0) : 0; categoryText += ` (~${p}%)`; }
+                    } else if (staticPercentages[category]) {
+                        categoryText += ` (${staticPercentages[category]}%)`;
+                    }
                     const div = document.createElement('div'); div.className = 'bg-slate-800/50 p-4 rounded-lg border border-white/10 flex items-center justify-between';
                     div.innerHTML = `<div class="flex items-center"><span class="w-3 h-3 rounded-full mr-4 flex-shrink-0" style="background-color: ${colorValue};"></span><p class="font-semibold text-slate-200">${categoryText}</p></div><p class="font-bold text-lg text-slate-100">${formatCurrency(amount)}</p>`;
                     breakdownDetails.appendChild(div);
                 }
             };
-            
+
             const updateChart = (breakdown, monthlyIncome) => {
                 if (!budgetChart) initializeChart(); const labels = Object.keys(breakdown), data = Object.values(breakdown);
                 budgetChart.data.labels = labels; budgetChart.data.datasets[0].data = data; budgetChart.data.datasets[0].backgroundColor = labels.map(label => chartColors[label] || '#9ca3af');
@@ -302,25 +358,32 @@
                 budgetBtns.forEach(b => {
                     b.classList.remove('btn-active');
                     b.classList.remove('btn-special-active');
-                }); 
-
-                if (btn.dataset.system === 'fatima') {
+                });
+                
+                const system = btn.dataset.system;
+                if (system === 'fatima') {
                     btn.classList.add('btn-special-active');
                     startBlossomAnimation();
+                } else if (system === 'kiko') {
+                    btn.classList.add('btn-active');
+                    stopBlossomAnimation();
                 } else {
                     btn.classList.add('btn-active');
                     stopBlossomAnimation();
                 }
                 
-                state.system = btn.dataset.system;
+                state.system = system;
                 explanationContents.forEach(content => content.classList.toggle('hidden', content.dataset.system !== state.system));
                 calculateAndDisplay();
             }));
 
-            initializeChart(); 
+            // Set default active button visuals
+            document.querySelector('[data-system="50-30-20"]').classList.add('btn-active');
+            
+            initializeChart();
             calculateAndDisplay();
             stopBlossomAnimation(); // Ensure it's off by default
         });
     </script>
 </body>
-</html>```
+</html>
