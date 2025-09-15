@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banta Elementary BGC - Student of the Month</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Dark Aesthetic Theme & General Setup --- */
+        :root {
+            --background-dark: #1a1a2e; --background-light: #16213e; --primary-glow: #00a8ff;
+            --text-light: #e0e0e0; --neon-pink: #e03bff; --neon-blue: #00c2ff;
+            --neon-green: #2eff7e; --neon-yellow: #f8f32b; --neon-orange: #ff7b1d;
+        }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(180deg, var(--background-dark), var(--background-light)); color: var(--text-light); overflow: hidden; height: 100vh; display: flex; justify-content: center; align-items: center; }
+        #app-container { width: 100%; height: 100%; position: relative; }
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; opacity: 0; visibility: hidden; transition: opacity 0.6s ease, visibility 0.6s; padding: 2rem; box-sizing: border-box; }
+        .screen.active { opacity: 1; visibility: visible; }
+        .main-title { font-size: 2.8rem; font-weight: 700; color: white; text-shadow: 0 0 15px var(--primary-glow); margin-bottom: 0.5rem; line-height: 1.2; }
+        .subtitle { font-size: 1.5rem; font-weight: 400; color: var(--text-light); margin-top: 0; }
+        .cta-button { background-color: transparent; color: white; border: 2px solid var(--primary-glow); padding: 1rem 2rem; border-radius: 50px; font-size: 1.2rem; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease; margin-top: 1.5rem; }
+        .cta-button:hover { background-color: var(--primary-glow); box-shadow: 0 0 20px var(--primary-glow); transform: translateY(-3px); }
+        #initiation-sequence-screen .sequence-text { font-size: 2rem; color: var(--primary-glow); opacity: 0; animation: fadeIn 1s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #balloon-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 2rem; width: 90%; max-width: 1200px; }
+        .balloon { aspect-ratio: 1 / 1.2; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; cursor: pointer; position: relative; transform-style: preserve-3d; animation: bobbing 7s ease-in-out infinite alternate; background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 15%, transparent 40%); }
+        .balloon-color { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: inherit; z-index: -1; }
+        .balloon::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; background: inherit; clip-path: polygon(50% 100%, 0 0, 100% 0); }
+        .balloon:hover { transform: scale(1.05); }
+        .popped { animation: pop 0.5s cubic-bezier(0.2, 0.9, 0.7, 1) forwards; }
+        @keyframes pop { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.8; } 100% { transform: scale(0); opacity: 0; } }
+        @keyframes bobbing { from { transform: translateY(0) rotate(-2deg); } to { transform: translateY(-20px) rotate(2deg); } }
+        #cheer-meter-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 400px; background-color: rgba(0, 0, 0, 0.3); border-radius: 50px; padding: 5px; border: 1px solid rgba(255, 255, 255, 0.1); z-index: 10; }
+        #cheer-meter-bar { height: 25px; background: linear-gradient(90deg, var(--neon-pink), var(--neon-blue)); border-radius: 50px; transition: width 0.3s ease; }
+        #cheer-meter-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-weight: 600; text-shadow: 0 0 5px black; width: 100%; text-align: center; }
+        #pop-percentage { margin-left: 8px; font-variant-numeric: tabular-nums; }
+        #reveal-moment { background-color: rgba(10, 10, 20, 0.8); backdrop-filter: blur(15px); z-index: 100; }
+        #winner-card { background: linear-gradient(135deg, #2a2a4e, #1a1a2e); padding: 3rem; border-radius: 20px; border: 1px solid var(--primary-glow); box-shadow: 0 0 40px rgba(0, 168, 255, 0.3); transform: scale(0.5); color: white; transition: transform 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        #reveal-moment.active #winner-card { transform: scale(1); }
+        #winner-avatar { width: 120px; height: 120px; border-radius: 50%; border: 5px solid var(--primary-glow); margin-bottom: 1rem; object-fit: cover; background-color: #333; }
+        .winner-title { font-size: 1.5rem; color: var(--primary-glow); margin: 0; }
+        .winner-name { font-size: 2.5rem; font-weight: 700; margin: 0.5rem 0; }
+        .winner-blurb { font-size: 1.1rem; max-width: 400px; color: var(--text-light); }
+        .reveal-actions { margin-top: 2rem; }
+        .secondary-link { color: var(--primary-glow); text-decoration: none; font-weight: 600; cursor: pointer; }
+        
+        /* --- Confetti Styling --- */
+        #confetti-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; z-index: 200; }
+        .confetti-final { position: absolute; width: 10px; height: 15px; opacity: 0; animation: fall 5s linear forwards; }
+        @keyframes fall { 0% { transform: translateY(-10vh) rotateZ(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotateZ(720deg); opacity: 0; } }
+        
+        .confetti-burst { position: fixed; width: 8px; height: 8px; border-radius: 50%; pointer-events: none; animation: burst 1s ease-out forwards; }
+        @keyframes burst { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <!-- Welcome (Landing) Screen -->
+        <section id="welcome-screen" class="screen active">
+            <div>
+                <header>
+                    <h1 class="main-title">Banta Elementary<br>Boys & Girls Club</h1>
+                    <h2 class="subtitle">Student of the Month Reveal</h2>
+                </header>
+                <main>
+                    <!-- (MODIFIED) Button text is changed -->
+                    <button id="initiate-btn" class="cta-button">Reveal!</button>
+                </main>
+            </div>
+        </section>
+
+        <!-- Initiation Sequence Screen -->
+        <section id="initiation-sequence-screen" class="screen">
+            <div>
+                <!-- (MODIFIED) Instructions are simplified -->
+                <h2 class="sequence-text">Pop all the balloons for the reveal!</h2>
+            </div>
+        </section>
+        
+        <!-- Balloon Stage (Main Interaction) -->
+        <section id="balloon-stage" class="screen">
+            <div id="balloon-grid"></div>
+            <div id="cheer-meter-container">
+                <div id="cheer-meter-bar" style="width: 0%;"></div>
+                <span id="cheer-meter-label">Cheer Meter 📣 <span id="pop-percentage">0%</span></span>
+            </div>
+        </section>
+
+        <!-- Reveal Moment (Full-screen overlay) -->
+        <div id="reveal-moment" class="screen">
+            <div id="confetti-container"></div>
+            <div id="winner-card">
+                <img src="" alt="Photo of the Student of the Month" id="winner-avatar">
+                <h1 class="winner-title">Student of the Month</h1>
+                <p class="winner-name" id="winner-name-display"></p>
+                <p class="winner-blurb" id="winner-blurb-display"></p>
+                <div class="reveal-actions">
+                    <a class="secondary-link" id="reset-btn">Play Again</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Files -->
+    <audio id="pop-sound" src="https://actions.google.com/sounds/v1/impacts/big_punchy_impact.ogg" preload="auto"></audio>
+    <audio id="reveal-sound" src="https://actions.google.com/sounds/v1/human_voices/human_crowd_cheer.ogg" preload="auto"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURATION & STATE ---
+            const state = {
+                winnerName: 'Jason',
+                winnerBlurb: 'For great teamwork and a positive attitude.',
+                winnerPhotoURL: 'jason-photo.jpg', // Make sure you have a photo with this name in the folder!
+                balloonCount: 16,
+                poppedCount: 0,
+            };
+
+            // --- DOM ELEMENT REFERENCES ---
+            const screens = document.querySelectorAll('.screen');
+            const initiateBtn = document.getElementById('initiate-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const balloonGrid = document.getElementById('balloon-grid');
+            const cheerMeterBar = document.getElementById('cheer-meter-bar');
+            const popPercentageSpan = document.getElementById('pop-percentage');
+            const confettiContainer = document.getElementById('confetti-container');
+            const popSound = document.getElementById('pop-sound');
+            const revealSound = document.getElementById('reveal-sound');
+
+            // --- FUNCTIONS ---
+            function showScreen(screenId) {
+                screens.forEach(screen => screen.classList.toggle('active', screen.id === screenId));
+            }
+            
+            function startInitiationSequence() {
+                showScreen('initiation-sequence-screen');
+                // (MODIFIED) Shortened the delay to 2 seconds
+                setTimeout(setupAndShowBalloons, 2000); 
+            }
+
+            function setupAndShowBalloons() {
+                balloonGrid.innerHTML = '';
+                state.poppedCount = 0;
+                const colors = ['--neon-pink', '--neon-blue', '--neon-green', '--neon-yellow', '--neon-orange'];
+                
+                for (let i = 0; i < state.balloonCount; i++) {
+                    const balloon = document.createElement('div');
+                    balloon.classList.add('balloon');
+                    
+                    const balloonColor = document.createElement('div');
+                    balloonColor.classList.add('balloon-color');
+                    balloonColor.style.background = `var(${colors[i % colors.length]})`;
+                    balloon.appendChild(balloonColor);
+                    
+                    balloon.addEventListener('click', handleBalloonPop, { once: true });
+                    balloonGrid.appendChild(balloon);
+                }
+                updateCheerMeter();
+                showScreen('balloon-stage');
+            }
+            
+            function handleBalloonPop(event) {
+                const balloon = event.currentTarget;
+                playSound(popSound);
+                balloon.classList.add('popped');
+                
+                launchBurstConfetti(balloon);
+                
+                state.poppedCount++;
+                updateCheerMeter();
+
+                if (state.poppedCount === state.balloonCount) {
+                    triggerReveal();
+                }
+            }
+            
+            function triggerReveal() {
+                balloonGrid.style.pointerEvents = 'none';
+                
+                setTimeout(() => {
+                    document.getElementById('winner-name-display').textContent = state.winnerName;
+                    document.getElementById('winner-blurb-display').textContent = state.winnerBlurb;
+                    document.getElementById('winner-avatar').src = state.winnerPhotoURL;
+                    showScreen('reveal-moment');
+                    playSound(revealSound);
+                    launchFinalConfetti();
+                }, 800);
+            }
+
+            function updateCheerMeter() {
+                const percentage = Math.round((state.poppedCount / state.balloonCount) * 100);
+                cheerMeterBar.style.width = `${percentage}%`;
+                popPercentageSpan.textContent = `${percentage}%`;
+            }
+
+            function playSound(soundElement) {
+                soundElement.currentTime = 0;
+                soundElement.play().catch(error => console.error("Audio playback failed:", error));
+            }
+            
+            function resetApp() {
+                balloonGrid.style.pointerEvents = 'auto';
+                showScreen('welcome-screen');
+            }
+
+            function launchBurstConfetti(element) {
+                const rect = element.getBoundingClientRect();
+                const x = rect.left + rect.width / 2;
+                const y = rect.top + rect.height / 2;
+                const colors = ['var(--neon-pink)', 'var(--neon-blue)', 'var(--neon-green)', 'var(--neon-yellow)'];
+                
+                for (let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('confetti-burst');
+                    particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    particle.style.left = `${x}px`;
+                    particle.style.top = `${y}px`;
+
+                    const randomX = (Math.random() - 0.5) * 250;
+                    const randomY = (Math.random() - 0.5) * 250;
+                    particle.style.setProperty('--tx', `${randomX}px`);
+                    particle.style.setProperty('--ty', `${randomY}px`);
+
+                    confettiContainer.appendChild(particle);
+
+                    setTimeout(() => particle.remove(), 1000);
+                }
+            }
+
+            function launchFinalConfetti() {
+                confettiContainer.innerHTML = '';
+                const colors = ['var(--neon-pink)', 'var(--neon-blue)', 'var(--neon-green)', 'var(--neon-yellow)'];
+                for (let i = 0; i < 100; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti-final');
+                    confetti.style.left = `${Math.random() * 100}vw`;
+                    confetti.style.animationDelay = `${Math.random() * 2}s`;
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confettiContainer.appendChild(confetti);
+                }
+            }
+
+            // --- EVENT LISTENERS ---
+            initiateBtn.addEventListener('click', startInitiationSequence);
+            resetBtn.addEventListener('click', resetApp);
+            
+            // --- INITIALIZATION ---
+            showScreen('welcome-screen');
+        });
+    </script>
+</body>
+</html>
