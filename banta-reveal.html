@@ -51,10 +51,29 @@
         .secondary-link { color: var(--primary-glow); text-decoration: none; font-weight: 600; cursor: pointer; }
         
         #confetti-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; z-index: 200; }
-        .confetti-final { position: absolute; width: 10px; height: 15px; opacity: 0; animation: fall 5s linear forwards; }
+        .confetti-final {
+            position: absolute;
+            width: 10px;
+            height: 15px;
+            opacity: 0;
+            animation: fall 5s linear forwards;
+            /* Added for smoother animation on mobile */
+            transform: translateZ(0);
+        }
         @keyframes fall { 0% { transform: translateY(-10vh) rotateZ(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotateZ(720deg); opacity: 0; } }
         .confetti-burst { position: absolute; width: 8px; height: 8px; border-radius: 50%; pointer-events: none; animation: burst 1s ease-out forwards; }
         @keyframes burst { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
+
+        #footer-credit {
+            position: fixed;
+            bottom: 5px;
+            width: 100%;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            opacity: 0.6;
+            pointer-events: none;
+        }
 
         @media (max-width: 600px) {
             .main-title { font-size: 2rem; }
@@ -64,6 +83,7 @@
             #winner-card { padding: 1.5rem; width: 90%; }
             .winner-name { font-size: 1.8rem; }
             .winner-blurb { font-size: 0.9rem; }
+            #cheer-meter-container { bottom: 30px; } /* Adjust cheer meter position to not overlap footer */
         }
     </style>
 </head>
@@ -72,7 +92,7 @@
         <section id="welcome-screen" class="screen active">
             <div>
                 <header><h1 class="main-title">Banta Elementary<br>Boys & Girls Club</h1><h2 class="subtitle">Student of the Month Reveal</h2></header>
-                <main><button id="initiate-btn" class="cta-button">Reveal!</button></main>
+                <main><button id="initiate-btn" class="cta-button">Click here to reveal!</button></main>
             </div>
         </section>
         <section id="initiation-sequence-screen" class="screen">
@@ -87,6 +107,7 @@
         </section>
         <div id="reveal-moment" class="screen">
             <h2 id="reveal-prompt">And the student of the month is...</h2>
+            <div id="countdown" style="font-size: 3rem; color: var(--primary-glow); display: none;"></div>
             <div id="winner-card">
                 <img src="" alt="Photo of the Student of the Month" id="winner-avatar">
                 <h1 class="winner-title">Student of the Month</h1>
@@ -97,6 +118,8 @@
             <div id="confetti-container"></div>
         </div>
     </div>
+    
+    <div id="footer-credit">Unit Director: Destiny Castellanos</div>
 
     <audio id="pop-sound" src="https://actions.google.com/sounds/v1/impacts/big_punchy_impact.ogg" preload="auto"></audio>
     <audio id="drumroll-sound" src="https://actions.google.com/sounds/v1/emergency/drum_roll.ogg" preload="auto"></audio>
@@ -124,6 +147,7 @@
             const revealSound = document.getElementById('reveal-sound');
             const revealPrompt = document.getElementById('reveal-prompt');
             const winnerCard = document.getElementById('winner-card');
+            const countdownDisplay = document.getElementById('countdown');
 
             function showScreen(screenId) {
                 screens.forEach(screen => screen.classList.toggle('active', screen.id === screenId));
@@ -173,16 +197,29 @@
                     revealPrompt.style.display = 'block';
                     winnerCard.style.display = 'none';
                     playSound(drumrollSound);
-                    setTimeout(revealWinner, 3000);
+                    
+                    setTimeout(() => {
+                        revealPrompt.style.display = 'none';
+                        countdownDisplay.style.display = 'block';
+                        let count = 5;
+                        countdownDisplay.textContent = count;
+                        const interval = setInterval(() => {
+                            count--;
+                            if (count > 0) {
+                                countdownDisplay.textContent = count;
+                            } else {
+                                clearInterval(interval);
+                                countdownDisplay.style.display = 'none';
+                                revealWinner();
+                            }
+                        }, 1000);
+                    }, 3000);
                 }, 800);
             }
 
             function revealWinner() {
-                revealPrompt.style.display = 'none';
-                
                 document.getElementById('winner-name-display').textContent = state.winnerName;
                 document.getElementById('winner-blurb-display').textContent = state.winnerBlurb;
-                // (FIXED) Corrected the typo on this line
                 document.getElementById('winner-avatar').src = state.winnerPhotoURL;
                 
                 winnerCard.style.display = 'flex';
@@ -223,7 +260,6 @@
                     particle.style.left = `${x}px`; particle.style.top = `${y}px`;
                     const randomX = (Math.random() - 0.5) * 250; const randomY = (Math.random() - 0.5) * 250;
                     particle.style.setProperty('--tx', `${randomX}px`); particle.style.setProperty('--ty', `${randomY}px`);
-                    // (FIXED) Append to the main confetti container for better control
                     confettiContainer.appendChild(particle); 
                     setTimeout(() => particle.remove(), 1000);
                 }
