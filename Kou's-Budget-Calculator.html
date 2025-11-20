@@ -1,230 +1,659 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Budget Split Calculator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Budget & Wealth Architect</title>
 
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Chart.js and Datalabels Plugin via CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.1.0"></script>
+  <!-- Chart.js + Datalabels -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.1.0"></script>
 
-
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111827;
-            background-image:
-                radial-gradient(at 20% 80%, hsla(260, 50%, 30%, 0.2) 0px, transparent 50%),
-                radial-gradient(at 80% 10%, hsla(210, 45%, 40%, 0.25) 0px, transparent 50%),
-                linear-gradient(to bottom right, #111827, #131b31, #111827);
-        }
-        .btn-active {
-            background-color: #f59e0b; color: #111827; border-color: #f59e0b;
-        }
-        .premium-input {
-            background-color: rgba(17, 24, 39, 0.5); border-color: rgba(255, 255, 255, 0.1); color: #f1f5f9;
-        }
-        .premium-input::placeholder { color: #64748b; }
-        .premium-input:focus {
-             border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4);
-        }
-        .chart-container { position: relative; height: 300px; width: 300px; }
-        .explanation-content { transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out; }
-    </style>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #111827;
+      background-image:
+        radial-gradient(at 20% 80%, hsla(260, 50%, 30%, 0.2) 0px, transparent 50%),
+        radial-gradient(at 80% 10%, hsla(210, 45%, 40%, 0.25) 0px, transparent 50%),
+        linear-gradient(to bottom right, #111827, #131b31, #111827);
+      color: #e2e8f0;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.4s ease-out;
+    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #1f2937; }
+    ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+  </style>
 </head>
-<body class="text-slate-300">
+<body>
+  <div class="container mx-auto max-w-4xl p-4 sm:p-6 md:p-8 min-h-screen flex flex-col justify-center text-slate-300">
 
-    <div class="container mx-auto max-w-4xl p-4 sm:p-6 md:p-8 min-h-screen flex flex-col justify-center">
+    <!-- Header -->
+    <header class="text-center mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-400">
+        Budget &amp; Wealth Architect
+      </h1>
+      <p id="header-subtitle" class="text-lg text-slate-400 mt-2">
+        Discover the perfect budgeting system for your lifestyle.
+      </p>
+    </header>
 
-        <header class="text-center mb-10">
-            <h1 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-400">Find the Perfect Budgeting System for You</h1>
-            <p class="text-lg text-slate-400 mt-2">Enter your income to instantly see your personalized budget breakdown.</p>
-        </header>
+    <!-- Main Card -->
+    <main class="bg-slate-900/60 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden transition-all duration-500 relative min-h-[400px]">
 
-        <main class="bg-slate-900/60 backdrop-blur-xl p-6 sm:p-8 rounded-2xl shadow-2xl border border-white/10">
+      <!-- STEP 1: INTRO -->
+      <section id="step-intro" class="p-8 text-center flex flex-col items-center justify-center h-full space-y-8 animate-fade-in">
+        <div class="bg-amber-500/10 p-6 rounded-full mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-amber-500">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+          </svg>
+        </div>
+        <h2 class="text-2xl font-semibold text-slate-200">Stop guessing. Start building wealth.</h2>
+        <p class="text-slate-400 max-w-lg mx-auto">
+          Answer a short high-yield assessment to determine the exact budgeting strategy that fits your psychology, income pattern, and financial goals.
+        </p>
 
-            <section id="income-section">
-                <label for="income" class="block text-lg font-semibold mb-2  text-slate-200">Enter Your Income</label>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <input type="number" id="income" placeholder="e.g., 50000" class="flex-grow w-full text-lg p-3 border rounded-lg transition duration-200 outline-none premium-input">
-                    <div class="flex bg-slate-800/80 p-1 rounded-lg border border-white/5">
-                        <button id="monthly-btn" class="w-full sm:w-auto px-4 py-2 rounded-md text-sm font-medium transition-colors btn-active">Monthly</button>
-                        <button id="annual-btn" class="w-full sm:w-auto px-4 py-2 rounded-md text-sm font-medium transition-colors text-slate-300">Annual</button>
-                    </div>
-                </div>
-            </section>
+        <button
+          id="start-assessment-btn"
+          class="bg-amber-500 hover:bg-amber-400 text-slate-900 text-lg font-bold py-4 px-10 rounded-xl transition-transform hover:scale-105 shadow-lg shadow-amber-500/20">
+          Start Assessment
+        </button>
+      </section>
 
-            <section id="system-selector" class="mt-8">
-                 <h2 class="text-lg font-semibold mb-3 text-slate-200">Choose Your Budgeting Method</h2>
-                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
-                     <button data-system="50-30-20" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500 btn-active">50/30/20 Rule</button>
-                     <button data-system="wealth-builder" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500">Wealth Builder</button>
-                     <button data-system="pay-yourself-first" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500">Pay Yourself First</button>
-                     <button data-system="80-20" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500">80/20 Budget</button>
-                     <button data-system="envelope" class="budget-btn p-3 text-sm font-semibold border border-white/10 rounded-lg transition-colors hover:bg-amber-500 hover:border-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500">Envelope</button>
-                 </div>
-            </section>
-            
-            <section id="explanation-section" class="mt-6 p-5 bg-slate-800/50 rounded-lg border border-white/10">
-                <div class="explanation-content" data-system="50-30-20">
-                    <h4 class="font-bold text-lg text-slate-100">50/30/20 Rule (Simple Split Budget)</h4>
-                     <p class="text-slate-300 mt-2 leading-relaxed"><strong class="text-amber-400">The Split:</strong> Your income is divided into three simple categories: <span class="font-bold text-amber-400">50% for Needs</span>, <span class="font-bold text-indigo-400">30% for Wants</span>, and <span class="font-bold text-sky-400">20% for Savings & Debt Repayment</span>.</p>
-                    <p class="mt-2"><strong class="text-amber-400">Advantages for Beginners:</strong> The primary advantage is simplicity. The clear percentages are easy to remember and apply without intensive tracking, making it a flexible and less intimidating way to start.</p>
-                </div>
-                <div class="explanation-content hidden" data-system="wealth-builder">
-                    <h4 class="font-bold text-lg text-slate-100">The Wealth Builder Budget</h4>
-                     <p class="text-slate-300 mt-2 leading-relaxed"><strong class="text-amber-400">The Split:</strong> This system is designed for growth: <span class="font-bold text-amber-400">50% for Needs</span>, <span class="font-bold text-emerald-400">25% for Investing</span>, <span class="font-bold text-indigo-400">15% for Wants</span>, and <span class="font-bold text-sky-400">10% for Savings</span>.</p>
-                    <p class="mt-2"><strong class="text-amber-400">Advantages for Beginners:</strong> It prioritizes your future by dedicating a significant portion to investing. This balances long-term growth with a safety net (Savings) and guilt-free spending (Wants).</p>
-                </div>
-                <div class="explanation-content hidden" data-system="envelope">
-                    <h4 class="font-bold text-lg text-slate-100">Envelope (Cash/Category) System</h4>
-                     <p class="text-slate-300 mt-2 leading-relaxed"><strong class="text-amber-400">The Split:</strong> You divide your cash into designated envelopes for categories like <span class="font-semibold text-pink-400">Groceries</span>, Gas, <span class="font-semibold text-purple-400">Fun</span>, etc. You can only spend the money in each envelope.</p>
-                    <p class="mt-2"><strong class="text-amber-400">Advantages for Beginners:</strong> This system provides a tangible, visual limit on spending. It is incredibly effective for those who tend to overspend with cards because once the cash is gone, the spending must stop.</p>
-                </div>
-                <div class="explanation-content hidden" data-system="pay-yourself-first">
-                    <h4 class="font-bold text-lg text-slate-100">Pay Yourself First Budget</h4>
-                     <p class="text-slate-300 mt-2 leading-relaxed"><strong class="text-amber-400">The Split:</strong> The moment you receive income, you immediately transfer a fixed percentage (e.g., <span class="font-bold text-sky-400">20%</span>) to your <span class="font-semibold text-slate-100">Savings or Investment accounts</span>.</p>
-                    <p class="mt-2"><strong class="text-amber-400">Advantages for Beginners:</strong> This method automates the habit of saving and removes the temptation to spend your savings, as the money is set aside before you can even touch it.</p>
-                </div>
-                <div class="explanation-content hidden" data-system="80-20">
-                    <h4 class="font-bold text-lg text-slate-100">80/20 Budget (Simplified)</h4>
-                    <p class="text-slate-300 mt-2 leading-relaxed"><strong class="text-amber-400">The Split:</strong> You allocate <span class="font-bold text-sky-400">20%</span> of your income to <span class="font-semibold text-slate-100">Savings & Investing</span>. The remaining <span class="font-bold text-indigo-400">80%</span> is a single, flexible pool for all Needs and Wants.</p>
-                    <p class="mt-2"><strong class="text-amber-400">Advantages for Beginners:</strong> This system focuses on the most important goal—saving—while providing maximum freedom and minimal tracking for the rest of your spending.</p>
-                </div>
-            </section>
+      <!-- STEP 2: QUIZ -->
+      <section id="step-quiz" class="hidden p-6 sm:p-10 animate-fade-in">
+        <div class="w-full bg-slate-800 rounded-full h-2 mb-8">
+          <div id="quiz-progress-inner" class="bg-amber-500 h-2 rounded-full transition-all duration-500" style="width: 0%;"></div>
+        </div>
 
-            <section id="results-section" class="mt-8 pt-6 border-t border-white/10 min-h-[300px]">
-                <div class="flex flex-col md:flex-row gap-8 items-center justify-between">
-                    <div id="breakdown-details" class="w-full md:w-1/2 space-y-3"></div>
-                    <div class="w-full md:w-1/2 flex items-center justify-center">
-                        <div class="chart-container"><canvas id="budget-chart"></canvas></div>
-                    </div>
-                </div>
-            </section>
-        </main>
+        <div id="quiz-step-label" class="mb-2 text-amber-500 font-medium tracking-wide uppercase text-sm">
+          Question 1
+        </div>
 
-        <footer class="mt-8 text-center bg-black/20 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl">
-            <h3 class="text-2xl font-bold text-slate-100">Ready to Take the Next Step?</h3>
-            <p class="mt-2 max-w-xl mx-auto text-slate-400">Get a personalized plan or automate your entire financial system with our premium tools.</p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center mt-6">
-                 <form class="flex flex-grow sm:flex-grow-0 gap-3">
-                    <input type="email" placeholder="Enter your email" class="flex-grow w-full p-3 border rounded-lg outline-none premium-input" required>
-                    <button type="submit" class="bg-slate-200 text-slate-900 font-bold px-5 py-3 rounded-lg hover:bg-white transition-colors">Get My Plan</button>
-                </form>
-                <button class="bg-amber-500 text-slate-900 font-bold px-6 py-3 rounded-lg hover:bg-amber-400 transition-colors">Automate My Finances</button>
+        <h2 id="quiz-question-text" class="text-2xl sm:text-3xl font-bold text-white mb-8 leading-tight"></h2>
+
+        <div id="quiz-options-container" class="space-y-3"></div>
+      </section>
+
+      <!-- STEP 3: CALCULATING -->
+      <section id="step-calculating" class="hidden flex flex-col items-center justify-center h-[500px] space-y-6">
+        <div class="relative w-20 h-20">
+          <div class="absolute top-0 left-0 w-full h-full border-4 border-slate-700 rounded-full"></div>
+          <div class="absolute top-0 left-0 w-full h-full border-4 border-amber-500 rounded-full border-t-transparent animate-spin"></div>
+        </div>
+        <p class="text-xl text-slate-300 font-medium animate-pulse">
+          Analyzing your financial profile...
+        </p>
+      </section>
+
+      <!-- STEP 4: DASHBOARD -->
+      <section id="step-dashboard" class="hidden animate-fade-in">
+        <div class="bg-gradient-to-r from-amber-600/20 to-amber-900/20 border-b border-amber-500/30 p-6 text-center">
+          <p class="text-amber-400 font-semibold uppercase tracking-wider text-sm mb-1">
+            Based on your answers, we recommend
+          </p>
+          <h2 id="recommended-title" class="text-3xl font-bold text-white"></h2>
+        </div>
+
+        <div class="p-6 sm:p-8 space-y-8">
+          <!-- Income inputs -->
+          <section class="bg-slate-800/50 p-6 rounded-xl border border-white/5">
+            <label class="block text-slate-400 text-sm font-semibold mb-3">
+              ENTER YOUR MONTHLY OR ANNUAL INCOME
+            </label>
+            <div class="flex flex-col sm:flex-row gap-4">
+              <div class="relative flex-grow">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                <input
+                  type="number"
+                  id="income-input"
+                  placeholder="e.g. 5000"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 pl-8 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
+              </div>
+              <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700">
+                <button
+                  id="btn-monthly"
+                  class="px-6 py-2 rounded-md text-sm font-medium transition-all bg-amber-500 text-slate-900">
+                  Monthly
+                </button>
+                <button
+                  id="btn-annual"
+                  class="px-6 py-2 rounded-md text-sm font-medium transition-all text-slate-400">
+                  Annual
+                </button>
+              </div>
             </div>
-            <p class="mt-8 text-sm text-slate-500">Made by kou | <a href="https://discord.gg/tfSKmzBy" class="text-amber-400 hover:underline" target="_blank" rel="noopener noreferrer">Join our Discord</a></p>
-        </footer>
+          </section>
 
-    </div>
+          <!-- Content + Chart -->
+          <div class="flex flex-col lg:flex-row gap-8">
+            <div class="w-full lg:w-1/2 space-y-6">
+              <div>
+                <h3 class="text-xl font-bold text-white mb-2">How it works</h3>
+                <p id="system-desc" class="text-slate-300 leading-relaxed"></p>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-white mb-2">Why it fits you</h3>
+                <p id="system-advantage" class="text-amber-400/90 leading-relaxed"></p>
+              </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const incomeInput = document.getElementById('income'), monthlyBtn = document.getElementById('monthly-btn'), annualBtn = document.getElementById('annual-btn'), budgetBtns = document.querySelectorAll('.budget-btn'), explanationContents = document.querySelectorAll('.explanation-content'), breakdownDetails = document.getElementById('breakdown-details'), chartCanvas = document.getElementById('budget-chart');
-            let state = { income: 0, period: 'monthly', system: '50-30-20' }, budgetChart = null;
+              <div class="h-px bg-white/10 my-6"></div>
 
-            const chartColors = { 
-                'Needs': '#f59e0b', 'Wants': '#818cf8', 'Savings & Debt': '#60a5fa', 'Savings': '#60a5fa', 'Everything Else': '#818cf8', 'Investing': '#10b981',
-                'Groceries': '#f472b6', 'Fun': '#a78bfa', 'Shopping': '#34d399', 'Fixed Costs': '#9ca3af'
-            };
-            
-            const systemPercentages = {
-                '50-30-20': { 'Needs': 50, 'Wants': 30, 'Savings & Debt': 20 },
-                'wealth-builder': { 'Needs': 50, 'Investing': 25, 'Wants': 15, 'Savings': 10 },
-                'pay-yourself-first': { 'Savings': 20, 'Everything Else': 80 },
-                '80-20': { 'Savings & Debt': 20, 'Everything Else': 80 },
-                'envelope': {} // No fixed percentages for envelope system
-            };
+              <div id="breakdown-list" class="space-y-3">
+                <p class="text-slate-500 italic">Enter your income to see the breakdown.</p>
+              </div>
+            </div>
 
-            const formatCurrency = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
-            
-            const centerTextPlugin = {
-                id: 'centerText',
-                afterDraw: (chart) => {
-                    if (chart.options.plugins.centerText.display) {
-                        let ctx = chart.ctx; ctx.save();
-                        let centerX = (chart.chartArea.left + chart.chartArea.right) / 2; let centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-                        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                        ctx.font = '700 24px Inter, sans-serif'; ctx.fillStyle = '#f1f5f9'; ctx.fillText(chart.options.plugins.centerText.mainText, centerX, centerY - 10);
-                        ctx.font = '500 14px Inter, sans-serif'; ctx.fillStyle = '#94a3b8'; ctx.fillText(chart.options.plugins.centerText.subText, centerX, centerY + 15);
-                        ctx.restore();
-                    }
-                }
-            };
-            
-            const initializeChart = () => {
-                Chart.register(ChartDataLabels, centerTextPlugin);
-                budgetChart = new Chart(chartCanvas.getContext('2d'), { 
-                    type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderColor: 'rgba(30, 41, 59, 0.6)', borderWidth: 5, hoverOffset: 15 }] }, 
-                    options: { 
-                        responsive: true, maintainAspectRatio: false, cutout: '75%',
-                        plugins: {
-                            legend: { display: false }, tooltip: { enabled: false }, centerText: { display: true, mainText: '$0', subText: 'Monthly Income' },
-                            datalabels: {
-                                color: '#ffffff', textAlign: 'center', font: { weight: 'bold', size: 14 }, textShadow: { stroke: 'rgba(0,0,0,0.5)', blur: 4, color: 'rgba(0,0,0,0.5)' },
-                                formatter: (value, context) => { const sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); const percentage = sum > 0 ? (value / sum * 100).toFixed(0) + '%' : '0%'; const label = context.chart.data.labels[context.dataIndex]; return `${label}\n${percentage}`; },
-                                display: (context) => context.dataset.data[context.dataIndex] > 0
-                            }
-                        }, 
-                        animation: { animateScale: true, animateRotate: true }
-                    } 
-                });
-            };
-            
-            const calculateAndDisplay = () => {
-                const monthlyIncome = state.period === 'annual' ? state.income / 12 : state.income; if (monthlyIncome < 0) return; let breakdown, title;
-                switch (state.system) {
-                    case 'wealth-builder': title = 'The Wealth Builder Budget'; breakdown = { 'Needs': monthlyIncome * 0.50, 'Investing': monthlyIncome * 0.25, 'Wants': monthlyIncome * 0.15, 'Savings': monthlyIncome * 0.10 }; break;
-                    case 'envelope': title = 'Envelope System Example'; const d = monthlyIncome * 0.50; breakdown = { 'Groceries': d * 0.30, 'Fun': d * 0.20, 'Shopping': d * 0.15, 'Fixed Costs': monthlyIncome - (d * 0.65) }; break;
-                    case 'pay-yourself-first': title = 'Pay Yourself First Breakdown'; breakdown = { 'Savings': monthlyIncome * 0.20, 'Everything Else': monthlyIncome * 0.80 }; break;
-                    case '80-20': title = '80/20 Budget Breakdown'; breakdown = { 'Savings & Debt': monthlyIncome * 0.20, 'Everything Else': monthlyIncome * 0.80 }; break;
-                    default: title = '50/30/20 Rule Breakdown'; breakdown = { 'Needs': monthlyIncome * 0.50, 'Wants': monthlyIncome * 0.30, 'Savings & Debt': monthlyIncome * 0.20 };
-                }
-                updateDisplay(breakdown, title);
-                updateChart(breakdown, monthlyIncome);
-            };
+            <div class="w-full lg:w-1/2 flex items-center justify-center bg-slate-800/30 rounded-xl border border-white/5 p-4 min-h-[300px]">
+              <div class="relative w-full h-[300px]">
+                <canvas id="budget-chart"></canvas>
+              </div>
+            </div>
+          </div>
 
-            const updateDisplay = (breakdown, title) => {
-                breakdownDetails.innerHTML = `<h2 class="text-2xl font-bold text-slate-100 mb-4">${title}</h2>`;
-                if (!state.income || state.income <= 0) { breakdownDetails.innerHTML += '<p class="text-slate-500 py-10">Enter your income to see the calculation.</p>'; return; }
-                const percentages = systemPercentages[state.system] || {};
-                for (const category in breakdown) {
-                    const amount = breakdown[category], colorValue = chartColors[category] || '#9ca3af'; 
-                    let categoryText = `${category}`;
-                    if (percentages[category]) { categoryText += ` (${percentages[category]}%)`; }
-                    const div = document.createElement('div'); div.className = 'bg-slate-800/50 p-4 rounded-lg border border-white/10 flex items-center justify-between';
-                    div.innerHTML = `<div class="flex items-center"><span class="w-3 h-3 rounded-full mr-4 flex-shrink-0" style="background-color: ${colorValue};"></span><p class="font-semibold text-slate-200">${categoryText}</p></div><p class="font-bold text-lg text-slate-100">${formatCurrency(amount)}</p>`;
-                    breakdownDetails.appendChild(div);
-                }
-            };
-            
-            const updateChart = (breakdown, monthlyIncome) => {
-                if (!budgetChart) initializeChart(); const labels = Object.keys(breakdown), data = Object.values(breakdown);
-                budgetChart.data.labels = labels; budgetChart.data.datasets[0].data = data; budgetChart.data.datasets[0].backgroundColor = labels.map(label => chartColors[label] || '#9ca3af');
-                budgetChart.options.plugins.centerText.mainText = formatCurrency(monthlyIncome || 0);
-                budgetChart.update();
-            };
+          <!-- System Switcher -->
+          <div class="border-t border-white/10 pt-6">
+            <h4 class="text-center text-slate-400 text-sm font-semibold uppercase tracking-wider mb-4">
+              Explore Other Systems
+            </h4>
+            <div class="flex flex-wrap justify-center gap-2">
+              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="50-30-20">
+                50/30/20
+              </button>
+              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="wealth-builder">
+                Wealth Builder
+              </button>
+              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="pay-yourself-first">
+                Pay Yourself First
+              </button>
+              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="envelope">
+                Envelope
+              </button>
+              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="80-20">
+                80/20
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
 
-            incomeInput.addEventListener('input', (e) => { state.income = parseFloat(e.target.value) || 0; calculateAndDisplay(); });
-            monthlyBtn.addEventListener('click', () => { if (state.period !== 'monthly') { state.period = 'monthly'; monthlyBtn.classList.add('btn-active'); annualBtn.classList.remove('btn-active'); if(state.income > 0) { incomeInput.value = (state.income / 12).toFixed(0); incomeInput.dispatchEvent(new Event('input')); } } });
-            annualBtn.addEventListener('click', () => { if (state.period !== 'annual') { state.period = 'annual'; annualBtn.classList.add('btn-active'); monthlyBtn.classList.remove('btn-active'); if(state.income > 0) { incomeInput.value = (state.income * 12).toFixed(0); incomeInput.dispatchEvent(new Event('input')); } } });
-            budgetBtns.forEach(btn => btn.addEventListener('click', () => {
-                budgetBtns.forEach(b => b.classList.remove('btn-active')); btn.classList.add('btn-active'); state.system = btn.dataset.system;
-                explanationContents.forEach(content => content.classList.toggle('hidden', content.dataset.system !== state.system));
-                calculateAndDisplay();
-            }));
+    <footer class="mt-8 text-center opacity-60 text-sm text-slate-500">
+      <p>Privacy First. No data is stored.</p>
+    </footer>
+  </div>
 
-            initializeChart(); calculateAndDisplay();
+  <script>
+    const budgetSystems = {
+      '50-30-20': {
+        title: '50/30/20 Rule',
+        desc: '50% for Needs, 30% for Wants, 20% for Savings & Debt Repayment.',
+        advantage: 'Simplicity. Clear percentages are easy to remember without intensive tracking.',
+        colors: ['#f59e0b', '#818cf8', '#60a5fa']
+      },
+      'wealth-builder': {
+        title: 'Wealth Builder',
+        desc: '50% for Needs, 25% for Investing, 15% for Wants, 10% for Savings.',
+        advantage: 'Prioritizes future wealth while keeping a safety net and some fun money.',
+        colors: ['#f59e0b', '#10b981', '#818cf8', '#60a5fa']
+      },
+      'pay-yourself-first': {
+        title: 'Pay Yourself First',
+        desc: 'Automatically move 20% to savings or investing as soon as income hits your account.',
+        advantage: 'Automates good habits and removes the temptation to spend your savings.',
+        colors: ['#60a5fa', '#818cf8']
+      },
+      '80-20': {
+        title: '80/20 Budget',
+        desc: '20% to Savings & Debt, 80% is a single flexible pool for everything else.',
+        advantage: 'Maximum freedom with one simple rule: save first, then spend the rest guilt-free.',
+        colors: ['#60a5fa', '#818cf8']
+      },
+      'envelope': {
+        title: 'Envelope System',
+        desc: 'Set hard limits by category (e.g., Groceries, Fun, Gas) using envelopes or digital categories.',
+        advantage: 'Powerful for overspenders. Once the envelope is empty, spending stops.',
+        colors: ['#f472b6', '#a78bfa', '#34d399', '#9ca3af']
+      }
+    };
+
+    const questions = [
+      {
+        id: 1,
+        text: 'What is your #1 money goal for the next 12–24 months?',
+        options: [
+          { label: 'Get control of overspending / stop living paycheck to paycheck', score: { 'envelope': 4, '50-30-20': 2 } },
+          { label: 'Build savings for emergencies', score: { 'pay-yourself-first': 3, '80-20': 2 } },
+          { label: 'Aggressively invest and grow wealth', score: { 'wealth-builder': 4 } },
+          { label: 'Pay off debt faster', score: { 'envelope': 3, '50-30-20': 3 } },
+          { label: 'Keep things simple and stress-free', score: { '80-20': 4, 'pay-yourself-first': 3 } }
+        ]
+      },
+      {
+        id: 2,
+        text: 'When you think about your money, what matters more right now?',
+        options: [
+          { label: 'Simplicity and low effort', score: { '80-20': 4, 'pay-yourself-first': 2 } },
+          { label: 'Maximum long-term growth (even if it’s stricter)', score: { 'wealth-builder': 4 } },
+          { label: 'Strict guardrails so I don’t overspend', score: { 'envelope': 4 } },
+          { label: 'Flexibility and freedom month-to-month', score: { '50-30-20': 3, 'pay-yourself-first': 2 } }
+        ]
+      },
+      {
+        id: 3,
+        text: 'How predictable is your income each month?',
+        options: [
+          { label: 'Very stable (same or similar every month)', score: { 'wealth-builder': 2, '50-30-20': 2 } },
+          { label: 'Somewhat stable (small variations)', score: { '50-30-20': 2 } },
+          { label: 'Very irregular (hours/tips/commissions vary a lot)', score: { '80-20': 3, 'pay-yourself-first': 3 } }
+        ]
+      },
+      {
+        id: 4,
+        text: 'Do you currently spend close to 100% of what you earn each month?',
+        options: [
+          { label: 'Yes, most of the time', score: { 'envelope': 3, 'pay-yourself-first': 2 } },
+          { label: 'Sometimes', score: { '50-30-20': 2 } },
+          { label: 'No, I usually have money left over', score: { 'wealth-builder': 2, '80-20': 1 } }
+        ]
+      },
+      {
+        id: 5,
+        text: 'Which of these best describes your current situation?',
+        options: [
+          { label: 'I have little/no savings and little/no investing', score: { 'pay-yourself-first': 3, '50-30-20': 2 } },
+          { label: 'I have some savings but want to build more', score: { 'pay-yourself-first': 2, '50-30-20': 2 } },
+          { label: 'I’m already investing and want to ramp it up', score: { 'wealth-builder': 4 } },
+          { label: 'I’m mainly focused on paying off debt', score: { 'envelope': 3, '50-30-20': 2 } }
+        ]
+      },
+      {
+        id: 6,
+        text: 'How aggressively do you want to save/invest right now?',
+        options: [
+          { label: 'Light (just want to start the habit)', score: { '80-20': 3, 'pay-yourself-first': 2 } },
+          { label: 'Moderate (consistent but comfortable)', score: { '50-30-20': 3 } },
+          { label: 'Aggressive (I’m willing to sacrifice wants to build wealth fast)', score: { 'wealth-builder': 4 } }
+        ]
+      },
+      {
+        id: 7,
+        text: 'Do you have high-interest debt (credit cards, personal loans)?',
+        options: [
+          { label: 'Yes, a lot', score: { 'envelope': 4 } },
+          { label: 'Some, but manageable', score: { '50-30-20': 2 } },
+          { label: 'Very little or none', score: { 'wealth-builder': 2, 'pay-yourself-first': 1 } }
+        ]
+      },
+      {
+        id: 8,
+        text: 'Be honest: how likely are you to overspend if you don’t see hard limits?',
+        options: [
+          { label: 'Very likely – I swipe first, think later', score: { 'envelope': 5 } },
+          { label: 'Sometimes – depends on the month', score: { '50-30-20': 2 } },
+          { label: 'Not very likely – I’m naturally cautious', score: { 'wealth-builder': 2, '80-20': 2 } }
+        ]
+      },
+      {
+        id: 9,
+        text: 'If your budget gets too detailed or complicated, what happens?',
+        options: [
+          { label: 'I drop it in a week', score: { '80-20': 4, 'pay-yourself-first': 3 } },
+          { label: 'I try, but stop tracking after a while', score: { '50-30-20': 2 } },
+          { label: 'I’m okay with detail if it helps me', score: { 'wealth-builder': 3, 'envelope': 2 } }
+        ]
+      },
+      {
+        id: 10,
+        text: 'How much time per week are you realistically willing to spend on budgeting?',
+        options: [
+          { label: '5 minutes (set it and forget it)', score: { 'pay-yourself-first': 4, '80-20': 3 } },
+          { label: '15–30 minutes (quick review + small tweaks)', score: { '50-30-20': 3 } },
+          { label: '30–60 minutes (I like details and tracking)', score: { 'wealth-builder': 3, 'envelope': 3 } }
+        ]
+      },
+      {
+        id: 11,
+        text: 'Which sounds more like you?',
+        options: [
+          { label: '“Give me a simple percentage split and I’m happy.”', score: { '50-30-20': 2, '80-20': 2 } },
+          { label: '“I want envelopes/categories so I know exactly what’s left.”', score: { 'envelope': 4 } },
+          { label: '“I’d rather automate my savings/investing and not think about it.”', score: { 'pay-yourself-first': 4 } }
+        ]
+      }
+    ];
+
+    let currentStep = 'intro';
+    let currentQuestionIndex = 0;
+    const scores = {
+      '50-30-20': 0,
+      'wealth-builder': 0,
+      'pay-yourself-first': 0,
+      '80-20': 0,
+      'envelope': 0
+    };
+    let selectedSystem = '50-30-20';
+    let income = 0;
+    let incomePeriod = 'monthly';
+    let chartInstance = null;
+
+    const headerSubtitle = document.getElementById('header-subtitle');
+    const stepIntro = document.getElementById('step-intro');
+    const stepQuiz = document.getElementById('step-quiz');
+    const stepCalculating = document.getElementById('step-calculating');
+    const stepDashboard = document.getElementById('step-dashboard');
+    const startBtn = document.getElementById('start-assessment-btn');
+
+    const quizProgressInner = document.getElementById('quiz-progress-inner');
+    const quizStepLabel = document.getElementById('quiz-step-label');
+    const quizQuestionText = document.getElementById('quiz-question-text');
+    const quizOptionsContainer = document.getElementById('quiz-options-container');
+
+    const recommendedTitle = document.getElementById('recommended-title');
+    const systemDesc = document.getElementById('system-desc');
+    const systemAdvantage = document.getElementById('system-advantage');
+
+    const incomeInput = document.getElementById('income-input');
+    const btnMonthly = document.getElementById('btn-monthly');
+    const btnAnnual = document.getElementById('btn-annual');
+    const breakdownList = document.getElementById('breakdown-list');
+    const chartCanvas = document.getElementById('budget-chart');
+    const systemTabs = document.querySelectorAll('.system-tab');
+
+    function showStep(step) {
+      currentStep = step;
+      stepIntro.classList.add('hidden');
+      stepQuiz.classList.add('hidden');
+      stepCalculating.classList.add('hidden');
+      stepDashboard.classList.add('hidden');
+
+      if (step === 'intro') stepIntro.classList.remove('hidden');
+      if (step === 'quiz') stepQuiz.classList.remove('hidden');
+      if (step === 'calculating') stepCalculating.classList.remove('hidden');
+      if (step === 'dashboard') stepDashboard.classList.remove('hidden');
+
+      headerSubtitle.textContent =
+        step === 'dashboard'
+          ? 'Your personalized financial blueprint.'
+          : 'Discover the perfect budgeting system for your lifestyle.';
+    }
+
+    function renderQuestion() {
+      const q = questions[currentQuestionIndex];
+      const total = questions.length;
+      const progress = (currentQuestionIndex / total) * 100;
+
+      quizProgressInner.style.width = progress + '%';
+      quizStepLabel.textContent = `Question ${currentQuestionIndex + 1} of ${total}`;
+      quizQuestionText.textContent = q.text;
+
+      quizOptionsContainer.innerHTML = '';
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className =
+          'w-full text-left p-4 sm:p-5 rounded-xl bg-slate-800/50 border border-white/5 hover:border-amber-500/50 hover:bg-slate-800 transition-all duration-200 group flex items-center justify-between';
+        btn.innerHTML =
+          `<span class="text-slate-300 group-hover:text-white text-lg">${opt.label}</span>
+           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-slate-600 group-hover:text-amber-500 opacity-0 group-hover:opacity-100 transition-opacity">
+             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+           </svg>`;
+        btn.addEventListener('click', () => selectOption(q, opt));
+        quizOptionsContainer.appendChild(btn);
+      });
+    }
+
+    function selectOption(question, option) {
+      Object.entries(option.score).forEach(([sys, pts]) => {
+        scores[sys] += pts;
+      });
+
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex += 1;
+        renderQuestion();
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function finishQuiz() {
+      let winner = '50-30-20';
+      let maxScore = -Infinity;
+      Object.entries(scores).forEach(([sys, score]) => {
+        if (score > maxScore) {
+          maxScore = score;
+          winner = sys;
+        }
+      });
+      selectedSystem = winner;
+
+      showStep('calculating');
+      setTimeout(() => {
+        showStep('dashboard');
+        applySystemToDashboard();
+        updateBreakdownAndChart();
+      }, 1500);
+    }
+
+    function applySystemToDashboard() {
+      const sys = budgetSystems[selectedSystem];
+      recommendedTitle.textContent = sys.title;
+      systemDesc.textContent = sys.desc;
+      systemAdvantage.textContent = sys.advantage;
+
+      systemTabs.forEach(tab => {
+        const isActive = tab.dataset.system === selectedSystem;
+        tab.classList.remove('bg-amber-500', 'border-amber-500', 'text-slate-900', 'border-white/10');
+        tab.classList.add('border');
+        if (isActive) {
+          tab.classList.add('bg-amber-500', 'border-amber-500', 'text-slate-900');
+        } else {
+          tab.classList.add('border-white/10');
+        }
+      });
+    }
+
+    function getMonthlyIncome() {
+      return incomePeriod === 'annual' ? income / 12 : income;
+    }
+
+    function getBreakdownForSystem() {
+      const monthly = getMonthlyIncome();
+      let items = [];
+      if (selectedSystem === '50-30-20') {
+        items = [
+          { label: 'Needs', amt: monthly * 0.5, color: '#f59e0b' },
+          { label: 'Wants', amt: monthly * 0.3, color: '#818cf8' },
+          { label: 'Savings & Debt', amt: monthly * 0.2, color: '#60a5fa' }
+        ];
+      } else if (selectedSystem === 'wealth-builder') {
+        items = [
+          { label: 'Needs', amt: monthly * 0.5, color: '#f59e0b' },
+          { label: 'Investing', amt: monthly * 0.25, color: '#10b981' },
+          { label: 'Wants', amt: monthly * 0.15, color: '#818cf8' },
+          { label: 'Savings', amt: monthly * 0.1, color: '#60a5fa' }
+        ];
+      } else if (selectedSystem === 'pay-yourself-first') {
+        items = [
+          { label: 'Savings', amt: monthly * 0.2, color: '#60a5fa' },
+          { label: 'Everything Else', amt: monthly * 0.8, color: '#818cf8' }
+        ];
+      } else if (selectedSystem === '80-20') {
+        items = [
+          { label: 'Savings & Debt', amt: monthly * 0.2, color: '#60a5fa' },
+          { label: 'Everything Else', amt: monthly * 0.8, color: '#818cf8' }
+        ];
+      } else {
+        const d = monthly * 0.5;
+        items = [
+          { label: 'Groceries', amt: d * 0.3, color: '#f472b6' },
+          { label: 'Fun', amt: d * 0.2, color: '#a78bfa' },
+          { label: 'Shopping', amt: d * 0.15, color: '#34d399' },
+          { label: 'Fixed Costs', amt: monthly - d * 0.65, color: '#9ca3af' }
+        ];
+      }
+      return items;
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0
+      }).format(amount || 0);
+    }
+
+    function updateBreakdownAndChart() {
+      const monthly = getMonthlyIncome();
+
+      breakdownList.innerHTML = '';
+      if (!income || income <= 0) {
+        breakdownList.innerHTML = '<p class="text-slate-500 italic">Enter your income to see the breakdown.</p>';
+      } else {
+        const items = getBreakdownForSystem();
+        items.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between bg-slate-800/30 p-3 rounded-lg border border-white/5';
+          row.innerHTML =
+            `<div class="flex items-center gap-3">
+               <div class="w-3 h-3 rounded-full" style="background-color:${item.color};"></div>
+               <span class="text-slate-200 font-medium">${item.label}</span>
+             </div>
+             <span class="text-white font-bold">${formatCurrency(item.amt)}</span>`;
+          breakdownList.appendChild(row);
         });
-    </script>
+      }
+
+      if (!chartCanvas) return;
+      const ctx = chartCanvas.getContext('2d');
+      if (!ctx) return;
+
+      if (chartInstance) chartInstance.destroy();
+
+      const items = getBreakdownForSystem();
+      const labels = items.map(i => i.label);
+      const data = items.map(i => i.amt);
+      const colors = items.map(i => i.color);
+
+      const centerTextPlugin = {
+        id: 'centerText',
+        afterDraw(chart) {
+          const opts = chart.options.plugins.centerText || {};
+          if (!opts.display) return;
+          const ctx = chart.ctx;
+          const value = opts.value || 0;
+          const formatted = formatCurrency(value);
+          const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+          const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+          ctx.save();
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.font = '700 20px Inter, sans-serif';
+          ctx.fillStyle = '#f1f5f9';
+          ctx.fillText(formatted, centerX, centerY - 10);
+          ctx.font = '500 12px Inter, sans-serif';
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Monthly', centerX, centerY + 15);
+          ctx.restore();
+        }
+      };
+
+      Chart.register(ChartDataLabels, centerTextPlugin);
+
+      chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: colors,
+            borderColor: '#1e293b',
+            borderWidth: 4,
+            hoverOffset: 10
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false },
+            centerText: { display: true, value: monthly },   // <-- key fix
+            datalabels: {
+              color: '#ffffff',
+              font: { weight: 'bold', size: 12 },
+              formatter(value, context) {
+                const label = context.chart.data.labels[context.dataIndex];
+                const shortLabel = String(label).split(' ')[0];
+                return shortLabel + '\n' + formatCurrency(value);
+              },
+              display(context) {
+                return context.dataset.data[context.dataIndex] > 0;
+              },
+              anchor: 'end',
+              align: 'start',
+              offset: 10
+            }
+          },
+          layout: { padding: 20 }
+        }
+      });
+    }
+
+    // Events
+    startBtn.addEventListener('click', () => {
+      currentQuestionIndex = 0;
+      showStep('quiz');
+      renderQuestion();
+    });
+
+    incomeInput.addEventListener('input', e => {
+      const val = parseFloat(e.target.value);
+      income = isNaN(val) ? 0 : val;
+      updateBreakdownAndChart();
+    });
+
+    btnMonthly.addEventListener('click', () => {
+      incomePeriod = 'monthly';
+      btnMonthly.classList.add('bg-amber-500', 'text-slate-900');
+      btnAnnual.classList.remove('bg-amber-500', 'text-slate-900');
+      btnAnnual.classList.add('text-slate-400');
+      updateBreakdownAndChart();
+    });
+
+    btnAnnual.addEventListener('click', () => {
+      incomePeriod = 'annual';
+      btnAnnual.classList.add('bg-amber-500', 'text-slate-900');
+      btnMonthly.classList.remove('bg-amber-500', 'text-slate-900');
+      btnMonthly.classList.add('text-slate-400');
+      updateBreakdownAndChart();
+    });
+
+    systemTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        selectedSystem = tab.dataset.system;
+        applySystemToDashboard();
+        updateBreakdownAndChart();
+      });
+    });
+
+    showStep('intro');
+  </script>
 </body>
 </html>
