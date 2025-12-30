@@ -3,1179 +3,540 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investment Simplifier - Premium ETF Portfolio Builder</title>
+    <title>One-Minute Portfolio Architect</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts (Space Mono for that Matrix/Terminal vibe) -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        neon: '#00ff41',
+                        darkbg: '#0d1117',
+                        cardbg: '#161b22',
+                        danger: '#ff3333',
+                        warn: '#ffcc00',
+                        ai: '#bf00ff'
+                    },
+                    fontFamily: {
+                        mono: ['"Space Mono"', 'monospace'],
+                    },
+                    boxShadow: {
+                        'neon': '0 0 10px #00ff41, 0 0 20px #00ff41',
+                        'neon-purple': '0 0 10px #bf00ff, 0 0 20px #bf00ff',
+                        'neon-red': '0 0 10px #ff3333, 0 0 20px #ff3333',
+                        'neon-yellow': '0 0 10px #ffcc00, 0 0 20px #ffcc00',
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg-primary: #0a0e27;
-            --bg-secondary: #151933;
-            --bg-card: #1a1f3a;
-            --bg-card-hover: #212642;
-            --accent-primary: #6366f1;
-            --accent-secondary: #8b5cf6;
-            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            --success: #10b981;
-            --success-light: #34d399;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border: #2a3150;
-            --border-light: #3a4166;
-            --gold: #fbbf24;
-            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.4);
-            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.5);
-            --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.3);
-        }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
-            min-height: 100vh;
-            color: var(--text-primary);
-            overflow-x: hidden;
-            position: relative;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Space Mono', monospace;
         }
 
-        /* Animated background gradient */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
-            z-index: -1;
-            animation: floatGradient 20s ease infinite;
-        }
-
-        @keyframes floatGradient {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(-20px, -20px) rotate(120deg); }
-            66% { transform: translate(20px, -10px) rotate(240deg); }
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            position: relative;
-        }
-
-        .header {
-            text-align: center;
-            padding: 60px 20px 40px;
-            position: relative;
-            margin-bottom: 40px;
-        }
-
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 2px;
-            background: var(--accent-gradient);
-            border-radius: 2px;
-        }
-
-        .header h1 {
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 800;
-            margin-bottom: 15px;
-            background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.02em;
-            animation: fadeInDown 0.8s ease;
-        }
-
-        .header p {
-            font-size: clamp(1rem, 2vw, 1.25rem);
-            color: var(--text-secondary);
-            animation: fadeInUp 0.8s ease 0.2s both;
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .glass-card {
-            background: linear-gradient(135deg, rgba(26, 31, 58, 0.9) 0%, rgba(21, 25, 51, 0.9) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-md);
-            position: relative;
-            overflow: hidden;
-            animation: slideIn 0.6s ease both;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .section-title {
-            font-size: clamp(1.5rem, 3vw, 2rem);
-            font-weight: 700;
-            margin-bottom: 25px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .section-title::before {
-            content: '';
-            width: 4px;
-            height: 32px;
-            background: var(--accent-gradient);
-            border-radius: 2px;
-            box-shadow: var(--shadow-glow);
-        }
-
-        .info-box {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-            animation: fadeIn 0.8s ease 0.4s both;
-        }
-
-        .info-box h3 {
-            color: var(--accent-primary);
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .info-box p {
-            color: var(--text-secondary);
-            line-height: 1.6;
-            font-size: 0.95rem;
-        }
-
-        .input-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .input-group label {
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .input-group input,
-        .input-group select {
-            padding: 14px 18px;
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 1rem;
-            color: var(--text-primary);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .input-group input:focus,
-        .input-group select:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            background: var(--bg-card-hover);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1), var(--shadow-glow);
-            transform: translateY(-2px);
-        }
-
-        .input-group input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .btn {
-            background: var(--accent-gradient);
-            color: white;
-            padding: 16px 40px;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.05rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-            position: relative;
-            overflow: hidden;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
+            background: transparent;
         }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5), var(--shadow-glow);
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn:active {
-            transform: translateY(-1px);
-        }
-
-        .results-container {
-            display: none;
-            animation: fadeIn 0.6s ease;
-        }
-
-        .results-container.show {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .allocation-summary {
-            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(26, 31, 58, 0.8) 100%);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .allocation-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--border);
-            transition: all 0.3s ease;
-        }
-
-        .allocation-row:hover {
-            padding-left: 10px;
-        }
-
-        .allocation-row:last-child {
-            border-bottom: none;
-        }
-
-        .allocation-label {
-            font-weight: 500;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .allocation-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .etf-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
-        }
-
-        .etf-card {
-            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(26, 31, 58, 0.9) 100%);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 30px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .etf-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--accent-gradient);
-            transform: scaleX(0);
-            transition: transform 0.4s ease;
-            transform-origin: left;
-        }
-
-        .etf-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: var(--shadow-lg), var(--shadow-glow);
-            border-color: var(--accent-primary);
-            background: linear-gradient(135deg, var(--bg-card-hover) 0%, rgba(33, 38, 66, 0.9) 100%);
-        }
-
-        .etf-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .etf-ticker {
-            font-size: 2rem;
-            font-weight: 800;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-            letter-spacing: -0.02em;
-        }
-
-        .etf-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 12px;
-        }
-
-        .etf-description {
-            color: var(--text-secondary);
-            line-height: 1.6;
-            margin-bottom: 20px;
-            font-size: 0.95rem;
-        }
-
-        .etf-type {
-            display: inline-block;
-            padding: 6px 12px;
-            background: rgba(99, 102, 241, 0.2);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: var(--accent-primary);
-            margin-bottom: 20px;
-            font-weight: 500;
-        }
-
-        .etf-allocation {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-        }
-
-        .allocation-label-small {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .allocation-percent {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--success);
-            text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
-        }
-
-        .projection-results {
-            display: none;
-            margin-top: 30px;
-        }
-
-        .projection-results.show {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-        }
-
-        .projection-card {
-            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(26, 31, 58, 0.9) 100%);
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            border: 1px solid var(--border);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .projection-card::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
-            animation: rotate 10s linear infinite;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .projection-card:hover::after {
-            opacity: 1;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .projection-card.highlight {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 211, 153, 0.1) 100%);
-            border-color: rgba(16, 185, 129, 0.3);
-        }
-
-        .projection-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .projection-label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-weight: 500;
-        }
-
-        .projection-value {
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
-            font-weight: 800;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.02em;
-        }
-
-        .projection-card.highlight .projection-value {
-            background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .projection-difference {
-            margin-top: 15px;
-            font-size: 0.95rem;
-            color: var(--gold);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .etf-definition {
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, rgba(251, 191, 36, 0.1) 100%);
-            border: 1px solid rgba(251, 191, 36, 0.2);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 30px 0;
-        }
-
-        .etf-definition h3 {
-            color: var(--gold);
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .etf-definition p {
-            color: var(--text-secondary);
-            line-height: 1.7;
-        }
-        
-        /* --- STYLES FOR STRATEGY SECTION --- */
-        .strategies-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
-        }
-
-        .strategy-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-light);
-            border-radius: 15px;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease;
-        }
-
-        .strategy-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--accent-secondary);
-        }
-
-        .strategy-card h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--accent-primary);
-            margin-bottom: 15px;
-        }
-
-        .strategy-card h4 {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-top: 15px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .strategy-card p {
-            color: var(--text-secondary);
-            line-height: 1.6;
-            margin-bottom: 5px;
-            font-size: 0.95rem;
-        }
-        
-        .strategy-card .strategy-goal {
-            font-style: italic;
-            margin-bottom: 15px;
-        }
-
-        .strategy-card ul {
-            list-style: none;
-            padding-left: 0;
-            margin-top: 5px;
-        }
-
-        .strategy-card ul li {
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            padding-left: 20px;
-            position: relative;
-            font-size: 0.9rem;
-        }
-
-        .strategy-card ul li::before {
-            content: '•';
-            color: var(--accent-primary);
-            font-weight: bold;
-            display: inline-block;
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
             width: 20px;
-            margin-left: -20px;
-            position: absolute;
-            top: 0;
+            border-radius: 50%;
+            background: #00ff41;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 0 10px #00ff41;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #30363d;
+            border-radius: 2px;
         }
 
-        .strategy-card .perfect-choice {
-            margin-top: auto; /* Pushes to the bottom */
-            padding: 15px;
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            border-radius: 10px;
-            font-weight: 500;
-            color: var(--text-primary);
-            font-size: 1rem;
-            text-align: center;
+        /* Animations */
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 255, 65, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0); }
         }
-        /* --- END OF STRATEGY STYLES --- */
-
-        /* Mobile Optimizations */
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-
-            .header {
-                padding: 40px 10px 30px;
-            }
-
-            .glass-card {
-                padding: 20px;
-                border-radius: 15px;
-            }
-
-            .etf-cards, .strategies-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .etf-card {
-                padding: 20px;
-            }
-
-            .btn {
-                width: 100%;
-                padding: 14px 30px;
-            }
-
-            .allocation-row {
-                flex-direction: column;
-                gap: 10px;
-                text-align: center;
-            }
-
-            .projection-results.show {
-                grid-template-columns: 1fr;
-            }
+        @keyframes pulse-yellow {
+            0% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 204, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0); }
+        }
+        @keyframes pulse-purple {
+            0% { box-shadow: 0 0 0 0 rgba(191, 0, 255, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(191, 0, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(191, 0, 255, 0); }
+        }
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
         }
 
-        /* Smooth scrolling */
-        html {
-            scroll-behavior: smooth;
+        .status-green {
+            background-color: #00ff41;
+            animation: pulse-green 2s infinite;
+        }
+        .status-yellow {
+            background-color: #ffcc00;
+            animation: pulse-yellow 2s infinite;
+        }
+        .ai-glow {
+            animation: pulse-purple 3s infinite;
         }
 
-        /* Loading animation */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .loading {
-            animation: pulse 1.5s ease infinite;
+        /* Modal Backdrop */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Investment Simplifier</h1>
-            <p>Build your premium ETF portfolio with intelligent asset allocation</p>
-        </div>
+<body class="min-h-screen flex flex-col items-center py-10 px-4">
+
+    <!-- HEADER -->
+    <header class="text-center mb-10">
+        <h1 class="text-3xl md:text-5xl font-bold text-neon mb-2 tracking-tighter">PORTFOLIO ARCHITECT</h1>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        <!-- ETF Education Section -->
-        <div class="glass-card" style="animation-delay: 0.1s;">
-            <div class="etf-definition">
-                <h3>💡 What is an ETF?</h3>
-                <p>An Exchange-Traded Fund (ETF) is like a basket of investments that trades on the stock market like a single stock. Instead of picking individual companies, ETFs let you invest in hundreds or thousands of stocks or bonds at once, providing instant diversification. They typically have lower fees than mutual funds and can be bought or sold anytime during market hours. Think of it as buying a slice of the entire market rather than betting on individual companies.</p>
-            </div>
-        </div>
+        <!-- INPUTS PANEL -->
+        <section class="bg-cardbg border border-gray-700 p-6 rounded-lg shadow-lg relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-neon"></div>
+            <h2 class="text-xl text-white font-bold mb-6 border-b border-gray-700 pb-2">INPUT PARAMETERS</h2>
 
-        <!-- Portfolio Builder Section -->
-        <div class="glass-card" style="animation-delay: 0.2s;">
-            <h2 class="section-title">Create Your Personalized Portfolio</h2>
-            
-            <div class="info-box">
-                <h3>📊 A Modern Allocation Model</h3>
-                <p>We use a time-tested allocation model that adjusts based on your age and risk tolerance. Younger investors are positioned for higher growth with more stocks, while the allocation gradually shifts towards more stable bonds as you approach retirement.</p>
-            </div>
-
-            <div class="input-grid">
-                <div class="input-group">
-                    <label for="userAge">Your Age</label>
-                    <input type="number" id="userAge" placeholder="Enter your age" min="18" max="100">
+            <form id="portfolioForm" class="space-y-6">
+                
+                <!-- Age -->
+                <div>
+                    <label class="block text-sm text-neon mb-2">CURRENT AGE</label>
+                    <input type="number" id="age" min="18" max="100" value="25" 
+                           class="w-full bg-gray-900 border border-gray-600 text-white p-3 rounded focus:border-neon focus:outline-none focus:ring-1 focus:ring-neon transition">
                 </div>
-                <div class="input-group">
-                    <label for="riskStyle">Investment Style</label>
-                    <select id="riskStyle">
-                        <option value="growth">🚀 Growth - Maximum Returns (Higher Risk)</option>
-                        <option value="balanced" selected>⚖️ Balanced - Steady Growth (Moderate Risk)</option>
-                        <option value="income">🛡️ Income - Preservation (Lower Risk)</option>
+
+                <!-- Time Horizon -->
+                <div>
+                    <label class="block text-sm text-neon mb-2">TIME HORIZON</label>
+                    <select id="horizon" class="w-full bg-gray-900 border border-gray-600 text-white p-3 rounded focus:border-neon focus:outline-none focus:ring-1 focus:ring-neon transition">
+                        <option value="1">&lt; 5 Years (Short)</option>
+                        <option value="2">5 - 15 Years (Medium)</option>
+                        <option value="3" selected>15+ Years (Long)</option>
                     </select>
                 </div>
+
+                <!-- Risk Tolerance -->
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <label class="text-sm text-neon">RISK TOLERANCE</label>
+                        <span id="riskValue" class="text-white font-bold">8</span>
+                    </div>
+                    <input type="range" id="risk" min="1" max="10">
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>Conservative</span>
+                        <span>Aggressive</span>
+                    </div>
+                </div>
+
+                <!-- Growth Flavor -->
+                <div>
+                    <label class="block text-sm text-neon mb-2">GROWTH FLAVOR</label>
+                    <select id="growthFlavor" class="w-full bg-gray-900 border border-gray-600 text-white p-3 rounded focus:border-neon focus:outline-none focus:ring-1 focus:ring-neon transition">
+                        <option value="SCHG">Broad US Growth (SCHG)</option>
+                        <option value="QQQM">Top Tech / Nasdaq (QQQM)</option>
+                        <option value="SMH">Semiconductors (SMH)</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-2">*Only activates if Risk > 6</p>
+                </div>
+
+                <button type="button" onclick="calculatePortfolio()" 
+                        class="w-full bg-neon text-black font-bold py-4 rounded mt-4 hover:bg-white hover:shadow-neon transition duration-300 uppercase tracking-widest">
+                    Run Simulation
+                </button>
+
+            </form>
+        </section>
+
+        <!-- OUTPUT PANEL -->
+        <section id="outputPanel" class="bg-cardbg border border-gray-700 p-6 rounded-lg shadow-lg relative hidden">
+            <!-- Quality Indicator Light -->
+            <div id="qualityLight" class="absolute top-6 right-6 w-4 h-4 rounded-full bg-gray-600"></div>
+
+            <h2 class="text-xl text-white font-bold mb-6 border-b border-gray-700 pb-2">PORTFOLIO MATRIX</h2>
+
+            <!-- Score Display -->
+            <div class="flex items-center justify-between mb-6 bg-gray-900 p-4 rounded border border-gray-700">
+                <div>
+                    <div class="text-xs text-gray-400">QUALITY SCORE</div>
+                    <div id="scoreDisplay" class="text-3xl font-bold text-white">0/10</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs text-gray-400">STATUS</div>
+                    <div id="statusText" class="text-xl font-bold text-neon">CALCULATING...</div>
+                </div>
             </div>
-            <button class="btn" id="generatePlanBtn">Generate My Portfolio</button>
-        </div>
 
-        <!-- Results Display Section -->
-        <div id="resultsDisplay" class="glass-card results-container" style="animation-delay: 0.3s;">
-            <h2 class="section-title">Your Recommended Portfolio</h2>
-            <div class="allocation-summary">
-                <div class="allocation-row">
-                    <span class="allocation-label">📈 Stock Allocation</span>
-                    <span class="allocation-value" id="stockAllocation">--</span>
-                </div>
-                <div class="allocation-row">
-                    <span class="allocation-label">🏦 Bond Allocation</span>
-                    <span class="allocation-value" id="bondAllocation">--</span>
-                </div>
-            </div>
-            <div class="etf-cards" id="etfCards"></div>
-        </div>
-
-        <!-- Growth Projection Section -->
-        <div class="glass-card" style="animation-delay: 0.4s;">
-            <h2 class="section-title">Project Your Wealth Growth</h2>
-            
-            <div class="info-box">
-                <h3>💰 The Power of Compound Interest</h3>
-                <p>See how your regular investments can grow over time. We use a conservative 7% annual return based on historical market averages. Remember: time in the market beats timing the market.</p>
+            <!-- Chart Container -->
+            <div class="relative h-64 w-full mb-6">
+                <canvas id="allocationChart"></canvas>
             </div>
 
-            <div class="input-grid">
-                <div class="input-group">
-                    <label for="monthlyInvestment">Monthly Investment Amount</label>
-                    <input type="number" id="monthlyInvestment" placeholder="$ Amount per month" min="50">
+            <!-- Allocation Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="text-gray-500 border-b border-gray-700">
+                            <th class="pb-2">TICKER</th>
+                            <th class="pb-2">ASSET CLASS</th>
+                            <th class="pb-2 text-right">ALLOCATION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allocationList" class="text-gray-300">
+                        <!-- JS renders rows here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-gray-700">
+                <div>
+                    <div class="text-xs text-gray-500">AVG YIELD</div>
+                    <div id="avgYield" class="text-neon font-bold">0.00%</div>
                 </div>
-                <div class="input-group">
-                    <label for="investmentPeriod">Investment Timeline (Years)</label>
-                    <input type="number" id="investmentPeriod" placeholder="Years to invest" min="5" max="40">
+                <div>
+                    <div class="text-xs text-gray-500">EXPENSE RATIO</div>
+                    <div id="avgExpense" class="text-neon font-bold">0.00%</div>
                 </div>
             </div>
-            <button class="btn" id="calculateGrowthBtn">Calculate Growth</button>
-            
-            <div id="projectionResults" class="projection-results">
-                <div class="projection-card">
-                    <div class="projection-label">💵 Total Cash Invested</div>
-                    <div class="projection-value" id="cashSaved">--</div>
-                </div>
-                <div class="projection-card highlight">
-                    <div class="projection-label">🚀 Projected Portfolio Value</div>
-                    <div class="projection-value" id="projectedValue">--</div>
-                    <div class="projection-difference" id="growthDifference"></div>
+
+            <!-- AI SECTION -->
+            <div class="mt-8 pt-6 border-t border-gray-700">
+                <button onclick="triggerSystemAnalysis()" id="btnAnalyze" 
+                    class="w-full border border-ai text-ai font-bold py-3 rounded hover:bg-ai hover:text-white transition duration-300 flex items-center justify-center gap-2">
+                    <span>✨</span> SYSTEM ANALYSIS (LOCAL)
+                </button>
+
+                <!-- AI Output Box -->
+                <div id="aiOutputContainer" class="hidden mt-4 bg-gray-900 border border-ai p-4 rounded relative">
+                    <div class="text-xs text-ai mb-2 font-bold flex justify-between">
+                        <span>// ORACLE_OUTPUT</span>
+                        <span id="aiLoading" class="animate-pulse hidden">COMPUTING...</span>
+                    </div>
+                    <p id="aiText" class="text-sm text-gray-300 leading-relaxed font-mono"></p>
+                    
+                    <!-- Audio Controls -->
+                    <div id="audioControls" class="mt-4 pt-3 border-t border-gray-800 flex justify-end hidden">
+                        <button onclick="playLocalBriefing()" class="text-xs bg-gray-800 hover:bg-ai text-white px-3 py-2 rounded flex items-center gap-2 transition">
+                            <span>🔊</span> PLAY BRIEFING
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Famous Investor Portfolios Section -->
-        <div class="glass-card" style="animation-delay: 0.5s;">
-            <h2 class="section-title">Famous Investor Portfolios</h2>
-            <div class="info-box">
-                <h3>⭐ Learn from the Greats</h3>
-                <p>Explore these simple yet powerful portfolio strategies popularized by renowned investors. They are built on the principles of diversification, low costs, and long-term thinking, offering excellent models for success.</p>
-            </div>
-            <div class="strategies-grid">
-                
-                <!-- Strategy 1: J.L. Collins -->
-                <div class="strategy-card">
-                    <h3>J.L. Collins’ One-Fund Portfolio</h3>
-                    <p class="strategy-goal"><strong>Goal:</strong> Own the entire U.S. stock market in one fund for ultimate simplicity.</p>
-                    <h4>Advantages:</h4>
-                    <p>It's the easiest strategy to implement and manage. It maximizes potential long-term growth by being fully invested in the market.</p>
-                    <h4>Best For:</h4>
-                    <p>Young investors with a very long time horizon and high risk tolerance who want a "set it and forget it" approach.</p>
-                    <h4>Best Options (100%):</h4>
-                    <ul>
-                        <li>Vanguard Total Stock Market → VTI</li>
-                        <li>Fidelity ZERO Total Market → FZROX</li>
-                    </ul>
-                    <p class="perfect-choice">➡️ <strong>Perfect choice:</strong> VTI</p>
-                </div>
+        </section>
+    </main>
 
-                <!-- Strategy 2: Warren Buffett -->
-                <div class="strategy-card">
-                    <h3>Warren Buffett’s 90/10 Portfolio</h3>
-                    <p class="strategy-goal"><strong>Goal:</strong> 90% in low-cost S&P 500 stocks and 10% in short-term government bonds.</p>
-                    <h4>Advantages:</h4>
-                    <p>A simple, aggressive growth strategy backed by America's largest companies, with a small bond allocation to reduce volatility slightly during downturns.</p>
-                    <h4>Best For:</h4>
-                    <p>Long-term investors with a high risk tolerance who believe in the enduring strength of the U.S. economy.</p>
-                    <h4>Options:</h4>
-                    <ul>
-                        <li>Stocks (90%): VOO, FXAIX</li>
-                        <li>Bonds (10%): VGSH, SCHO</li>
-                    </ul>
-                    <p class="perfect-choice">➡️ <strong>Perfect choice:</strong> VOO + VGSH</p>
-                </div>
-
-                <!-- Strategy 3: Scott Burns -->
-                <div class="strategy-card">
-                    <h3>Scott Burns’ Couch Potato Portfolio</h3>
-                    <p class="strategy-goal"><strong>Goal:</strong> A simple 50/50 balance between the total U.S. stock market and total U.S. bond market.</p>
-                    <h4>Advantages:</h4>
-                    <p>Extremely simple to manage and rebalance. The 50% bond allocation provides a strong cushion against stock market drops, making it less volatile.</p>
-                    <h4>Best For:</h4>
-                    <p>Investors with a moderate risk tolerance, or those nearing retirement who want a simple, balanced approach to growth and preservation.</p>
-                     <h4>Options:</h4>
-                    <ul>
-                        <li>Stocks (50%): VTI, SCHB</li>
-                        <li>Bonds (50%): BND, AGG</li>
-                    </ul>
-                    <p class="perfect-choice">➡️ <strong>Perfect choice:</strong> VTI + BND</p>
-                </div>
-
-                <!-- Strategy 4: Bogleheads -->
-                <div class="strategy-card">
-                    <h3>Bogleheads’ Three-Fund Portfolio</h3>
-                    <p class="strategy-goal"><strong>Goal:</strong> Diversify across U.S. stocks, international stocks, and U.S. bonds. (Example: 70/20/10 split)</p>
-                     <h4>Advantages:</h4>
-                    <p>Offers excellent diversification across different economies and asset classes. It's considered the gold standard for passive investing for its balance and global reach.</p>
-                    <h4>Best For:</h4>
-                    <p>Almost any long-term investor. The stock/bond percentages can be adjusted to fit any risk tolerance, making it incredibly versatile.</p>
-                    <h4>Options (Example Split):</h4>
-                    <ul>
-                        <li>U.S. Stocks (70%): VTI</li>
-                        <li>Int'l Stocks (20%): VXUS</li>
-                        <li>Bonds (10%): BND</li>
-                    </ul>
-                    <p class="perfect-choice">➡️ <strong>Perfect choice:</strong> VTI + VXUS + BND</p>
-                </div>
-                
-            </div>
-        </div>
-
-        <!-- Footer Credit and Disclaimer -->
-        <div style="text-align: center; color: var(--text-muted); padding: 20px 0; animation: fadeInUp 0.8s ease 0.6s both;">
-            <p style="margin-bottom: 5px; font-size: 0.9rem; letter-spacing: 0.05em;">Made by Kou</p>
-            <p style="margin-bottom: 20px; font-size: 0.9rem; letter-spacing: 0.05em;">For inquiries, contact @investwithkou11 on Instagram.</p>
-            <p style="font-size: 0.8rem; max-width: 800px; margin: 0 auto; line-height: 1.5;">
-                This tool is presented for informational and educational purposes only, reflecting countless hours of research into established financial data and principles. The creator is not a financial advisor, and the content herein should not be construed as financial advice. Please consult with a qualified professional before making investment decisions.
+    <!-- DISCLAIMER MODAL -->
+    <div id="disclaimerModal" class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-cardbg border border-neon p-8 rounded-lg max-w-md w-full shadow-neon relative">
+            <h3 class="text-2xl font-bold text-neon mb-4">SYSTEM WARNING</h3>
+            <p class="text-gray-300 text-sm mb-6 leading-relaxed">
+                This tool is a simulation for <strong>educational purposes only</strong>. It is not financial advice, and the "Portfolio Architect" is not a registered investment advisor. 
+                <br><br>
+                Investing involves risk, including loss of principal. Past performance does not guarantee future results.
             </p>
+            <button onclick="acceptDisclaimer()" class="w-full bg-neon text-black font-bold py-3 rounded hover:bg-white transition uppercase">
+                I Acknowledge
+            </button>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const generatePlanBtn = document.getElementById('generatePlanBtn');
-            const calculateGrowthBtn = document.getElementById('calculateGrowthBtn');
-            
-            generatePlanBtn.addEventListener('click', calculatePortfolio);
-            calculateGrowthBtn.addEventListener('click', calculateGrowth);
-        });
-
-        // ETF Data with expanded information
-        const etfData = {
-            vti: {
-                ticker: "VTI",
-                name: "Vanguard Total Stock Market ETF",
-                description: "Provides exposure to the entire U.S. equity market, including small-, mid-, and large-cap stocks. The core of a diversified portfolio, capturing the growth of thousands of U.S. companies.",
-                type: "U.S. Total Market",
-                expense: "0.03%"
-            },
-            vxus: {
-                ticker: "VXUS",
-                name: "Vanguard Total International Stock ETF",
-                description: "Offers exposure to stocks in developed and emerging markets outside the United States. Diversifies your portfolio globally to reduce country-specific risk.",
-                type: "International Stocks",
-                expense: "0.08%"
-            },
-            bnd: {
-                ticker: "BND",
-                name: "Vanguard Total Bond Market ETF",
-                description: "Tracks U.S. investment-grade bonds. Provides stability, income, and a buffer against stock market volatility, making it a key part of a balanced portfolio.",
-                type: "U.S. Bonds",
-                expense: "0.03%"
-            },
-            schd: {
-                ticker: "SCHD",
-                name: "Schwab U.S. Dividend Equity ETF",
-                description: "Focuses on high-quality, dividend-paying U.S. companies with a record of sustainable payouts. Aims to provide a steady stream of income and potential for long-term growth.",
-                type: "U.S. Dividend Stocks",
-                expense: "0.06%"
-            }
+        // --- 1. STATIC DATA CENTER ---
+        const ETF_DATA = {
+            "VTI":  { name: "Total US Market",       yield: 1.35, expense: 0.03, color: "#00ff41" }, 
+            "VXUS": { name: "Total Int'l Market",    yield: 2.80, expense: 0.07, color: "#008f11" }, 
+            "BND":  { name: "Total Bond Market",     yield: 4.20, expense: 0.03, color: "#ffffff" }, 
+            "AVUV": { name: "Small Cap Value",       yield: 1.90, expense: 0.25, color: "#ffcc00" }, 
+            "SCHG": { name: "Large Cap Growth",      yield: 0.60, expense: 0.04, color: "#33ccff" }, 
+            "QQQM": { name: "Nasdaq 100",            yield: 0.65, expense: 0.15, color: "#33ccff" },
+            "SMH":  { name: "Semiconductors",        yield: 0.70, expense: 0.35, color: "#33ccff" }
         };
 
-        // Smooth number animation
-        function animateValue(element, start, end, duration, prefix = '', suffix = '') {
-            const range = end - start;
-            if (range === 0) {
-                element.textContent = prefix + end.toLocaleString('en-US') + suffix;
-                return;
-            };
-            const startTime = performance.now();
-            
-            function updateValue(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                
-                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-                const current = start + (range * easeOutQuart);
-                
-                element.textContent = prefix + Math.round(current).toLocaleString('en-US') + suffix;
-                
-                if (progress < 1) {
-                    requestAnimationFrame(updateValue);
-                }
+        // --- 2. GLOBAL VARIABLES ---
+        let myChart = null;
+        let currentPortfolio = null; // Store for Analysis
+        let currentAnalysisText = ""; // Store for TTS
+
+        // --- 3. INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!sessionStorage.getItem('disclaimerAccepted')) {
+                document.getElementById('disclaimerModal').classList.remove('hidden');
             }
-            
-            requestAnimationFrame(updateValue);
-        }
-        
-        function showNotification(message) {
-            alert(message);
-        }
-
-        // Portfolio Calculator
-        function calculatePortfolio() {
-            const age = parseInt(document.getElementById('userAge').value);
-            const riskStyle = document.getElementById('riskStyle').value;
-            
-            if (!age || age < 18 || age > 100) {
-                showNotification('Please enter a valid age between 18 and 100');
-                return;
-            }
-
-            const btn = document.getElementById('generatePlanBtn');
-            btn.classList.add('loading');
-            btn.disabled = true;
-
-            setTimeout(() => {
-                let stockPercentage;
-                let schdRatio = 0.25; // Default dividend stock ratio, adjusted per case
-
-                // New age-based allocation logic
-                if (age >= 18 && age <= 25) { // 85-95% stocks
-                    switch (riskStyle) {
-                        case 'growth': stockPercentage = 95; schdRatio = 0.15; break;
-                        case 'balanced': stockPercentage = 90; schdRatio = 0.20; break;
-                        case 'income': stockPercentage = 85; schdRatio = 0.25; break;
-                    }
-                } else if (age >= 26 && age <= 30) { // 80-90% stocks
-                    switch (riskStyle) {
-                        case 'growth': stockPercentage = 90; schdRatio = 0.15; break;
-                        case 'balanced': stockPercentage = 85; schdRatio = 0.25; break;
-                        case 'income': stockPercentage = 80; schdRatio = 0.30; break;
-                    }
-                } else if (age >= 31 && age <= 35) { // 75-85% stocks
-                    switch (riskStyle) {
-                        case 'growth': stockPercentage = 85; schdRatio = 0.20; break;
-                        case 'balanced': stockPercentage = 80; schdRatio = 0.25; break;
-                        case 'income': stockPercentage = 75; schdRatio = 0.30; break;
-                    }
-                } else if (age >= 36 && age <= 40) { // 70-80% stocks
-                    switch (riskStyle) {
-                        case 'growth': stockPercentage = 80; schdRatio = 0.20; break;
-                        case 'balanced': stockPercentage = 75; schdRatio = 0.30; break;
-                        case 'income': stockPercentage = 70; schdRatio = 0.35; break;
-                    }
-                } else if (age >= 41 && age <= 45) { // 65-75% stocks
-                    switch (riskStyle) {
-                        case 'growth': stockPercentage = 75; schdRatio = 0.25; break;
-                        case 'balanced': stockPercentage = 70; schdRatio = 0.30; break;
-                        case 'income': stockPercentage = 65; schdRatio = 0.40; break;
-                    }
-                } else if (age >= 46 && age <= 50) { // 60-70% stocks
-                    switch (riskStyle) {
-                        case 'growth': stockPercentage = 70; schdRatio = 0.25; break;
-                        case 'balanced': stockPercentage = 65; schdRatio = 0.35; break;
-                        case 'income': stockPercentage = 60; schdRatio = 0.40; break;
-                    }
-                } else if (age >= 51 && age <= 55) { // 55-65% stocks
-                    switch (riskStyle) {
-                        case 'growth': stockPercentage = 65; schdRatio = 0.30; break;
-                        case 'balanced': stockPercentage = 60; schdRatio = 0.35; break;
-                        case 'income': stockPercentage = 55; schdRatio = 0.45; break;
-                    }
-                } else if (age >= 56 && age <= 60) { // 50-60% stocks
-                    switch (riskStyle) {
-                        case 'growth': stockPercentage = 60; schdRatio = 0.30; break;
-                        case 'balanced': stockPercentage = 55; schdRatio = 0.40; break;
-                        case 'income': stockPercentage = 50; schdRatio = 0.50; break;
-                    }
-                } else if (age >= 61) { // 40-50% stocks
-                    switch (riskStyle) {
-                        case 'growth': stockPercentage = 50; schdRatio = 0.35; break;
-                        case 'balanced': stockPercentage = 45; schdRatio = 0.45; break;
-                        case 'income': stockPercentage = 40; schdRatio = 0.55; break;
-                    }
-                }
-
-                const bondPercentage = 100 - stockPercentage;
-
-                // Allocation of Stocks
-                const internationalStockPct = stockPercentage * 0.30; // 30% of stocks are international
-                const domesticStockPct = stockPercentage * 0.70; // 70% are domestic
-
-                let schdPercent = Math.round(domesticStockPct * schdRatio);
-                let vtiPercent = Math.round(domesticStockPct * (1 - schdRatio));
-                let vxusPercent = Math.round(internationalStockPct);
-                let bndPercent = bondPercentage;
-
-                // Adjust to ensure total is 100%
-                let totalPercent = vtiPercent + vxusPercent + schdPercent + bndPercent;
-                if (totalPercent !== 100) {
-                    vtiPercent += (100 - totalPercent); // Adjust the largest stock portion
-                }
-
-                displayPortfolio(stockPercentage, bondPercentage, vtiPercent, vxusPercent, bndPercent, schdPercent);
-                btn.classList.remove('loading');
-                btn.disabled = false;
-            }, 500);
-        }
-
-        function createETFCard(etf, percent) {
-            return `
-                <div class="etf-card">
-                    <div class="etf-ticker">${etf.ticker}</div>
-                    <div class="etf-name">${etf.name}</div>
-                    <div class="etf-type">${etf.type}</div>
-                    <p class="etf-description">${etf.description}</p>
-                    <div class="etf-allocation">
-                        <span class="allocation-label-small">Allocation</span>
-                        <span class="allocation-percent">${percent}%</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        function displayPortfolio(stockPct, bondPct, vtiPct, vxusPct, bndPct, schdPct) {
-            const resultsDiv = document.getElementById('resultsDisplay');
-            resultsDiv.classList.add('show');
-
-            animateValue(document.getElementById('stockAllocation'), 0, stockPct, 1000, '', '%');
-            animateValue(document.getElementById('bondAllocation'), 0, bondPct, 1000, '', '%');
-
-            const etfCardsContainer = document.getElementById('etfCards');
-            etfCardsContainer.innerHTML = '';
-
-            const cardsData = [];
-            if (vtiPct > 0) cardsData.push({ data: etfData.vti, percent: vtiPct });
-            if (schdPct > 0) cardsData.push({ data: etfData.schd, percent: schdPct });
-            if (vxusPct > 0) cardsData.push({ data: etfData.vxus, percent: vxusPct });
-            if (bndPct > 0) cardsData.push({ data: etfData.bnd, percent: bndPct });
-
-            // Sort cards by percentage descending before displaying
-            cardsData.sort((a, b) => b.percent - a.percent).forEach((card, index) => {
-                setTimeout(() => {
-                    const cardElementHTML = createETFCard(card.data, card.percent);
-                    etfCardsContainer.insertAdjacentHTML('beforeend', cardElementHTML);
-                }, index * 150);
+            const riskInput = document.getElementById('risk');
+            const riskValue = document.getElementById('riskValue');
+            riskInput.addEventListener('input', (e) => {
+                riskValue.innerText = e.target.value;
             });
-            
-            setTimeout(() => {
-                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 250);
+        });
+
+        function acceptDisclaimer() {
+            sessionStorage.setItem('disclaimerAccepted', 'true');
+            document.getElementById('disclaimerModal').classList.add('hidden');
         }
 
-        function calculateGrowth() {
-            const monthlyInvestment = parseInt(document.getElementById('monthlyInvestment').value);
-            const investmentPeriod = parseInt(document.getElementById('investmentPeriod').value);
-            const btn = document.getElementById('calculateGrowthBtn');
+        // --- 4. CORE LOGIC ENGINE ---
+        function calculatePortfolio() {
+            const age = parseInt(document.getElementById('age').value);
+            const horizon = parseInt(document.getElementById('horizon').value); 
+            const risk = parseInt(document.getElementById('risk').value);
+            const growthTicker = document.getElementById('growthFlavor').value;
 
-            if (!monthlyInvestment || monthlyInvestment < 50) {
-                showNotification('Please enter a monthly investment of at least $50.');
-                return;
+            let portfolio = {}; 
+
+            // -- Step A: Stability (BND) --
+            let bndAlloc = 0;
+            if (risk > 8) {
+                bndAlloc = 0;
+            } else if (risk < 4) {
+                let ageBased = (age > 50) ? (age - 20) : 0;
+                bndAlloc = Math.max(20, ageBased);
+            } else {
+                bndAlloc = (age > 50) ? (age - 20) : 0;
             }
-            if (!investmentPeriod || investmentPeriod < 5 || investmentPeriod > 40) {
-                showNotification('Please enter an investment timeline between 5 and 40 years.');
-                return;
+            if (bndAlloc > 100) bndAlloc = 100;
+
+            // -- Step B: Equity Block --
+            let equityBlockTotal = 100 - bndAlloc;
+            let currentEquityPool = equityBlockTotal;
+
+            // -- Step C: Growth Booster --
+            let growthAlloc = 0;
+            if (risk > 6 && currentEquityPool > 0) {
+                if (risk === 7) growthAlloc = 10;
+                else if (risk === 8) growthAlloc = 15;
+                else if (risk === 9) growthAlloc = 20;
+                else if (risk === 10) growthAlloc = 25;
             }
-            
-            btn.classList.add('loading');
+            if (growthAlloc > currentEquityPool) growthAlloc = currentEquityPool;
+            currentEquityPool -= growthAlloc;
+
+            // -- Step D: Value Booster --
+            let valueAlloc = 0;
+            if (horizon === 3 && risk > 7 && currentEquityPool > 0) {
+                valueAlloc = 10;
+            }
+            if (valueAlloc > currentEquityPool) valueAlloc = currentEquityPool;
+            currentEquityPool -= valueAlloc;
+
+            // -- Step E: Core Split --
+            let vtiAlloc = Math.round(currentEquityPool * 0.7);
+            let vxusAlloc = currentEquityPool - vtiAlloc;
+
+            if (bndAlloc > 0) portfolio['BND'] = bndAlloc;
+            if (growthAlloc > 0) portfolio[growthTicker] = growthAlloc;
+            if (valueAlloc > 0) portfolio['AVUV'] = valueAlloc;
+            if (vtiAlloc > 0) portfolio['VTI'] = vtiAlloc;
+            if (vxusAlloc > 0) portfolio['VXUS'] = vxusAlloc;
+
+            // Save for Analysis
+            currentPortfolio = {
+                age: age,
+                risk: risk,
+                horizon: horizon,
+                allocation: portfolio,
+                growthFlavor: growthTicker,
+                score: 0 // Will be set in renderOutput
+            };
+
+            // Hide previous Output if any
+            document.getElementById('aiOutputContainer').classList.add('hidden');
+            document.getElementById('audioControls').classList.add('hidden');
+
+            renderOutput(portfolio, risk, horizon, age, equityBlockTotal, vxusAlloc);
+        }
+
+        // --- 5. SCORING & RENDER ---
+        function renderOutput(portfolio, risk, horizon, age, totalEquity, vxusPct) {
+            const outputPanel = document.getElementById('outputPanel');
+            const allocationList = document.getElementById('allocationList');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const statusText = document.getElementById('statusText');
+            const qualityLight = document.getElementById('qualityLight');
+            const avgYieldEl = document.getElementById('avgYield');
+            const avgExpenseEl = document.getElementById('avgExpense');
+
+            outputPanel.classList.remove('hidden');
+
+            let weightedYield = 0;
+            let weightedExpense = 0;
+            let labels = [];
+            let dataPoints = [];
+            let bgColors = [];
+
+            allocationList.innerHTML = '';
+
+            for (const [ticker, pct] of Object.entries(portfolio)) {
+                if (pct <= 0) continue;
+                const info = ETF_DATA[ticker];
+                weightedYield += (info.yield * (pct/100));
+                weightedExpense += (info.expense * (pct/100));
+                labels.push(ticker);
+                dataPoints.push(pct);
+                bgColors.push(info.color);
+
+                const row = `
+                    <tr class="border-b border-gray-800 hover:bg-gray-800 transition">
+                        <td class="py-3 font-bold text-white">${ticker}</td>
+                        <td class="py-3 text-gray-400 text-xs uppercase">${info.name}</td>
+                        <td class="py-3 text-right font-mono text-neon">${pct}%</td>
+                    </tr>
+                `;
+                allocationList.innerHTML += row;
+            }
+
+            avgYieldEl.innerText = weightedYield.toFixed(2) + '%';
+            avgExpenseEl.innerText = weightedExpense.toFixed(3) + '%';
+
+            let score = 5;
+            if (weightedExpense < 0.15) score += 1;
+            if (portfolio['VXUS'] && portfolio['VXUS'] >= 15) score += 2;
+            if (age < 30 && totalEquity >= 90) score += 3;
+            if (risk > 7 && horizon === 1) score -= 2;
+            if (score > 10) score = 10;
+            if (score < 0) score = 0;
+
+            // Update currentPortfolio score for analysis
+            if (currentPortfolio) currentPortfolio.score = score;
+
+            scoreDisplay.innerText = score + "/10";
+            qualityLight.classList.remove('status-green', 'status-yellow');
+            statusText.classList.remove('text-neon', 'text-warn');
+
+            if (score > 7) {
+                qualityLight.classList.add('status-green');
+                statusText.innerText = "OPTIMIZED";
+                statusText.classList.add('text-neon');
+                statusText.style.color = '#00ff41';
+            } else {
+                qualityLight.classList.add('status-yellow');
+                statusText.innerText = "CAUTION";
+                statusText.classList.add('text-warn');
+                statusText.style.color = '#ffcc00';
+            }
+
+            renderChart(labels, dataPoints, bgColors);
+            outputPanel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- 6. LOCAL SYSTEM ANALYSIS ENGINE (No API) ---
+
+        function triggerSystemAnalysis() {
+            if (!currentPortfolio) return;
+
+            const container = document.getElementById('aiOutputContainer');
+            const aiText = document.getElementById('aiText');
+            const loading = document.getElementById('aiLoading');
+            const btn = document.getElementById('btnAnalyze');
+            const audioControls = document.getElementById('audioControls');
+
+            container.classList.remove('hidden');
+            audioControls.classList.add('hidden');
+            loading.classList.remove('hidden');
+            aiText.innerText = "";
             btn.disabled = true;
+            btn.classList.add('opacity-50');
 
+            // --- LOCAL LOGIC GENERATION ---
             setTimeout(() => {
-                const P = monthlyInvestment;
-                const r = 0.07;
-                const n = 12;
-                const t = investmentPeriod;
+                const analysis = generateLocalResponse(currentPortfolio);
+                currentAnalysisText = analysis;
+
+                loading.classList.add('hidden');
                 
-                const futureValue = P * ((Math.pow(1 + r / n, n * t) - 1) / (r / n));
-                const totalCashInvested = P * n * t;
-                const growthDifference = futureValue - totalCashInvested;
-
-                displayProjection(totalCashInvested, futureValue, growthDifference);
-                btn.classList.remove('loading');
-                btn.disabled = false;
-            }, 500);
-        }
-
-        function displayProjection(cash, projected, growth) {
-            const resultsDiv = document.getElementById('projectionResults');
-            resultsDiv.classList.add('show');
-
-            animateValue(document.getElementById('cashSaved'), 0, cash, 1200, '$');
-            animateValue(document.getElementById('projectedValue'), 0, projected, 1200, '$');
-            
-            const growthDifferenceEl = document.getElementById('growthDifference');
-            growthDifferenceEl.innerHTML = '';
-            
-            setTimeout(() => {
-                const span = document.createElement('span');
-                span.textContent = `+ $${Math.round(growth).toLocaleString('en-US')} in growth`;
-                growthDifferenceEl.appendChild(span);
-                growthDifferenceEl.style.opacity = '0';
-                fadeIn(growthDifferenceEl);
-            }, 500);
-
-            setTimeout(() => {
-                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 250);
-        }
-        
-        function fadeIn(element) {
-            let op = 0.1;
-            element.style.display = 'flex';
-            let timer = setInterval(function () {
-                if (op >= 1){
-                    clearInterval(timer);
+                // Typewriter effect
+                let i = 0;
+                function typeWriter() {
+                    if (i < analysis.length) {
+                        aiText.innerHTML += analysis.charAt(i);
+                        i++;
+                        setTimeout(typeWriter, 15);
+                    } else {
+                        audioControls.classList.remove('hidden');
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-50');
+                    }
                 }
-                element.style.opacity = op;
-                element.style.filter = 'alpha(opacity=' + op * 100 + ")";
-                op += op * 0.1;
-            }, 20);
+                typeWriter();
+            }, 600); // Fake processing delay for "Compute" feel
         }
 
+        function generateLocalResponse(p) {
+            let outlook = "";
+            let alignment = "";
+            
+            // Outlook based on Allocation/Risk
+            if (p.risk > 7) {
+                outlook = `Aggressive compounding profile. Your heavy weighting in Equities and ${p.growthFlavor || 'Growth'} positions the portfolio for maximum long-term appreciation, despite expected short-term volatility.`;
+            } else if (p.risk > 4) {
+                outlook = "Balanced growth profile. The strategic mix of Market Beta and Bonds provides a stable foundation, offering consistent returns while dampening market downturns.";
+            } else {
+                outlook = "Conservative preservation profile. High stability allocation prioritizes protecting principal and generating yield over aggressive asset expansion.";
+            }
+
+            // Alignment based on Score/Horizon
+            if (p.score > 7) {
+                alignment = "Excellent strategic alignment. This setup maximizes efficiency for your time horizon, effectively capturing the 'growth premium' needed for wealth acceleration.";
+            } else if (p.horizon === 1 && p.risk > 6) {
+                alignment = "Caution: Misaligned timeframe. High risk requires 10+ years to smooth out volatility; current horizon is too short for this growth engine.";
+            } else {
+                alignment = "Moderate alignment. The strategy is sound, though slightly conservative for maximizing total growth potential relative to your time horizon.";
+            }
+
+            return `OUTLOOK: ${outlook} ALIGNMENT: ${alignment}`;
+        }
+
+        // --- 7. NATIVE BROWSER TTS (No API) ---
+
+        function playLocalBriefing() {
+            if (!currentAnalysisText) return;
+            
+            // Stop any existing speech
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(currentAnalysisText);
+            
+            // Try to select a "Tech" sounding voice
+            const voices = window.speechSynthesis.getVoices();
+            // Prefer Google US English, Microsoft David, or similar standard voices
+            const preferredVoice = voices.find(v => v.name.includes("Google US English") || v.name.includes("David") || v.lang === "en-US");
+            if (preferredVoice) utterance.voice = preferredVoice;
+
+            utterance.pitch = 0.9; // Slightly lower pitch for seriousness
+            utterance.rate = 1.1;  // Slightly faster
+
+            window.speechSynthesis.speak(utterance);
+        }
     </script>
 </body>
 </html>
