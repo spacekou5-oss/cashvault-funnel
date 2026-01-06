@@ -1,1 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The 800-Club Protocol</title>
+    
+    <style>body { background-color: #111111; }</style>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        stealth: {
+                            bg: '#111111',
+                            card: '#1A1A1A',
+                            border: '#333333',
+                            blue: '#00F0FF',
+                            gold: '#FFD700',
+                            white: '#FFFFFF',
+                            text: '#888888'
+                        }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glitch': 'glitch 1s linear infinite',
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { opacity: 1, boxShadow: '0 0 20px rgba(0, 240, 255, 0.1)' },
+                            '50%': { opacity: .8, boxShadow: '0 0 10px rgba(0, 240, 255, 0.05)' },
+                        },
+                        glitch: {
+                            '0%': { clip: 'rect(44px, 9999px, 56px, 0)' },
+                            '5%': { clip: 'rect(30px, 9999px, 80px, 0)' },
+                            '10%': { clip: 'rect(10px, 9999px, 20px, 0)' },
+                            '100%': { clip: 'rect(44px, 9999px, 56px, 0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Checkbox Styling */
+        .check-box {
+            appearance: none;
+            background-color: transparent;
+            margin: 0;
+            font: inherit;
+            width: 1.5em;
+            height: 1.5em;
+            border: 2px solid #333;
+            border-radius: 6px;
+            display: grid;
+            place-content: center;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        .check-box::before {
+            content: "";
+            width: 0.8em;
+            height: 0.8em;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em white;
+            transform-origin: center;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+
+        .check-box:checked {
+            border-color: #00F0FF;
+            background-color: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+        
+        .check-box:checked::before {
+            transform: scale(1);
+            box-shadow: inset 1em 1em #00F0FF;
+        }
+
+        /* Gold Mode Override */
+        .gold-mode .check-box:checked {
+            border-color: #FFD700;
+            background-color: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        .gold-mode .check-box:checked::before {
+            box-shadow: inset 1em 1em #FFD700;
+        }
+
+        /* Cash Rain Animation */
+        .cash-drop {
+            position: fixed;
+            top: -50px;
+            animation: fall linear forwards;
+            z-index: 40;
+            pointer-events: none;
+        }
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-stealth-bg text-stealth-white font-sans antialiased min-h-screen overflow-x-hidden">
+
+    <main x-data="creditProtocol()" class="w-full relative">
+
+        <div x-show="onboarding" 
+             x-transition:leave="transition ease-in duration-700"
+             x-transition:leave-start="transform translate-y-0"
+             x-transition:leave-end="transform -translate-y-full"
+             class="fixed inset-0 z-[60] bg-black flex flex-col items-center justify-center p-6 text-center">
+             
+            <div class="max-w-md space-y-8">
+                <h1 class="text-4xl font-black font-mono tracking-tighter text-white animate-glitch uppercase">
+                    PROTOCOL: 800-CLUB
+                </h1>
+                
+                <div class="space-y-4 border-l-2 border-stealth-blue pl-6 text-left">
+                    <p class="text-stealth-text text-sm font-mono uppercase tracking-widest">Target Analysis:</p>
+                    <p class="text-lg text-white font-medium leading-relaxed">
+                        Banks do not trust you. They trust <span class="text-stealth-blue font-bold">data</span>.
+                    </p>
+                    <p class="text-sm text-stealth-text">
+                        This checklist is the exact algorithm to force the banks to give you access.
+                    </p>
+                    <p class="text-stealth-gold font-bold uppercase text-sm tracking-wider">
+                        Your Goal: Hit 100% Readiness.
+                    </p>
+                </div>
+
+                <button @click="onboarding = false" 
+                        class="group relative inline-flex items-center justify-center px-8 py-4 font-black text-white transition-all duration-200 bg-transparent border-2 border-stealth-blue rounded-none hover:bg-stealth-blue hover:text-black hover:shadow-[0_0_20px_rgba(0,240,255,0.6)] animate-pulse-fast mt-8">
+                    <span class="mr-2">[</span> INITIATE PROTOCOL <span class="ml-2">]</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="w-full max-w-lg mx-auto">
+            
+            <div class="sticky top-0 z-40 bg-stealth-bg/95 backdrop-blur-md border-b border-stealth-border pb-4 pt-4 px-4 shadow-2xl transition-opacity duration-1000"
+                 :class="onboarding ? 'opacity-0' : 'opacity-100'">
+                <div class="flex justify-between items-end mb-2">
+                    <div>
+                        <h1 class="font-mono text-xs text-stealth-text tracking-widest uppercase">Credit Protocol</h1>
+                        <div class="text-2xl font-black italic tracking-tighter" 
+                             :class="progress > 100 ? 'text-stealth-gold drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]' : 'text-stealth-blue drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]'"
+                             x-text="statusText">
+                        </div>
+                    </div>
+                    <div class="text-3xl font-black font-mono" x-text="progress + '%'"></div>
+                </div>
+
+                <div class="w-full h-3 bg-stealth-card rounded-full overflow-hidden border border-stealth-border relative">
+                    <div class="absolute top-0 left-0 h-full bg-stealth-blue transition-all duration-500 ease-out"
+                         :style="`width: ${Math.min(100, progress)}%`">
+                    </div>
+                    <div class="absolute top-0 left-0 h-full bg-stealth-gold transition-all duration-500 ease-out z-10 shadow-[0_0_15px_#FFD700]"
+                         :style="`width: ${progress > 100 ? (progress - 100) * 10 : 0}%`"
+                         x-show="progress > 100">
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-4 mt-6 space-y-3 pb-40" :class="{ 'gold-mode': progress > 100 }">
+                
+                <template x-for="item in items" :key="item.id">
+                    <label class="flex items-center gap-4 bg-stealth-card border border-stealth-border p-4 rounded-xl cursor-pointer hover:border-stealth-blue/30 transition-colors group">
+                        <input type="checkbox" x-model="item.checked" class="check-box flex-shrink-0">
+                        <div>
+                            <p class="font-bold text-sm text-white group-hover:text-stealth-blue transition-colors" x-text="item.title"></p>
+                            <p class="text-[10px] text-stealth-text mt-0.5" x-text="item.desc"></p>
+                        </div>
+                    </label>
+                </template>
+
+                <div class="flex items-center gap-4 py-4">
+                    <div class="h-px bg-stealth-border flex-1"></div>
+                    <span class="text-[10px] font-mono uppercase text-stealth-gold tracking-widest">The 110% Hack</span>
+                    <div class="h-px bg-stealth-border flex-1"></div>
+                </div>
+
+                <label class="flex items-center gap-4 bg-stealth-card border border-stealth-gold/30 p-4 rounded-xl cursor-pointer hover:border-stealth-gold transition-colors group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-stealth-gold opacity-5 group-hover:opacity-10 transition-opacity"></div>
+                    <input type="checkbox" x-model="bonus.checked" class="check-box flex-shrink-0 border-stealth-gold/50 text-stealth-gold">
+                    <div class="relative z-10">
+                        <p class="font-bold text-sm text-stealth-gold" x-text="bonus.title"></p>
+                        <p class="text-[10px] text-stealth-text mt-0.5" x-text="bonus.desc"></p>
+                    </div>
+                </label>
+
+            </div>
+        </div>
+
+        <div class="fixed bottom-0 left-0 w-full z-50 p-4 bg-stealth-bg/90 backdrop-blur-md border-t border-stealth-border"
+             x-show="!onboarding"
+             x-transition:enter="transition ease-out duration-1000"
+             x-transition:enter-start="translate-y-full"
+             x-transition:enter-end="translate-y-0">
+            
+            <a :href="progress >= 80 ? 'https://gumroad.com/l/autopilot-map' : '#'"
+               :class="progress >= 80 ? 'bg-stealth-gold text-black shadow-[0_0_20px_#FFD700] hover:scale-[1.02] animate-pulse-fast' : 'bg-stealth-card text-stealth-text border border-stealth-border cursor-not-allowed opacity-50'"
+               class="flex items-center justify-center gap-3 w-full max-w-lg mx-auto py-4 rounded-xl font-black uppercase text-center transition-all duration-500">
+               
+               <span x-text="progress >= 80 ? '🔓' : '🔒'"></span>
+               <span x-text="progress >= 80 ? 'STEAL THE AUTOPILOT MAP (FREE)' : 'UNLOCK REWARD (REACH 80%)'"></span>
+               
+            </a>
+            
+        </div>
+
+    </main>
+
+    <script>
+        function creditProtocol() {
+            return {
+                onboarding: true,
+                items: [
+                    { id: 1, title: 'The Spy', desc: 'Download Credit Karma / Experian app.', checked: false },
+                    { id: 2, title: 'The Safety', desc: 'Turn on "Autopay" (Minimum Balance).', checked: false },
+                    { id: 3, title: 'The Sniper', desc: 'Pay balance 3 days before Statement Date.', checked: false },
+                    { id: 4, title: 'The Ratio', desc: 'Keep Utilization below 10%.', checked: false },
+                    { id: 5, title: 'The Cleanup', desc: 'Dispute any error older than 2 years.', checked: false },
+                    { id: 6, title: 'The Ask', desc: 'Request Limit Increase (Every 6 months).', checked: false },
+                    { id: 7, title: 'The Boost', desc: 'Connect Utility Bills (Experian Boost).', checked: false },
+                    { id: 8, title: 'The Wait', desc: 'No new inquiries for 6 months.', checked: false },
+                    { id: 9, title: 'The Rule', desc: 'Treat Credit Card like a Debit Card.', checked: false },
+                    { id: 10, title: 'The Active', desc: 'Use card once a month (don\'t let it rot).', checked: false },
+                ],
+                bonus: { id: 11, title: 'The Piggyback', desc: 'Become Authorized User on parent\'s card (750+).', checked: false },
+                
+                celebrated: false,
+
+                get progress() {
+                    let score = this.items.filter(i => i.checked).length * 10;
+                    if (this.bonus.checked) score += 10;
+                    
+                    // Trigger Rain Effect Logic
+                    if (score >= 100 && !this.celebrated) {
+                        this.celebrated = true;
+                        this.makeItRain();
+                    }
+                    if (score < 100) this.celebrated = false; // Reset if they uncheck
+
+                    return score;
+                },
+
+                get statusText() {
+                    const p = this.progress;
+                    if (p >= 110) return "STATUS: GOD MODE";
+                    if (p >= 100) return "STATUS: BOSS";
+                    if (p >= 60) return "STATUS: PLAYER";
+                    if (p >= 30) return "STATUS: RISK";
+                    return "STATUS: GHOST";
+                },
+
+                // The Physics Engine (No external lib)
+                makeItRain() {
+                    const emojis = ['💸', '💰', '💵', '💳'];
+                    const container = document.body;
+                    
+                    for (let i = 0; i < 30; i++) {
+                        const el = document.createElement('div');
+                        el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                        el.classList.add('cash-drop');
+                        
+                        // Random Physics
+                        el.style.left = Math.random() * 100 + 'vw';
+                        el.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                        el.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+                        el.style.animationDelay = (Math.random() * 0.5) + 's';
+                        
+                        container.appendChild(el);
+
+                        // Cleanup
+                        setTimeout(() => { el.remove(); }, 4000);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
