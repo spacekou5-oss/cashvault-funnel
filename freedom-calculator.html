@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Freedom Number Engine</title>
+    
+    <style>body { background-color: #050505; }</style>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        cyber: {
+                            black: '#050505',
+                            dark: '#111111',
+                            gold: '#FFD700',
+                            blue: '#00F0FF',
+                            gray: '#333333',
+                            red: '#FF0000',
+                            green: '#00FF41',
+                            orange: '#FFA500'
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Inputs */
+        .input-cyber {
+            background-color: #050505;
+            border: 1px solid #333;
+            color: white;
+            transition: all 0.2s;
+        }
+        .input-cyber:focus {
+            border-color: #FFD700;
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+        }
+
+        /* Glitch Effect */
+        .glitch { position: relative; }
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .glitch::before {
+            left: 2px; text-shadow: -1px 0 #FFD700; clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim 3s infinite linear alternate-reverse;
+        }
+        .glitch::after {
+            left: -2px; text-shadow: -1px 0 #00F0FF; clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim2 2s infinite linear alternate-reverse;
+        }
+        @keyframes glitch-anim {
+            0% { clip: rect(14px, 9999px, 127px, 0); }
+            20% { clip: rect(84px, 9999px, 36px, 0); }
+            40% { clip: rect(10px, 9999px, 110px, 0); }
+            60% { clip: rect(44px, 9999px, 94px, 0); }
+            80% { clip: rect(104px, 9999px, 19px, 0); }
+            100% { clip: rect(14px, 9999px, 112px, 0); }
+        }
+        @keyframes glitch-anim2 {
+            0% { clip: rect(109px, 9999px, 18px, 0); }
+            20% { clip: rect(59px, 9999px, 13px, 0); }
+            40% { clip: rect(48px, 9999px, 63px, 0); }
+            60% { clip: rect(117px, 9999px, 107px, 0); }
+            80% { clip: rect(4px, 9999px, 73px, 0); }
+            100% { clip: rect(114px, 9999px, 34px, 0); }
+        }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-cyber-black text-white font-sans antialiased min-h-screen flex items-center justify-center p-4">
+
+    <main x-data="freedomEngine()" class="w-full max-w-lg">
+
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-black tracking-tighter uppercase glitch text-white" data-text="DEFINE YOUR FREEDOM">
+                DEFINE YOUR FREEDOM
+            </h1>
+            <div class="h-1 w-24 bg-cyber-gold mx-auto mt-4 rounded-full shadow-[0_0_10px_#FFD700]"></div>
+        </div>
+
+        <div class="bg-cyber-dark border border-cyber-gray rounded-2xl p-6 mb-6 shadow-2xl space-y-5">
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-cyber-gray uppercase mb-2">My Age</label>
+                    <input type="number" x-model.number="age" 
+                        class="input-cyber w-full font-mono text-xl p-3 rounded-lg text-center placeholder-gray-600"
+                        placeholder="20">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-cyber-gray uppercase mb-2">Saved So Far</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cyber-gray">$</span>
+                        <input type="number" x-model.number="currentWealth" 
+                            class="input-cyber w-full font-mono text-xl p-3 pl-6 rounded-lg text-center placeholder-gray-600"
+                            placeholder="1000">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-bold text-cyber-gold uppercase mb-2 tracking-widest">Desired Monthly Income (Live Off Interest)</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-cyber-gold font-bold">$</span>
+                    <input type="number" x-model.number="desiredIncome" 
+                        class="input-cyber w-full font-mono text-2xl p-4 pl-8 rounded-lg text-white border-cyber-gold/30 focus:border-cyber-gold"
+                        placeholder="5000">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-bold text-cyber-blue uppercase mb-2 tracking-widest">Monthly Investment (The Hustle)</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-cyber-blue font-bold">$</span>
+                    <input type="number" x-model.number="monthlyInvest" 
+                        class="input-cyber w-full font-mono text-2xl p-4 pl-8 rounded-lg text-white border-cyber-blue/30 focus:border-cyber-blue"
+                        placeholder="500">
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-cyber-dark border border-cyber-gray rounded-2xl p-6 mb-6 relative overflow-hidden">
+            
+            <div class="grid grid-cols-1 gap-8 relative z-10">
+                
+                <div class="text-center border-b border-dashed border-cyber-gray pb-6">
+                    <p class="text-[10px] font-bold text-cyber-gray uppercase tracking-[0.2em] mb-2">Your Freedom Price Tag</p>
+                    <div class="text-4xl sm:text-5xl font-black font-mono text-cyber-gold tracking-tight drop-shadow-[0_0_15px_rgba(255,215,0,0.3)]" 
+                         x-text="formatMoney(freedomNumber)"></div>
+                    <p class="text-[10px] text-cyber-gray mt-2">Based on the Rule of 25</p>
+                </div>
+
+                <div class="text-center">
+                    <p class="text-[10px] font-bold text-cyber-gray uppercase tracking-[0.2em] mb-2">Estimated Exit Age</p>
+                    <div class="text-5xl sm:text-6xl font-black font-mono tracking-tight"
+                         :class="getStatusColor()"
+                         x-text="exitAgeDisplay"></div>
+                    
+                    <div class="w-full bg-black h-2 mt-6 rounded-full overflow-hidden border border-cyber-gray/30">
+                        <div class="h-full transition-all duration-1000 ease-out"
+                             :class="getStatusBg()"
+                             :style="`width: ${progressPercent}%`"></div>
+                    </div>
+                </div>
+
+                <div class="bg-black border border-gray-800 rounded p-4 text-center">
+                    <p class="text-xs font-bold uppercase tracking-widest"
+                       :class="getStatusColor()"
+                       x-text="statusMessage"></p>
+                </div>
+
+            </div>
+            
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyber-blue opacity-5 blur-[100px] pointer-events-none"></div>
+        </div>
+
+        <div class="space-y-3">
+            <a href="https://gumroad.com/l/autopilot-map" target="_blank" 
+               class="group relative block w-full bg-white hover:bg-cyber-blue hover:text-black text-black text-center py-4 rounded-xl font-black uppercase tracking-widest transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.2)] overflow-hidden">
+                <span class="relative z-10 flex items-center justify-center gap-2">
+                    <span>🔒</span> 
+                    STEAL THE AUTOPILOT MAP (FREE) 
+                    <span class="inline-block transition-transform group-hover:translate-x-1">➜</span>
+                </span>
+            </a>
+            
+            <p class="text-center text-[10px] text-cyber-gray opacity-60 font-mono">
+                The exact visual system I use to automate 30% of my income. 0% Spam.
+            </p>
+        </div>
+
+    </main>
+
+    <script>
+        function freedomEngine() {
+            return {
+                age: 20,
+                currentWealth: 1000,
+                desiredIncome: 5000,
+                monthlyInvest: 500,
+                
+                // Constants
+                annualReturn: 0.08, // 8% Market Average
+
+                // 1. The Freedom Number (Rule of 25)
+                get freedomNumber() {
+                    if (this.desiredIncome <= 0) return 0;
+                    return this.desiredIncome * 12 * 25;
+                },
+
+                // 2. Logic: Time to Goal
+                // Formula: NPER using Logarithms
+                get yearsToGoal() {
+                    const r = this.annualReturn / 12; // Monthly Rate
+                    const fv = this.freedomNumber;
+                    const pv = this.currentWealth || 0;
+                    const pmt = this.monthlyInvest || 0;
+
+                    // Edge: Already there
+                    if (pv >= fv) return 0;
+
+                    // Edge: No progress
+                    if (pmt <= 0 && pv <= 0) return 999; 
+
+                    // NPER Formula: ln((FV*r + PMT) / (PV*r + PMT)) / ln(1+r)
+                    const numerator = (fv * r) + pmt;
+                    const denominator = (pv * r) + pmt;
+                    
+                    if (denominator === 0) return 999; // Divide by zero safety
+
+                    const months = Math.log(numerator / denominator) / Math.log(1 + r);
+                    
+                    return Math.max(0, months / 12);
+                },
+
+                get exitAge() {
+                    return (this.age || 0) + this.yearsToGoal;
+                },
+
+                get exitAgeDisplay() {
+                    if (this.yearsToGoal >= 100) return "NEVER";
+                    return this.exitAge.toFixed(1) + " YRS";
+                },
+
+                get progressPercent() {
+                    if (this.freedomNumber === 0) return 0;
+                    const pct = (this.currentWealth / this.freedomNumber) * 100;
+                    return Math.min(100, Math.max(0, pct));
+                },
+
+                // 3. The Psychological Trigger
+                get statusMessage() {
+                    if (this.yearsToGoal >= 100) return "MANUAL SAVING FAILED. YOU NEED AUTOPILOT.";
+                    
+                    const age = this.exitAge;
+                    if (age < 40) return "STATUS: LEGEND. YOU ARE ESCAPING THE MATRIX.";
+                    if (age < 55) return "STATUS: STANDARD. ACCEPTABLE BUT SLOW.";
+                    // The Pivot: Any result > 55 triggers the solution pitch
+                    return "MANUAL SAVING FAILED. YOU NEED AUTOPILOT.";
+                },
+
+                getStatusColor() {
+                    if (this.yearsToGoal >= 100) return "text-cyber-red animate-pulse";
+                    const age = this.exitAge;
+                    if (age < 40) return "text-cyber-green";
+                    if (age < 55) return "text-cyber-gold";
+                    return "text-cyber-red animate-pulse";
+                },
+
+                getStatusBg() {
+                    if (this.yearsToGoal >= 100) return "bg-cyber-red";
+                    const age = this.exitAge;
+                    if (age < 40) return "bg-cyber-green";
+                    if (age < 55) return "bg-cyber-gold";
+                    return "bg-cyber-red";
+                },
+
+                formatMoney(val) {
+                    return new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        maximumFractionDigits: 0
+                    }).format(val);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
