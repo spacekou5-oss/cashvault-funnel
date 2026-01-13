@@ -14,6 +14,9 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Beehiiv Embed Script -->
+    <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+    
     <script>
         tailwind.config = {
             theme: {
@@ -88,6 +91,29 @@
             100% { clip: rect(114px, 9999px, 34px, 0); }
         }
         [x-cloak] { display: none !important; }
+
+        /* Modal Styles */
+        .modal-backdrop {
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-content {
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
     </style>
 </head>
 <body class="bg-cyber-black text-white font-sans antialiased min-h-screen flex items-center justify-center p-4">
@@ -177,19 +203,47 @@
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyber-blue opacity-5 blur-[100px] pointer-events-none"></div>
         </div>
 
+        <!-- CTA Button to Open Modal -->
         <div class="space-y-3">
-            <a href="https://gumroad.com/l/autopilot-map" target="_blank" 
+            <button @click="showModal = true"
                class="group relative block w-full bg-white hover:bg-cyber-blue hover:text-black text-black text-center py-4 rounded-xl font-black uppercase tracking-widest transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.2)] overflow-hidden">
                 <span class="relative z-10 flex items-center justify-center gap-2">
                     <span>🔒</span> 
                     STEAL THE AUTOPILOT MAP (FREE) 
                     <span class="inline-block transition-transform group-hover:translate-x-1">➜</span>
                 </span>
-            </a>
+            </button>
             
             <p class="text-center text-[10px] text-cyber-gray opacity-60 font-mono">
                 The exact visual system I use to automate 30% of my income. 0% Spam.
             </p>
+        </div>
+
+        <!-- Modal Overlay -->
+        <div x-show="showModal" 
+             x-cloak
+             @click.self="showModal = false"
+             class="modal-backdrop fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+            
+            <div class="modal-content relative">
+                
+                <!-- Close Button -->
+                <button @click="showModal = false" 
+                        class="absolute -top-10 right-0 text-white hover:text-cyber-gold transition-colors z-10">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+
+                <!-- Beehiiv Embed Form -->
+                <iframe src="https://subscribe-forms.beehiiv.com/76441368-8855-465e-a25d-e7a3a75db50a" 
+                        class="beehiiv-embed" 
+                        data-test-id="beehiiv-embed" 
+                        frameborder="0" 
+                        scrolling="no" 
+                        style="width: 400px; height: 346px; margin: 0; border-radius: 12px; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
+
+            </div>
         </div>
 
     </main>
@@ -201,6 +255,7 @@
                 currentWealth: 1000,
                 desiredIncome: 5000,
                 monthlyInvest: 500,
+                showModal: false,
                 
                 // Constants
                 annualReturn: 0.08, // 8% Market Average
