@@ -14,6 +14,9 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Beehiiv Embed Script -->
+    <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+    
     <script>
         tailwind.config = {
             theme: {
@@ -210,21 +213,73 @@
             </div>
         </div>
 
+        <!-- CTA Button -->
         <div class="fixed bottom-0 left-0 w-full z-50 p-4 bg-stealth-bg/90 backdrop-blur-md border-t border-stealth-border"
              x-show="!onboarding"
              x-transition:enter="transition ease-out duration-1000"
              x-transition:enter-start="translate-y-full"
              x-transition:enter-end="translate-y-0">
             
-            <a :href="progress >= 80 ? 'https://gumroad.com/l/autopilot-map' : '#'"
-               :class="progress >= 80 ? 'bg-stealth-gold text-black shadow-[0_0_20px_#FFD700] hover:scale-[1.02] animate-pulse-fast' : 'bg-stealth-card text-stealth-text border border-stealth-border cursor-not-allowed opacity-50'"
+            <button @click="progress >= 80 ? showModal = true : null"
+               :class="progress >= 80 ? 'bg-stealth-gold text-black shadow-[0_0_20px_#FFD700] hover:scale-[1.02] animate-pulse-fast cursor-pointer' : 'bg-stealth-card text-stealth-text border border-stealth-border cursor-not-allowed opacity-50'"
                class="flex items-center justify-center gap-3 w-full max-w-lg mx-auto py-4 rounded-xl font-black uppercase text-center transition-all duration-500">
                
                <span x-text="progress >= 80 ? '🔓' : '🔒'"></span>
                <span x-text="progress >= 80 ? 'STEAL THE AUTOPILOT MAP (FREE)' : 'UNLOCK REWARD (REACH 80%)'"></span>
                
-            </a>
+            </button>
             
+        </div>
+
+        <!-- Optimized Modal -->
+        <div x-cloak x-show="showModal" 
+             class="fixed inset-0 z-[70] flex items-center justify-center p-3"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+            
+            <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showModal = false"></div>
+            
+            <div class="relative bg-stealth-card border-2 border-stealth-gold rounded-2xl p-3 w-full max-w-md shadow-[0_0_30px_rgba(255,215,0,0.3)] max-h-[95vh] overflow-y-auto"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-90"
+                 x-transition:enter-end="opacity-100 scale-100">
+                
+                <!-- Close Button -->
+                <button @click="showModal = false" 
+                        class="absolute top-2 right-2 text-stealth-text/50 hover:text-stealth-text transition-colors z-10">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+
+                <!-- Modal Header -->
+                <div class="text-center mb-2">
+                    <h2 class="text-xl sm:text-3xl font-black uppercase text-stealth-gold tracking-tight drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]">
+                        🔓 ACCESS GRANTED
+                    </h2>
+                </div>
+
+                <!-- Beehiiv Embed Form -->
+                <div class="flex justify-center -mx-1">
+                    <iframe src="https://subscribe-forms.beehiiv.com/90d138cb-47b1-4e1c-a5e2-ffd2119b2021" 
+                            class="beehiiv-embed" 
+                            data-test-id="beehiiv-embed" 
+                            frameborder="0" 
+                            scrolling="no" 
+                            style="width: 100%; max-width: 420px; height: 400px; margin: 0; border-radius: 12px; background-color: transparent; box-shadow: 0 0 #0000;"></iframe>
+                </div>
+
+                <!-- Reassurance Line -->
+                <div class="text-center mt-2">
+                    <p class="text-[10px] sm:text-xs text-stealth-text/70 font-mono tracking-wide">
+                        Delivered in 10 seconds. Zero spam.
+                    </p>
+                </div>
+            </div>
         </div>
 
     </main>
@@ -233,6 +288,7 @@
         function creditProtocol() {
             return {
                 onboarding: true,
+                showModal: false,
                 items: [
                     { id: 1, title: 'The Spy', desc: 'Download Credit Karma / Experian app.', checked: false },
                     { id: 2, title: 'The Safety', desc: 'Turn on "Autopay" (Minimum Balance).', checked: false },
