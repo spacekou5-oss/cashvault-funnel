@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE SYSTEM | Financial OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --cyber-black: #050505;
+            --neon-green: #39FF14;
+            --premium-gold: #FFD700;
+        }
+        body {
+            background-color: var(--cyber-black);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .neon-glow { text-shadow: 0 0 10px rgba(57, 255, 20, 0.5); }
+        .neon-border { border-color: rgba(57, 255, 20, 0.3); }
+        .glass-card {
+            background: #111111;
+            border: 1px solid #333333;
+            transition: all 0.3s ease;
+        }
+        .step-content { display: none; }
+        .step-content.active { display: block; animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        input[type="checkbox"]:checked {
+            accent-color: var(--neon-green);
+        }
+        .progress-gradient {
+            background: linear-gradient(90deg, #39FF14 0%, #00ff87 100%);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="fixed top-0 left-0 w-full z-50 h-1 bg-black">
+        <div id="main-progress" class="h-full progress-gradient transition-all duration-700 w-0 shadow-[0_0_15px_#39FF14]"></div>
+    </div>
+
+    <header class="p-6 flex justify-between items-center max-w-2xl mx-auto w-full">
+        <div class="text-xs mono font-bold tracking-widest text-gray-500 uppercase">System Status: <span id="status-text" class="text-white">Configuring</span></div>
+        <div class="text-xs mono text-gray-500 uppercase">Module <span id="module-number" class="text-white">1</span>/7</div>
+    </header>
+
+    <main class="max-w-2xl mx-auto p-4 pb-32">
+
+        <section id="step-1" class="step-content active text-center py-12">
+            <div class="inline-block p-4 border neon-border mb-8">
+                <p class="mono text-xs text-gray-500 mb-2 uppercase">Destination Confirmed</p>
+                <h1 class="text-3xl font-black mb-1">YOUR FREEDOM NUMBER</h1>
+                <h2 id="bridge-freedom-num" class="text-5xl font-black text-[#39FF14] neon-glow mono">$1,500,000</h2>
+            </div>
+            <p class="text-gray-400 mb-8 leading-relaxed">You have the destination. Now let's build the machine that gets you there.</p>
+            <button onclick="nextStep()" class="w-full py-4 bg-[#39FF14] text-black font-black uppercase tracking-widest hover:bg-green-400 transition-all">Start Building &rarr;</button>
+        </section>
+
+        <section id="step-2" class="step-content">
+            <h2 class="text-2xl font-black mb-6 flex items-center gap-3">
+                <span class="w-2 h-8 bg-[#39FF14]"></span> CALIBRATE YOUR MACHINE
+            </h2>
+            <div class="glass-card p-6 rounded-xl mb-8">
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-xs mono text-gray-500 uppercase mb-2">Monthly Income (After Tax)</label>
+                        <input type="number" id="income-input" oninput="calculateSplit()" placeholder="3500" class="w-full bg-black border border-[#333333] p-4 rounded text-xl font-bold focus:border-[#39FF14] outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs mono text-gray-500 uppercase mb-2">Pay Frequency</label>
+                        <select id="freq-input" onchange="calculateSplit()" class="w-full bg-black border border-[#333333] p-4 rounded outline-none font-bold">
+                            <option value="2">Bi-Weekly</option>
+                            <option value="1">Monthly</option>
+                            <option value="4">Weekly</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="split-results" class="space-y-6">
+                <div class="p-4 border border-[#333333] rounded">
+                    <div class="flex justify-between text-xs mono mb-2"><span>70% SPENDING</span><span id="val-70" class="text-white">$0</span></div>
+                    <div class="h-2 w-full bg-black rounded-full overflow-hidden"><div class="h-full bg-white/20 w-[70%]"></div></div>
+                </div>
+                <div class="p-4 border neon-border rounded bg-[#39FF14]/5">
+                    <div class="flex justify-between text-xs mono mb-2 text-[#39FF14] font-bold"><span>20% INVESTING</span><span id="val-20">$0</span></div>
+                    <div class="h-2 w-full bg-black rounded-full overflow-hidden"><div class="h-full bg-[#39FF14] w-[20%] shadow-[0_0_10px_#39FF14]"></div></div>
+                </div>
+                <div class="p-4 border border-[#333333] rounded">
+                    <div class="flex justify-between text-xs mono mb-2 text-[#FFD700]"><span>10% SAFETY NET</span><span id="val-10">$0</span></div>
+                    <div class="h-2 w-full bg-black rounded-full overflow-hidden"><div class="h-full bg-[#FFD700] w-[10%]"></div></div>
+                </div>
+            </div>
+            <button onclick="nextStep()" class="mt-8 w-full py-4 bg-white text-black font-black uppercase tracking-widest hover:invert transition-all">Lock In Numbers</button>
+        </section>
+
+        <section id="step-3" class="step-content">
+            <h2 class="text-2xl font-black mb-2">BUILD INFRASTRUCTURE</h2>
+            <p class="text-gray-500 text-sm mb-8">Open these 3 accounts. This is your financial OS.</p>
+            
+            <div class="space-y-4">
+                <div class="glass-card p-6 rounded-xl border-l-4 border-l-[#39FF14]">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-bold">SoFi Checking</h3>
+                            <p class="text-xs text-gray-500">Your Spending Money (70%)</p>
+                        </div>
+                        <input type="checkbox" onchange="checkAccounts()" id="check-sofi" class="w-6 h-6">
+                    </div>
+                    <a href="https://www.sofi.com" target="_blank" class="block w-full text-center py-2 bg-[#333333] rounded text-xs font-bold uppercase tracking-widest hover:bg-[#444444]">Open SoFi Checking &rarr;</a>
+                </div>
+
+                <div class="glass-card p-6 rounded-xl border-l-4 border-l-[#FFD700]">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-bold">SoFi Savings (HYSA)</h3>
+                            <p class="text-xs text-gray-500">Emergency Fund (10%)</p>
+                        </div>
+                        <input type="checkbox" onchange="checkAccounts()" id="check-savings" class="w-6 h-6">
+                    </div>
+                    <a href="https://www.sofi.com" target="_blank" class="block w-full text-center py-2 bg-[#333333] rounded text-xs font-bold uppercase tracking-widest hover:bg-[#444444]">Open SoFi Savings &rarr;</a>
+                </div>
+
+                <div class="glass-card p-6 rounded-xl border-l-4 border-l-white">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-bold">Fidelity Roth IRA</h3>
+                            <p class="text-xs text-gray-500">Tax-Free Investing (20%)</p>
+                        </div>
+                        <input type="checkbox" onchange="checkAccounts()" id="check-roth" class="w-6 h-6">
+                    </div>
+                    <a href="https://www.fidelity.com" target="_blank" class="block w-full text-center py-2 bg-[#333333] rounded text-xs font-bold uppercase tracking-widest hover:bg-[#444444]">Open Roth IRA &rarr;</a>
+                </div>
+            </div>
+
+            <div class="mt-12 p-6 border border-dashed border-[#333333] rounded-xl text-center">
+                <p class="text-sm text-gray-500 mb-4">Want elite credit access to leverage low rates?</p>
+                <a href="#" class="text-[#39FF14] font-bold text-sm uppercase mono underline">Join the 800-Club &rarr;</a>
+            </div>
+            
+            <button id="setup-next" disabled onclick="nextStep()" class="mt-8 w-full py-4 bg-white/10 text-gray-500 font-black uppercase opacity-50 cursor-not-allowed">Complete Setup First</button>
+        </section>
+
+        <section id="step-4" class="step-content">
+            <h2 class="text-2xl font-black mb-6">WIRE THE AUTOMATION</h2>
+            <p class="text-gray-400 mb-8">Does your employer allow direct deposit splits?</p>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="nextStep()" class="py-6 border border-[#333333] rounded-xl font-bold hover:bg-white hover:text-black transition-all">YES, THEY DO</button>
+                <button onclick="nextStep()" class="py-6 border border-[#333333] rounded-xl font-bold hover:bg-white hover:text-black transition-all">NO, THEY DON'T</button>
+            </div>
+        </section>
+
+        <section id="step-5" class="step-content">
+            <h2 class="text-2xl font-black mb-6 uppercase">Choose Your Fuel</h2>
+            <div class="space-y-4 mb-8">
+                <button onclick="setRisk('conservative')" class="risk-btn w-full p-6 glass-card rounded-xl text-left border-l-4 border-transparent hover:border-blue-500 transition-all">
+                    <h3 class="font-bold text-white">CONSERVATIVE</h3>
+                    <p class="text-xs text-gray-500">Dividend Focus (4% Avg)</p>
+                </button>
+                <button onclick="setRisk('moderate')" class="risk-btn w-full p-6 glass-card rounded-xl text-left border-l-4 border-transparent hover:border-green-500 transition-all border-[#39FF14]">
+                    <h3 class="font-bold text-white">MODERATE</h3>
+                    <p class="text-xs text-gray-500">S&P 500 Exposure (7% Avg)</p>
+                </button>
+                <button onclick="setRisk('aggressive')" class="risk-btn w-full p-6 glass-card rounded-xl text-left border-l-4 border-transparent hover:border-red-500 transition-all">
+                    <h3 class="font-bold text-white">AGGRESSIVE</h3>
+                    <p class="text-xs text-gray-500">Total Market Growth (10% Avg)</p>
+                </button>
+            </div>
+            <div class="p-6 bg-[#39FF14]/5 border neon-border rounded-xl">
+                <p class="text-xs text-gray-500 uppercase mono mb-2">Recommended Asset</p>
+                <h3 id="asset-ticker" class="text-2xl font-black text-white mb-2">VTI</h3>
+                <p id="asset-desc" class="text-sm text-gray-400">Total stock market exposure for maximum long-term compounding.</p>
+            </div>
+            <button onclick="nextStep()" class="mt-8 w-full py-4 bg-white text-black font-black uppercase tracking-widest">Select Fuel</button>
+        </section>
+
+        <section id="step-6" class="step-content">
+            <h2 class="text-2xl font-black mb-6 uppercase">The Machine Outcome</h2>
+            <div class="glass-card p-6 rounded-xl mb-8 space-y-6">
+                <div>
+                    <div class="flex justify-between text-xs mono mb-2 text-gray-500 uppercase"><span>Year 1</span><span id="proj-1" class="text-white">$0</span></div>
+                    <div class="h-2 w-full bg-black rounded-full overflow-hidden"><div id="bar-1" class="h-full bg-white/20 transition-all duration-1000" style="width: 5%"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs mono mb-2 text-gray-500 uppercase"><span>Year 10</span><span id="proj-10" class="text-white">$0</span></div>
+                    <div class="h-2 w-full bg-black rounded-full overflow-hidden"><div id="bar-10" class="h-full bg-white/40 transition-all duration-1000" style="width: 25%"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs mono mb-2 text-gray-500 uppercase"><span>Year 30</span><span id="proj-30" class="text-white">$0</span></div>
+                    <div class="h-2 w-full bg-black rounded-full overflow-hidden"><div id="bar-30" class="h-full bg-[#39FF14] transition-all duration-1000 shadow-[0_0_10px_#39FF14]" style="width: 80%"></div></div>
+                </div>
+            </div>
+            <div class="text-center p-6 border-2 border-[#39FF14] rounded-xl mb-8">
+                <p class="text-xs uppercase mono text-gray-400 mb-2">Freedom Status</p>
+                <h3 id="freedom-eta" class="text-xl font-black text-[#39FF14]">22.4 YEARS TO EXIT</h3>
+            </div>
+            <button onclick="completeSystem()" class="w-full py-4 bg-[#39FF14] text-black font-black uppercase tracking-widest">Finish Setup &rarr;</button>
+        </section>
+
+        <section id="step-7" class="step-content text-center py-12">
+            <div class="text-6xl mb-4">🏆</div>
+            <h1 class="text-3xl font-black mb-2 uppercase">System Online</h1>
+            <p class="text-gray-500 mono text-xs mb-12">Your financial OS is now building wealth on autopilot.</p>
+            
+            <div class="space-y-4 text-left max-w-xs mx-auto mb-12">
+                <div class="flex items-center gap-3 text-sm text-[#39FF14]"><span class="w-4 h-4 border border-[#39FF14] flex items-center justify-center text-[10px]">✓</span> Income Calibrated</div>
+                <div class="flex items-center gap-3 text-sm text-[#39FF14]"><span class="w-4 h-4 border border-[#39FF14] flex items-center justify-center text-[10px]">✓</span> Accounts Infrastructure Ready</div>
+                <div class="flex items-center gap-3 text-sm text-[#39FF14]"><span class="w-4 h-4 border border-[#39FF14] flex items-center justify-center text-[10px]">✓</span> Automation Linked</div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4">
+                <a href="#" class="p-6 glass-card rounded-xl font-black uppercase hover:border-[#39FF14] transition-all">Optimize My Credit</a>
+                <a href="#" class="p-6 glass-card rounded-xl font-black uppercase hover:border-[#FFD700] transition-all">Join The Protocol</a>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // CORE STATE
+        let state = {
+            currentStep: 1,
+            freedomNumber: 1500000,
+            income: 3500,
+            freq: 2,
+            risk: 'moderate',
+            accounts: { sofi: false, savings: false, roth: false }
+        };
+
+        // INITIALIZE
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            if(params.get('freedom_num')) {
+                state.freedomNumber = parseInt(params.get('freedom_num'));
+                document.getElementById('bridge-freedom-num').innerText = '$' + state.freedomNumber.toLocaleString();
+            }
+            updateProgressBar();
+        };
+
+        function nextStep() {
+            document.getElementById(`step-${state.currentStep}`).classList.remove('active');
+            state.currentStep++;
+            document.getElementById(`step-${state.currentStep}`).classList.add('active');
+            document.getElementById('module-number').innerText = state.currentStep;
+            updateProgressBar();
+            
+            if(state.currentStep === 6) runProjections();
+            window.scrollTo(0,0);
+        }
+
+        function updateProgressBar() {
+            const percent = ((state.currentStep - 1) / 6) * 100;
+            document.getElementById('main-progress').style.width = percent + '%';
+        }
+
+        // MODULE 2 LOGIC
+        function calculateSplit() {
+            state.income = document.getElementById('income-input').value || 0;
+            state.freq = document.getElementById('freq-input').value;
+            
+            const m = state.income;
+            document.getElementById('val-70').innerText = `$${(m * 0.7).toLocaleString()}/mo`;
+            document.getElementById('val-20').innerText = `$${(m * 0.2).toLocaleString()}/mo`;
+            document.getElementById('val-10').innerText = `$${(m * 0.1).toLocaleString()}/mo`;
+        }
+
+        // MODULE 3 LOGIC
+        function checkAccounts() {
+            state.accounts.sofi = document.getElementById('check-sofi').checked;
+            state.accounts.savings = document.getElementById('check-savings').checked;
+            state.accounts.roth = document.getElementById('check-roth').checked;
+
+            const btn = document.getElementById('setup-next');
+            if(state.accounts.sofi && state.accounts.savings && state.accounts.roth) {
+                btn.disabled = false;
+                btn.classList.remove('bg-white/10', 'text-gray-500', 'opacity-50', 'cursor-not-allowed');
+                btn.classList.add('bg-white', 'text-black');
+                btn.innerText = "Continue &rarr;";
+            }
+        }
+
+        // MODULE 5 LOGIC
+        function setRisk(r) {
+            state.risk = r;
+            document.querySelectorAll('.risk-btn').forEach(b => b.classList.remove('border-[#39FF14]'));
+            event.currentTarget.classList.add('border-[#39FF14]');
+            
+            const assets = {
+                conservative: ['VIG', 'Dividend focus for stability.'],
+                moderate: ['VOO', 'S&P 500 for market-standard growth.'],
+                aggressive: ['VTI', 'Total stock market for maximum exposure.']
+            };
+            document.getElementById('asset-ticker').innerText = assets[r][0];
+            document.getElementById('asset-desc').innerText = assets[r][1];
+        }
+
+        // MODULE 6 LOGIC (COMPONT INTEREST)
+        function runProjections() {
+            const rates = { conservative: 0.04, moderate: 0.07, aggressive: 0.10 };
+            const r = rates[state.risk] / 12;
+            const P = state.income * 0.20; // 20% investment
+            
+            const calc = (months) => P * ((Math.pow(1 + r, months) - 1) / r);
+
+            document.getElementById('proj-1').innerText = '$' + calc(12).toLocaleString(undefined, {maximumFractionDigits:0});
+            document.getElementById('proj-10').innerText = '$' + calc(120).toLocaleString(undefined, {maximumFractionDigits:0});
+            document.getElementById('proj-30').innerText = '$' + calc(360).toLocaleString(undefined, {maximumFractionDigits:0});
+
+            // Calculate ETA to Freedom Number
+            const years = Math.log((state.freedomNumber * r / P) + 1) / (12 * Math.log(1 + r));
+            document.getElementById('freedom-eta').innerText = years.toFixed(1) + " YEARS TO EXIT";
+        }
+
+        function completeSystem() {
+            nextStep();
+            document.getElementById('status-text').innerText = "ONLINE";
+            document.getElementById('status-text').classList.add('text-[#39FF14]', 'animate-pulse');
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#39FF14', '#FFD700', '#FFFFFF']
+            });
+        }
+    </script>
+</body>
+</html>
