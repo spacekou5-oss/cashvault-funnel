@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Vault | Executive Access</title>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* PREMIUM THEME VARIABLES */
+            --bg-primary: #0a0e27;
+            --bg-card: #1a1f3a;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --accent-primary: #6366f1;
+            --success: #10b981;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #2a3150;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Floating Background Animation */
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+            z-index: -1; animation: floatGradient 20s ease infinite;
+        }
+        @keyframes floatGradient {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-20px, -10px); }
+        }
+
+        /* Layout Utilities */
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        
+        /* Typography */
+        h1, h2, h3 { margin: 0; }
+        .gradient-text {
+            background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        /* Component Styles */
+        .glass-card {
+            background: linear-gradient(135deg, rgba(26, 31, 58, 0.9) 0%, rgba(21, 25, 51, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .input-group label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .premium-input, .premium-textarea {
+            width: 100%;
+            background: rgba(10, 14, 39, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        .premium-input:focus, .premium-textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+        }
+
+        .nav-pill {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .nav-pill.active {
+            background: var(--accent-gradient);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Sidebar Link Styling (The Glow Update) */
+        .sidebar-link {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .sidebar-link:hover {
+            border-color: var(--accent-primary);
+            color: white;
+            background: rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); /* The Glow */
+            transform: translateY(-2px);
+        }
+
+        /* Output Box specific */
+        .output-box {
+            background: #0f1221;
+            border: 1px solid var(--success);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            position: relative;
+        }
+        .output-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease forwards; }
+
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- PROMPT DATABASE ---
+        const PROMPTS = {
+            RESUME: `You are an executive resume writer who has placed candidates at Fortune 500 companies.
+I'm applying for a {role} position at {company}. Here is my current resume:
+{resume}
+
+Your task:
+1. Rewrite every bullet point using the "Action Verb + Metric + Impact" formula
+2. Remove weak words like "responsible for," "helped with," "assisted"
+3. Add quantifiable results wherever possible (even if I have to estimate)
+4. Optimize for ATS (Applicant Tracking Systems) by including keywords from this job description:
+{jobDesc}
+
+Output the new resume in a clean, copyable format.`,
+
+            COLD_EMAIL: `You are a copywriter who specializes in persuasive cold emails that get responses.
+I'm applying for {role} at {company}. I don't have connections there, so I need a cover letter that makes them want to meet me.
+
+Here's what you need to know:
+- The job description: {jobDesc}
+- My top 3 relevant skills/achievements: {skills}
+- Why I actually want this job: {reason}
+
+Write a 3-paragraph cover letter that:
+1. Opens with a hook (not "I'm excited to apply...")
+2. Proves I can solve their problem with a specific example
+3. Ends with a confident ask for an interview
+Keep it under 200 words. Make it sound like a human, not a robot.`,
+
+            SIDE_HUSTLE: `You are a business strategist who helps people turn their existing skills into income streams.
+I want to start a side hustle, but I don't know what I'm good at. Let's reverse-engineer it.
+
+Here are my answers to your audit questions:
+1. Friends ask me for help with: {friendsAsk}
+2. Tasks easy for me but hard for others: {easyTask}
+3. Free time interests: {interests}
+4. Recent problem solved: {problemSolved}
+
+Give me 3 side hustle ideas based on my responses. For each idea:
+- Name the service
+- Define the target customer
+- Estimate how much I could charge
+- Outline the 3-step plan to get my first client in 30 days.`,
+
+            FIRE_CALC: `You are a financial independence advisor who helps people calculate their freedom number.
+Here's my info:
+- Current age: {age}
+- Desired retirement age: {retireAge}
+- Annual expenses (estimate): \${expenses}
+- Current invested assets: \${invested}
+- Monthly investment amount: \${monthlyInvest}
+- Expected return rate: 8%
+
+Calculate:
+1. My FIRE number (total needed to live off 4% withdrawal)
+2. How long until I hit that number at my current savings rate
+3. If I want to retire by {retireAge}, how much do I need to invest monthly?
+4. What happens if I increase my income by 20% and invest it all?
+Show me the math in simple terms. Give me hope, but be realistic.`
+        };
+
+        const TIPS = [
+            "💡 Pro Tip: Be specific. Vague input = Vague output.",
+            "💡 Pro Tip: Treat AI like an intern. Give it examples.",
+            "💡 Pro Tip: Chain prompts. Use Output A as Input for Prompt B.",
+            "💡 Pro Tip: Use the 'Regenerate' button in ChatGPT if the first draft is weak."
+        ];
+
+        // --- COMPONENTS ---
+
+        function Gatekeeper({ onUnlock }) {
+            const [progress, setProgress] = useState(0);
+
+            useEffect(() => {
+                const timer = setInterval(() => {
+                    setProgress(prev => {
+                        if (prev >= 100) {
+                            clearInterval(timer);
+                            setTimeout(onUnlock, 600);
+                            return 100;
+                        }
+                        return prev + 4;
+                    });
+                }, 30);
+                return () => clearInterval(timer);
+            }, []);
+
+            return (
+                <div className="h-screen flex flex-col items-center justify-center bg-[#0a0e27]">
+                    <div className="text-center">
+                        <h1 className="text-3xl font-bold mb-4 gradient-text">THE VAULT</h1>
+                        <p className="text-[#6366f1] text-xs font-bold uppercase tracking-widest mb-6">Premium Access Verification</p>
+                        
+                        <div className="w-64 h-1 bg-[#1a1f3a] rounded-full overflow-hidden">
+                            <div className="h-full bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] transition-all duration-100" 
+                                 style={{width: `${progress}%`}}></div>
+                        </div>
+                        <p className="mt-4 text-xs text-gray-500 font-mono">{progress}% Complete</p>
+                    </div>
+                </div>
+            );
+        }
+
+        function App() {
+            const [locked, setLocked] = useState(true);
+            const [activeTab, setActiveTab] = useState('CAREER'); 
+            const [currentTip, setCurrentTip] = useState(0);
+
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    setCurrentTip(prev => (prev + 1) % TIPS.length);
+                }, 6000);
+                return () => clearInterval(interval);
+            }, []);
+
+            if (locked) return <Gatekeeper onUnlock={() => setLocked(false)} />;
+
+            return (
+                <div className="container">
+                    {/* Header */}
+                    <div className="text-center mb-10 animate-fade-in">
+                        <h1 className="text-4xl font-extrabold gradient-text mb-2">The Vault</h1>
+                        <p className="text-[#94a3b8]">AI Command Console for High Performers</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        
+                        {/* Main Content Area */}
+                        <div className="lg:col-span-8 space-y-6">
+                            
+                            {/* Navigation */}
+                            <div className="glass-card flex gap-4 overflow-x-auto pb-4 p-4 items-center justify-center">
+                                {['CAREER', 'VENTURE', 'WEALTH'].map(tab => (
+                                    <button 
+                                        key={tab}
+                                        onClick={() => setActiveTab(tab)}
+                                        className={`nav-pill ${activeTab === tab ? 'active' : ''}`}
+                                    >
+                                        {tab} OPS
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Modules */}
+                            <div className="glass-card animate-fade-in">
+                                {activeTab === 'CAREER' && <CareerModule />}
+                                {activeTab === 'VENTURE' && <VentureModule />}
+                                {activeTab === 'WEALTH' && <WealthModule />}
+                            </div>
+                        </div>
+
+                        {/* Sidebar */}
+                        <div className="lg:col-span-4 space-y-6">
+                            
+                            {/* Tip Card */}
+                            <div className="glass-card" style={{background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)', borderColor: 'rgba(99, 102, 241, 0.3)'}}>
+                                <h3 className="text-[#6366f1] text-sm font-bold uppercase mb-3">Intelligence Feed</h3>
+                                <p className="text-gray-300 text-sm leading-relaxed min-h-[60px]">
+                                    {TIPS[currentTip]}
+                                </p>
+                            </div>
+
+                            {/* Links - UPDATED WITH GLOW AND SPACING */}
+                            <div className="glass-card">
+                                <h3 className="text-gray-400 text-xs font-bold uppercase mb-4 tracking-widest">External Assets</h3>
+                                <div className="space-y-4">
+                                    <a href="https://chat.openai.com" target="_blank" className="sidebar-link">
+                                        Open ChatGPT
+                                    </a>
+                                    <a href="https://instagram.com/koutalksmoney" target="_blank" className="sidebar-link">
+                                        DM @koutalksmoney
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer - UPDATED TEXT */}
+                    <div className="text-center text-gray-500 text-xs mt-10">
+                        Architecture by Kou
+                    </div>
+                </div>
+            );
+        }
+
+        // --- SUB-MODULES ---
+
+        function CareerModule() {
+            const [mode, setMode] = useState('RESUME');
+            const [inputs, setInputs] = useState({ role: '', company: '', resume: '', jobDesc: '', skills: '', reason: '' });
+            
+            return (
+                <div>
+                    <div className="flex justify-between items-center mb-6 border-b border-[#2a3150] pb-4">
+                        <h2 className="text-xl font-bold text-white">Career Architect</h2>
+                        <div className="flex gap-3 text-xs">
+                            <button onClick={() => setMode('RESUME')} className={`${mode === 'RESUME' ? 'text-[#6366f1] font-bold' : 'text-gray-500'}`}>RESUME</button>
+                            <span className="text-gray-600">|</span>
+                            <button onClick={() => setMode('EMAIL')} className={`${mode === 'EMAIL' ? 'text-[#6366f1] font-bold' : 'text-gray-500'}`}>COLD EMAIL</button>
+                        </div>
+                    </div>
+
+                    <div className="space-y-5">
+                        <div className="grid grid-cols-2 gap-5">
+                            <Input label="Target Role" value={inputs.role} onChange={v => setInputs({...inputs, role: v})} placeholder="e.g. Product Manager" />
+                            <Input label="Target Company" value={inputs.company} onChange={v => setInputs({...inputs, company: v})} placeholder="e.g. Google" />
+                        </div>
+                        
+                        {mode === 'RESUME' ? (
+                            <>
+                                <TextArea label="Paste Old Resume" value={inputs.resume} onChange={v => setInputs({...inputs, resume: v})} placeholder="Paste content here..." />
+                                <TextArea label="Job Description" value={inputs.jobDesc} onChange={v => setInputs({...inputs, jobDesc: v})} placeholder="Requirements..." />
+                                <Generator template={PROMPTS.RESUME} data={inputs} btnText="Optimize Resume" />
+                            </>
+                        ) : (
+                            <>
+                                <TextArea label="Job Description" value={inputs.jobDesc} onChange={v => setInputs({...inputs, jobDesc: v})} placeholder="Requirements..." />
+                                <Input label="Top 3 Skills" value={inputs.skills} onChange={v => setInputs({...inputs, skills: v})} placeholder="e.g. SQL, Leadership, Sales" />
+                                <Input label="Why This Job?" value={inputs.reason} onChange={v => setInputs({...inputs, reason: v})} placeholder="Authentic reason..." />
+                                <Generator template={PROMPTS.COLD_EMAIL} data={inputs} btnText="Generate Email" />
+                            </>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        function VentureModule() {
+            const [inputs, setInputs] = useState({ friendsAsk: '', easyTask: '', interests: '', problemSolved: '' });
+
+            return (
+                <div>
+                    <h2 className="text-xl font-bold text-white mb-6 pb-4 border-b border-[#2a3150]">Side Hustle Generator</h2>
+                    <div className="space-y-5">
+                        <Input label="What do friends ask you for?" value={inputs.friendsAsk} onChange={v => setInputs({...inputs, friendsAsk: v})} placeholder="e.g. Travel advice, Excel help" />
+                        <Input label="What is easy for you?" value={inputs.easyTask} onChange={v => setInputs({...inputs, easyTask: v})} placeholder="e.g. Organizing files" />
+                        <Input label="Free time interests?" value={inputs.interests} onChange={v => setInputs({...inputs, interests: v})} placeholder="e.g. Fitness, Crypto" />
+                        <Input label="Recent problem solved?" value={inputs.problemSolved} onChange={v => setInputs({...inputs, problemSolved: v})} placeholder="e.g. Fixed my wifi" />
+                        
+                        <Generator template={PROMPTS.SIDE_HUSTLE} data={inputs} btnText="Analyze Market Value" />
+                    </div>
+                </div>
+            );
+        }
+
+        function WealthModule() {
+            const [inputs, setInputs] = useState({ age: '', retireAge: '40', expenses: '', invested: '0', monthlyInvest: '' });
+
+            return (
+                <div>
+                    <h2 className="text-xl font-bold text-white mb-6 pb-4 border-b border-[#2a3150]">Freedom Calculator (FIRE)</h2>
+                    <div className="space-y-5">
+                        <div className="grid grid-cols-2 gap-5">
+                            <Input label="Current Age" value={inputs.age} onChange={v => setInputs({...inputs, age: v})} placeholder="25" />
+                            <Input label="Target Retire Age" value={inputs.retireAge} onChange={v => setInputs({...inputs, retireAge: v})} placeholder="40" />
+                        </div>
+                        <Input label="Annual Expenses ($)" value={inputs.expenses} onChange={v => setInputs({...inputs, expenses: v})} placeholder="50000" />
+                        <div className="grid grid-cols-2 gap-5">
+                            <Input label="Invested Assets ($)" value={inputs.invested} onChange={v => setInputs({...inputs, invested: v})} placeholder="10000" />
+                            <Input label="Monthly Contrib ($)" value={inputs.monthlyInvest} onChange={v => setInputs({...inputs, monthlyInvest: v})} placeholder="500" />
+                        </div>
+
+                        <Generator template={PROMPTS.FIRE_CALC} data={inputs} btnText="Calculate Freedom Date" />
+                    </div>
+                </div>
+            );
+        }
+
+        // --- UI COMPONENTS ---
+
+        function Input({ label, value, onChange, placeholder }) {
+            return (
+                <div className="input-group">
+                    <label>{label}</label>
+                    <input 
+                        type="text" 
+                        value={value} 
+                        onChange={e => onChange(e.target.value)} 
+                        placeholder={placeholder}
+                        className="premium-input"
+                    />
+                </div>
+            );
+        }
+
+        function TextArea({ label, value, onChange, placeholder }) {
+            return (
+                <div className="input-group">
+                    <label>{label}</label>
+                    <textarea 
+                        value={value} 
+                        onChange={e => onChange(e.target.value)} 
+                        placeholder={placeholder}
+                        rows={4}
+                        className="premium-textarea"
+                    />
+                </div>
+            );
+        }
+
+        function Generator({ template, data, btnText }) {
+            const [generated, setGenerated] = useState(null);
+            const [copied, setCopied] = useState(false);
+
+            const handleGenerate = () => {
+                let text = template;
+                Object.keys(data).forEach(key => {
+                    const regex = new RegExp(`{${key}}`, 'g');
+                    text = text.replace(regex, data[key] || `[INSERT ${key.toUpperCase()}]`);
+                });
+                setGenerated(text);
+                setCopied(false);
+            };
+
+            const handleCopy = () => {
+                navigator.clipboard.writeText(generated);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            };
+
+            return (
+                <div className="mt-8 pt-4 border-t border-[#2a3150]">
+                    <button onClick={handleGenerate} className="btn-primary">
+                        {btnText}
+                    </button>
+
+                    {generated && (
+                        <div className="output-box animate-fade-in">
+                            <div className="flex justify-between items-center mb-3">
+                                <span className="text-[#10b981] text-xs font-bold uppercase tracking-widest">● Prompt Generated</span>
+                                <button 
+                                    onClick={handleCopy}
+                                    className={`text-xs px-3 py-1 rounded border transition-all ${copied ? 'bg-[#10b981] text-white border-[#10b981]' : 'border-[#2a3150] text-gray-400 hover:text-white'}`}
+                                >
+                                    {copied ? "✓ Copied" : "Copy to Clipboard"}
+                                </button>
+                            </div>
+                            <pre className="output-code max-h-64 overflow-y-auto custom-scrollbar">
+                                {generated}
+                            </pre>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
