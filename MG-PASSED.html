@@ -7,21 +7,32 @@
     <style>
         /* --- RESET & BASE --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
             background-color: #0f0f0f;
             color: #ffffff;
             font-family: 'Arial Black', 'Helvetica Neue', sans-serif;
-            overflow-x: hidden;
+            /* CRITICAL FIX: Lock scrolling so no spoilers appear */
+            overflow: hidden; 
+        }
+
+        body {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
         }
 
         /* --- INTRO SCREEN (The Garage Door) --- */
         #intro-screen {
             position: fixed;
             top: 0; left: 0;
-            width: 100%; height: 100%;
+            width: 100%; 
+            /* CRITICAL FIX: Use dvh to cover full mobile screen including address bar */
+            height: 100vh; 
+            height: 100dvh; 
             background-color: #000;
             z-index: 9998;
             display: flex;
@@ -41,7 +52,9 @@
             display: none;
             position: fixed;
             top: 0; left: 0;
-            width: 100%; height: 100%;
+            width: 100%; 
+            height: 100vh;
+            height: 100dvh;
             z-index: 9999;
             justify-content: center;
             align-items: center;
@@ -51,7 +64,7 @@
         }
 
         #chaos-text {
-            font-size: 15vw; /* Bigger for mobile impact */
+            font-size: 15vw;
             font-weight: 900;
             text-transform: uppercase;
             line-height: 1;
@@ -62,9 +75,9 @@
         /* Typewriter Text Styles */
         #typewriter-text {
             font-family: 'Courier New', Courier, monospace;
-            font-size: 1.5rem; /* Adjusted for Mobile */
+            font-size: 1.5rem;
             color: #00c6ff;
-            max-width: 95%; /* Wider on mobile */
+            max-width: 95%;
             text-align: center;
             min-height: 200px;
             line-height: 1.4;
@@ -92,7 +105,7 @@
             opacity: 0; 
             transform: translateY(20px);
             transition: all 0.5s ease;
-            width: 80%; /* Easy to tap on mobile */
+            width: 80%;
             max-width: 400px;
         }
 
@@ -126,7 +139,7 @@
         }
 
         h1 {
-            font-size: 12vw; /* Larger relative size for mobile portrait */
+            font-size: 12vw;
             text-transform: uppercase;
             line-height: 0.9;
             margin-bottom: 30px;
@@ -154,7 +167,7 @@
         /* Photo Grid - MOBILE OPTIMIZED */
         .photo-container {
             display: flex;
-            flex-direction: column; /* Stack vertically on mobile */
+            flex-direction: column;
             gap: 20px;
             margin: 30px 0;
             justify-content: center;
@@ -164,8 +177,8 @@
         }
 
         .photo-card {
-            width: 70vw; /* Big photos on mobile */
-            height: 90vw; /* Portrait aspect ratio */
+            width: 70vw;
+            height: 90vw;
             background: #222;
             border: 4px solid #fff;
             border-radius: 15px;
@@ -175,7 +188,6 @@
             position: relative;
         }
 
-        /* Reset rotations slightly for mobile vertical stack */
         .photo-card:nth-child(1) { transform: rotate(-3deg); }
         .photo-card:nth-child(2) { transform: rotate(2deg) scale(1.05); z-index: 10; border-color: #ffcc00; }
         .photo-card:nth-child(3) { transform: rotate(-2deg); }
@@ -198,7 +210,7 @@
 
         .message-text {
             font-family: 'Helvetica', sans-serif;
-            font-size: 1.4rem; /* Readable mobile font size */
+            font-size: 1.4rem;
             line-height: 1.5;
             font-weight: 400;
             color: #eee;
@@ -235,7 +247,7 @@
         @keyframes float { 0% { transform: translateY(0px) rotate(-3deg); } 50% { transform: translateY(-10px) rotate(-3deg); } 100% { transform: translateY(0px) rotate(-3deg); } }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* DESKTOP OVERRIDES (If viewed on laptop/TV) */
+        /* DESKTOP OVERRIDES */
         @media (min-width: 768px) {
             .photo-container { flex-direction: row; }
             .photo-card { width: 18vw; height: 28vw; }
@@ -343,6 +355,11 @@
         function openGarage() {
             chaosScreen.style.display = 'none';
             introScreen.classList.add('slide-up');
+            
+            // CRITICAL: UNLOCK SCROLLING NOW SO YOU CAN SEE THE REST
+            document.body.style.overflowY = 'auto';
+            document.documentElement.style.overflowY = 'auto';
+
             setTimeout(initConfetti, 500);
         }
 
