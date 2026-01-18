@@ -10,6 +10,7 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
     <style>
         body { font-family: 'JetBrains Mono', monospace; background-color: #0a0a0a; color: #e5e5e5; }
@@ -22,6 +23,23 @@
         .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
         .glitch { position: relative; }
         .glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.8; }
+        
+        /* --- OPTIMIZATION: PREMIUM BLACK CARD ANIMATIONS --- */
+        @keyframes shimmer {
+            0% { background-position: -250% 0; }
+            100% { background-position: 250% 0; }
+        }
+        .premium-shimmer {
+            background: linear-gradient(105deg, rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 80%);
+            background-size: 200% 100%;
+            animation: shimmer 6s infinite linear;
+        }
+        .embossed {
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+        .card-font {
+            font-family: 'Share Tech Mono', monospace;
+        }
         
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
@@ -42,7 +60,6 @@
                 SOFI: "https://www.sofi.com/",
                 FIDELITY: "https://www.fidelity.com/",
             },
-            // THEME ENGINE
             THEMES: {
                 DEFAULT: { 
                     id: 'default', color: 'text-green-500', bg: 'bg-green-500', border: 'border-green-500', 
@@ -80,6 +97,7 @@
             const [theme, setTheme] = useState(CONFIG.THEMES.DEFAULT);
             
             const [userData, setUserData] = useState({
+                userName: "", // OPTIMIZATION: Identity Lever added
                 income: 0,
                 payFreq: "Bi-weekly",
                 etfChoice: null,
@@ -88,13 +106,10 @@
 
             // --- THE CHAMELEON BRAIN ---
             useEffect(() => {
-                // 1. Check context
                 const savedContext = localStorage.getItem('cashvault_context');
-                
                 if (savedContext) {
                     const parsed = JSON.parse(savedContext);
                     setContext(parsed);
-                    
                     if (parsed.source === 'ticker') {
                         setTheme(CONFIG.THEMES.TICKER);
                         if (parsed.monthly) {
@@ -105,8 +120,6 @@
                         setTheme(CONFIG.THEMES.SCORE);
                     }
                 }
-                
-                // 2. Load progress
                 const savedData = localStorage.getItem("autopilot_system_data");
                 if (savedData) setUserData(prev => ({...JSON.parse(savedData), ...prev}));
             }, []);
@@ -126,7 +139,7 @@
                     case 2: return <ModuleSetup userData={userData} toggleCheck={toggleCheck} theme={theme} next={() => setModule(3)} />;
                     case 3: return <ModuleAutomation userData={userData} toggleCheck={toggleCheck} theme={theme} next={() => setModule(4)} />;
                     case 4: return <ModuleSelector userData={userData} updateData={updateData} toggleCheck={toggleCheck} theme={theme} next={() => setModule(5)} />;
-                    case 5: return <ModuleProjection userData={userData} theme={theme} next={() => setModule(6)} />;
+                    case 5: return <ModuleProjection userData={userData} updateData={updateData} theme={theme} next={() => setModule(6)} />;
                     case 6: return <ModuleCertificate userData={userData} theme={theme} />;
                     default: return <ModuleBridge context={context} theme={theme} next={() => setModule(1)} />;
                 }
@@ -135,7 +148,6 @@
             return (
                 <div className={`min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors duration-1000 selection:${theme.bg} selection:text-white`}>
                     
-                    {/* Header Status Bar (Hidden on Certificate Step) */}
                     {module !== 6 && (
                         <div className="w-full max-w-2xl mb-8 flex justify-between items-end border-b border-gray-800 pb-2">
                             <div>
@@ -151,12 +163,10 @@
                         </div>
                     )}
 
-                    {/* Main Interface */}
-                    <div className="w-full max-w-2xl min-h-[500px] transition-all duration-300">
+                    <div className="w-full max-w-2xl min-h-[500px] transition-all duration-300 relative">
                         {renderModule()}
                     </div>
 
-                    {/* Footer Nav (Hidden on Certificate Step) */}
                     {module !== 6 && (
                         <div className="w-full max-w-2xl mt-8 flex justify-between text-xs text-gray-600">
                             <button onClick={() => setModule(m => Math.max(0, m - 1))} className={`hover:text-white ${module === 0 ? 'invisible' : ''}`}>[ ← BACK ]</button>
@@ -167,22 +177,18 @@
             );
         }
 
-        // --- MODULE 1: THE BRIDGE ---
+        // --- MODULES 1-5 (STANDARD) ---
         function ModuleBridge({ context, theme, next }) {
             const isTicker = context?.source === 'ticker';
             const isScore = context?.source === 'score';
-
             return (
                 <div className="terminal-box p-8 rounded-sm animate-fade-in border-t-2 border-b-2 transition-colors duration-500" style={{ borderColor: theme.accent }}>
                     <div className="text-center space-y-6">
-                        
-                        {/* Dynamic Icon/Logo */}
                         <div className="mb-8 relative py-4 px-2 mx-auto max-w-xs sm:max-w-md">
                             <div className={`absolute top-0 left-0 w-3 h-3 border-t border-l ${theme.border}`}></div>
                             <div className={`absolute top-0 right-0 w-3 h-3 border-t border-r ${theme.border}`}></div>
                             <div className={`absolute bottom-0 left-0 w-3 h-3 border-b border-l ${theme.border}`}></div>
                             <div className={`absolute bottom-0 right-0 w-3 h-3 border-b border-r ${theme.border}`}></div>
-                            
                             <div className={`${theme.color} font-mono text-center transition-colors duration-500`}>
                                 <p className="text-[10px] sm:text-xs tracking-[0.2em] mb-1 opacity-80 uppercase">
                                     {isTicker ? 'DATA IMPORTED: FEAR DETECTED' : isScore ? 'DATA IMPORTED: STATUS VERIFIED' : 'WELCOME TO THE'}
@@ -192,49 +198,31 @@
                                 </p>
                             </div>
                         </div>
-                        
-                        {/* Dynamic Text Content */}
                         {isTicker && (
                             <div className="space-y-4 animate-fade-in">
-                                <h2 className="text-4xl font-bold text-white uppercase glitch">
-                                    ${Number(context.loss).toLocaleString()}
-                                </h2>
-                                <p className="text-sm text-red-400 font-mono">
-                                    WARNING: PROJECTED WEALTH LOSS DETECTED.
-                                </p>
-                                <p className="text-gray-400 text-sm max-w-md mx-auto leading-relaxed">
-                                    You are here because you saw the math. The Cost of Waiting is eating your future. The Autopilot is the only way to stop the bleeding.
-                                </p>
+                                <h2 className="text-4xl font-bold text-white uppercase glitch">${Number(context.loss).toLocaleString()}</h2>
+                                <p className="text-sm text-red-400 font-mono">WARNING: PROJECTED WEALTH LOSS DETECTED.</p>
+                                <p className="text-gray-400 text-sm max-w-md mx-auto leading-relaxed">You are here because you saw the math. The Cost of Waiting is eating your future. The Autopilot is the only way to stop the bleeding.</p>
                             </div>
                         )}
-
                         {isScore && (
                             <div className="space-y-4 animate-fade-in">
-                                <h2 className="text-4xl font-bold text-white uppercase animate-pulse">
-                                    {context.status || "BOSS MODE"}
-                                </h2>
-                                <p className="text-sm text-yellow-400 font-mono">
-                                    CREDIT PROTOCOL: 100% COMPLETE.
-                                </p>
-                                <p className="text-gray-400 text-sm max-w-md mx-auto leading-relaxed">
-                                    You dominated the credit game. Now it's time to turn that reputation into real wealth. Level 2 is about Assets.
-                                </p>
+                                <h2 className="text-4xl font-bold text-white uppercase animate-pulse">{context.status || "BOSS MODE"}</h2>
+                                <p className="text-sm text-yellow-400 font-mono">CREDIT PROTOCOL: 100% COMPLETE.</p>
+                                <p className="text-gray-400 text-sm max-w-md mx-auto leading-relaxed">You dominated the credit game. Now it's time to turn that reputation into real wealth. Level 2 is about Assets.</p>
                             </div>
                         )}
-
                         {!context && (
                             <div className="space-y-4 animate-fade-in">
                                 <h2 className="text-3xl font-bold text-white">BUILD THE MACHINE</h2>
                                 <p className="text-gray-400">Willpower is for losers. Systems are for winners.</p>
                             </div>
                         )}
-
                         <div className="border-t border-gray-800 my-6 pt-6 text-left text-sm text-gray-300 space-y-2 font-mono">
                             <p>> Initializing financial operating system...</p>
                             <p>> Importing user context... <span className={theme.color}>{context ? 'SUCCESS' : 'SKIPPED'}</span></p>
                             <p>> Loading asset allocation protocols... <span className={theme.color}>READY</span></p>
                         </div>
-
                         <button onClick={next} className={`w-full py-4 ${theme.bg} hover:brightness-110 text-black font-bold text-lg rounded-sm transition-all uppercase shadow-lg shadow-${theme.color.split('-')[1]}-900/20`}>
                             [ {isTicker ? 'PLUG THE LEAK' : isScore ? 'ENTER LEVEL 2' : 'START BUILDING'} ]
                         </button>
@@ -243,248 +231,163 @@
             );
         }
 
-        // --- MODULE 2: CALIBRATOR ---
         function ModuleCalibrator({ userData, updateData, theme, next }) {
             const needs = userData.income * 0.7;
             const invest = userData.income * 0.2;
             const save = userData.income * 0.1;
-
             return (
                 <div className="terminal-box p-8 rounded-sm animate-fade-in">
                     <h2 className="text-xl font-bold mb-6 text-white border-b border-gray-800 pb-2">CALIBRATE YOUR MACHINE</h2>
-                    
                     <div className="grid gap-6 mb-8">
                         <div>
                             <label className="block text-xs text-gray-500 mb-1">MONTHLY INCOME (AFTER TAXES)</label>
                             <div className="flex items-center group">
                                 <span className="text-xl mr-2 text-gray-400 group-focus-within:text-white">$</span>
-                                <input 
-                                    type="number" 
-                                    value={userData.income || ''} 
-                                    onChange={(e) => updateData('income', Number(e.target.value))} 
-                                    className={`terminal-input w-full p-3 text-lg font-bold focus:border-${theme.color.split('-')[1]}-500`} 
-                                    placeholder="3000" 
-                                />
+                                <input type="number" value={userData.income || ''} onChange={(e) => updateData('income', Number(e.target.value))} className={`terminal-input w-full p-3 text-lg font-bold focus:border-${theme.color.split('-')[1]}-500`} placeholder="3000" />
                             </div>
                             <p className="text-[10px] text-gray-600 mt-1">Enter your take-home pay.</p>
                         </div>
                     </div>
-
                     {userData.income > 0 && (
                         <div className="bg-gray-900 p-4 rounded border border-gray-800 space-y-4 mb-8 animate-fade-in">
-                            <div>
-                                <div className="flex justify-between text-sm mb-1"><span className="text-white">70% SPENDING</span><span className="text-gray-400">${needs.toFixed(0)}</span></div>
-                                <div className="h-2 bg-gray-800 rounded overflow-hidden"><div className="h-full bg-gray-500 w-[70%]"></div></div>
-                            </div>
-                            <div>
-                                <div className="flex justify-between text-sm mb-1"><span className={`text-white font-bold`}>20% INVESTING</span><span className={`${theme.color} font-bold`}>${invest.toFixed(0)}</span></div>
-                                <div className="h-2 bg-gray-800 rounded overflow-hidden"><div className={`h-full ${theme.bg} w-[20%]`}></div></div>
-                            </div>
-                            <div>
-                                <div className="flex justify-between text-sm mb-1"><span className="text-white">10% SAFETY</span><span className="text-blue-400">${save.toFixed(0)}</span></div>
-                                <div className="h-2 bg-gray-800 rounded overflow-hidden"><div className="h-full bg-blue-500 w-[10%]"></div></div>
-                            </div>
+                            <div><div className="flex justify-between text-sm mb-1"><span className="text-white">70% SPENDING</span><span className="text-gray-400">${needs.toFixed(0)}</span></div><div className="h-2 bg-gray-800 rounded overflow-hidden"><div className="h-full bg-gray-500 w-[70%]"></div></div></div>
+                            <div><div className="flex justify-between text-sm mb-1"><span className={`text-white font-bold`}>20% INVESTING</span><span className={`${theme.color} font-bold`}>${invest.toFixed(0)}</span></div><div className="h-2 bg-gray-800 rounded overflow-hidden"><div className={`h-full ${theme.bg} w-[20%]`}></div></div></div>
+                            <div><div className="flex justify-between text-sm mb-1"><span className="text-white">10% SAFETY</span><span className="text-blue-400">${save.toFixed(0)}</span></div><div className="h-2 bg-gray-800 rounded overflow-hidden"><div className="h-full bg-blue-500 w-[10%]"></div></div></div>
                         </div>
                     )}
-
-                    <button 
-                        onClick={next} 
-                        disabled={userData.income <= 0} 
-                        className={`w-full py-3 border ${theme.border} ${theme.color} hover:bg-gray-900 font-bold uppercase transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                        [ Lock In These Numbers ]
-                    </button>
+                    <button onClick={next} disabled={userData.income <= 0} className={`w-full py-3 border ${theme.border} ${theme.color} hover:bg-gray-900 font-bold uppercase transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}>[ Lock In These Numbers ]</button>
                 </div>
             );
         }
 
-        // --- MODULE 3: SETUP ---
         function ModuleSetup({ userData, toggleCheck, theme, next }) {
             const investAmount = (userData.income * 0.2).toFixed(0);
             return (
                 <div className="terminal-box p-8 rounded-sm animate-fade-in">
                     <h2 className="text-xl font-bold mb-2 text-white">INFRASTRUCTURE</h2>
                     <p className="text-sm text-gray-400 mb-6">Open these 3 accounts. This is your foundation.</p>
-                    
                     {['sofiCheck', 'sofiSave', 'roth'].map((id, i) => (
                         <div key={id} className={`p-4 border ${userData.checklist[id] ? `${theme.border} bg-gray-900` : 'border-gray-700 bg-black'} mb-4 transition-all duration-300`}>
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <h3 className="font-bold text-white text-sm sm:text-base">
-                                        {i===0?'1. SoFi Checking':i===1?'2. SoFi Savings':'3. Fidelity Roth IRA'}
-                                    </h3>
-                                    <p className="text-xs text-gray-400 mt-1">
-                                        {i===0?'The Hub (Income enters here)':i===1?`The Safety Net ($${(userData.income*0.1).toFixed(0)}/mo)`:`The Engine ($${investAmount}/mo)`}
-                                    </p>
-                                    <a href={i===2 ? CONFIG.LINKS.FIDELITY : CONFIG.LINKS.SOFI} target="_blank" className={`text-[10px] ${theme.color} underline mt-2 inline-block hover:brightness-125`}>
-                                        [ OPEN ACCOUNT → ]
-                                    </a>
+                                    <h3 className="font-bold text-white text-sm sm:text-base">{i===0?'1. SoFi Checking':i===1?'2. SoFi Savings':'3. Fidelity Roth IRA'}</h3>
+                                    <p className="text-xs text-gray-400 mt-1">{i===0?'The Hub (Income enters here)':i===1?`The Safety Net ($${(userData.income*0.1).toFixed(0)}/mo)`:`The Engine ($${investAmount}/mo)`}</p>
+                                    <a href={i===2 ? CONFIG.LINKS.FIDELITY : CONFIG.LINKS.SOFI} target="_blank" className={`text-[10px] ${theme.color} underline mt-2 inline-block hover:brightness-125`}>[ OPEN ACCOUNT → ]</a>
                                 </div>
-                                <input 
-                                    type="checkbox" 
-                                    checked={userData.checklist[id]} 
-                                    onChange={() => toggleCheck(id)} 
-                                    className={`w-5 h-5 cursor-pointer accent-${theme.color.split('-')[1]}-500 rounded-none`} 
-                                />
+                                <input type="checkbox" checked={userData.checklist[id]} onChange={() => toggleCheck(id)} className={`w-5 h-5 cursor-pointer accent-${theme.color.split('-')[1]}-500 rounded-none`} />
                             </div>
                         </div>
                     ))}
-                    
-                    <div className="mt-6 flex justify-between items-center">
-                        <span className="text-xs text-gray-500">
-                             COMPLETED: {['sofiCheck', 'sofiSave', 'roth'].filter(k => userData.checklist[k]).length}/3
-                        </span>
-                        <button onClick={next} className="px-6 py-2 bg-white text-black font-bold text-sm hover:bg-gray-200">
-                            NEXT STEP →
-                        </button>
-                    </div>
+                    <div className="mt-6 flex justify-between items-center"><span className="text-xs text-gray-500">COMPLETED: {['sofiCheck', 'sofiSave', 'roth'].filter(k => userData.checklist[k]).length}/3</span><button onClick={next} className="px-6 py-2 bg-white text-black font-bold text-sm hover:bg-gray-200">NEXT STEP →</button></div>
                 </div>
             );
         }
 
-        // --- MODULE 4: AUTOMATION ---
         function ModuleAutomation({ userData, toggleCheck, theme, next }) {
             const [method, setMethod] = useState('split');
-            
             return (
                 <div className="terminal-box p-8 rounded-sm animate-fade-in">
                     <h2 className="text-xl font-bold mb-4 text-white">THE WIRING</h2>
                     <p className="text-sm text-gray-400 mb-6">How does money move? (Choose one)</p>
-
                     <div className="flex gap-4 mb-6">
-                        <button onClick={() => setMethod('split')} className={`flex-1 p-3 border transition-colors ${method==='split'?theme.border + ' ' + theme.color: 'border-gray-700 text-gray-500 hover:border-gray-500'}`}>
-                            <span className="block font-bold">OPTION A</span>
-                            <span className="text-xs">Paycheck Split</span>
-                        </button>
-                        <button onClick={() => setMethod('manual')} className={`flex-1 p-3 border transition-colors ${method==='manual'?theme.border + ' ' + theme.color: 'border-gray-700 text-gray-500 hover:border-gray-500'}`}>
-                            <span className="block font-bold">OPTION B</span>
-                            <span className="text-xs">Bank Transfer</span>
-                        </button>
+                        <button onClick={() => setMethod('split')} className={`flex-1 p-3 border transition-colors ${method==='split'?theme.border + ' ' + theme.color: 'border-gray-700 text-gray-500 hover:border-gray-500'}`}><span className="block font-bold">OPTION A</span><span className="text-xs">Paycheck Split</span></button>
+                        <button onClick={() => setMethod('manual')} className={`flex-1 p-3 border transition-colors ${method==='manual'?theme.border + ' ' + theme.color: 'border-gray-700 text-gray-500 hover:border-gray-500'}`}><span className="block font-bold">OPTION B</span><span className="text-xs">Bank Transfer</span></button>
                     </div>
-
                     <div className="bg-gray-900 p-4 border-l-2 text-sm space-y-3 mb-6 transition-all duration-300" style={{borderColor: theme.accent}}>
                         <p className="font-bold text-white uppercase">Execution Protocol:</p>
                         <div className="text-gray-300 space-y-2">
                             {method === 'split' ? (
-                                <ul className="list-decimal pl-4 space-y-1">
-                                    <li>Log into your HR/Payroll portal.</li>
-                                    <li>Set Direct Deposit 1: <strong>${(userData.income*0.2).toFixed(0)}</strong> to Fidelity.</li>
-                                    <li>Set Direct Deposit 2: <strong>${(userData.income*0.1).toFixed(0)}</strong> to SoFi Savings.</li>
-                                    <li>Remainder goes to SoFi Checking.</li>
-                                </ul>
+                                <ul className="list-decimal pl-4 space-y-1"><li>Log into your HR/Payroll portal.</li><li>Set Direct Deposit 1: <strong>${(userData.income*0.2).toFixed(0)}</strong> to Fidelity.</li><li>Set Direct Deposit 2: <strong>${(userData.income*0.1).toFixed(0)}</strong> to SoFi Savings.</li><li>Remainder goes to SoFi Checking.</li></ul>
                             ) : (
-                                <ul className="list-decimal pl-4 space-y-1">
-                                    <li>Log into your main Checking Account.</li>
-                                    <li>Create recurring transfer: <strong>${(userData.income*0.2).toFixed(0)}</strong> to Fidelity (Day after payday).</li>
-                                    <li>Create recurring transfer: <strong>${(userData.income*0.1).toFixed(0)}</strong> to Savings (Day after payday).</li>
-                                </ul>
+                                <ul className="list-decimal pl-4 space-y-1"><li>Log into your main Checking Account.</li><li>Create recurring transfer: <strong>${(userData.income*0.2).toFixed(0)}</strong> to Fidelity (Day after payday).</li><li>Create recurring transfer: <strong>${(userData.income*0.1).toFixed(0)}</strong> to Savings (Day after payday).</li></ul>
                             )}
                         </div>
                     </div>
-
-                    <div className="flex items-center space-x-3 mb-6 bg-black p-3 border border-gray-800">
-                        <input type="checkbox" checked={userData.checklist.split} onChange={() => toggleCheck('split')} className={`w-5 h-5 accent-${theme.color.split('-')[1]}-500`} />
-                        <label className="text-sm text-gray-300">I have configured the money flow.</label>
-                    </div>
-
-                    <button onClick={next} disabled={!userData.checklist.split} className={`w-full py-3 font-bold uppercase transition-all ${userData.checklist.split ? `${theme.bg} text-black hover:brightness-110` : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>
-                        [ Confirm Automation ]
-                    </button>
+                    <div className="flex items-center space-x-3 mb-6 bg-black p-3 border border-gray-800"><input type="checkbox" checked={userData.checklist.split} onChange={() => toggleCheck('split')} className={`w-5 h-5 accent-${theme.color.split('-')[1]}-500`} /><label className="text-sm text-gray-300">I have configured the money flow.</label></div>
+                    <button onClick={next} disabled={!userData.checklist.split} className={`w-full py-3 font-bold uppercase transition-all ${userData.checklist.split ? `${theme.bg} text-black hover:brightness-110` : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>[ Confirm Automation ]</button>
                 </div>
             );
         }
 
-        // --- MODULE 5: SELECTOR (QUIZ) ---
         function ModuleSelector({ userData, updateData, toggleCheck, theme, next }) {
             const [step, setStep] = useState(0);
             const [risk, setRisk] = useState('');
+            const finish = (choice) => { updateData('etfChoice', choice); setStep(2); };
             
-            const finish = (choice) => {
-                updateData('etfChoice', choice);
-                setStep(2);
-            };
-
-            // Step 1: Risk (FIXED LOGIC)
-            if(step===0) return (
-                <div className="terminal-box p-8 rounded-sm text-center animate-fade-in">
-                    <h2 className="text-xl font-bold mb-6 text-white">SELECT FUEL</h2>
-                    <p className="mb-6 text-gray-400 text-sm">What is your risk tolerance?</p>
-                    <div className="space-y-3">
-                        {['Conservative', 'Moderate', 'Aggressive'].map(r => (
-                            <button key={r} onClick={() => {setRisk(r); setStep(1)}} className={`w-full p-4 border border-gray-700 hover:${theme.border} hover:bg-gray-900 text-left block transition-all group`}>
-                                <span className="font-bold text-white group-hover:text-white transition-colors">{r.toUpperCase()}</span>
-                                <span className="block text-xs text-gray-500 mt-1">
-                                    {r === 'Conservative' ? 'I hate losing money.' : 
-                                     r === 'Moderate' ? 'I want steady, balanced growth.' : 
-                                     'I want max growth.'}
-                                </span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            );
+            if(step===0) return (<div className="terminal-box p-8 rounded-sm text-center animate-fade-in"><h2 className="text-xl font-bold mb-6 text-white">SELECT FUEL</h2><p className="mb-6 text-gray-400 text-sm">What is your risk tolerance?</p><div className="space-y-3">{['Conservative', 'Moderate', 'Aggressive'].map(r => (<button key={r} onClick={() => {setRisk(r); setStep(1)}} className={`w-full p-4 border border-gray-700 hover:${theme.border} hover:bg-gray-900 text-left block transition-all group`}><span className="font-bold text-white group-hover:text-white transition-colors">{r.toUpperCase()}</span><span className="block text-xs text-gray-500 mt-1">{r === 'Conservative' ? 'I hate losing money.' : r === 'Moderate' ? 'I want steady, balanced growth.' : 'I want max growth.'}</span></button>))}</div></div>);
             
-            // Step 2: Priority
             if(step===1) {
                 const options = risk === 'Conservative' ? CONFIG.ETF_DATA.CONSERVATIVE : risk === 'Moderate' ? CONFIG.ETF_DATA.MODERATE : CONFIG.ETF_DATA.AGGRESSIVE;
-                return (
-                    <div className="terminal-box p-8 rounded-sm text-center animate-fade-in">
-                        <h2 className="text-xl font-bold mb-6 text-white">PRIORITY</h2>
-                        <p className="mb-6 text-gray-400 text-sm">What matters most?</p>
-                        <div className="grid grid-cols-2 gap-4">
-                            {Object.keys(options).map(key => (
-                                <button key={key} onClick={() => finish(options[key])} className={`p-4 border border-gray-700 hover:${theme.border} hover:bg-gray-900 transition-all`}>
-                                    <span className="font-bold text-white block mb-1">{key}</span>
-                                    <span className="text-[10px] text-gray-500">{options[key].ticker}</span>
-                                </button>
-                            ))}
-                        </div>
-                        <button onClick={() => setStep(0)} className="text-xs text-gray-500 mt-6 underline hover:text-white">Go Back</button>
-                    </div>
-                );
+                return (<div className="terminal-box p-8 rounded-sm text-center animate-fade-in"><h2 className="text-xl font-bold mb-6 text-white">PRIORITY</h2><p className="mb-6 text-gray-400 text-sm">What matters most?</p><div className="grid grid-cols-2 gap-4">{Object.keys(options).map(key => (<button key={key} onClick={() => finish(options[key])} className={`p-4 border border-gray-700 hover:${theme.border} hover:bg-gray-900 transition-all`}><span className="font-bold text-white block mb-1">{key}</span><span className="text-[10px] text-gray-500">{options[key].ticker}</span></button>))}</div><button onClick={() => setStep(0)} className="text-xs text-gray-500 mt-6 underline hover:text-white">Go Back</button></div>);
             }
-
-            // Step 3: Result
+            
             return (
                 <div className="terminal-box p-8 rounded-sm animate-fade-in">
                     <h2 className="text-xl font-bold mb-2 text-white">TARGET ACQUIRED</h2>
                     <p className="text-sm text-gray-400 mb-6">Based on your profile, your money should buy:</p>
-
-                    <div className={`border ${theme.border} bg-gray-900 p-6 mb-6 text-center relative overflow-hidden`}>
-                        <div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div>
-                        <h3 className="text-4xl font-bold text-white mb-2 tracking-tighter">{userData.etfChoice.ticker}</h3>
-                        <p className={`${theme.color} font-bold mb-4 uppercase text-xs tracking-widest`}>{userData.etfChoice.name}</p>
-                        <p className="text-sm text-gray-300">{userData.etfChoice.desc}</p>
-                        <div className="mt-4 text-xs text-gray-500 border-t border-gray-800 pt-2">
-                            Avg Return: {userData.etfChoice.return}
-                        </div>
-                    </div>
-
-                    <div className="bg-black p-4 border border-gray-800 mb-6">
-                        <p className="text-xs text-white font-bold mb-2">FINAL ACTION:</p>
-                        <p className="text-xs text-gray-400 mb-3">
-                            Log into Fidelity -> Enable "Automatic Investments" -> Buy <strong>{userData.etfChoice.ticker}</strong> with the cash that transfers in.
-                        </p>
-                        <div className="flex items-center space-x-3">
-                            <input type="checkbox" checked={userData.checklist.autoInvest} onChange={() => toggleCheck('autoInvest')} className={`w-5 h-5 accent-${theme.color.split('-')[1]}-500`} />
-                            <label className="text-sm text-gray-300">I have set the auto-buy.</label>
-                        </div>
-                    </div>
-
-                    <button onClick={next} disabled={!userData.checklist.autoInvest} className={`w-full py-3 font-bold uppercase transition-all ${userData.checklist.autoInvest ? `${theme.bg} text-black hover:brightness-110` : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>
-                        [ ACTIVATE MACHINE ]
-                    </button>
+                    <div className={`border ${theme.border} bg-gray-900 p-6 mb-6 text-center relative overflow-hidden`}><div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div><h3 className="text-4xl font-bold text-white mb-2 tracking-tighter">{userData.etfChoice.ticker}</h3><p className={`${theme.color} font-bold mb-4 uppercase text-xs tracking-widest`}>{userData.etfChoice.name}</p><p className="text-sm text-gray-300">{userData.etfChoice.desc}</p><div className="mt-4 text-xs text-gray-500 border-t border-gray-800 pt-2">Avg Return: {userData.etfChoice.return}</div></div>
+                    <div className="bg-black p-4 border border-gray-800 mb-6"><p className="text-xs text-white font-bold mb-2">FINAL ACTION:</p><p className="text-xs text-gray-400 mb-3">Log into Fidelity -> Enable "Automatic Investments" -> Buy <strong>{userData.etfChoice.ticker}</strong> with the cash that transfers in.</p><div className="flex items-center space-x-3"><input type="checkbox" checked={userData.checklist.autoInvest} onChange={() => toggleCheck('autoInvest')} className={`w-5 h-5 accent-${theme.color.split('-')[1]}-500`} /><label className="text-sm text-gray-300">I have set the auto-buy.</label></div></div>
+                    <button onClick={next} disabled={!userData.checklist.autoInvest} className={`w-full py-3 font-bold uppercase transition-all ${userData.checklist.autoInvest ? `${theme.bg} text-black hover:brightness-110` : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>[ ACTIVATE MACHINE ]</button>
                 </div>
             );
         }
 
-        // --- MODULE 6: PROJECTION ---
-        function ModuleProjection({ userData, theme, next }) {
+        // --- OPTIMIZATION: LABOR ILLUSION (PROCESSING OVERLAY) ---
+        function ProcessingOverlay({ theme, userName, onComplete }) {
+            const [step, setStep] = useState(0);
+            const steps = [
+                "INITIALIZING FINAL PROTOCOL...",
+                "PROJECTING COMPOUND CURVE...",
+                `MINTING ARCHITECT STATUS FOR: ${userName ? userName.toUpperCase() : 'USER'}...`,
+                "EMBOSSING DIGITAL CREDENTIALS...",
+                "VERIFYING WEALTH PATH...",
+                "GENERATING BLACK CARD..."
+            ];
+
+            useEffect(() => {
+                if (step < steps.length) {
+                    const timeout = setTimeout(() => setStep(s => s + 1), 600);
+                    return () => clearTimeout(timeout);
+                } else {
+                    const timeout = setTimeout(onComplete, 800);
+                    return () => clearTimeout(timeout);
+                }
+            }, [step]);
+
+            return (
+                <div className="absolute inset-0 z-50 bg-black flex flex-col items-center justify-center font-mono p-8 animate-fade-in">
+                    <div className="w-full max-w-sm space-y-2">
+                        {steps.map((text, i) => (
+                            <div key={i} className={`text-xs ${i === step ? 'text-white font-bold' : i < step ? theme.color : 'text-gray-800'}`}>
+                                {i < step ? `[COMPLETE] ` : i === step ? `[PROCESSING] ` : `[WAITING] `}
+                                {text}
+                            </div>
+                        ))}
+                        <div className="h-1 bg-gray-900 mt-4 overflow-hidden relative">
+                            <div className={`absolute top-0 left-0 h-full ${theme.bg} transition-all duration-300`} style={{ width: `${(step / steps.length) * 100}%` }}></div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- OPTIMIZATION: PROJECTION MODULE WITH IDENTITY INPUT ---
+        function ModuleProjection({ userData, updateData, theme, next }) {
+            const [isProcessing, setIsProcessing] = useState(false);
             const monthly = userData.income * 0.2;
             const calc = (y) => monthly * ((Math.pow(1.10/12, y*12)-1)/(0.10/12));
             
+            const handleNext = () => {
+                if (!userData.userName) return; // PEAK-END: FORCE INPUT
+                setIsProcessing(true);
+            };
+
+            if (isProcessing) {
+                return <ProcessingOverlay theme={theme} userName={userData.userName} onComplete={next} />;
+            }
+            
             return (
-                <div className="terminal-box p-8 rounded-sm animate-fade-in">
+                <div className="terminal-box p-8 rounded-sm animate-fade-in relative">
                     <div className="text-center mb-6">
                         <h2 className="text-2xl font-bold text-white mb-1">SYSTEM ONLINE</h2>
                         <p className={`${theme.color} text-sm animate-pulse flex justify-center items-center gap-2`}>
@@ -506,100 +409,127 @@
                         ))}
                     </div>
 
-                    <div className="bg-gray-900 border border-gray-800 p-4 text-center mb-6">
-                         <p className="text-gray-400 text-xs uppercase">Your Monthly Fuel</p>
-                         <p className="text-2xl font-bold text-white">${monthly.toFixed(0)}</p>
-                         <p className="text-gray-500 text-[10px]">invested automatically into {userData.etfChoice?.ticker || "MARKET"}</p>
+                    {/* PEAK-END: IDENTITY INPUT */}
+                    <div className="bg-black border border-gray-800 p-4 mb-6 transition-all focus-within:border-white">
+                         <p className="text-gray-400 text-xs mb-2 uppercase tracking-widest">Identity Protocol</p>
+                         <input 
+                            type="text" 
+                            placeholder="ENTER YOUR FULL NAME" 
+                            value={userData.userName}
+                            onChange={(e) => updateData('userName', e.target.value)}
+                            className="w-full bg-gray-900 border-b border-gray-700 text-center text-white p-2 outline-none focus:border-white transition-colors uppercase font-bold tracking-widest text-lg placeholder:text-gray-700"
+                         />
                     </div>
 
-                    <button onClick={next} className="w-full py-3 bg-white text-black font-bold uppercase hover:bg-gray-200 transition-colors">
-                        [ VIEW CERTIFICATE ]
+                    <button 
+                        onClick={handleNext} 
+                        disabled={!userData.userName}
+                        className={`w-full py-3 font-bold uppercase transition-colors shadow-lg shadow-white/10 ${userData.userName ? 'bg-white text-black hover:bg-gray-200' : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}
+                    >
+                        [ PRINT OFFICIAL CERTIFICATE ]
                     </button>
+                    <p className="text-[10px] text-gray-500 text-center mt-3">
+                        *This will lock your configuration file and mint your ID.
+                    </p>
                 </div>
             );
         }
 
-        // --- MODULE 7: THE VIRAL EXIT ---
+        // --- OPTIMIZATION: PREMIUM BLACK CARD CERTIFICATE + ONE-CLICK COPY ---
         function ModuleCertificate({ userData, theme }) {
-            return (
-                <div className="w-full max-w-md mx-auto">
-                    
-                    {/* THE TROPHY (Visual Asset to Screenshot) */}
-                    <div id="certificate-card" className={`relative p-8 rounded-sm text-center border-2 ${theme.border} bg-black shadow-[0_0_30px_rgba(0,255,65,0.1)] mb-8`}>
-                        
-                        {/* Watermark */}
-                        <div className="absolute inset-0 opacity-10 pointer-events-none flex items-center justify-center overflow-hidden">
-                             <div className={`text-9xl font-black ${theme.color} rotate-45`}>SYSTEM</div>
-                        </div>
+            const [copied, setCopied] = useState(false);
+            const monthlyInvest = (userData.income * 0.2).toFixed(0);
+            const projectedWealth = (monthlyInvest * ((Math.pow(1.10/12, 30*12)-1)/(0.10/12))).toLocaleString(undefined, {maximumFractionDigits:0});
 
-                        <div className="relative z-10">
-                            <div className="flex justify-between items-start mb-8 border-b border-gray-800 pb-4">
-                                <div className="text-left">
-                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest">Protocol</p>
-                                    <p className={`text-xl font-bold ${theme.color}`}>AUTOPILOT</p>
+            // FRICTIONLESS END: Copy Logic
+            const handleCopy = () => {
+                const text = "I just installed the Autopilot Money System. @koutalksmoney";
+                navigator.clipboard.writeText(text);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            };
+
+            return (
+                <div className="w-full max-w-md mx-auto animate-fade-in">
+                    
+                    {/* THE PEAK: PREMIUM BLACK CARD ASSET */}
+                    <div id="certificate-card" className="relative h-64 w-full rounded-xl mb-8 shadow-2xl overflow-hidden group transition-transform duration-500 hover:scale-[1.02] border border-gray-800">
+                        
+                        {/* Background & Texture */}
+                        <div className="absolute inset-0 bg-[#0a0a0a]"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-[#000] to-black opacity-90"></div>
+                        <div className="absolute inset-0 premium-shimmer opacity-20 pointer-events-none"></div>
+                        
+                        {/* Card Content */}
+                        <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
+                            {/* Top Row */}
+                            <div className="flex justify-between items-start">
+                                <div className="flex items-center gap-2">
+                                    <div className={`w-8 h-8 rounded-full border-2 ${theme.border} flex items-center justify-center`}>
+                                        <div className={`w-4 h-4 ${theme.bg} rounded-full animate-pulse`}></div>
+                                    </div>
+                                    <span className="font-bold text-white tracking-widest text-sm">AUTOPILOT<span className={theme.color}>ELITE</span></span>
+                                </div>
+                                <span className="text-[10px] text-gray-500 font-mono border border-gray-700 px-2 py-1 rounded">WEALTH ARCHITECT</span>
+                            </div>
+
+                            {/* Middle Row: Chip & Number */}
+                            <div>
+                                <div className="w-12 h-9 bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-600 rounded-md mb-4 shadow-sm opacity-90"></div>
+                                <div className="card-font text-gray-300 text-lg tracking-[0.15em] opacity-80 embossed">
+                                    ${projectedWealth}
+                                </div>
+                                <div className="text-[8px] text-gray-500 uppercase tracking-widest mt-1">Projected Net Worth (30yr)</div>
+                            </div>
+
+                            {/* Bottom Row: Name & Info */}
+                            <div className="flex justify-between items-end">
+                                <div>
+                                    <p className="text-white font-bold uppercase tracking-widest text-sm embossed card-font">
+                                        {userData.userName || "AUTHORIZED USER"}
+                                    </p>
+                                    <p className="text-[8px] text-gray-500 mt-1">MEMBER SINCE 2026</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest">Class</p>
-                                    <p className="text-white font-mono">ARCHITECT</p>
+                                     <div className={`${theme.color} text-xs font-bold`}>VERIFIED</div>
                                 </div>
                             </div>
-
-                            <h2 className="text-3xl sm:text-4xl font-black text-white mb-2 uppercase tracking-tighter">
-                                MACHINE BUILT
-                            </h2>
-                            <div className={`inline-block px-3 py-1 mb-8 border ${theme.border} ${theme.bg} bg-opacity-10 rounded`}>
-                                 <p className={`${theme.color} font-mono text-xs tracking-widest uppercase`}>STATUS: OPERATIONAL</p>
-                            </div>
-
-                            <div className="text-left bg-gray-900/50 p-6 font-mono text-xs sm:text-sm space-y-3 mb-8 border border-gray-800 rounded">
-                                <div className="flex justify-between">
-                                    <span className="text-gray-400">[X] ACCOUNTS</span>
-                                    <span className={theme.color}>LINKED</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-400">[X] CASH FLOW</span>
-                                    <span className={theme.color}>AUTOMATED</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-400">[X] ASSET</span>
-                                    <span className="text-white font-bold">{userData.etfChoice?.ticker || "VTI"}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-400">[X] WILLPOWER</span>
-                                    <span className={theme.color}>REMOVED</span>
-                                </div>
-                            </div>
-
-                            <p className="text-[10px] text-gray-600 uppercase tracking-widest font-mono">
-                                "Compound interest is the eighth wonder of the world. He who understands it, earns it... he who doesn't... pays it."
-                            </p>
                         </div>
                     </div>
 
-                    {/* THE BRIBE (Optimized for @koutalksmoney) */}
-                    <div className="text-center space-y-4 animate-fade-in pb-12">
-                        <p className="text-gray-400 text-xs uppercase tracking-widest">
-                            ↓ CLAIM THE "PROMPT VAULT" CHEAT SHEET ↓
-                        </p>
-                        
-                        <div className="bg-gray-900 border border-gray-800 p-4 rounded-sm">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className={`h-8 w-8 rounded-full ${theme.bg} flex items-center justify-center font-bold text-black`}>!</div>
-                                <div className="text-left">
-                                    <h3 className="text-white font-bold text-sm">HIDDEN BONUS UNLOCKED</h3>
-                                    <p className="text-gray-500 text-[10px]">The AI Cheat Codes to manage this wealth.</p>
-                                </div>
-                            </div>
+                    {/* THE END: FRICTIONLESS HANDOVER */}
+                    <div className="text-center space-y-4 pb-12">
+                        <div className="bg-gray-900 border border-gray-800 p-6 rounded-sm shadow-xl relative overflow-hidden">
+                             {/* Gradient Top Line */}
+                             <div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div>
                             
-                            <div className="text-left space-y-3 text-xs text-gray-300 font-mono mb-4 border-l-2 border-gray-700 pl-3">
-                                <p>1. Screenshot the certificate above 📸</p>
-                                <p>2. Post to IG Story & Tag <span className="text-white font-bold bg-gray-800 px-1 rounded">@koutalksmoney</span></p>
-                                <p>3. I will DM you the Vault Link.</p>
-                            </div>
+                            <h3 className="text-white font-bold text-lg mb-1">ACCESS THE VAULT</h3>
+                            <p className="text-gray-500 text-xs mb-6">Complete the loop to receive your Prompt Vault.</p>
 
-                            <a href="https://instagram.com/koutalksmoney" target="_blank" className={`block w-full py-3 ${theme.bg} text-black font-bold uppercase text-xs hover:brightness-110 transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)]`}>
-                                [ OPEN INSTAGRAM & TAG ME ]
-                            </a>
+                            <div className="grid grid-cols-1 gap-3">
+                                <div className="text-left space-y-3 text-xs text-gray-300 font-mono mb-2">
+                                    <p className="flex items-center"><span className="text-green-500 mr-2">✓</span> Screenshot the certificate above 📸</p>
+                                    <p className="flex items-center"><span className="text-green-500 mr-2">✓</span> Post to IG Story & Tag <span className="text-white font-bold bg-gray-800 px-1 ml-1 rounded">@koutalksmoney</span></p>
+                                    <p className="flex items-center"><span className="text-green-500 mr-2">✓</span> I will DM you the Vault Link.</p>
+                                </div>
+
+                                {/* STEP 1: Copy Button (Friction Remover) */}
+                                <button 
+                                    onClick={handleCopy}
+                                    className="flex items-center justify-center gap-2 w-full py-3 bg-gray-800 border border-gray-700 hover:bg-gray-700 text-white font-mono text-xs transition-all uppercase"
+                                >
+                                    {copied ? <span className="text-green-500 font-bold">✓ COPIED TO CLIPBOARD</span> : <span>[ COPY CAPTION ]</span>}
+                                </button>
+
+                                {/* STEP 2: Share */}
+                                <a 
+                                    href="https://instagram.com/koutalksmoney" 
+                                    target="_blank" 
+                                    className={`flex items-center justify-center gap-2 w-full py-3 ${theme.bg} text-black font-bold uppercase text-xs hover:brightness-110 transition-all shadow-lg tracking-wide`}
+                                >
+                                    <span>[ OPEN INSTAGRAM & TAG ME ]</span>
+                                </a>
+                            </div>
                         </div>
                         
                         <p className="text-[10px] text-gray-600 max-w-xs mx-auto">
