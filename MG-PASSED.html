@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIKE G REVEAL</title>
+    <style>
+        /* --- RESET & BASE --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #0f0f0f;
+            color: #ffffff;
+            font-family: 'Arial Black', 'Helvetica Neue', sans-serif;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- INTRO SCREEN (The Garage Door) --- */
+        #intro-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: #000;
+            z-index: 9998; /* Just below chaos screen */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        .slide-up {
+            transform: translateY(-100%);
+        }
+
+        /* --- CHAOS SCREEN (Suspense Mode) --- */
+        #chaos-screen {
+            display: none; /* Hidden until clicked */
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 9999; /* Top layer */
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+            background-color: #000; /* Solid black for contrast */
+        }
+
+        #chaos-text {
+            font-size: 8vw;
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 1;
+            color: #ff0000; /* Start red */
+            /* Pulsing Animation */
+            animation: menacing-pulse 0.8s ease-in-out infinite alternate;
+        }
+
+        /* Typewriter Text Styles */
+        #typewriter-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 2rem; 
+            color: #00c6ff;
+            max-width: 80%;
+            text-align: center;
+            min-height: 150px; 
+            line-height: 1.5;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            background-color: #00c6ff;
+            animation: blink 1s infinite;
+        }
+
+        /* The Reveal Button */
+        #reveal-btn {
+            margin-top: 50px;
+            padding: 20px 50px;
+            font-size: 2rem;
+            font-weight: bold;
+            background: #1a3c70; /* Dark Blue */
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px #1a3c70;
+            opacity: 0; 
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        #reveal-btn:hover {
+            transform: translateY(15px) scale(1.05);
+            background: #2a5ca8;
+        }
+
+        #reveal-btn.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- MAIN APP STYLES --- */
+        .bg-gradient {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1a2a3a 0%, #000000 100%);
+            z-index: -1;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 2rem;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 7vw;
+            text-transform: uppercase;
+            line-height: 0.9;
+            margin-bottom: 20px;
+            /* Glowing Gold */
+            background: -webkit-linear-gradient(#FFD700, #DAA520);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 0px 30px rgba(255, 215, 0, 0.6);
+            z-index: 10;
+        }
+
+        .badge {
+            background: #1a3c70; /* Dark Blue */
+            color: white;
+            padding: 10px 40px;
+            font-size: 2rem;
+            border-radius: 50px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px #1a3c70;
+            transform: rotate(-3deg);
+            animation: float 3s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        /* Photo Grid */
+        .photo-container {
+            display: flex;
+            gap: 30px;
+            margin: 50px 0;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+        }
+
+        .photo-card {
+            width: 18vw;
+            height: 28vw; 
+            background: #222;
+            border: 5px solid #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transition: transform 0.3s;
+            position: relative;
+        }
+
+        .photo-card:nth-child(1) { transform: rotate(-5deg) translateY(20px); }
+        .photo-card:nth-child(2) { transform: rotate(3deg) scale(1.1); z-index: 10; border-color: #ffcc00; }
+        .photo-card:nth-child(3) { transform: rotate(-3deg) translateY(10px); }
+
+        .photo-card img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Message */
+        .message-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 50px;
+            border-radius: 30px;
+            max-width: 1200px;
+            width: 90%;
+            margin: 0 auto 50px auto;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: left;
+            position: relative;
+            z-index: 10;
+        }
+
+        .message-text {
+            font-family: 'Helvetica', sans-serif;
+            font-size: 2.2rem;
+            line-height: 1.5;
+            font-weight: 400;
+            color: #eee;
+        }
+
+        .highlight { color: #00c6ff; font-weight: bold; }
+        .highlight-sold { color: #1a3c70; font-weight: bold; font-style: italic; }
+
+        /* Quote */
+        .family-quote {
+            text-align: center;
+            margin: 50px 0 150px 0;
+            z-index: 10;
+        }
+        .quote-text { font-size: 2.5rem; font-style: italic; color: #ffcc00; text-shadow: 0 0 20px rgba(255, 204, 0, 0.3); }
+        .quote-author { font-size: 1.5rem; color: #888; margin-top: 15px; letter-spacing: 2px; }
+
+        /* ANIMATIONS */
+        @keyframes menacing-pulse {
+            0% {
+                transform: scale(1);
+                text-shadow: 0 0 10px #ff0000;
+                color: #cc0000;
+            }
+            100% {
+                transform: scale(1.05); /* Slight growth */
+                text-shadow: 0 0 30px #ff0000, 0 0 50px #ff0000; /* intense glow */
+                color: #ff3333; /* Brighter red */
+            }
+        }
+
+        @keyframes float { 0% { transform: translateY(0px) rotate(-3deg); } 50% { transform: translateY(-15px) rotate(-3deg); } 100% { transform: translateY(0px) rotate(-3deg); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
+    </style>
+</head>
+<body>
+
+    <div id="chaos-screen">
+        <div id="chaos-text">HOLD ON CHATT!<br>HOLONNN!</div>
+    </div>
+
+    <div id="intro-screen">
+        <div id="typewriter-text"><span id="text-target"></span><span class="cursor">|</span></div>
+        <button id="reveal-btn" onclick="startChaos()">SHOW ME THE NURSE</button>
+    </div>
+
+    <div class="bg-gradient"></div>
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="hero">
+        <div class="badge">OFFICIAL RN CERTIFIED</div>
+        <h1>CONGRATS<br>MIKE G!</h1>
+        
+        <div class="photo-container">
+            <div class="photo-card"><img src="photo1.jpg" alt="Mike eating"></div>
+            <div class="photo-card"><img src="photo2.png" alt="Mike tank top"></div>
+            <div class="photo-card"><img src="photo3.jpg" alt="Mike cool"></div>
+        </div>
+    </div>
+
+    <div class="message-box">
+        <p class="message-text">
+            Congrats MG <span class="highlight-sold">SOLD</span>! What a journey you have gone through... 
+            <br><br>
+            From taking all online classes during covid in your first year, having me and Kuya Drei workout with you, 
+            putting us on to <span class="highlight">Juice WRLD's</span> album, telling me important things to know in college.
+            <br><br>
+            AND NOW, YOU ARE <span class="highlight">OFFICIAL MY MAN!</span>
+            <br><br>
+            <strong style="color: #ff0000;">(YOU BETTER NOT CHARGE ME ANYTHING IF I EVER BECOME ONE OF YOUR PATIENTS)</strong>
+        </p>
+    </div>
+
+    <div class="family-quote">
+        <div class="quote-text">“You’re not a simp, you just CARE A LOT.”</div>
+        <div class="quote-author">- a wise man that introduced me to anime, cologne, girls, goo-(yeah we are not going with that).</div>
+    </div>
+
+    <audio id="bg-music" src="song.mp3"></audio>
+
+    <script>
+        // --- TYPEWRITER LOGIC ---
+        const text1 = "I have waited for you to take the final exam and the results, because I knew you would pass it AND BOY WAS I RIGHT!";
+        const text2 = "created by your one and only goated cousin (no need to tell you who 😂)";
+        const target = document.getElementById('text-target');
+        const btn = document.getElementById('reveal-btn');
+        const introScreen = document.getElementById('intro-screen');
+        const chaosScreen = document.getElementById('chaos-screen');
+        const music = document.getElementById('bg-music');
+
+        let i = 0;
+        
+        function typeFirstLine() {
+            if (i < text1.length) {
+                target.innerHTML += text1.charAt(i);
+                i++;
+                setTimeout(typeFirstLine, 50); 
+            } else {
+                setTimeout(() => {
+                    target.innerHTML += "<br><br>"; 
+                    i = 0;
+                    typeSecondLine();
+                }, 800); 
+            }
+        }
+
+        function typeSecondLine() {
+            if (i < text2.length) {
+                target.innerHTML += text2.charAt(i);
+                i++;
+                setTimeout(typeSecondLine, 50);
+            } else {
+                setTimeout(() => {
+                    btn.classList.add('visible');
+                }, 500);
+            }
+        }
+
+        window.onload = typeFirstLine;
+
+        // --- CHAOS SEQUENCE ---
+        function startChaos() {
+            // 1. Start Music Immediately
+            music.play().catch(e => console.log("No audio file found or blocked"));
+            
+            // 2. Show Chaos Screen
+            chaosScreen.style.display = 'flex';
+
+            // 3. Wait 5 Seconds, THEN Reveal
+            setTimeout(openGarage, 5000);
+        }
+
+        // --- OPEN GARAGE / REVEAL ---
+        function openGarage() {
+            // Hide Chaos
+            chaosScreen.style.display = 'none';
+            // Slide Intro Up
+            introScreen.classList.add('slide-up');
+            // Trigger Confetti
+            setTimeout(initConfetti, 500);
+        }
+
+        // --- CONFETTI LOGIC ---
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const pieces = [];
+        // Dark Blue Confetti Scheme
+        const colors = ['#00c6ff', '#0072ff', '#1a3c70', '#ffcc00', '#ffffff'];
+
+        function ConfettiPiece() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height - canvas.height;
+            this.size = Math.random() * 10 + 5;
+            this.speed = Math.random() * 5 + 2;
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+            this.rotation = Math.random() * 360;
+        }
+
+        ConfettiPiece.prototype.update = function() {
+            this.y += this.speed;
+            this.rotation += 5;
+            if (this.y > canvas.height) {
+                this.y = -20;
+                this.x = Math.random() * canvas.width;
+            }
+        };
+
+        ConfettiPiece.prototype.draw = function() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotation * Math.PI / 180);
+            ctx.fillStyle = this.color;
+            ctx.fillRect(0, 0, this.size, this.size);
+            ctx.restore();
+        };
+
+        function initConfetti() {
+            for (let i = 0; i < 200; i++) {
+                pieces.push(new ConfettiPiece());
+            }
+            animateConfetti();
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pieces.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateConfetti);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
