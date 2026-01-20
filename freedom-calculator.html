@@ -14,7 +14,6 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Beehiiv Embed Script -->
     <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
     
     <script>
@@ -39,6 +38,14 @@
                     },
                     animation: {
                         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'celebration': 'celebrationBurst 0.6s ease-out forwards',
+                    },
+                    keyframes: {
+                        celebrationBurst: {
+                            '0%': { transform: 'scale(1)', opacity: 1 },
+                            '50%': { transform: 'scale(1.1)', opacity: 1 },
+                            '100%': { transform: 'scale(1)', opacity: 1 }
+                        }
                     }
                 }
             }
@@ -46,7 +53,6 @@
     </script>
 
     <style>
-        /* Custom Inputs */
         .input-cyber {
             background-color: #050505;
             border: 1px solid #333;
@@ -59,7 +65,6 @@
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
         }
 
-        /* Glitch Effect */
         .glitch { position: relative; }
         .glitch::before, .glitch::after {
             content: attr(data-text);
@@ -92,27 +97,26 @@
         }
         [x-cloak] { display: none !important; }
 
-        /* Modal Styles */
-        .modal-backdrop {
-            backdrop-filter: blur(8px);
-            animation: fadeIn 0.3s ease-out;
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+            z-index: 100;
+            animation: confettiFall linear forwards;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
-        .modal-content {
-            animation: slideUp 0.3s ease-out;
+
+        /* Celebration glow */
+        .celebration-glow {
+            animation: glowPulse 0.5s ease-out;
         }
-        @keyframes slideUp {
-            from { 
-                opacity: 0;
-                transform: translateY(20px) scale(0.95);
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 0 rgba(0, 255, 65, 0); }
+            50% { box-shadow: 0 0 60px rgba(0, 255, 65, 0.6); }
+            100% { box-shadow: 0 0 20px rgba(0, 255, 65, 0.2); }
         }
     </style>
 </head>
@@ -132,7 +136,7 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-[10px] font-bold text-cyber-gray uppercase mb-2">My Age</label>
-                    <input type="number" x-model.number="age" 
+                    <input type="number" x-model.number="age" @input="onInputChange()"
                         class="input-cyber w-full font-mono text-xl p-3 rounded-lg text-center placeholder-gray-600"
                         placeholder="20">
                 </div>
@@ -140,7 +144,7 @@
                     <label class="block text-[10px] font-bold text-cyber-gray uppercase mb-2">Saved So Far</label>
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cyber-gray">$</span>
-                        <input type="number" x-model.number="currentWealth" 
+                        <input type="number" x-model.number="currentWealth" @input="onInputChange()"
                             class="input-cyber w-full font-mono text-xl p-3 pl-6 rounded-lg text-center placeholder-gray-600"
                             placeholder="1000">
                     </div>
@@ -151,7 +155,7 @@
                 <label class="block text-[10px] font-bold text-cyber-gold uppercase mb-2 tracking-widest">Desired Monthly Income (Live Off Interest)</label>
                 <div class="relative">
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-cyber-gold font-bold">$</span>
-                    <input type="number" x-model.number="desiredIncome" 
+                    <input type="number" x-model.number="desiredIncome" @input="onInputChange()"
                         class="input-cyber w-full font-mono text-2xl p-4 pl-8 rounded-lg text-white border-cyber-gold/30 focus:border-cyber-gold"
                         placeholder="5000">
                 </div>
@@ -161,22 +165,39 @@
                 <label class="block text-[10px] font-bold text-cyber-blue uppercase mb-2 tracking-widest">Monthly Investment (The Hustle)</label>
                 <div class="relative">
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-cyber-blue font-bold">$</span>
-                    <input type="number" x-model.number="monthlyInvest" 
+                    <input type="number" x-model.number="monthlyInvest" @input="onInputChange()"
                         class="input-cyber w-full font-mono text-2xl p-4 pl-8 rounded-lg text-white border-cyber-blue/30 focus:border-cyber-blue"
                         placeholder="500">
                 </div>
             </div>
         </div>
 
-        <div class="bg-cyber-dark border border-cyber-gray rounded-2xl p-6 mb-6 relative overflow-hidden">
+        <!-- RESULTS CARD -->
+        <div class="bg-cyber-dark border border-cyber-gray rounded-2xl p-6 mb-6 relative overflow-hidden"
+             :class="showCelebration ? 'celebration-glow' : ''">
             
             <div class="grid grid-cols-1 gap-8 relative z-10">
                 
+                <!-- IDLENESS AVERSION: Processing State -->
+                <div x-show="isCalculating" class="absolute inset-0 bg-cyber-dark/95 z-20 flex flex-col items-center justify-center rounded-2xl">
+                    <div class="space-y-3 text-center">
+                        <div class="w-8 h-8 border-2 border-cyber-gold border-t-transparent rounded-full animate-spin mx-auto"></div>
+                        <p class="text-xs font-mono text-cyber-gold animate-pulse" x-text="calculatingText"></p>
+                    </div>
+                </div>
+
                 <div class="text-center border-b border-dashed border-cyber-gray pb-6">
                     <p class="text-[10px] font-bold text-cyber-gray uppercase tracking-[0.2em] mb-2">Your Freedom Price Tag</p>
-                    <div class="text-4xl sm:text-5xl font-black font-mono text-cyber-gold tracking-tight drop-shadow-[0_0_15px_rgba(255,215,0,0.3)]" 
-                         x-text="formatMoney(freedomNumber)"></div>
-                    <p class="text-[10px] text-cyber-gray mt-2">Based on the Rule of 25</p>
+                    
+                    <div class="text-4xl sm:text-5xl font-black font-mono tracking-tight transition-all duration-75 ease-out transform" 
+                         :class="triggerShockwave ? 'text-white scale-110 drop-shadow-[0_0_35px_rgba(255,255,255,1)] translate-y-[-2px]' : 'text-cyber-gold drop-shadow-[0_0_15px_rgba(255,215,0,0.3)]'"
+                         x-text="formatMoney(freedomNumber)">
+                    </div>
+                    
+                    <!-- OPERATIONAL TRANSPARENCY: Show the math -->
+                    <p class="text-[10px] text-cyber-gray mt-2">
+                        <span x-text="formatMoney(desiredIncome)"></span>/mo × 12 × 25 = Freedom
+                    </p>
                 </div>
 
                 <div class="text-center">
@@ -185,11 +206,14 @@
                          :class="getStatusColor()"
                          x-text="exitAgeDisplay"></div>
                     
+                    <!-- GOAL-GRADIENT: Progress bar starts at 5% -->
                     <div class="w-full bg-black h-2 mt-6 rounded-full overflow-hidden border border-cyber-gray/30">
                         <div class="h-full transition-all duration-1000 ease-out"
                              :class="getStatusBg()"
-                             :style="`width: ${progressPercent}%`"></div>
+                             :style="`width: ${displayProgressPercent}%`"></div>
                     </div>
+                    
+                    
                 </div>
 
                 <div class="bg-black border border-gray-800 rounded p-4 text-center">
@@ -203,7 +227,7 @@
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyber-blue opacity-5 blur-[100px] pointer-events-none"></div>
         </div>
 
-        <!-- OPTIMIZED Dynamic CTA Button -->
+        <!-- DYNAMIC CTA -->
         <div class="space-y-3">
             <button @click="showModal = true"
                :class="yearsToGoal >= 100 || exitAge >= 55 ? 'bg-cyber-red hover:bg-red-600 text-white shadow-[0_0_20px_rgba(255,0,0,0.4)]' : exitAge < 40 ? 'bg-cyber-green hover:bg-green-500 text-black shadow-[0_0_20px_rgba(0,255,65,0.4)]' : 'bg-cyber-gold hover:bg-yellow-500 text-black shadow-[0_0_20px_rgba(255,215,0,0.4)]'"
@@ -219,7 +243,7 @@
             </p>
         </div>
 
-        <!-- OPTIMIZED Modal Overlay -->
+        <!-- MODAL WITH ROADMAP (Uncertainty Anxiety) -->
         <div x-cloak x-show="showModal" 
              class="fixed inset-0 z-50 flex items-center justify-center p-3"
              x-transition:enter="transition ease-out duration-300"
@@ -238,7 +262,6 @@
                  x-transition:enter-start="opacity-0 scale-90"
                  x-transition:enter-end="opacity-100 scale-100">
                 
-                <!-- Close Button -->
                 <button @click="showModal = false" 
                         class="absolute top-2 right-2 text-cyber-gray/50 hover:text-cyber-gray transition-colors z-10">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,7 +269,6 @@
                     </svg>
                 </button>
 
-                <!-- OPTIMIZED Modal Header (Dynamic) -->
                 <div class="text-center mb-2">
                     <h2 class="text-xl sm:text-2xl font-black uppercase tracking-tight drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]"
                         :class="yearsToGoal >= 100 || exitAge >= 55 ? 'text-cyber-red' : exitAge < 40 ? 'text-cyber-green' : 'text-cyber-gold'"
@@ -254,12 +276,46 @@
                     </h2>
                 </div>
 
-                <!-- OPTIMIZED Dynamic Value Prop -->
+                <!-- OPERATIONAL TRANSPARENCY: Your Numbers Summary -->
+                <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-3 mx-2">
+                    <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">Your Numbers:</p>
+                    <div class="grid grid-cols-2 gap-2 text-center text-[10px]">
+                        <div>
+                            <p class="text-cyber-gold font-mono font-bold" x-text="formatMoney(freedomNumber)"></p>
+                            <p class="text-gray-500">Target</p>
+                        </div>
+                        <div>
+                            <p class="font-mono font-bold" :class="getStatusColor()" x-text="exitAgeDisplay"></p>
+                            <p class="text-gray-500">Exit Age</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="text-center mb-3 px-2">
                     <p class="text-xs text-gray-300 leading-relaxed" x-text="modalSubhead"></p>
                 </div>
 
-                <!-- Beehiiv Embed Form -->
+                <!-- UNCERTAINTY ANXIETY: What Happens Next -->
+                <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-3 mx-2">
+                    <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">What Happens Next:</p>
+                    <div class="flex items-center gap-2 text-[10px]">
+                        <div class="flex flex-col items-center">
+                            <div class="w-6 h-6 rounded-full bg-cyber-gold/20 border border-cyber-gold flex items-center justify-center text-cyber-gold font-bold">1</div>
+                            <span class="text-gray-500 mt-1">Email</span>
+                        </div>
+                        <div class="flex-1 h-px bg-cyber-gray"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-6 h-6 rounded-full bg-cyber-blue/20 border border-cyber-blue flex items-center justify-center text-cyber-blue font-bold">2</div>
+                            <span class="text-gray-500 mt-1">Map</span>
+                        </div>
+                        <div class="flex-1 h-px bg-cyber-gray"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-6 h-6 rounded-full bg-cyber-green/20 border border-cyber-green flex items-center justify-center text-cyber-green font-bold">3</div>
+                            <span class="text-gray-500 mt-1">Execute</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex justify-center -mx-1" style="min-height: 400px;">
                     <iframe src="https://subscribe-forms.beehiiv.com/76441368-8855-465e-a25d-e7a3a75db50a" 
                             class="beehiiv-embed" 
@@ -269,7 +325,6 @@
                             style="width: 100%; max-width: 420px; height: 400px; margin: 0; border-radius: 12px; background-color: transparent; box-shadow: 0 0 #0000;"></iframe>
                 </div>
 
-                <!-- OPTIMIZED Reassurance Line -->
                 <div class="text-center mt-2">
                     <p class="text-[10px] sm:text-xs text-gray-500 font-mono tracking-wide">
                         Instant access. The system I use. Zero spam.
@@ -289,34 +344,111 @@
                 monthlyInvest: 500,
                 showModal: false,
                 
-                // Constants
-                annualReturn: 0.08, // 8% Market Average
+                // IDLENESS AVERSION: Calculating state
+                isCalculating: false,
+                calculatingText: '',
+                calculatingSteps: [
+                    'Applying Rule of 25...',
+                    'Factoring 8% market returns...',
+                    'Projecting compound growth...',
+                    'Calculating exit timeline...'
+                ],
+                
+                // PEAK-END: Celebration
+                showCelebration: false,
+                previousExitAge: 999,
+                
+                // Shockwave
+                triggerShockwave: false,
+                
+                init() {
+                    this.$watch('freedomNumber', (value, oldValue) => {
+                        if (Math.abs(value - oldValue) > 1) {
+                            this.triggerShockwave = true;
+                            setTimeout(() => this.triggerShockwave = false, 150);
+                        }
+                    });
+                    
+                    // PEAK-END: Watch for crossing into "legend" status
+                    this.$watch('exitAge', (newAge, oldAge) => {
+                        if (oldAge >= 40 && newAge < 40 && this.yearsToGoal < 100) {
+                            this.triggerCelebration();
+                        }
+                    });
+                },
+                
+                // IDLENESS AVERSION: Fake loading on significant input change
+                onInputChange() {
+                    // Only trigger for meaningful changes
+                    if (!this.isCalculating) {
+                        this.runCalculatingAnimation();
+                    }
+                },
+                
+                runCalculatingAnimation() {
+                    this.isCalculating = true;
+                    let step = 0;
+                    
+                    const interval = setInterval(() => {
+                        this.calculatingText = this.calculatingSteps[step];
+                        step++;
+                        
+                        if (step >= this.calculatingSteps.length) {
+                            clearInterval(interval);
+                            setTimeout(() => {
+                                this.isCalculating = false;
+                            }, 300);
+                        }
+                    }, 350);
+                },
+                
+                // PEAK-END: Celebration for hitting < 40
+                triggerCelebration() {
+                    this.showCelebration = true;
+                    this.makeConfetti();
+                    setTimeout(() => this.showCelebration = false, 600);
+                },
+                
+                makeConfetti() {
+                    const colors = ['#00FF41', '#FFD700', '#00F0FF'];
+                    const container = document.body;
+                    
+                    for (let i = 0; i < 30; i++) {
+                        const el = document.createElement('div');
+                        el.classList.add('confetti');
+                        el.style.left = Math.random() * 100 + 'vw';
+                        el.style.top = '-20px';
+                        el.style.width = '10px';
+                        el.style.height = '10px';
+                        el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                        el.style.animationDelay = (Math.random() * 0.5) + 's';
+                        
+                        container.appendChild(el);
+                        setTimeout(() => el.remove(), 4000);
+                    }
+                },
+                
+                annualReturn: 0.08,
 
-                // 1. The Freedom Number (Rule of 25)
                 get freedomNumber() {
                     if (this.desiredIncome <= 0) return 0;
                     return this.desiredIncome * 12 * 25;
                 },
 
-                // 2. Logic: Time to Goal
-                // Formula: NPER using Logarithms
                 get yearsToGoal() {
-                    const r = this.annualReturn / 12; // Monthly Rate
+                    const r = this.annualReturn / 12;
                     const fv = this.freedomNumber;
                     const pv = this.currentWealth || 0;
                     const pmt = this.monthlyInvest || 0;
 
-                    // Edge: Already there
                     if (pv >= fv) return 0;
-
-                    // Edge: No progress
                     if (pmt <= 0 && pv <= 0) return 999; 
 
-                    // NPER Formula: ln((FV*r + PMT) / (PV*r + PMT)) / ln(1+r)
                     const numerator = (fv * r) + pmt;
                     const denominator = (pv * r) + pmt;
                     
-                    if (denominator === 0) return 999; // Divide by zero safety
+                    if (denominator === 0) return 999; 
 
                     const months = Math.log(numerator / denominator) / Math.log(1 + r);
                     
@@ -337,15 +469,18 @@
                     const pct = (this.currentWealth / this.freedomNumber) * 100;
                     return Math.min(100, Math.max(0, pct));
                 },
+                
+                // GOAL-GRADIENT: Display progress starts at 5%
+                get displayProgressPercent() {
+                    return Math.max(5, this.progressPercent);
+                },
 
-                // 3. The Psychological Trigger
                 get statusMessage() {
                     if (this.yearsToGoal >= 100) return "MANUAL SAVING FAILED. YOU NEED AUTOPILOT.";
                     
                     const age = this.exitAge;
                     if (age < 40) return "STATUS: LEGEND. YOU ARE ESCAPING THE MATRIX.";
                     if (age < 55) return "STATUS: STANDARD. ACCEPTABLE BUT SLOW.";
-                    // The Pivot: Any result > 55 triggers the solution pitch
                     return "MANUAL SAVING FAILED. YOU NEED AUTOPILOT.";
                 },
 
@@ -365,7 +500,6 @@
                     return "bg-cyber-red";
                 },
 
-                // OPTIMIZED: Dynamic CTA Text
                 get ctaText() {
                     if (this.yearsToGoal >= 100) return "🔴 FIX THE MATH";
                     const age = this.exitAge;
@@ -374,7 +508,6 @@
                     return "🔴 FIX THE MATH";
                 },
 
-                // OPTIMIZED: Dynamic Modal Headline
                 get modalHeadline() {
                     if (this.yearsToGoal >= 100) return "🛠️ THE MATH IS BROKEN";
                     const age = this.exitAge;
@@ -383,7 +516,6 @@
                     return "🛠️ THE MATH IS BROKEN";
                 },
 
-                // OPTIMIZED: Dynamic Modal Subhead
                 get modalSubhead() {
                     if (this.yearsToGoal >= 100) return "Your current path leads nowhere. The Autopilot Architecture Map shows the execution layer: where every dollar needs to go to actually hit a number.";
                     const age = this.exitAge;
