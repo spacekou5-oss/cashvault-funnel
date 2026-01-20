@@ -107,12 +107,39 @@
             5% { clip: rect(6px, 9999px, 64px, 0); }
             100% { clip: rect(43px, 9999px, 36px, 0); }
         }
+        
+        /* PEAK-END: Red vignette flash on high loss */
+        .damage-flash {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 100;
+            background: radial-gradient(circle, transparent 40%, rgba(255,0,0,0.3) 100%);
+            animation: flashOut 0.6s ease-out forwards;
+        }
+        @keyframes flashOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        /* IDLENESS AVERSION: Recalculating overlay */
+        .recalc-overlay {
+            background: rgba(5,5,5,0.85);
+            backdrop-filter: blur(2px);
+        }
+        
         [x-cloak] { display: none !important; }
     </style>
 </head>
 <body class="bg-cyber-black text-white font-sans antialiased min-h-screen flex items-center justify-center p-4">
 
     <main x-data="costEngine()" class="w-full max-w-lg relative min-h-[600px] flex flex-col justify-center">
+
+        <!-- PEAK-END: Damage Flash Effect -->
+        <div x-show="showDamageFlash" 
+             x-transition:leave="transition ease-out duration-600"
+             class="damage-flash">
+        </div>
 
         <!-- IDLE STATE: Gatekeeper Screen -->
         <div x-show="state === 'idle'" 
@@ -204,13 +231,27 @@
                         <label class="text-sm font-bold uppercase tracking-wider text-cyber-red">Years You Wait</label>
                         <span class="text-3xl font-black font-mono text-cyber-red" x-text="waitYears + ' YRS'"></span>
                     </div>
-                    <input type="range" min="0" max="10" step="1" x-model.number="waitYears" class="w-full mb-2">
+                    <input type="range" min="0" max="10" step="1" x-model.number="waitYears" @input="onSliderChange()" class="w-full mb-2">
                     <p class="text-center text-[10px] text-cyber-gray uppercase mt-2">Slide right to see the damage</p>
                 </div>
             </div>
 
             <!-- Results Card -->
             <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 relative overflow-hidden">
+                
+                <!-- IDLENESS AVERSION: Recalculating Overlay -->
+                <div x-show="isRecalculating" 
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-150"
+                     class="absolute inset-0 z-20 recalc-overlay flex items-center justify-center rounded-xl">
+                    <div class="text-center">
+                        <div class="w-6 h-6 border-2 border-cyber-red border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                        <p class="text-xs font-mono text-cyber-red animate-pulse" x-text="recalcText"></p>
+                    </div>
+                </div>
+                
                 <div class="absolute top-0 right-0 w-32 h-32 bg-cyber-green opacity-5 blur-[80px]" x-show="waitYears === 0"></div>
                 <div class="absolute bottom-0 left-0 w-32 h-32 bg-cyber-red opacity-5 blur-[80px]" x-show="waitYears > 0"></div>
 
@@ -222,13 +263,26 @@
 
                 <div>
                     <p class="text-xs font-bold text-cyber-red uppercase tracking-widest mb-1">Wealth You Burned</p>
-                    <div class="text-4xl sm:text-5xl font-black font-mono text-cyber-red tracking-tight" x-text="'-' + formatMoney(loss)"></div>
+                    <!-- PEAK-END: Animated loss counter -->
+                    <div class="text-4xl sm:text-5xl font-black font-mono text-cyber-red tracking-tight" 
+                         :class="{ 'animate-shake': displayLoss > 500000 }"
+                         x-text="'-' + formatMoney(displayLoss)"></div>
                 </div>
 
                 <div class="mt-6 p-3 bg-black border border-cyber-red/30 rounded text-center">
                     <p class="text-sm font-bold text-white uppercase" 
-                       :class="{ 'animate-shake text-cyber-red': loss > 500000 }"
+                       :class="{ 'animate-shake text-cyber-red': displayLoss > 500000 }"
                        x-text="getFeedback()"></p>
+                </div>
+                
+                <!-- OPERATIONAL TRANSPARENCY: Show The Math -->
+                <div class="mt-4 pt-4 border-t border-dashed border-cyber-gray/50" x-show="waitYears > 0">
+                    <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">The Math:</p>
+                    <div class="text-[10px] text-gray-500 font-mono space-y-1 text-center">
+                        <p><span class="text-white" x-text="formatMoney(contribution)"></span>/mo × <span class="text-white" x-text="(retirementAge - age)"></span> yrs = <span class="text-cyber-green" x-text="formatMoney(wealthNow)"></span></p>
+                        <p>Waiting <span class="text-cyber-red" x-text="waitYears"></span> yrs = <span class="text-cyber-red" x-text="waitYears * 12"></span> fewer months compounding</p>
+                        <p>Lost growth: <span class="text-cyber-red font-bold" x-text="formatMoney(loss)"></span></p>
+                    </div>
                 </div>
             </div>
 
@@ -294,6 +348,27 @@
                             The <span class="text-cyber-green font-bold">Investment Simplifier</span> shows you exactly where your money goes. 3 inputs. 60 seconds. Your exact tickers.
                         </p>
                     </div>
+                    
+                    <!-- UNCERTAINTY ANXIETY: What Happens Next Roadmap -->
+                    <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-3 mx-2">
+                        <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">What Happens Next:</p>
+                        <div class="flex items-center gap-2 text-[10px]">
+                            <div class="flex flex-col items-center">
+                                <div class="w-6 h-6 rounded-full bg-cyber-green/20 border border-cyber-green flex items-center justify-center text-cyber-green font-bold">1</div>
+                                <span class="text-gray-500 mt-1">Email</span>
+                            </div>
+                            <div class="flex-1 h-px bg-cyber-gray"></div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-6 h-6 rounded-full bg-cyber-green/20 border border-cyber-green/50 flex items-center justify-center text-cyber-green/70 font-bold">2</div>
+                                <span class="text-gray-500 mt-1">Tickers</span>
+                            </div>
+                            <div class="flex-1 h-px bg-cyber-gray"></div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-6 h-6 rounded-full bg-cyber-green/20 border border-cyber-green/30 flex items-center justify-center text-cyber-green/50 font-bold">3</div>
+                                <span class="text-gray-500 mt-1">Invest</span>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Beehiiv Embed Form -->
                     <div class="flex justify-center -mx-1" style="min-height: 400px;">
@@ -331,6 +406,86 @@
                 statusText: '',
                 logs: [],
                 progress: 0,
+                
+                // PEAK-END: Animated loss display
+                displayLoss: 0,
+                lossAnimationFrame: null,
+                showDamageFlash: false,
+                
+                // IDLENESS AVERSION: Recalculating state
+                isRecalculating: false,
+                recalcText: 'Recalculating decay...',
+                previousWaitYears: 0,
+                recalcMessages: [
+                    'Recalculating decay...',
+                    'Projecting loss...',
+                    'Updating damage...'
+                ],
+
+                init() {
+                    // Watch for loss changes and animate
+                    this.$watch('loss', (newLoss, oldLoss) => {
+                        this.animateLossCounter(oldLoss, newLoss);
+                        
+                        // PEAK-END: Flash on major damage
+                        if (newLoss > 500000 && oldLoss <= 500000) {
+                            this.triggerDamageFlash();
+                        }
+                    });
+                },
+
+                // PEAK-END: Animate loss counter
+                animateLossCounter(from, to) {
+                    if (this.lossAnimationFrame) {
+                        cancelAnimationFrame(this.lossAnimationFrame);
+                    }
+                    
+                    const duration = 600; // ms
+                    const startTime = performance.now();
+                    
+                    const animate = (currentTime) => {
+                        const elapsed = currentTime - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        
+                        // Easing function for dramatic effect
+                        const easeOut = 1 - Math.pow(1 - progress, 3);
+                        
+                        this.displayLoss = from + (to - from) * easeOut;
+                        
+                        if (progress < 1) {
+                            this.lossAnimationFrame = requestAnimationFrame(animate);
+                        } else {
+                            this.displayLoss = to;
+                        }
+                    };
+                    
+                    this.lossAnimationFrame = requestAnimationFrame(animate);
+                },
+                
+                // PEAK-END: Red vignette flash
+                triggerDamageFlash() {
+                    this.showDamageFlash = true;
+                    setTimeout(() => {
+                        this.showDamageFlash = false;
+                    }, 600);
+                },
+                
+                // IDLENESS AVERSION: Recalculation theater on slider
+                onSliderChange() {
+                    const change = Math.abs(this.waitYears - this.previousWaitYears);
+                    
+                    // Only trigger theater for significant changes
+                    if (change >= 1) {
+                        this.isRecalculating = true;
+                        this.recalcText = this.recalcMessages[Math.floor(Math.random() * this.recalcMessages.length)];
+                        
+                        setTimeout(() => {
+                            this.isRecalculating = false;
+                        }, 400);
+                    }
+                    
+                    this.previousWaitYears = this.waitYears;
+                },
 
                 ignite() {
                     this.state = 'processing';
@@ -359,6 +514,8 @@
 
                     setTimeout(() => {
                         this.state = 'active';
+                        // Initialize display loss
+                        this.displayLoss = this.loss;
                     }, cumulativeTime + 600);
                 },
 
@@ -371,20 +528,16 @@
                 get wealthLater() { return this.calculateFV(this.age + this.waitYears); },
                 get loss() { return Math.max(0, this.wealthNow - this.wealthLater); },
 
-                // FIXED: Daily cost with edge case handling
+                // Daily cost with edge case handling
                 get dailyCost() {
                     const yearsRemaining = this.retirementAge - (this.age + this.waitYears);
                     
-                    // Edge case: No time left or invalid input
                     if (yearsRemaining <= 0) return 0;
-                    
-                    // Edge case: No loss to recover
                     if (this.loss <= 0) return 0;
                     
                     const daysRemaining = yearsRemaining * 365;
                     const daily = this.loss / daysRemaining;
                     
-                    // Edge case: Sanity check
                     if (isNaN(daily) || !isFinite(daily)) return 0;
                     
                     return daily;
@@ -402,10 +555,11 @@
 
                 // Copywriting
                 getFeedback() {
-                    if (this.loss === 0) return "YOU ARE ON TRACK. STAY FOCUSED.";
-                    if (this.loss < 50000) return "OUCH. THAT'S A DOWN PAYMENT GONE.";
-                    if (this.loss < 100000) return "YOU JUST BURNED A BRAND NEW TESLA.";
-                    if (this.loss < 500000) return "THIS IS A FERRARI. GONE.";
+                    const loss = this.displayLoss;
+                    if (loss === 0) return "YOU ARE ON TRACK. STAY FOCUSED.";
+                    if (loss < 50000) return "OUCH. THAT'S A DOWN PAYMENT GONE.";
+                    if (loss < 100000) return "YOU JUST BURNED A BRAND NEW TESLA.";
+                    if (loss < 500000) return "THIS IS A FERRARI. GONE.";
                     return "YOU ARE SETTING YOUR RETIREMENT ON FIRE.";
                 },
 
@@ -424,8 +578,8 @@
                     return new Intl.NumberFormat('en-US', {
                         style: 'currency',
                         currency: 'USD',
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
                     }).format(value);
                 }
             }
