@@ -39,6 +39,8 @@
                         'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'glitch': 'glitch 1s linear infinite',
+                        'rank-up': 'rankUp 0.6s ease-out forwards',
+                        'score-pop': 'scorePop 0.3s ease-out',
                     },
                     keyframes: {
                         pulseGlow: {
@@ -50,6 +52,16 @@
                             '5%': { clip: 'rect(30px, 9999px, 80px, 0)' },
                             '10%': { clip: 'rect(10px, 9999px, 20px, 0)' },
                             '100%': { clip: 'rect(44px, 9999px, 56px, 0)' }
+                        },
+                        rankUp: {
+                            '0%': { transform: 'scale(1)', opacity: 1 },
+                            '50%': { transform: 'scale(1.2)', opacity: 1 },
+                            '100%': { transform: 'scale(1)', opacity: 1 }
+                        },
+                        scorePop: {
+                            '0%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.15)' },
+                            '100%': { transform: 'scale(1)' }
                         }
                     }
                 }
@@ -118,6 +130,23 @@
             to { transform: translateY(110vh) rotate(360deg); }
         }
 
+        /* RANK UP Flash Effect */
+        .rank-flash {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle, rgba(0,240,255,0.3) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 100;
+            animation: flashOut 0.5s ease-out forwards;
+        }
+        .rank-flash.gold {
+            background: radial-gradient(circle, rgba(255,215,0,0.4) 0%, transparent 70%);
+        }
+        @keyframes flashOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
         [x-cloak] { display: none !important; }
     </style>
 </head>
@@ -125,6 +154,15 @@
 
     <main x-data="creditProtocol()" class="w-full relative">
 
+        <!-- RANK UP FLASH EFFECT -->
+        <div x-show="showRankFlash" 
+             x-transition:leave="transition ease-out duration-500"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             :class="rankFlashGold ? 'rank-flash gold' : 'rank-flash'">
+        </div>
+
+        <!-- ONBOARDING SCREEN -->
         <div x-show="onboarding" 
              x-transition:leave="transition ease-in duration-700"
              x-transition:leave-start="transform translate-y-0"
@@ -158,37 +196,56 @@
 
         <div class="w-full max-w-lg mx-auto">
             
+            <!-- STICKY HEADER WITH PROGRESS -->
             <div class="sticky top-0 z-40 bg-stealth-bg/95 backdrop-blur-md border-b border-stealth-border pb-4 pt-4 px-4 shadow-2xl transition-opacity duration-1000"
                  :class="onboarding ? 'opacity-0' : 'opacity-100'">
                 <div class="flex justify-between items-end mb-2">
                     <div>
                         <h1 class="font-mono text-xs text-stealth-text tracking-widest uppercase">Credit Protocol</h1>
-                        <div class="text-2xl font-black italic tracking-tighter" 
-                             :class="progress > 100 ? 'text-stealth-gold drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]' : 'text-stealth-blue drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]'"
+                        <!-- PEAK-END: Animated status text on rank change -->
+                        <div class="text-2xl font-black italic tracking-tighter transition-all duration-300" 
+                             :class="[
+                                 progress > 100 ? 'text-stealth-gold drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]' : 'text-stealth-blue drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]',
+                                 statusAnimating ? 'animate-rank-up' : ''
+                             ]"
                              x-text="statusText">
                         </div>
                     </div>
-                    <div class="text-3xl font-black font-mono" x-text="progress + '%'"></div>
+                    <!-- GOAL-GRADIENT: Score pops on change -->
+                    <div class="text-3xl font-black font-mono transition-transform" 
+                         :class="scorePop ? 'animate-score-pop' : ''"
+                         x-text="displayProgress + '%'"></div>
                 </div>
 
+                <!-- GOAL-GRADIENT: Progress bar starts at 15% -->
                 <div class="w-full h-3 bg-stealth-card rounded-full overflow-hidden border border-stealth-border relative">
                     <div class="absolute top-0 left-0 h-full bg-stealth-blue transition-all duration-500 ease-out"
-                         :style="`width: ${Math.min(100, progress)}%`">
+                         :style="`width: ${Math.min(100, displayProgress)}%`">
                     </div>
                     <div class="absolute top-0 left-0 h-full bg-stealth-gold transition-all duration-500 ease-out z-10 shadow-[0_0_15px_#FFD700]"
-                         :style="`width: ${progress > 100 ? (progress - 100) * 10 : 0}%`"
-                         x-show="progress > 100">
+                         :style="`width: ${displayProgress > 100 ? (displayProgress - 100) * 10 : 0}%`"
+                         x-show="displayProgress > 100">
                     </div>
                 </div>
+                
+                <!-- GOAL-GRADIENT: "You showed up" message -->
+                <p class="text-[10px] text-stealth-text text-center mt-2 font-mono" x-show="progress === 0 && !onboarding">
+                    You showed up. That's Step Zero. <span class="text-stealth-blue">+15%</span>
+                </p>
             </div>
 
             <div class="px-4 mt-6 space-y-3 pb-40" :class="{ 'gold-mode': progress > 100 }">
                 
+                <!-- CHECKLIST ITEMS WITH CREDIT IMPACT (Operational Transparency) -->
                 <template x-for="item in items" :key="item.id">
                     <label class="flex items-center gap-4 bg-stealth-card border border-stealth-border p-4 rounded-xl cursor-pointer hover:border-stealth-blue/30 transition-colors group">
-                        <input type="checkbox" x-model="item.checked" class="check-box flex-shrink-0">
-                        <div>
-                            <p class="font-bold text-sm text-white group-hover:text-stealth-blue transition-colors" x-text="item.title"></p>
+                        <input type="checkbox" x-model="item.checked" @change="onCheckChange(item)" class="check-box flex-shrink-0">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <p class="font-bold text-sm text-white group-hover:text-stealth-blue transition-colors" x-text="item.title"></p>
+                                <!-- OPERATIONAL TRANSPARENCY: Show credit impact -->
+                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-stealth-blue/10 text-stealth-blue" x-text="'+' + item.impact + ' pts'"></span>
+                            </div>
                             <p class="text-[10px] text-stealth-text mt-0.5" x-text="item.desc"></p>
                         </div>
                     </label>
@@ -202,13 +259,17 @@
 
                 <label class="flex items-center gap-4 bg-stealth-card border border-stealth-gold/30 p-4 rounded-xl cursor-pointer hover:border-stealth-gold transition-colors group relative overflow-hidden">
                     <div class="absolute inset-0 bg-stealth-gold opacity-5 group-hover:opacity-10 transition-opacity"></div>
-                    <input type="checkbox" x-model="bonus.checked" class="check-box flex-shrink-0 border-stealth-gold/50 text-stealth-gold">
-                    <div class="relative z-10">
-                        <p class="font-bold text-sm text-stealth-gold" x-text="bonus.title"></p>
+                    <input type="checkbox" x-model="bonus.checked" @change="onCheckChange(bonus)" class="check-box flex-shrink-0 border-stealth-gold/50 text-stealth-gold">
+                    <div class="relative z-10 flex-1">
+                        <div class="flex justify-between items-start">
+                            <p class="font-bold text-sm text-stealth-gold" x-text="bonus.title"></p>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-stealth-gold/10 text-stealth-gold">+50 pts</span>
+                        </div>
                         <p class="text-[10px] text-stealth-text mt-0.5" x-text="bonus.desc"></p>
                     </div>
                 </label>
 
+                <!-- LOCKED LEVEL 2 PREVIEW -->
                 <div class="mt-12 relative pt-6 pb-6">
                     <div class="absolute inset-0 z-20 flex flex-col items-center justify-center">
                          <div class="bg-black/90 border border-stealth-gold px-6 py-3 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(255,215,0,0.2)] flex flex-col items-center gap-2 transform transition-transform duration-300 hover:scale-105">
@@ -240,23 +301,25 @@
             </div>
         </div>
 
+        <!-- CTA BUTTON -->
         <div class="fixed bottom-0 left-0 w-full z-50 p-4 bg-stealth-bg/90 backdrop-blur-md border-t border-stealth-border"
              x-show="!onboarding"
              x-transition:enter="transition ease-out duration-1000"
              x-transition:enter-start="translate-y-full"
              x-transition:enter-end="translate-y-0">
             
-            <button @click="progress >= 70 ? showModal = true : null"
-               :class="progress >= 70 ? 'bg-stealth-gold text-black shadow-[0_0_20px_#FFD700] hover:scale-[1.02] animate-pulse-fast cursor-pointer' : 'bg-stealth-card text-stealth-text border border-stealth-border cursor-not-allowed opacity-50'"
+            <button @click="displayProgress >= 70 ? showModal = true : null"
+               :class="displayProgress >= 70 ? 'bg-stealth-gold text-black shadow-[0_0_20px_#FFD700] hover:scale-[1.02] animate-pulse-fast cursor-pointer' : 'bg-stealth-card text-stealth-text border border-stealth-border cursor-not-allowed opacity-50'"
                class="flex items-center justify-center gap-3 w-full max-w-lg mx-auto py-4 rounded-xl font-black uppercase text-center transition-all duration-500">
                
-               <span x-text="progress >= 70 ? '🔓' : '🔒'"></span>
-               <span x-text="progress >= 70 ? 'UNLOCK LEVEL 2: WEALTH MODE' : 'LEVEL 2 LOCKED (REACH 70%)'"></span>
+               <span x-text="displayProgress >= 70 ? '🔓' : '🔒'"></span>
+               <span x-text="displayProgress >= 70 ? 'UNLOCK LEVEL 2: WEALTH MODE' : 'LEVEL 2 LOCKED (REACH 70%)'"></span>
                
             </button>
             
         </div>
 
+        <!-- MODAL WITH "WHAT HAPPENS NEXT" (Uncertainty Anxiety) -->
         <div x-cloak x-show="showModal" 
              class="fixed inset-0 z-[70] flex items-center justify-center p-3"
              x-transition:enter="transition ease-out duration-300"
@@ -296,6 +359,27 @@
                     </p>
                 </div>
 
+                <!-- UNCERTAINTY ANXIETY: What Happens Next Roadmap -->
+                <div class="bg-black/50 border border-stealth-border rounded-lg p-3 mb-3 mx-2">
+                    <p class="text-[10px] text-stealth-text uppercase tracking-widest mb-2 text-center">What Happens Next:</p>
+                    <div class="flex items-center gap-2 text-[10px]">
+                        <div class="flex flex-col items-center">
+                            <div class="w-6 h-6 rounded-full bg-stealth-gold/20 border border-stealth-gold flex items-center justify-center text-stealth-gold font-bold">1</div>
+                            <span class="text-gray-500 mt-1">Email</span>
+                        </div>
+                        <div class="flex-1 h-px bg-stealth-border"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-6 h-6 rounded-full bg-stealth-blue/20 border border-stealth-blue flex items-center justify-center text-stealth-blue font-bold">2</div>
+                            <span class="text-gray-500 mt-1">Instant</span>
+                        </div>
+                        <div class="flex-1 h-px bg-stealth-border"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-6 h-6 rounded-full bg-stealth-text/20 border border-stealth-text flex items-center justify-center text-stealth-text font-bold">3</div>
+                            <span class="text-gray-500 mt-1">Execute</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex justify-center -mx-1" style="min-height: 400px;">
                     <iframe src="https://subscribe-forms.beehiiv.com/90d138cb-47b1-4e1c-a5e2-ffd2119b2021" 
                             class="beehiiv-embed" 
@@ -320,21 +404,31 @@
             return {
                 onboarding: true,
                 showModal: false,
-                items: [
-                    { id: 1, title: 'The Spy', desc: 'Download Credit Karma / Experian app.', checked: false },
-                    { id: 2, title: 'The Safety', desc: 'Turn on "Autopay" (Minimum Balance).', checked: false },
-                    { id: 3, title: 'The Sniper', desc: 'Pay balance 3 days before Statement Date.', checked: false },
-                    { id: 4, title: 'The Ratio', desc: 'Keep Utilization below 10%.', checked: false },
-                    { id: 5, title: 'The Cleanup', desc: 'Dispute any error older than 2 years.', checked: false },
-                    { id: 6, title: 'The Ask', desc: 'Request Limit Increase (Every 6 months).', checked: false },
-                    { id: 7, title: 'The Boost', desc: 'Connect Utility Bills (Experian Boost).', checked: false },
-                    { id: 8, title: 'The Wait', desc: 'No new inquiries for 6 months.', checked: false },
-                    { id: 9, title: 'The Rule', desc: 'Treat Credit Card like a Debit Card.', checked: false },
-                    { id: 10, title: 'The Active', desc: 'Use card once a month (don\'t let it rot).', checked: false },
-                ],
-                bonus: { id: 11, title: 'The Piggyback', desc: 'Become Authorized User on parent\'s card (750+).', checked: false },
                 
-                // NEW GHOST DATA
+                // PEAK-END: Flash effects
+                showRankFlash: false,
+                rankFlashGold: false,
+                statusAnimating: false,
+                scorePop: false,
+                
+                // Track previous status for rank-up detection
+                previousStatus: 'GHOST',
+                
+                // OPERATIONAL TRANSPARENCY: Credit impact per step (equal weight)
+                items: [
+                    { id: 1, title: 'The Spy', desc: 'Download Credit Karma / Experian app.', checked: false, impact: 10 },
+                    { id: 2, title: 'The Safety', desc: 'Turn on "Autopay" (Minimum Balance).', checked: false, impact: 10 },
+                    { id: 3, title: 'The Sniper', desc: 'Pay balance 3 days before Statement Date.', checked: false, impact: 10 },
+                    { id: 4, title: 'The Ratio', desc: 'Keep Utilization below 10%.', checked: false, impact: 10 },
+                    { id: 5, title: 'The Cleanup', desc: 'Dispute any error older than 2 years.', checked: false, impact: 10 },
+                    { id: 6, title: 'The Ask', desc: 'Request Limit Increase (Every 6 months).', checked: false, impact: 10 },
+                    { id: 7, title: 'The Boost', desc: 'Connect Utility Bills (Experian Boost).', checked: false, impact: 10 },
+                    { id: 8, title: 'The Wait', desc: 'No new inquiries for 6 months.', checked: false, impact: 10 },
+                    { id: 9, title: 'The Rule', desc: 'Treat Credit Card like a Debit Card.', checked: false, impact: 10 },
+                    { id: 10, title: 'The Active', desc: 'Use card once a month (don\'t let it rot).', checked: false, impact: 10 },
+                ],
+                bonus: { id: 11, title: 'The Piggyback', desc: 'Become Authorized User on parent\'s card (750+).', checked: false, impact: 10 },
+                
                 lockedItems: [
                     { title: 'The LLC Structuring', desc: 'Separate personal liability from assets.' },
                     { title: 'Business Credit Lines', desc: 'Access $50k+ in non-personal funding.' },
@@ -343,18 +437,23 @@
 
                 celebrated: false,
 
+                // Raw progress (0-110)
                 get progress() {
                     let score = this.items.filter(i => i.checked).length * 10;
                     if (this.bonus.checked) score += 10;
                     
-                    // Trigger Rain Effect Logic
                     if (score >= 100 && !this.celebrated) {
                         this.celebrated = true;
                         this.makeItRain();
                     }
-                    if (score < 100) this.celebrated = false; // Reset if they uncheck
+                    if (score < 100) this.celebrated = false;
 
                     return score;
+                },
+
+                // GOAL-GRADIENT: Display progress starts at 15%
+                get displayProgress() {
+                    return this.progress + 15;
                 },
 
                 get statusText() {
@@ -366,7 +465,31 @@
                     return "STATUS: GHOST";
                 },
 
-                // The Physics Engine (No external lib)
+                // PEAK-END: Trigger rank-up animation on status change
+                onCheckChange(item) {
+                    // Trigger score pop
+                    this.scorePop = true;
+                    setTimeout(() => this.scorePop = false, 300);
+                    
+                    // Check for rank change
+                    const newStatus = this.statusText;
+                    if (newStatus !== this.previousStatus) {
+                        this.triggerRankUp(newStatus);
+                        this.previousStatus = newStatus;
+                    }
+                },
+
+                triggerRankUp(newStatus) {
+                    // Flash effect
+                    this.rankFlashGold = newStatus.includes('GOD') || newStatus.includes('BOSS');
+                    this.showRankFlash = true;
+                    setTimeout(() => this.showRankFlash = false, 500);
+                    
+                    // Status text animation
+                    this.statusAnimating = true;
+                    setTimeout(() => this.statusAnimating = false, 600);
+                },
+
                 makeItRain() {
                     const emojis = ['💸', '💰', '💵', '💳'];
                     const container = document.body;
@@ -376,7 +499,6 @@
                         el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
                         el.classList.add('cash-drop');
                         
-                        // Random Physics
                         el.style.left = Math.random() * 100 + 'vw';
                         el.style.fontSize = (Math.random() * 20 + 20) + 'px';
                         el.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
@@ -384,7 +506,6 @@
                         
                         container.appendChild(el);
 
-                        // Cleanup
                         setTimeout(() => { el.remove(); }, 4000);
                     }
                 }
