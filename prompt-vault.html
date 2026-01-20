@@ -12,16 +12,18 @@
     
     <style>
         :root {
-            /* PREMIUM THEME VARIABLES */
             --bg-primary: #0a0e27;
             --bg-card: #1a1f3a;
             --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
             --success: #10b981;
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
             --border: #2a3150;
         }
+
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
@@ -32,7 +34,6 @@
             min-height: 100vh;
         }
 
-        /* Floating Background Animation */
         body::before {
             content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
@@ -44,32 +45,43 @@
             50% { transform: translate(-20px, -10px); }
         }
 
-        /* Layout Utilities */
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 40px 20px; 
+        }
         
-        /* Typography */
+        @media (max-width: 768px) {
+            .container { padding: 20px 16px; }
+        }
+        
         h1, h2, h3 { margin: 0; }
         .gradient-text {
             background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        /* Component Styles */
         .glass-card {
             background: linear-gradient(135deg, rgba(26, 31, 58, 0.9) 0%, rgba(21, 25, 51, 0.9) 100%);
             backdrop-filter: blur(10px);
             border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 30px;
+            padding: 24px;
             margin-bottom: 25px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             transition: transform 0.3s ease;
         }
 
+        @media (max-width: 768px) {
+            .glass-card { padding: 20px 16px; border-radius: 16px; }
+        }
+
+        .input-group { margin-bottom: 0; }
         .input-group label {
             display: block;
             color: var(--text-secondary);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
             margin-bottom: 8px;
             text-transform: uppercase;
@@ -106,10 +118,15 @@
             transition: all 0.3s;
             width: 100%;
             box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            font-size: 0.9rem;
         }
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+        }
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
         .nav-pill {
@@ -120,8 +137,9 @@
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
+            white-space: nowrap;
         }
         .nav-pill.active {
             background: var(--accent-gradient);
@@ -130,7 +148,10 @@
             box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
 
-        /* Sidebar Link Styling (The Glow Update) */
+        @media (max-width: 768px) {
+            .nav-pill { padding: 8px 14px; font-size: 0.75rem; }
+        }
+
         .sidebar-link {
             display: block;
             width: 100%;
@@ -149,11 +170,158 @@
             border-color: var(--accent-primary);
             color: white;
             background: rgba(99, 102, 241, 0.1);
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); /* The Glow */
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
             transform: translateY(-2px);
         }
 
-        /* Output Box specific */
+        /* === GOAL-GRADIENT PROGRESS BAR === */
+        .progress-container {
+            background: rgba(10, 14, 39, 0.6);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .progress-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .progress-percent {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .progress-bar-track {
+            height: 6px;
+            background: rgba(99, 102, 241, 0.15);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent-gradient);
+            border-radius: 3px;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* === OPERATIONAL TRANSPARENCY PANEL === */
+        .transparency-panel {
+            background: rgba(10, 14, 39, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-top: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .transparency-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            background: rgba(99, 102, 241, 0.05);
+            border-bottom: 1px solid var(--border);
+        }
+        .transparency-header:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+        .transparency-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .transparency-toggle {
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            transition: transform 0.3s;
+        }
+        .transparency-toggle.open { transform: rotate(180deg); }
+        .transparency-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .transparency-content.open {
+            padding: 16px;
+            max-height: 300px;
+        }
+        .transparency-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            opacity: 0.4;
+            transition: all 0.3s;
+        }
+        .transparency-step.active {
+            opacity: 1;
+        }
+        .transparency-step.complete {
+            opacity: 0.7;
+        }
+        .step-indicator {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+        .transparency-step.active .step-indicator {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+        }
+        .transparency-step.complete .step-indicator {
+            background: var(--success);
+            color: white;
+        }
+        .step-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .transparency-step.active .step-text {
+            color: var(--text-primary);
+        }
+
+        /* === PEAK-END GLOW EFFECT === */
         .output-box {
             background: #0f1221;
             border: 1px solid var(--success);
@@ -161,18 +329,266 @@
             padding: 20px;
             margin-top: 20px;
             position: relative;
+            animation: peakGlow 0.6s ease-out;
+        }
+        @keyframes peakGlow {
+            0% { 
+                box-shadow: 0 0 0 rgba(16, 185, 129, 0);
+                transform: scale(0.98);
+                opacity: 0;
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(16, 185, 129, 0.4), 0 0 80px rgba(99, 102, 241, 0.2);
+            }
+            100% { 
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .output-box::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: linear-gradient(135deg, var(--success), var(--accent-primary));
+            border-radius: 13px;
+            z-index: -1;
+            opacity: 0;
+            animation: borderPulse 2s ease-in-out infinite;
+        }
+        @keyframes borderPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
         }
         .output-code {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #e2e8f0;
             white-space: pre-wrap;
             line-height: 1.6;
+            word-break: break-word;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* === LOADING STATE === */
+        .loading-container {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loading-text {
+            font-size: 0.85rem;
+            color: var(--accent-primary);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .loading-subtext {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* === GRID LAYOUTS === */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        @media (max-width: 640px) {
+            .grid-2 { grid-template-columns: 1fr; gap: 12px; }
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
+        }
+        @media (max-width: 1024px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+
+        .space-y-5 > * + * { margin-top: 16px; }
+        .space-y-4 > * + * { margin-top: 12px; }
+        .space-y-6 > * + * { margin-top: 20px; }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
         .animate-fade-in { animation: fadeIn 0.5s ease forwards; }
 
+        /* Nav container */
+        .nav-container {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Module header */
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .module-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: white;
+        }
+        .module-tabs {
+            display: flex;
+            gap: 12px;
+            font-size: 0.75rem;
+        }
+        .module-tab {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 0;
+            transition: color 0.2s;
+        }
+        .module-tab.active {
+            color: var(--accent-primary);
+        }
+        .module-tab-divider {
+            color: var(--border);
+        }
+
+        /* Copy button */
+        .copy-btn {
+            font-size: 0.75rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        .copy-btn:hover {
+            border-color: var(--accent-primary);
+            color: white;
+        }
+        .copy-btn.copied {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        /* Output header */
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .output-status {
+            color: var(--success);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .output-status::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .output-scroll {
+            max-height: 280px;
+            overflow-y: auto;
+        }
+        .output-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .output-scroll::-webkit-scrollbar-track {
+            background: var(--border);
+            border-radius: 3px;
+        }
+        .output-scroll::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 3px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            margin-top: 40px;
+            opacity: 0.6;
+        }
+
+        /* Tip card styling */
+        .tip-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+        .tip-label {
+            color: var(--accent-primary);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 0.1em;
+        }
+        .tip-text {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            min-height: 50px;
+        }
+
+        /* External assets */
+        .assets-label {
+            color: var(--text-secondary);
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 0.15em;
+        }
+
+        /* Section divider */
+        .section-divider {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
     </style>
 </head>
 <body>
@@ -249,36 +665,99 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             "💡 Pro Tip: Use the 'Regenerate' button in ChatGPT if the first draft is weak."
         ];
 
+        // --- PROCESSING STEPS FOR OPERATIONAL TRANSPARENCY ---
+        const PROCESSING_STEPS = [
+            { id: 1, text: "Analyzing your input data..." },
+            { id: 2, text: "Matching to optimal prompt structure..." },
+            { id: 3, text: "Injecting personalized variables..." },
+            { id: 4, text: "Formatting output for ChatGPT..." },
+            { id: 5, text: "Finalizing your custom prompt..." }
+        ];
+
         // --- COMPONENTS ---
 
         function Gatekeeper({ onUnlock }) {
-            const [progress, setProgress] = useState(0);
+            const [progress, setProgress] = useState(0); // Start at 0%
 
             useEffect(() => {
                 const timer = setInterval(() => {
                     setProgress(prev => {
                         if (prev >= 100) {
                             clearInterval(timer);
-                            setTimeout(onUnlock, 600);
+                            setTimeout(onUnlock, 400);
                             return 100;
                         }
-                        return prev + 4;
+                        return prev + 3;
                     });
-                }, 30);
+                }, 25);
                 return () => clearInterval(timer);
             }, []);
 
             return (
-                <div className="h-screen flex flex-col items-center justify-center bg-[#0a0e27]">
-                    <div className="text-center">
-                        <h1 className="text-3xl font-bold mb-4 gradient-text">THE VAULT</h1>
-                        <p className="text-[#6366f1] text-xs font-bold uppercase tracking-widest mb-6">Premium Access Verification</p>
+                <div style={{minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0a0e27', padding: '20px'}}>
+                    <div style={{textAlign: 'center'}}>
+                        <h1 className="gradient-text" style={{fontSize: '2rem', fontWeight: 800, marginBottom: '12px'}}>THE VAULT</h1>
+                        <p style={{color: '#6366f1', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '24px'}}>Premium Access Verification</p>
                         
-                        <div className="w-64 h-1 bg-[#1a1f3a] rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] transition-all duration-100" 
-                                 style={{width: `${progress}%`}}></div>
+                        <div style={{width: '240px', height: '4px', background: '#1a1f3a', borderRadius: '2px', overflow: 'hidden', margin: '0 auto'}}>
+                            <div style={{
+                                height: '100%', 
+                                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', 
+                                transition: 'width 0.1s',
+                                width: `${progress}%`
+                            }}></div>
                         </div>
-                        <p className="mt-4 text-xs text-gray-500 font-mono">{progress}% Complete</p>
+                        <p style={{marginTop: '16px', fontSize: '0.7rem', color: '#64748b', fontFamily: "'JetBrains Mono', monospace"}}>{progress}% Complete</p>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- GOAL-GRADIENT PROGRESS BAR (Starts at 0%) ---
+        function GoalGradientBar({ fields, requiredFields }) {
+            const filledCount = requiredFields.filter(field => fields[field] && fields[field].trim() !== '').length;
+            const progress = (filledCount / requiredFields.length) * 100;
+            
+            return (
+                <div className="progress-container">
+                    <div className="progress-header">
+                        <span className="progress-label">Prompt Readiness</span>
+                        <span className="progress-percent">{Math.round(progress)}%</span>
+                    </div>
+                    <div className="progress-bar-track">
+                        <div className="progress-bar-fill" style={{width: `${progress}%`}}></div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- OPERATIONAL TRANSPARENCY PANEL ---
+        function TransparencyPanel({ isProcessing, currentStep, isOpen, onToggle }) {
+            return (
+                <div className="transparency-panel">
+                    <div className="transparency-header" onClick={onToggle}>
+                        <span className="transparency-title">
+                            <span style={{fontSize: '0.9rem'}}>🔍</span>
+                            See What's Happening
+                        </span>
+                        <span className={`transparency-toggle ${isOpen ? 'open' : ''}`}>▼</span>
+                    </div>
+                    <div className={`transparency-content ${isOpen ? 'open' : ''}`}>
+                        {PROCESSING_STEPS.map((step, index) => (
+                            <div 
+                                key={step.id} 
+                                className={`transparency-step ${
+                                    isProcessing && currentStep === index ? 'active' : 
+                                    isProcessing && currentStep > index ? 'complete' : 
+                                    !isProcessing && currentStep >= PROCESSING_STEPS.length ? 'complete' : ''
+                                }`}
+                            >
+                                <div className="step-indicator">
+                                    {(!isProcessing && currentStep >= PROCESSING_STEPS.length) || (isProcessing && currentStep > index) ? '✓' : step.id}
+                                </div>
+                                <span className="step-text">{step.text}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
             );
@@ -301,27 +780,29 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             return (
                 <div className="container">
                     {/* Header */}
-                    <div className="text-center mb-10 animate-fade-in">
-                        <h1 className="text-4xl font-extrabold gradient-text mb-2">The Vault</h1>
-                        <p className="text-[#94a3b8]">AI Command Console for High Performers</p>
+                    <div className="animate-fade-in" style={{textAlign: 'center', marginBottom: '32px'}}>
+                        <h1 className="gradient-text" style={{fontSize: '2.25rem', fontWeight: 800, marginBottom: '8px'}}>The Vault</h1>
+                        <p style={{color: '#94a3b8', fontSize: '0.95rem'}}>AI Command Console for High Performers</p>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div className="main-grid">
                         
                         {/* Main Content Area */}
-                        <div className="lg:col-span-8 space-y-6">
+                        <div className="space-y-6">
                             
                             {/* Navigation */}
-                            <div className="glass-card flex gap-4 overflow-x-auto pb-4 p-4 items-center justify-center">
-                                {['CAREER', 'VENTURE', 'WEALTH'].map(tab => (
-                                    <button 
-                                        key={tab}
-                                        onClick={() => setActiveTab(tab)}
-                                        className={`nav-pill ${activeTab === tab ? 'active' : ''}`}
-                                    >
-                                        {tab} OPS
-                                    </button>
-                                ))}
+                            <div className="glass-card">
+                                <div className="nav-container">
+                                    {['CAREER', 'VENTURE', 'WEALTH'].map(tab => (
+                                        <button 
+                                            key={tab}
+                                            onClick={() => setActiveTab(tab)}
+                                            className={`nav-pill ${activeTab === tab ? 'active' : ''}`}
+                                        >
+                                            {tab} OPS
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
 
                             {/* Modules */}
@@ -333,19 +814,17 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                         </div>
 
                         {/* Sidebar */}
-                        <div className="lg:col-span-4 space-y-6">
+                        <div className="space-y-6">
                             
                             {/* Tip Card */}
-                            <div className="glass-card" style={{background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)', borderColor: 'rgba(99, 102, 241, 0.3)'}}>
-                                <h3 className="text-[#6366f1] text-sm font-bold uppercase mb-3">Intelligence Feed</h3>
-                                <p className="text-gray-300 text-sm leading-relaxed min-h-[60px]">
-                                    {TIPS[currentTip]}
-                                </p>
+                            <div className="glass-card tip-card">
+                                <h3 className="tip-label">Intelligence Feed</h3>
+                                <p className="tip-text">{TIPS[currentTip]}</p>
                             </div>
 
-                            {/* Links - UPDATED WITH GLOW AND SPACING */}
+                            {/* Links */}
                             <div className="glass-card">
-                                <h3 className="text-gray-400 text-xs font-bold uppercase mb-4 tracking-widest">External Assets</h3>
+                                <h3 className="assets-label">External Assets</h3>
                                 <div className="space-y-4">
                                     <a href="https://chat.openai.com" target="_blank" className="sidebar-link">
                                         Open ChatGPT
@@ -358,10 +837,8 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                         </div>
                     </div>
 
-                    {/* Footer - UPDATED TEXT */}
-                    <div className="text-center text-gray-500 text-xs mt-10">
-                        Architecture by Kou
-                    </div>
+                    {/* Footer */}
+                    <div className="footer">Architecture by Kou</div>
                 </div>
             );
         }
@@ -372,19 +849,26 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             const [mode, setMode] = useState('RESUME');
             const [inputs, setInputs] = useState({ role: '', company: '', resume: '', jobDesc: '', skills: '', reason: '' });
             
+            const requiredFields = mode === 'RESUME' 
+                ? ['role', 'company', 'resume', 'jobDesc']
+                : ['role', 'company', 'jobDesc', 'skills', 'reason'];
+            
             return (
                 <div>
-                    <div className="flex justify-between items-center mb-6 border-b border-[#2a3150] pb-4">
-                        <h2 className="text-xl font-bold text-white">Career Architect</h2>
-                        <div className="flex gap-3 text-xs">
-                            <button onClick={() => setMode('RESUME')} className={`${mode === 'RESUME' ? 'text-[#6366f1] font-bold' : 'text-gray-500'}`}>RESUME</button>
-                            <span className="text-gray-600">|</span>
-                            <button onClick={() => setMode('EMAIL')} className={`${mode === 'EMAIL' ? 'text-[#6366f1] font-bold' : 'text-gray-500'}`}>COLD EMAIL</button>
+                    <div className="module-header">
+                        <h2 className="module-title">Career Architect</h2>
+                        <div className="module-tabs">
+                            <button onClick={() => setMode('RESUME')} className={`module-tab ${mode === 'RESUME' ? 'active' : ''}`}>RESUME</button>
+                            <span className="module-tab-divider">|</span>
+                            <button onClick={() => setMode('EMAIL')} className={`module-tab ${mode === 'EMAIL' ? 'active' : ''}`}>COLD EMAIL</button>
                         </div>
                     </div>
 
+                    {/* GOAL-GRADIENT: Persistent Progress Bar */}
+                    <GoalGradientBar fields={inputs} requiredFields={requiredFields} />
+
                     <div className="space-y-5">
-                        <div className="grid grid-cols-2 gap-5">
+                        <div className="grid-2">
                             <Input label="Target Role" value={inputs.role} onChange={v => setInputs({...inputs, role: v})} placeholder="e.g. Product Manager" />
                             <Input label="Target Company" value={inputs.company} onChange={v => setInputs({...inputs, company: v})} placeholder="e.g. Google" />
                         </div>
@@ -393,14 +877,14 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                             <>
                                 <TextArea label="Paste Old Resume" value={inputs.resume} onChange={v => setInputs({...inputs, resume: v})} placeholder="Paste content here..." />
                                 <TextArea label="Job Description" value={inputs.jobDesc} onChange={v => setInputs({...inputs, jobDesc: v})} placeholder="Requirements..." />
-                                <Generator template={PROMPTS.RESUME} data={inputs} btnText="Optimize Resume" />
+                                <Generator template={PROMPTS.RESUME} data={inputs} btnText="Generate Resume Prompt" />
                             </>
                         ) : (
                             <>
                                 <TextArea label="Job Description" value={inputs.jobDesc} onChange={v => setInputs({...inputs, jobDesc: v})} placeholder="Requirements..." />
                                 <Input label="Top 3 Skills" value={inputs.skills} onChange={v => setInputs({...inputs, skills: v})} placeholder="e.g. SQL, Leadership, Sales" />
                                 <Input label="Why This Job?" value={inputs.reason} onChange={v => setInputs({...inputs, reason: v})} placeholder="Authentic reason..." />
-                                <Generator template={PROMPTS.COLD_EMAIL} data={inputs} btnText="Generate Email" />
+                                <Generator template={PROMPTS.COLD_EMAIL} data={inputs} btnText="Generate Email Prompt" />
                             </>
                         )}
                     </div>
@@ -410,17 +894,24 @@ Show me the math in simple terms. Give me hope, but be realistic.`
 
         function VentureModule() {
             const [inputs, setInputs] = useState({ friendsAsk: '', easyTask: '', interests: '', problemSolved: '' });
+            const requiredFields = ['friendsAsk', 'easyTask', 'interests', 'problemSolved'];
 
             return (
                 <div>
-                    <h2 className="text-xl font-bold text-white mb-6 pb-4 border-b border-[#2a3150]">Side Hustle Generator</h2>
+                    <div className="module-header">
+                        <h2 className="module-title">Side Hustle Generator</h2>
+                    </div>
+
+                    {/* GOAL-GRADIENT: Persistent Progress Bar */}
+                    <GoalGradientBar fields={inputs} requiredFields={requiredFields} />
+
                     <div className="space-y-5">
                         <Input label="What do friends ask you for?" value={inputs.friendsAsk} onChange={v => setInputs({...inputs, friendsAsk: v})} placeholder="e.g. Travel advice, Excel help" />
                         <Input label="What is easy for you?" value={inputs.easyTask} onChange={v => setInputs({...inputs, easyTask: v})} placeholder="e.g. Organizing files" />
                         <Input label="Free time interests?" value={inputs.interests} onChange={v => setInputs({...inputs, interests: v})} placeholder="e.g. Fitness, Crypto" />
                         <Input label="Recent problem solved?" value={inputs.problemSolved} onChange={v => setInputs({...inputs, problemSolved: v})} placeholder="e.g. Fixed my wifi" />
                         
-                        <Generator template={PROMPTS.SIDE_HUSTLE} data={inputs} btnText="Analyze Market Value" />
+                        <Generator template={PROMPTS.SIDE_HUSTLE} data={inputs} btnText="Analyze My Market Value" />
                     </div>
                 </div>
             );
@@ -428,22 +919,29 @@ Show me the math in simple terms. Give me hope, but be realistic.`
 
         function WealthModule() {
             const [inputs, setInputs] = useState({ age: '', retireAge: '40', expenses: '', invested: '0', monthlyInvest: '' });
+            const requiredFields = ['age', 'retireAge', 'expenses', 'monthlyInvest'];
 
             return (
                 <div>
-                    <h2 className="text-xl font-bold text-white mb-6 pb-4 border-b border-[#2a3150]">Freedom Calculator (FIRE)</h2>
+                    <div className="module-header">
+                        <h2 className="module-title">Freedom Calculator (FIRE)</h2>
+                    </div>
+
+                    {/* GOAL-GRADIENT: Persistent Progress Bar */}
+                    <GoalGradientBar fields={inputs} requiredFields={requiredFields} />
+
                     <div className="space-y-5">
-                        <div className="grid grid-cols-2 gap-5">
+                        <div className="grid-2">
                             <Input label="Current Age" value={inputs.age} onChange={v => setInputs({...inputs, age: v})} placeholder="25" />
                             <Input label="Target Retire Age" value={inputs.retireAge} onChange={v => setInputs({...inputs, retireAge: v})} placeholder="40" />
                         </div>
                         <Input label="Annual Expenses ($)" value={inputs.expenses} onChange={v => setInputs({...inputs, expenses: v})} placeholder="50000" />
-                        <div className="grid grid-cols-2 gap-5">
+                        <div className="grid-2">
                             <Input label="Invested Assets ($)" value={inputs.invested} onChange={v => setInputs({...inputs, invested: v})} placeholder="10000" />
                             <Input label="Monthly Contrib ($)" value={inputs.monthlyInvest} onChange={v => setInputs({...inputs, monthlyInvest: v})} placeholder="500" />
                         </div>
 
-                        <Generator template={PROMPTS.FIRE_CALC} data={inputs} btnText="Calculate Freedom Date" />
+                        <Generator template={PROMPTS.FIRE_CALC} data={inputs} btnText="Calculate My Freedom Date" />
                     </div>
                 </div>
             );
@@ -484,15 +982,36 @@ Show me the math in simple terms. Give me hope, but be realistic.`
         function Generator({ template, data, btnText }) {
             const [generated, setGenerated] = useState(null);
             const [copied, setCopied] = useState(false);
+            const [isProcessing, setIsProcessing] = useState(false);
+            const [currentStep, setCurrentStep] = useState(0);
+            const [panelOpen, setPanelOpen] = useState(true);
 
             const handleGenerate = () => {
-                let text = template;
-                Object.keys(data).forEach(key => {
-                    const regex = new RegExp(`{${key}}`, 'g');
-                    text = text.replace(regex, data[key] || `[INSERT ${key.toUpperCase()}]`);
+                setIsProcessing(true);
+                setGenerated(null);
+                setCurrentStep(0);
+                setPanelOpen(true);
+
+                // IDLENESS AVERSION: 3 second staged processing (600ms per step)
+                const stepDuration = 600;
+                
+                PROCESSING_STEPS.forEach((_, index) => {
+                    setTimeout(() => {
+                        setCurrentStep(index + 1);
+                    }, stepDuration * (index + 1));
                 });
-                setGenerated(text);
-                setCopied(false);
+
+                // Final generation after all steps (3 seconds)
+                setTimeout(() => {
+                    let text = template;
+                    Object.keys(data).forEach(key => {
+                        const regex = new RegExp(`{${key}}`, 'g');
+                        text = text.replace(regex, data[key] || `[INSERT ${key.toUpperCase()}]`);
+                    });
+                    setGenerated(text);
+                    setIsProcessing(false);
+                    setCopied(false);
+                }, 3000);
             };
 
             const handleCopy = () => {
@@ -502,25 +1021,52 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             };
 
             return (
-                <div className="mt-8 pt-4 border-t border-[#2a3150]">
-                    <button onClick={handleGenerate} className="btn-primary">
-                        {btnText}
+                <div className="section-divider">
+                    {/* UNCERTAINTY ANXIETY: Specific micro-copy on button */}
+                    <button 
+                        onClick={handleGenerate} 
+                        className="btn-primary"
+                        disabled={isProcessing}
+                    >
+                        {isProcessing ? 'Processing...' : btnText}
                     </button>
 
-                    {generated && (
+                    {/* OPERATIONAL TRANSPARENCY: Collapsible panel */}
+                    {(isProcessing || generated) && (
+                        <TransparencyPanel 
+                            isProcessing={isProcessing}
+                            currentStep={currentStep}
+                            isOpen={panelOpen}
+                            onToggle={() => setPanelOpen(!panelOpen)}
+                        />
+                    )}
+
+                    {/* IDLENESS AVERSION: Loading state with activity */}
+                    {isProcessing && (
+                        <div className="loading-container">
+                            <div className="loading-spinner"></div>
+                            <div className="loading-text">
+                                {PROCESSING_STEPS[Math.min(currentStep, PROCESSING_STEPS.length - 1)]?.text || 'Initializing...'}
+                            </div>
+                            <div className="loading-subtext">This takes a moment to ensure quality</div>
+                        </div>
+                    )}
+
+                    {/* PEAK-END RULE: Satisfying glow effect on output reveal */}
+                    {generated && !isProcessing && (
                         <div className="output-box animate-fade-in">
-                            <div className="flex justify-between items-center mb-3">
-                                <span className="text-[#10b981] text-xs font-bold uppercase tracking-widest">● Prompt Generated</span>
+                            <div className="output-header">
+                                <span className="output-status">Prompt Generated</span>
                                 <button 
                                     onClick={handleCopy}
-                                    className={`text-xs px-3 py-1 rounded border transition-all ${copied ? 'bg-[#10b981] text-white border-[#10b981]' : 'border-[#2a3150] text-gray-400 hover:text-white'}`}
+                                    className={`copy-btn ${copied ? 'copied' : ''}`}
                                 >
                                     {copied ? "✓ Copied" : "Copy to Clipboard"}
                                 </button>
                             </div>
-                            <pre className="output-code max-h-64 overflow-y-auto custom-scrollbar">
-                                {generated}
-                            </pre>
+                            <div className="output-scroll">
+                                <pre className="output-code">{generated}</pre>
+                            </div>
                         </div>
                     )}
                 </div>
