@@ -281,13 +281,11 @@
 
                     <!-- DAILY COST CALCULATOR: Makes impossible feel achievable -->
                     <div class="bg-black border border-cyber-gray rounded-lg p-4 mb-3 mx-2 text-center" x-show="dailyCost > 0">
-                        <p class="text-xs text-cyber-gray uppercase mb-1">To Erase This Loss, You Need:</p>
+                        <p class="text-xs text-gray-500 uppercase mb-1">To Erase This Loss, You Need:</p>
                         <div class="text-3xl font-black text-cyber-green font-mono">
                             <span x-text="formatMoney(dailyCost)"></span><span class="text-lg text-white">/day</span>
                         </div>
-                        <p class="text-[10px] text-gray-400 mt-2 leading-tight">
-                            That's the price of a coffee. Not a lottery win.
-                        </p>
+                        <p class="text-[10px] text-gray-400 mt-2 leading-tight" x-text="getDailyCostMessage()"></p>
                     </div>
 
                     <!-- BRIDGE COPY: Maintains funnel continuity -->
@@ -409,6 +407,16 @@
                     if (this.loss < 100000) return "YOU JUST BURNED A BRAND NEW TESLA.";
                     if (this.loss < 500000) return "THIS IS A FERRARI. GONE.";
                     return "YOU ARE SETTING YOUR RETIREMENT ON FIRE.";
+                },
+
+                // Dynamic daily cost message based on amount
+                getDailyCostMessage() {
+                    const cost = this.dailyCost;
+                    if (cost <= 0) return "";
+                    if (cost < 10) return "That's the price of a coffee. Not a lottery win.";
+                    if (cost < 50) return "That's less than a DoorDash order. Not a second job.";
+                    if (cost < 150) return "That's real money. But the payoff makes it obvious.";
+                    return "That's steep. But doing nothing costs more.";
                 },
 
                 formatMoney(value) {
