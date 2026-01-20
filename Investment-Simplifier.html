@@ -11,7 +11,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         :root {
-            /* DARK MODE (Default) */
             --bg-primary: #0a0e27;
             --bg-secondary: #151933;
             --bg-card: #1a1f3a;
@@ -31,10 +30,9 @@
             --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.4);
             --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.5);
             --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.3);
-            --chart-text: #f1f5f9; /* White text for charts */
         }
 
-        /* --- OPTIMIZATION 1: THE INK-KILLER THEME --- */
+        /* PDF PRINT MODE - Clean, Professional, Ink-Friendly */
         body.print-mode {
             --bg-primary: #ffffff;
             --bg-secondary: #f8fafc;
@@ -42,107 +40,389 @@
             --bg-card-hover: #f1f5f9;
             --text-primary: #0f172a;
             --text-secondary: #475569;
-            --text-muted: #94a3b8;
-            --border: #cbd5e1;
-            --border-light: #e2e8f0;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
             --shadow-sm: none;
             --shadow-md: none;
             --shadow-lg: none;
             --shadow-glow: none;
-            --chart-text: #0f172a; /* Dark text for charts */
         }
         
-        /* Hide decorative elements in print mode */
-        body.print-mode::before, 
-        body.print-mode .glass-card::before,
-        body.print-mode .btn::before,
-        body.print-mode .projection-card::after {
-            display: none !important;
-        }
-
-        body.print-mode .glass-card, 
-        body.print-mode .etf-card, 
-        body.print-mode .projection-card {
+        body.print-mode::before { display: none !important; }
+        
+        body.print-mode .glass-card,
+        body.print-mode .etf-card,
+        body.print-mode .projection-card,
+        body.print-mode .strategy-card {
             backdrop-filter: none;
             background: #ffffff;
-            border: 1px solid #94a3b8;
+            border: 1px solid #cbd5e1;
             box-shadow: none;
+        }
+        
+        body.print-mode .header h1,
+        body.print-mode .allocation-value,
+        body.print-mode .etf-ticker,
+        body.print-mode .projection-value {
+            background: none;
+            -webkit-text-fill-color: #4f46e5;
+            color: #4f46e5;
+        }
+        
+        body.print-mode .section-title::before {
+            background: #4f46e5;
+        }
+        
+        body.print-mode .info-box {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+        
+        body.print-mode .why-box {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+        
+        /* Hide interactive elements in PDF */
+        body.print-mode .welcome-gate,
+        body.print-mode .btn,
+        body.print-mode .btn-outline,
+        body.print-mode input[type="range"],
+        body.print-mode .strategies-grid,
+        body.print-mode .lump-sum-container,
+        body.print-mode #downloadPdfBtn {
+            display: none !important;
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary); min-height: 100vh; color: var(--text-primary);
-            overflow-x: hidden; position: relative; transition: background 0.3s, color 0.3s;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.3s, color 0.3s;
         }
         
         body::before {
-            content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
                         radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
                         radial-gradient(circle at 40% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
-            z-index: -1; animation: floatGradient 20s ease infinite;
+            z-index: -1;
+            animation: floatGradient 20s ease infinite;
         }
+        
         @keyframes floatGradient {
             0%, 100% { transform: translate(0, 0) rotate(0deg); }
             33% { transform: translate(-20px, -20px) rotate(120deg); }
             66% { transform: translate(20px, -10px) rotate(240deg); }
         }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; position: relative; }
-        .header { text-align: center; padding: 60px 20px 40px; position: relative; margin-bottom: 40px; }
-        .header h1 {
-            font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; margin-bottom: 15px;
-            background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-        }
-        /* Fix for Print Mode Gradient Text */
-        body.print-mode .header h1, 
-        body.print-mode .allocation-value,
-        body.print-mode .etf-ticker,
-        body.print-mode .projection-value {
-            background: none;
-            -webkit-text-fill-color: #4f46e5; /* Indigo-600 */
-            color: #4f46e5;
+        /* WELCOME GATE - Peak-End Rule Setup */
+        .welcome-gate {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
         }
         
-        .header p { font-size: clamp(1rem, 2vw, 1.25rem); color: var(--text-secondary); }
+        .welcome-gate.hidden {
+            display: none;
+        }
+        
+        .welcome-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 8px 16px;
+            border-radius: 50px;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+        
+        .welcome-badge span {
+            color: var(--success);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .welcome-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .welcome-title {
+            font-size: clamp(2rem, 6vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .welcome-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            max-width: 400px;
+        }
+        
+        .welcome-btn {
+            background: var(--accent-gradient);
+            color: white;
+            padding: 18px 50px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .welcome-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5);
+        }
+
+        /* PROCESSING OVERLAY - Idleness Aversion */
+        .processing-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .processing-overlay.show {
+            display: flex;
+        }
+        
+        .processing-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 30px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .processing-text {
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .processing-steps {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-family: monospace;
+            animation: pulse 1.5s infinite;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 15px;
+            position: relative;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 40px 15px 30px;
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: clamp(1.75rem, 5vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            color: var(--text-secondary);
+        }
 
         .glass-card {
             background: linear-gradient(135deg, rgba(26, 31, 58, 0.9) 0%, rgba(21, 25, 51, 0.9) 100%);
-            backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 20px;
-            padding: 30px; margin-bottom: 30px; box-shadow: var(--shadow-md); position: relative;
-            overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .section-title { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; margin-bottom: 25px; color: var(--text-primary); display: flex; align-items: center; gap: 12px; }
-        .section-title::before { content: ''; width: 4px; height: 32px; background: var(--accent-gradient); border-radius: 2px; }
+        .section-title {
+            font-size: clamp(1.25rem, 3vw, 1.5rem);
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--accent-gradient);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        
+        /* WHY BOX - Operational Transparency */
+        .why-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 211, 153, 0.05) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .why-box h3 {
+            color: var(--success);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .why-box p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        
+        .why-box .formula {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.2);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-weight: 600;
+            color: var(--success);
+            margin: 5px 0;
+        }
+
         .info-box {
             background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-            border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 15px; padding: 20px; margin-bottom: 25px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
         }
-        body.print-mode .info-box { background: #eff6ff; border-color: #bfdbfe; }
         
-        .info-box h3 { color: var(--accent-primary); margin-bottom: 10px; font-size: 1.1rem; }
-        .info-box p { color: var(--text-secondary); line-height: 1.6; }
+        .info-box h3 {
+            color: var(--accent-primary);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .info-box p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 0.85rem;
+        }
 
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .input-group { display: flex; flex-direction: column; }
-        .input-group label { font-weight: 600; margin-bottom: 10px; color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
-        
-        .input-group input[type="number"], .input-group select {
-            padding: 14px 18px; background: var(--bg-card); border: 2px solid var(--border);
-            border-radius: 12px; font-size: 1rem; color: var(--text-primary); transition: all 0.3s;
-            width: 100%;
+        /* MOBILE-FIRST INPUT GRID */
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
         }
         
-        /* OPTIMIZATION 3: SLIDER STYLES */
+        @media (min-width: 600px) {
+            .input-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .input-group input[type="number"],
+        .input-group select {
+            padding: 14px 16px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.3s;
+            width: 100%;
+            -webkit-appearance: none;
+        }
+        
+        .input-group input[type="number"]:focus,
+        .input-group select:focus {
+            border-color: var(--accent-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        /* Range Slider */
         .range-wrapper {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-top: 5px;
+            gap: 12px;
+            margin-top: 8px;
         }
+        
         input[type="range"] {
             flex-grow: 1;
             height: 6px;
@@ -151,9 +431,11 @@
             outline: none;
             -webkit-appearance: none;
         }
+        
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 20px; height: 20px;
+            width: 22px;
+            height: 22px;
             background: var(--accent-primary);
             border-radius: 50%;
             cursor: pointer;
@@ -162,140 +444,568 @@
         }
 
         .btn {
-            background: var(--accent-gradient); color: white; padding: 16px 40px; border: none;
-            border-radius: 12px; font-size: 1.05rem; font-weight: 600; cursor: pointer;
-            transition: all 0.3s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-            text-transform: uppercase; letter-spacing: 0.05em; width: 100%;
+            background: var(--accent-gradient);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            width: 100%;
         }
-        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5); }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent-secondary);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-outline:hover {
+            background: var(--accent-secondary);
+            color: white;
+        }
 
-        .results-container { display: none; animation: fadeIn 0.6s ease; }
-        .results-container.show { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .results-container {
+            display: none;
+            animation: fadeIn 0.6s ease;
+        }
+        
+        .results-container.show {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
+        /* ALLOCATION SUMMARY - Mobile Optimized */
         .allocation-summary {
             background: linear-gradient(135deg, var(--bg-card) 0%, rgba(26, 31, 58, 0.8) 100%);
-            border-radius: 15px; padding: 25px; margin-bottom: 30px; border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
         }
-        body.print-mode .allocation-summary { background: #f8fafc; border-color: #e2e8f0; }
 
-        .allocation-layout { display: flex; flex-wrap: wrap; gap: 30px; align-items: center; }
-        .allocation-chart-container { flex: 1; min-width: 300px; height: 350px; position: relative; }
-        .allocation-text { flex: 1; min-width: 250px; }
+        .allocation-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        @media (min-width: 700px) {
+            .allocation-layout {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+        
+        .allocation-chart-container {
+            width: 100%;
+            max-width: 280px;
+            height: 280px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        @media (min-width: 700px) {
+            .allocation-chart-container {
+                flex: 0 0 280px;
+            }
+        }
+        
+        .allocation-text {
+            flex: 1;
+            min-width: 0;
+        }
 
-        .allocation-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); }
-        .allocation-value { font-size: 1.5rem; font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .allocation-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .allocation-row:last-child {
+            border-bottom: none;
+        }
+        
+        .allocation-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .allocation-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-        /* OPTIMIZATION 2: Lump Sum Input Styling */
+        /* LUMP SUM INPUT */
         .lump-sum-container {
-            margin-top: 20px;
+            margin-top: 15px;
             padding: 15px;
             background: rgba(16, 185, 129, 0.1);
             border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 12px;
+            border-radius: 10px;
         }
+        
         .lump-sum-input-group {
             display: flex;
-            align-items: center;
-            gap: 15px;
+            flex-direction: column;
+            gap: 10px;
         }
-        .lump-sum-label { color: var(--success); font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
+        
+        @media (min-width: 500px) {
+            .lump-sum-input-group {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+        
+        .lump-sum-label {
+            color: var(--success);
+            font-weight: 600;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        
         #lumpSumInput {
+            flex: 1;
             background: var(--bg-primary);
             border: 1px solid var(--success);
             color: var(--success);
             font-weight: 700;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 1rem;
         }
 
-        .etf-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; margin-top: 30px; }
+        /* ETF CARDS - Mobile First */
+        .etf-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        @media (min-width: 600px) {
+            .etf-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 900px) {
+            .etf-cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
         .etf-card {
             background: linear-gradient(135deg, var(--bg-card) 0%, rgba(26, 31, 58, 0.9) 100%);
-            border: 1px solid var(--border); border-radius: 20px; padding: 30px; position: relative;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            position: relative;
+            transition: transform 0.3s, border-color 0.3s;
         }
-        .etf-ticker { font-size: 2rem; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
-        .etf-name { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; }
-        .etf-description { color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; font-size: 0.95rem; }
-        .etf-type { display: inline-block; padding: 6px 12px; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 20px; font-size: 0.85rem; color: var(--accent-primary); margin-bottom: 20px; font-weight: 500; }
-        .etf-allocation { display: flex; align-items: center; justify-content: space-between; padding-top: 20px; border-top: 1px solid var(--border); }
-        .allocation-percent { font-size: 1.8rem; font-weight: 700; color: var(--success); }
-        .allocation-dollars { font-size: 1rem; color: var(--text-secondary); font-weight: 600; display: block; text-align: right; }
+        
+        .etf-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-primary);
+        }
+        
+        .etf-ticker {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+        
+        .etf-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .etf-description {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+        }
+        
+        .etf-type {
+            display: inline-block;
+            padding: 5px 10px;
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 15px;
+            font-size: 0.75rem;
+            color: var(--accent-primary);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .etf-allocation {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .allocation-percent {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+        
+        .allocation-dollars {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-align: right;
+        }
 
-        .projection-results { display: none; margin-top: 30px; }
-        .projection-results.show { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        /* PROJECTION CARDS - Mobile First */
+        .projection-results {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .projection-results.show {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        @media (min-width: 600px) {
+            .projection-results.show {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
         .projection-card {
             background: linear-gradient(135deg, var(--bg-card) 0%, rgba(26, 31, 58, 0.9) 100%);
-            border-radius: 20px; padding: 30px; text-align: center; border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
         }
-        .projection-card.highlight { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 211, 153, 0.1) 100%); border-color: rgba(16, 185, 129, 0.3); }
-        .projection-label { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; }
-        .projection-value { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .projection-card.highlight {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 211, 153, 0.1) 100%);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        
+        .projection-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 500;
+        }
+        
+        .projection-value {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .chart-container {
+            height: 200px;
+            margin-top: 15px;
+        }
 
-        .strategies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+        /* STRATEGY CARDS */
+        .strategies-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        @media (min-width: 600px) {
+            .strategies-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
         .strategy-card {
-            background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 15px; padding: 25px;
-            display: flex; flex-direction: column; cursor: pointer; transition: transform 0.2s;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
         }
-        body.print-mode .strategy-card { background: #ffffff; border-color: #e2e8f0; }
-        .strategy-card:hover { transform: translateY(-5px); border-color: var(--accent-secondary); }
-        .strategy-card h3 { font-size: 1.2rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 15px; }
-        .strategy-card h4 { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-top: 15px; margin-bottom: 10px; text-transform: uppercase; }
-        .strategy-card ul { list-style: none; padding-left: 0; margin-top: 5px; }
-        .strategy-card ul li { color: var(--text-secondary); margin-bottom: 8px; padding-left: 20px; position: relative; font-size: 0.9rem; }
-        .strategy-card ul li::before { content: '•'; color: var(--accent-primary); font-weight: bold; position: absolute; left: 0; }
-
-        .btn-outline {
-            background: transparent; border: 2px solid var(--accent-secondary); color: var(--text-primary);
-            padding: 12px 30px; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 20px;
+        
+        .strategy-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-secondary);
         }
-        body.print-mode .btn-outline { border-color: #4f46e5; color: #4f46e5; }
+        
+        .strategy-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 10px;
+        }
+        
+        .strategy-goal {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+        
+        .strategy-card h4 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .strategy-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .strategy-card ul li {
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            padding-left: 18px;
+            position: relative;
+            font-size: 0.85rem;
+        }
+        
+        .strategy-card ul li::before {
+            content: '•';
+            color: var(--accent-primary);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
 
-        @media (max-width: 768px) {
-            .container { padding: 10px; }
-            .allocation-layout { flex-direction: column; }
-            .etf-cards, .strategies-grid { grid-template-columns: 1fr; }
+        /* NEXT STEPS SECTION - Uncertainty Anxiety */
+        .next-steps {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 14px;
+            padding: 25px;
+            margin-top: 25px;
+        }
+        
+        .next-steps h3 {
+            color: var(--accent-primary);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        @media (min-width: 700px) {
+            .steps-list {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+        
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            flex: 1;
+        }
+        
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: var(--accent-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        
+        .step-content h4 {
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+        
+        .step-content p {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 20px 0;
+            font-size: 0.8rem;
+        }
+        
+        .footer p {
+            margin-bottom: 5px;
+        }
+
+        /* PDF SPECIFIC STYLING */
+        .pdf-header {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+        
+        body.print-mode .pdf-header {
+            display: block;
+        }
+        
+        .pdf-header h1 {
+            color: #4f46e5;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .pdf-header p {
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+        
+        .pdf-footer {
+            display: none;
+            text-align: center;
+            padding: 15px 0;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 20px;
+            color: #64748b;
+            font-size: 0.75rem;
+        }
+        
+        body.print-mode .pdf-footer {
+            display: block;
+        }
+
+        @media print {
+            body { background: white; }
+            .glass-card { break-inside: avoid; }
         }
     </style>
 </head>
 <body>
+    <!-- WELCOME GATE - Peak-End Rule Setup -->
+    <div class="welcome-gate" id="welcomeGate">
+        <div class="welcome-badge">
+            <span>Access Granted</span>
+        </div>
+        <h1 class="welcome-title">Your Portfolio is Ready</h1>
+        <p class="welcome-subtitle">I've built a personalized ETF allocation engine just for you. Let's find your perfect portfolio in 60 seconds.</p>
+        <button class="welcome-btn" onclick="enterApp()">
+            Build My Portfolio →
+        </button>
+    </div>
+
+    <!-- PROCESSING OVERLAY - Idleness Aversion -->
+    <div class="processing-overlay" id="processingOverlay">
+        <div class="processing-spinner"></div>
+        <p class="processing-text" id="processingText">Analyzing your profile...</p>
+        <p class="processing-steps" id="processingSteps">Calculating optimal allocation...</p>
+    </div>
+
     <div class="container" id="mainAppContent">
+        
+        <!-- PDF Header (only shows in print) -->
+        <div class="pdf-header">
+            <h1>📊 Your Personalized Investment Plan</h1>
+            <p>Generated by Investment Simplifier | Made by Kou</p>
+        </div>
+
         <div class="header">
             <h1>Investment Simplifier</h1>
             <p>Build your premium ETF portfolio with intelligent asset allocation</p>
         </div>
 
         <div class="glass-card">
-            <h2 class="section-title">Create Your Personalized Portfolio</h2>
+            <h2 class="section-title">Create Your Portfolio</h2>
             
             <div class="input-grid">
                 <div class="input-group">
                     <label for="userAge">Your Age</label>
-                    <div class="range-wrapper">
-                        <input type="number" id="userAge" value="25" min="18" max="100">
-                    </div>
-                    <input type="range" id="ageRange" value="25" min="18" max="100" class="mt-2">
+                    <input type="number" id="userAge" value="25" min="18" max="100">
+                    <input type="range" id="ageRange" value="25" min="18" max="100" style="margin-top: 8px;">
                 </div>
                 
                 <div class="input-group">
                     <label for="riskStyle">Investment Style</label>
                     <select id="riskStyle">
-                        <option value="growth">🚀 Growth - Maximum Returns (Higher Risk)</option>
-                        <option value="balanced" selected>⚖️ Balanced - Steady Growth (Moderate Risk)</option>
-                        <option value="income">🛡️ Income - Preservation (Lower Risk)</option>
+                        <option value="growth">🚀 Growth - Max Returns</option>
+                        <option value="balanced" selected>⚖️ Balanced - Steady</option>
+                        <option value="income">🛡️ Income - Stable</option>
                     </select>
                 </div>
             </div>
+            
+            <button class="btn" onclick="calculateWithTheater()">Generate My Portfolio</button>
         </div>
 
         <div id="resultsDisplay" class="glass-card results-container">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
-                <h2 class="section-title" style="margin-bottom:0;">Your Recommended Portfolio</h2>
-                <button id="downloadPdfBtn" class="btn-outline">Download PDF Report</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+                <h2 class="section-title" style="margin-bottom:0;">Your Portfolio</h2>
+                <button id="downloadPdfBtn" class="btn-outline" onclick="generatePDF()">📄 Download PDF</button>
+            </div>
+            
+            <!-- OPERATIONAL TRANSPARENCY: Why This Allocation -->
+            <div class="why-box" id="whyBox">
+                <h3>🧠 Why This Allocation?</h3>
+                <p id="whyExplanation">Loading explanation...</p>
             </div>
 
             <div class="lump-sum-container">
                 <div class="lump-sum-input-group">
-                    <span class="lump-sum-label">💰 Calculate Your Investment:</span>
-                    <input type="number" id="lumpSumInput" placeholder="Enter Total Cash (e.g. 10000)">
+                    <span class="lump-sum-label">💰 Your Investment Amount:</span>
+                    <input type="number" id="lumpSumInput" placeholder="Enter total to invest (e.g. 5000)">
                 </div>
             </div>
 
@@ -306,134 +1016,193 @@
                     </div>
                     <div class="allocation-text">
                         <div class="allocation-row">
-                            <span class="allocation-label">📈 Stock Allocation</span>
+                            <span class="allocation-label">📈 Stocks</span>
                             <span class="allocation-value" id="stockAllocation">--</span>
                         </div>
                         <div class="allocation-row">
-                            <span class="allocation-label">🏦 Bond Allocation</span>
+                            <span class="allocation-label">🏦 Bonds</span>
                             <span class="allocation-value" id="bondAllocation">--</span>
                         </div>
                     </div>
                 </div>
             </div>
+            
             <div class="etf-cards" id="etfCards"></div>
         </div>
 
         <div class="glass-card">
-            <h2 class="section-title">Project Your Wealth Growth</h2>
+            <h2 class="section-title">Project Your Growth</h2>
             
             <div class="input-grid">
                 <div class="input-group">
-                    <label for="monthlyInvestment">Monthly Investment</label>
-                    <div class="range-wrapper">
-                        <span style="color:var(--text-muted)">$</span>
-                        <input type="number" id="monthlyInvestment" value="500" min="50" step="50">
-                    </div>
-                    <input type="range" id="investRange" value="500" min="50" max="5000" step="50" class="mt-2">
+                    <label for="monthlyInvestment">Monthly Investment ($)</label>
+                    <input type="number" id="monthlyInvestment" value="500" min="50" step="50">
+                    <input type="range" id="investRange" value="500" min="50" max="5000" step="50" style="margin-top: 8px;">
                 </div>
                 
                 <div class="input-group">
                     <label for="investmentPeriod">Time Horizon (Years)</label>
-                    <div class="range-wrapper">
-                        <input type="number" id="investmentPeriod" value="20" min="5" max="40">
-                    </div>
-                    <input type="range" id="timeRange" value="20" min="5" max="40" class="mt-2">
+                    <input type="number" id="investmentPeriod" value="20" min="5" max="40">
+                    <input type="range" id="timeRange" value="20" min="5" max="40" style="margin-top: 8px;">
                 </div>
             </div>
             
-            <div id="projectionResults" class="projection-results show" style="margin-top: 20px;">
+            <div id="projectionResults" class="projection-results show">
                 <div class="projection-card">
-                    <div class="projection-label">💵 Total Cash Invested</div>
+                    <div class="projection-label">💵 Total Invested</div>
                     <div class="projection-value" id="cashSaved">--</div>
                 </div>
                 <div class="projection-card highlight">
-                    <div class="projection-label">🚀 Projected Portfolio Value</div>
+                    <div class="projection-label">🚀 Projected Value</div>
                     <div class="projection-value" id="projectedValue">--</div>
-                    <div style="height: 250px; margin-top: 20px;">
+                    <div class="chart-container">
                         <canvas id="growthChartCanvas"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- UNCERTAINTY ANXIETY: Next Steps Roadmap -->
+        <div class="next-steps">
+            <h3>🎯 Your Next 3 Steps</h3>
+            <div class="steps-list">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Open a Brokerage</h4>
+                        <p>Fidelity, Schwab, or Vanguard. All free. Takes 10 minutes.</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Buy Your ETFs</h4>
+                        <p>Use the allocations above. Search ticker, enter amount, buy.</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Automate Monthly</h4>
+                        <p>Set up recurring investments. Then forget it and let it grow.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="glass-card">
-            <h2 class="section-title">Famous Investor Portfolios</h2>
+            <h2 class="section-title">Famous Strategies</h2>
             <div class="info-box">
-                <h3>⭐ Click a Card to Load Strategy</h3>
-                <p>Tap any strategy below to instantly visualize that specific allocation in the tools above.</p>
+                <h3>⭐ Tap to Load Strategy</h3>
+                <p>Click any strategy below to instantly see that allocation in your portfolio.</p>
             </div>
             <div class="strategies-grid">
                 
                 <div class="strategy-card" onclick="loadStrategy('vti_only')">
-                    <h3>J.L. Collins’ One-Fund</h3>
+                    <h3>J.L. Collins' One-Fund</h3>
                     <p class="strategy-goal"><strong>Goal:</strong> Own the entire U.S. stock market.</p>
-                    <h4>Best Options (100%):</h4>
-                    <ul><li>Vanguard Total Stock Market → VTI</li></ul>
+                    <h4>Holdings:</h4>
+                    <ul><li>VTI (100%)</li></ul>
                 </div>
 
                 <div class="strategy-card" onclick="loadStrategy('buffett')">
-                    <h3>Warren Buffett’s 90/10</h3>
-                    <p class="strategy-goal"><strong>Goal:</strong> 90% S&P 500, 10% Gov Bonds.</p>
-                    <h4>Options:</h4>
-                    <ul><li>Stocks: VOO/VTI</li><li>Bonds: SGOV</li></ul>
+                    <h3>Warren Buffett's 90/10</h3>
+                    <p class="strategy-goal"><strong>Goal:</strong> 90% S&P 500, 10% Bonds.</p>
+                    <h4>Holdings:</h4>
+                    <ul><li>VOO/VTI (90%)</li><li>SGOV (10%)</li></ul>
                 </div>
 
                 <div class="strategy-card" onclick="loadStrategy('bogle')">
-                    <h3>Bogleheads’ Three-Fund</h3>
-                    <p class="strategy-goal"><strong>Goal:</strong> Global Diversification.</p>
-                    <h4>Options:</h4>
-                    <ul><li>US: VTI</li><li>Int'l: VXUS</li><li>Bonds: BND</li></ul>
+                    <h3>Bogleheads' Three-Fund</h3>
+                    <p class="strategy-goal"><strong>Goal:</strong> Global diversification.</p>
+                    <h4>Holdings:</h4>
+                    <ul><li>VTI (US)</li><li>VXUS (Int'l)</li><li>BND (Bonds)</li></ul>
                 </div>
                 
                 <div class="strategy-card" onclick="loadStrategy('income')">
-                    <h3>The Passive Income Engine</h3>
-                    <p class="strategy-goal"><strong>Goal:</strong> High cash flow & dividend growth.</p>
-                    <h4>Options:</h4>
-                    <ul><li>Growth: SCHD</li><li>Yield: VYM</li></ul>
+                    <h3>Passive Income Engine</h3>
+                    <p class="strategy-goal"><strong>Goal:</strong> High dividend yield.</p>
+                    <h4>Holdings:</h4>
+                    <ul><li>SCHD</li><li>VYM</li></ul>
                 </div>
 
             </div>
         </div>
 
-        <div style="text-align: center; color: var(--text-muted); padding: 20px 0;">
-            <p style="margin-bottom: 5px; font-size: 0.9rem;">Made by Kou</p>
-            <p style="font-size: 0.8rem; max-width: 800px; margin: 0 auto;">Not financial advice. Research before investing.</p>
+        <!-- PDF Footer (only shows in print) -->
+        <div class="pdf-footer">
+            <p>Generated by Investment Simplifier | Made by Kou | Not financial advice. Do your own research.</p>
+        </div>
+
+        <div class="footer">
+            <p>Made by Kou</p>
+            <p>Not financial advice. Research before investing.</p>
         </div>
     </div>
 
     <script>
         // --- DATA STORE ---
         const etfData = {
-            vti: { ticker: "VTI", name: "Vanguard Total Stock Market", description: "Exposure to the entire U.S. equity market (small, mid, large cap).", type: "U.S. Total Market", expense: "0.03%" },
-            vxus: { ticker: "VXUS", name: "Vanguard Total International", description: "Exposure to developed and emerging markets outside the U.S.", type: "International Stocks", expense: "0.07%" },
-            bnd: { ticker: "BND", name: "Vanguard Total Bond Market", description: "Broad exposure to U.S. investment-grade bonds for stability.", type: "U.S. Bonds", expense: "0.03%" },
+            vti: { ticker: "VTI", name: "Vanguard Total Stock Market", description: "Exposure to the entire U.S. equity market.", type: "U.S. Total Market", expense: "0.03%" },
+            vxus: { ticker: "VXUS", name: "Vanguard Total International", description: "Developed and emerging markets outside the U.S.", type: "International", expense: "0.07%" },
+            bnd: { ticker: "BND", name: "Vanguard Total Bond Market", description: "Broad U.S. investment-grade bonds for stability.", type: "U.S. Bonds", expense: "0.03%" },
             schd: { ticker: "SCHD", name: "Schwab U.S. Dividend Equity", description: "High-quality companies with sustainable dividends.", type: "Dividend Growth", expense: "0.06%" },
-            schg: { ticker: "SCHG", name: "Schwab U.S. Large-Cap Growth", description: "Focuses on large U.S. companies with projected high growth rates.", type: "Large Growth", expense: "0.04%" },
-            qqqm: { ticker: "QQQM", name: "Invesco NASDAQ 100", description: "Top 100 non-financial companies on Nasdaq. Tech heavy.", type: "Tech/Growth", expense: "0.15%" },
-            avuv: { ticker: "AVUV", name: "Avantis U.S. Small Cap Value", description: "Active ETF targeting small undervalued companies.", type: "Small Cap Value", expense: "0.25%" },
+            schg: { ticker: "SCHG", name: "Schwab U.S. Large-Cap Growth", description: "Large U.S. companies with high growth potential.", type: "Large Growth", expense: "0.04%" },
+            qqqm: { ticker: "QQQM", name: "Invesco NASDAQ 100", description: "Top 100 non-financial Nasdaq companies. Tech heavy.", type: "Tech/Growth", expense: "0.15%" },
+            avuv: { ticker: "AVUV", name: "Avantis U.S. Small Cap Value", description: "Active ETF targeting undervalued small companies.", type: "Small Cap Value", expense: "0.25%" },
             vym: { ticker: "VYM", name: "Vanguard High Dividend Yield", description: "Stocks with higher than average dividend yields.", type: "High Yield", expense: "0.06%" },
-            dgro: { ticker: "DGRO", name: "iShares Core Dividend Growth", description: "Companies with a history of consistently growing dividends.", type: "Dividend Growth", expense: "0.08%" },
-            sgov: { ticker: "SGOV", name: "iShares 0-3 Month Treasury", description: "Ultra-short term U.S. Treasury bonds. Cash equivalent.", type: "Cash/Treasury", expense: "0.05%" }
+            dgro: { ticker: "DGRO", name: "iShares Core Dividend Growth", description: "Companies with consistently growing dividends.", type: "Dividend Growth", expense: "0.08%" },
+            sgov: { ticker: "SGOV", name: "iShares 0-3 Month Treasury", description: "Ultra-short term U.S. Treasury bonds.", type: "Cash/Treasury", expense: "0.05%" }
         };
 
-        // Chart Instances
         let allocationChartInstance = null;
         let growthChartInstance = null;
 
+        // WELCOME GATE HANDLER
+        function enterApp() {
+            document.getElementById('welcomeGate').classList.add('hidden');
+        }
+
+        // IDLENESS AVERSION: Processing Theater
+        function calculateWithTheater() {
+            const overlay = document.getElementById('processingOverlay');
+            const textEl = document.getElementById('processingText');
+            const stepsEl = document.getElementById('processingSteps');
+            
+            overlay.classList.add('show');
+            
+            const steps = [
+                { text: 'Analyzing your age profile...', step: 'Applying 110-Age rule...' },
+                { text: 'Matching risk tolerance...', step: 'Adjusting stock/bond split...' },
+                { text: 'Selecting optimal ETFs...', step: 'Filtering by expense ratio...' },
+                { text: 'Building your portfolio...', step: 'Finalizing allocations...' }
+            ];
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < steps.length) {
+                    textEl.textContent = steps[i].text;
+                    stepsEl.textContent = steps[i].step;
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        overlay.classList.remove('show');
+                        calculatePortfolio();
+                        document.getElementById('resultsDisplay').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 300);
+                }
+            }, 500);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            // Setup Slider Syncing (Optimization 3)
-            setupDualInput('userAge', 'ageRange', calculatePortfolio);
+            setupDualInput('userAge', 'ageRange', () => {});
             setupDualInput('monthlyInvestment', 'investRange', calculateGrowth);
             setupDualInput('investmentPeriod', 'timeRange', calculateGrowth);
 
-            document.getElementById('riskStyle').addEventListener('change', calculatePortfolio);
-            document.getElementById('downloadPdfBtn').addEventListener('click', generatePDF);
-            
-            // Lump Sum Listener (Optimization 2)
+            document.getElementById('riskStyle').addEventListener('change', () => {});
             document.getElementById('lumpSumInput').addEventListener('input', updateDollarValues);
 
-            // Initial Calculation
-            calculatePortfolio();
             calculateGrowth();
         });
 
@@ -451,44 +1220,46 @@
             });
         }
 
-        // --- OPTIMIZATION 1: INK-KILLER PDF GENERATOR ---
         function generatePDF() {
             const element = document.getElementById('mainAppContent');
             const btn = document.getElementById('downloadPdfBtn');
-            const originalText = btn.textContent;
+            const originalText = btn.innerHTML;
             
-            btn.textContent = "Preparing Print Layout...";
+            btn.innerHTML = "⏳ Generating...";
             
-            // 1. Inject Print Theme
             document.body.classList.add('print-mode');
             
-            // 2. Refresh charts to pick up new text colors (Hack for Chart.js in print mode)
-            calculatePortfolio();
-            calculateGrowth();
+            // Refresh charts for print colors
+            if (allocationChartInstance) {
+                renderAllocationChart(window.lastAllocation || []);
+            }
+            if (growthChartInstance) {
+                calculateGrowth();
+            }
 
-            // Wait for render
             setTimeout(() => {
                 const opt = {
-                    margin: 0.2,
-                    filename: 'My_Wealth_Plan.pdf',
+                    margin: [0.3, 0.3, 0.3, 0.3],
+                    filename: 'My_Investment_Portfolio.pdf',
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                    html2canvas: { scale: 2, useCORS: true, scrollY: 0, backgroundColor: '#ffffff' },
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
                 };
 
                 html2pdf().set(opt).from(element).save().then(() => {
-                    // 3. Revert Theme
                     document.body.classList.remove('print-mode');
-                    btn.textContent = originalText;
+                    btn.innerHTML = originalText;
                     // Refresh charts back to dark mode
-                    calculatePortfolio();
+                    if (window.lastAllocation) {
+                        renderAllocationChart(window.lastAllocation);
+                    }
                     calculateGrowth();
                 });
-            }, 800);
+            }, 500);
         }
 
         function loadStrategy(strategy) {
-            let alloc = [];
             if (strategy === 'vti_only') {
                 updateInputs(25, 'growth');
             } else if (strategy === 'buffett') {
@@ -498,11 +1269,7 @@
             } else if (strategy === 'income') {
                 updateInputs(55, 'income');
             }
-            // Trigger calculation which handles logic
-            calculatePortfolio();
-
-            // OPTIMIZATION 5: Context Switch Scroll
-            document.getElementById('resultsDisplay').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            calculateWithTheater();
         }
 
         function updateInputs(age, risk) {
@@ -518,14 +1285,25 @@
             if (!age) return;
 
             let alloc = [];
-            let stockPct = 100 - (age - 10);
-            if (stockPct > 95) stockPct = 95; if (stockPct < 40) stockPct = 40;
+            let stockPct = 110 - age;
+            if (stockPct > 95) stockPct = 95;
+            if (stockPct < 40) stockPct = 40;
             
-            if (riskStyle === 'growth') stockPct += 10;
-            if (riskStyle === 'income') stockPct -= 10;
+            let riskAdjustment = 0;
+            if (riskStyle === 'growth') {
+                stockPct += 10;
+                riskAdjustment = 10;
+            }
+            if (riskStyle === 'income') {
+                stockPct -= 10;
+                riskAdjustment = -10;
+            }
             if (stockPct > 100) stockPct = 100;
 
             const bondPct = 100 - stockPct;
+
+            // OPERATIONAL TRANSPARENCY: Update "Why" explanation
+            updateWhyExplanation(age, stockPct, bondPct, riskStyle, riskAdjustment);
 
             // Strategy Logic
             if (riskStyle === 'growth') {
@@ -547,7 +1325,24 @@
             let total = alloc.reduce((sum, i) => sum + i.pct, 0);
             if (total !== 100) alloc[0].pct += (100 - total);
 
+            window.lastAllocation = alloc;
             displayPortfolio(stockPct, bondPct, alloc);
+        }
+
+        // OPERATIONAL TRANSPARENCY: Explain the formula
+        function updateWhyExplanation(age, stockPct, bondPct, riskStyle, adjustment) {
+            const baseCalc = 110 - age;
+            let explanation = `Using the classic <span class="formula">110 - Age</span> rule: 110 - ${age} = ${baseCalc}% stocks. `;
+            
+            if (adjustment > 0) {
+                explanation += `Your <strong>Growth</strong> style adds +${adjustment}%, bringing you to ${stockPct}% stocks. `;
+            } else if (adjustment < 0) {
+                explanation += `Your <strong>Income</strong> style reduces by ${Math.abs(adjustment)}%, bringing you to ${stockPct}% stocks. `;
+            }
+            
+            explanation += `The remaining ${bondPct}% goes to bonds for stability. This balance gives you growth potential while protecting against major downturns.`;
+            
+            document.getElementById('whyExplanation').innerHTML = explanation;
         }
 
         function displayPortfolio(stockPct, bondPct, allocationArray) {
@@ -564,7 +1359,6 @@
             allocationArray.forEach((item) => {
                 if(item.pct <= 0) return;
                 const data = etfData[item.id];
-                // Added data-pct attribute for Lump Sum Calc
                 const html = `
                     <div class="etf-card" data-pct="${item.pct}">
                         <div class="etf-ticker">${data.ticker}</div>
@@ -573,11 +1367,11 @@
                         <p class="etf-description">${data.description}</p>
                         <div class="etf-allocation">
                             <div style="text-align:left">
-                                <span style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">Allocation</span>
+                                <span style="color:var(--text-muted); font-size:0.7rem; text-transform:uppercase;">Allocation</span>
                                 <div class="allocation-percent">${item.pct}%</div>
                             </div>
                             <div style="text-align:right">
-                                <span style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">Value</span>
+                                <span style="color:var(--text-muted); font-size:0.7rem; text-transform:uppercase;">Value</span>
                                 <div class="allocation-dollars">$0</div>
                             </div>
                         </div>
@@ -585,14 +1379,10 @@
                 container.insertAdjacentHTML('beforeend', html);
             });
             
-            // Trigger dollar update if value exists
             updateDollarValues();
-
-            // Render Chart
             renderAllocationChart(allocationArray);
         }
 
-        // OPTIMIZATION 2: Real-time Dollar Calc
         function updateDollarValues() {
             const lumpSum = parseFloat(document.getElementById('lumpSumInput').value);
             const cards = document.querySelectorAll('.etf-card');
@@ -616,7 +1406,6 @@
             if (allocationChartInstance) allocationChartInstance.destroy();
             const ctx = document.getElementById('allocationChartCanvas').getContext('2d');
             
-            // Check if print mode is active to change text color
             const isPrint = document.body.classList.contains('print-mode');
             const textColor = isPrint ? '#0f172a' : '#f1f5f9';
 
@@ -634,11 +1423,15 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        // OPTIMIZATION 4: LEGEND VISIBILITY
                         legend: { 
                             display: true, 
-                            position: 'right', 
-                            labels: { color: textColor, font: {family: 'Inter', size: 12}, boxWidth: 15 } 
+                            position: 'bottom', 
+                            labels: { 
+                                color: textColor, 
+                                font: { family: 'Inter', size: 11 }, 
+                                boxWidth: 12,
+                                padding: 15
+                            } 
                         },
                         tooltip: { backgroundColor: '#1e293b' }
                     }
@@ -647,8 +1440,8 @@
         }
 
         function calculateGrowth() {
-            const P = parseInt(document.getElementById('monthlyInvestment').value);
-            const t = parseInt(document.getElementById('investmentPeriod').value);
+            const P = parseInt(document.getElementById('monthlyInvestment').value) || 500;
+            const t = parseInt(document.getElementById('investmentPeriod').value) || 20;
             
             const r = 0.07;
             const n = 12;
@@ -660,13 +1453,18 @@
 
             const labels = [];
             const dataPoints = [];
-            for(let i=0; i<=t; i++) {
-                labels.push("Year " + i);
+            for(let i=0; i<=t; i+=Math.ceil(t/10)) {
+                labels.push("Yr " + i);
                 if(i===0) dataPoints.push(0);
                 else {
                     let val = P * ((Math.pow(1 + r/n, n*i) - 1) / (r/n));
                     dataPoints.push(val);
                 }
+            }
+            // Ensure we have the final year
+            if (labels[labels.length-1] !== "Yr " + t) {
+                labels.push("Yr " + t);
+                dataPoints.push(FV);
             }
             
             renderGrowthChart(labels, dataPoints);
@@ -678,7 +1476,7 @@
             
             const isPrint = document.body.classList.contains('print-mode');
             const textColor = isPrint ? '#475569' : '#94a3b8';
-            const gridColor = isPrint ? '#cbd5e1' : '#2a3150';
+            const gridColor = isPrint ? '#e2e8f0' : '#2a3150';
 
             growthChartInstance = new Chart(ctx, {
                 type: 'line',
@@ -688,17 +1486,26 @@
                         label: 'Portfolio Value',
                         data: data,
                         borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        backgroundColor: isPrint ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.2)',
                         fill: true,
                         tension: 0.4,
-                        pointRadius: 0
+                        pointRadius: 3,
+                        pointBackgroundColor: '#10b981'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: { ticks: { color: textColor }, grid: { color: gridColor } },
+                        y: { 
+                            ticks: { 
+                                color: textColor,
+                                callback: function(value) {
+                                    return '$' + (value/1000).toFixed(0) + 'k';
+                                }
+                            }, 
+                            grid: { color: gridColor } 
+                        },
                         x: { ticks: { color: textColor }, grid: { display: false } }
                     },
                     plugins: {
