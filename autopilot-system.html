@@ -24,11 +24,28 @@
         .glitch { position: relative; }
         .glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.8; }
         
-        /* --- OPTIMIZATION: PREMIUM BLACK CARD ANIMATIONS --- */
+        /* === GOAL-GRADIENT: PROGRESS BAR SHIMMER === */
         @keyframes shimmer {
             0% { background-position: -250% 0; }
             100% { background-position: 250% 0; }
         }
+        .progress-shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        /* === PREMIUM BLACK CARD ANIMATIONS === */
         .premium-shimmer {
             background: linear-gradient(105deg, rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 80%);
             background-size: 200% 100%;
@@ -39,6 +56,104 @@
         }
         .card-font {
             font-family: 'Share Tech Mono', monospace;
+        }
+
+        /* === PEAK-END: CERTIFICATE REVEAL GLOW === */
+        @keyframes certificateReveal {
+            0% { 
+                opacity: 0; 
+                transform: scale(0.9) rotateX(10deg);
+                box-shadow: 0 0 0 rgba(255,255,255,0);
+            }
+            50% {
+                box-shadow: 0 0 60px rgba(255,255,255,0.3), 0 0 120px rgba(34,197,94,0.2);
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1) rotateX(0deg);
+                box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+            }
+        }
+        .certificate-reveal {
+            animation: certificateReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        /* === SCREENSHOT PROMPT PULSE === */
+        @keyframes screenshotPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+        }
+        .screenshot-pulse {
+            animation: screenshotPulse 2s infinite;
+        }
+
+        /* === OPERATIONAL TRANSPARENCY PANEL === */
+        .transparency-panel {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 4px;
+            margin-top: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .transparency-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid #333;
+        }
+        .transparency-header:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .transparency-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .transparency-content.open {
+            padding: 16px;
+            max-height: 400px;
+        }
+        .transparency-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 0;
+            opacity: 0.3;
+            transition: all 0.3s;
+        }
+        .transparency-step.active {
+            opacity: 1;
+        }
+        .transparency-step.complete {
+            opacity: 0.6;
+        }
+        .step-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: #666;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+        .transparency-step.active .step-indicator {
+            background: currentColor;
+            color: #000;
+            box-shadow: 0 0 15px currentColor;
+        }
+        .transparency-step.complete .step-indicator {
+            background: #22c55e;
+            color: #000;
         }
         
         /* Custom Scrollbar */
@@ -87,7 +202,18 @@
                     GROWTH: { ticker: "QQQM", name: "Invesco NASDAQ 100", return: "12-14%", desc: "Top 100 non-financial companies. Innovation heavy." }, 
                     TECH: { ticker: "VGT", name: "Vanguard Info Tech", return: "15%+", desc: "Pure technology sector play. High volatility." } 
                 }
-            }
+            },
+            // --- IDLENESS AVERSION: 8 DETAILED PROCESSING STEPS (4-5 seconds total) ---
+            PROCESSING_STEPS: [
+                { id: 1, text: "Initializing wealth protocol...", duration: 500 },
+                { id: 2, text: "Validating income parameters...", duration: 500 },
+                { id: 3, text: "Calculating compound trajectory...", duration: 600 },
+                { id: 4, text: "Projecting 30-year wealth curve...", duration: 600 },
+                { id: 5, text: "Generating unique architect ID...", duration: 500 },
+                { id: 6, text: "Embossing digital credentials...", duration: 500 },
+                { id: 7, text: "Minting premium certificate...", duration: 600 },
+                { id: 8, text: "Finalizing system installation...", duration: 700 }
+            ]
         };
 
         // --- MAIN APP COMPONENT ---
@@ -97,7 +223,7 @@
             const [theme, setTheme] = useState(CONFIG.THEMES.DEFAULT);
             
             const [userData, setUserData] = useState({
-                userName: "", // OPTIMIZATION: Identity Lever added
+                userName: "",
                 income: 0,
                 payFreq: "Bi-weekly",
                 etfChoice: null,
@@ -131,6 +257,9 @@
             const updateData = (key, value) => setUserData(prev => ({ ...prev, [key]: value }));
             const toggleCheck = (key) => setUserData(prev => ({ ...prev, checklist: { ...prev.checklist, [key]: !prev.checklist[key] } }));
 
+            // --- GOAL-GRADIENT: Calculate installation percentage ---
+            const installationPercent = Math.round(((module + 1) / 7) * 100);
+
             // Router
             const renderModule = () => {
                 switch(module) {
@@ -149,15 +278,28 @@
                 <div className={`min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors duration-1000 selection:${theme.bg} selection:text-white`}>
                     
                     {module !== 6 && (
-                        <div className="w-full max-w-2xl mb-8 flex justify-between items-end border-b border-gray-800 pb-2">
-                            <div>
-                                <h1 className="text-xl font-bold tracking-tighter text-white">THE AUTOPILOT MACHINE</h1>
-                                <p className="text-xs text-gray-500">MODE: <span className={`${theme.color} animate-pulse font-bold uppercase`}>{theme.title}</span></p>
+                        <div className="w-full max-w-2xl mb-8 border-b border-gray-800 pb-4">
+                            <div className="flex justify-between items-end mb-3">
+                                <div>
+                                    <h1 className="text-xl font-bold tracking-tighter text-white">THE AUTOPILOT MACHINE</h1>
+                                    <p className="text-xs text-gray-500">MODE: <span className={`${theme.color} animate-pulse font-bold uppercase`}>{theme.title}</span></p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-xs text-gray-400">MODULE {module + 1}/7</p>
+                                </div>
                             </div>
-                            <div className="text-right">
-                                <p className="text-xs text-gray-400">MODULE {module + 1}/7</p>
-                                <div className="w-32 h-1 bg-gray-800 mt-1">
-                                    <div className={`h-full ${theme.bg} transition-all duration-500`} style={{ width: `${((module + 1) / 7) * 100}%` }}></div>
+                            
+                            {/* GOAL-GRADIENT: Installation Progress with Shimmer */}
+                            <div className="space-y-1">
+                                <div className="flex justify-between items-center text-[10px]">
+                                    <span className="text-gray-500 uppercase tracking-widest">System Installation</span>
+                                    <span className={`${theme.color} font-bold font-mono`}>{installationPercent}%</span>
+                                </div>
+                                <div className="w-full h-1.5 bg-gray-800 rounded-sm overflow-hidden">
+                                    <div 
+                                        className={`h-full ${theme.bg} transition-all duration-500 progress-shimmer`} 
+                                        style={{ width: `${installationPercent}%` }}
+                                    ></div>
                                 </div>
                             </div>
                         </div>
@@ -304,7 +446,8 @@
                         </div>
                     </div>
                     <div className="flex items-center space-x-3 mb-6 bg-black p-3 border border-gray-800"><input type="checkbox" checked={userData.checklist.split} onChange={() => toggleCheck('split')} className={`w-5 h-5 accent-${theme.color.split('-')[1]}-500`} /><label className="text-sm text-gray-300">I have configured the money flow.</label></div>
-                    <button onClick={next} disabled={!userData.checklist.split} className={`w-full py-3 font-bold uppercase transition-all ${userData.checklist.split ? `${theme.bg} text-black hover:brightness-110` : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>[ Confirm Automation ]</button>
+                    {/* UNCERTAINTY ANXIETY: Specific CTA */}
+                    <button onClick={next} disabled={!userData.checklist.split} className={`w-full py-3 font-bold uppercase transition-all ${userData.checklist.split ? `${theme.bg} text-black hover:brightness-110` : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>[ Confirm Automation is Live ]</button>
                 </div>
             );
         }
@@ -327,58 +470,123 @@
                     <p className="text-sm text-gray-400 mb-6">Based on your profile, your money should buy:</p>
                     <div className={`border ${theme.border} bg-gray-900 p-6 mb-6 text-center relative overflow-hidden`}><div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div><h3 className="text-4xl font-bold text-white mb-2 tracking-tighter">{userData.etfChoice.ticker}</h3><p className={`${theme.color} font-bold mb-4 uppercase text-xs tracking-widest`}>{userData.etfChoice.name}</p><p className="text-sm text-gray-300">{userData.etfChoice.desc}</p><div className="mt-4 text-xs text-gray-500 border-t border-gray-800 pt-2">Avg Return: {userData.etfChoice.return}</div></div>
                     <div className="bg-black p-4 border border-gray-800 mb-6"><p className="text-xs text-white font-bold mb-2">FINAL ACTION:</p><p className="text-xs text-gray-400 mb-3">Log into Fidelity -> Enable "Automatic Investments" -> Buy <strong>{userData.etfChoice.ticker}</strong> with the cash that transfers in.</p><div className="flex items-center space-x-3"><input type="checkbox" checked={userData.checklist.autoInvest} onChange={() => toggleCheck('autoInvest')} className={`w-5 h-5 accent-${theme.color.split('-')[1]}-500`} /><label className="text-sm text-gray-300">I have set the auto-buy.</label></div></div>
-                    <button onClick={next} disabled={!userData.checklist.autoInvest} className={`w-full py-3 font-bold uppercase transition-all ${userData.checklist.autoInvest ? `${theme.bg} text-black hover:brightness-110` : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>[ ACTIVATE MACHINE ]</button>
+                    {/* UNCERTAINTY ANXIETY: Specific CTA */}
+                    <button onClick={next} disabled={!userData.checklist.autoInvest} className={`w-full py-3 font-bold uppercase transition-all ${userData.checklist.autoInvest ? `${theme.bg} text-black hover:brightness-110` : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>[ Activate ${userData.etfChoice.ticker} Auto-Buy ]</button>
                 </div>
             );
         }
 
-        // --- OPTIMIZATION: LABOR ILLUSION (PROCESSING OVERLAY) ---
-        function ProcessingOverlay({ theme, userName, onComplete }) {
-            const [step, setStep] = useState(0);
-            const steps = [
-                "INITIALIZING FINAL PROTOCOL...",
-                "PROJECTING COMPOUND CURVE...",
-                `MINTING ARCHITECT STATUS FOR: ${userName ? userName.toUpperCase() : 'USER'}...`,
-                "EMBOSSING DIGITAL CREDENTIALS...",
-                "VERIFYING WEALTH PATH...",
-                "GENERATING BLACK CARD..."
-            ];
-
-            useEffect(() => {
-                if (step < steps.length) {
-                    const timeout = setTimeout(() => setStep(s => s + 1), 600);
-                    return () => clearTimeout(timeout);
-                } else {
-                    const timeout = setTimeout(onComplete, 800);
-                    return () => clearTimeout(timeout);
-                }
-            }, [step]);
-
+        // --- OPERATIONAL TRANSPARENCY PANEL COMPONENT ---
+        function TransparencyPanel({ steps, currentStep, isProcessing, isOpen, onToggle, theme }) {
             return (
-                <div className="absolute inset-0 z-50 bg-black flex flex-col items-center justify-center font-mono p-8 animate-fade-in">
-                    <div className="w-full max-w-sm space-y-2">
-                        {steps.map((text, i) => (
-                            <div key={i} className={`text-xs ${i === step ? 'text-white font-bold' : i < step ? theme.color : 'text-gray-800'}`}>
-                                {i < step ? `[COMPLETE] ` : i === step ? `[PROCESSING] ` : `[WAITING] `}
-                                {text}
+                <div className="transparency-panel">
+                    <div className="transparency-header" onClick={onToggle}>
+                        <span className={`text-xs uppercase tracking-widest ${theme.color} font-bold flex items-center gap-2`}>
+                            <span>🔍</span> See What's Happening
+                        </span>
+                        <span className={`text-gray-500 text-xs transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+                    </div>
+                    <div className={`transparency-content ${isOpen ? 'open' : ''}`}>
+                        {steps.map((step, index) => (
+                            <div 
+                                key={step.id} 
+                                className={`transparency-step ${
+                                    isProcessing && currentStep === index ? 'active' : 
+                                    currentStep > index ? 'complete' : ''
+                                }`}
+                                style={{ color: theme.accent }}
+                            >
+                                <div className="step-indicator">
+                                    {currentStep > index ? '✓' : step.id}
+                                </div>
+                                <span className="text-xs text-gray-400">{step.text}</span>
                             </div>
                         ))}
-                        <div className="h-1 bg-gray-900 mt-4 overflow-hidden relative">
-                            <div className={`absolute top-0 left-0 h-full ${theme.bg} transition-all duration-300`} style={{ width: `${(step / steps.length) * 100}%` }}></div>
-                        </div>
                     </div>
                 </div>
             );
         }
 
-        // --- OPTIMIZATION: PROJECTION MODULE WITH IDENTITY INPUT ---
+        // --- IDLENESS AVERSION: ENHANCED PROCESSING OVERLAY (4-5 seconds) ---
+        function ProcessingOverlay({ theme, userName, onComplete }) {
+            const [currentStep, setCurrentStep] = useState(0);
+            const [panelOpen, setPanelOpen] = useState(true);
+            const steps = CONFIG.PROCESSING_STEPS;
+            const isProcessing = currentStep < steps.length;
+
+            useEffect(() => {
+                if (currentStep < steps.length) {
+                    const timeout = setTimeout(() => {
+                        setCurrentStep(s => s + 1);
+                    }, steps[currentStep].duration);
+                    return () => clearTimeout(timeout);
+                } else {
+                    const timeout = setTimeout(onComplete, 600);
+                    return () => clearTimeout(timeout);
+                }
+            }, [currentStep]);
+
+            const progress = ((currentStep) / steps.length) * 100;
+
+            return (
+                <div className="absolute inset-0 z-50 bg-black flex flex-col items-center justify-center font-mono p-8 animate-fade-in">
+                    <div className="w-full max-w-md">
+                        {/* Header */}
+                        <div className="text-center mb-6">
+                            <h2 className="text-xl font-bold text-white mb-2">INSTALLING SYSTEM</h2>
+                            <p className={`${theme.color} text-xs uppercase tracking-widest`}>
+                                {userName ? `FOR: ${userName.toUpperCase()}` : 'GENERATING CREDENTIALS'}
+                            </p>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="mb-4">
+                            <div className="flex justify-between text-[10px] mb-1">
+                                <span className="text-gray-500">PROGRESS</span>
+                                <span className={`${theme.color} font-bold`}>{Math.round(progress)}%</span>
+                            </div>
+                            <div className="h-2 bg-gray-900 rounded-sm overflow-hidden">
+                                <div 
+                                    className={`h-full ${theme.bg} transition-all duration-300 progress-shimmer`}
+                                    style={{ width: `${progress}%` }}
+                                ></div>
+                            </div>
+                        </div>
+
+                        {/* Current Step Display */}
+                        <div className="text-center mb-4">
+                            <p className="text-white text-sm font-bold">
+                                {currentStep < steps.length ? steps[currentStep].text : 'Complete!'}
+                            </p>
+                        </div>
+
+                        {/* Operational Transparency Panel */}
+                        <TransparencyPanel 
+                            steps={steps}
+                            currentStep={currentStep}
+                            isProcessing={isProcessing}
+                            isOpen={panelOpen}
+                            onToggle={() => setPanelOpen(!panelOpen)}
+                            theme={theme}
+                        />
+
+                        {/* Subtext */}
+                        <p className="text-[10px] text-gray-600 text-center mt-4">
+                            This takes a moment to ensure quality
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- PROJECTION MODULE WITH IDENTITY INPUT ---
         function ModuleProjection({ userData, updateData, theme, next }) {
             const [isProcessing, setIsProcessing] = useState(false);
             const monthly = userData.income * 0.2;
             const calc = (y) => monthly * ((Math.pow(1.10/12, y*12)-1)/(0.10/12));
             
             const handleNext = () => {
-                if (!userData.userName) return; // PEAK-END: FORCE INPUT
+                if (!userData.userName) return;
                 setIsProcessing(true);
             };
 
@@ -421,12 +629,13 @@
                          />
                     </div>
 
+                    {/* UNCERTAINTY ANXIETY: Specific CTA */}
                     <button 
                         onClick={handleNext} 
                         disabled={!userData.userName}
                         className={`w-full py-3 font-bold uppercase transition-colors shadow-lg shadow-white/10 ${userData.userName ? 'bg-white text-black hover:bg-gray-200' : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}
                     >
-                        [ PRINT OFFICIAL CERTIFICATE ]
+                        [ Print Certificate for {userData.userName || '...'} ]
                     </button>
                     <p className="text-[10px] text-gray-500 text-center mt-3">
                         *This will lock your configuration file and mint your ID.
@@ -435,11 +644,18 @@
             );
         }
 
-        // --- OPTIMIZATION: PREMIUM BLACK CARD CERTIFICATE + ONE-CLICK COPY ---
+        // --- PEAK-END: PREMIUM BLACK CARD CERTIFICATE + SCREENSHOT OPTIMIZATION ---
         function ModuleCertificate({ userData, theme }) {
             const [copied, setCopied] = useState(false);
+            const [revealed, setRevealed] = useState(false);
             const monthlyInvest = (userData.income * 0.2).toFixed(0);
             const projectedWealth = (monthlyInvest * ((Math.pow(1.10/12, 30*12)-1)/(0.10/12))).toLocaleString(undefined, {maximumFractionDigits:0});
+
+            // Trigger reveal animation
+            useEffect(() => {
+                const timer = setTimeout(() => setRevealed(true), 100);
+                return () => clearTimeout(timer);
+            }, []);
 
             // FRICTIONLESS END: Copy Logic
             const handleCopy = () => {
@@ -452,8 +668,18 @@
             return (
                 <div className="w-full max-w-md mx-auto animate-fade-in">
                     
+                    {/* PEAK-END: SCREENSHOT PROMPT (Above the card) */}
+                    <div className="text-center mb-4">
+                        <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${theme.border} ${theme.color} text-xs font-bold uppercase tracking-widest screenshot-pulse`}>
+                            <span>📸</span> Screenshot This Card
+                        </div>
+                    </div>
+
                     {/* THE PEAK: PREMIUM BLACK CARD ASSET */}
-                    <div id="certificate-card" className="relative h-64 w-full rounded-xl mb-8 shadow-2xl overflow-hidden group transition-transform duration-500 hover:scale-[1.02] border border-gray-800">
+                    <div 
+                        id="certificate-card" 
+                        className={`relative h-64 w-full rounded-xl mb-6 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`}
+                    >
                         
                         {/* Background & Texture */}
                         <div className="absolute inset-0 bg-[#0a0a0a]"></div>
@@ -497,20 +723,26 @@
                         </div>
                     </div>
 
+                    {/* PEAK-END: Explicit Screenshot Instructions */}
+                    <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border border-gray-700 p-4 rounded mb-6 text-center">
+                        <p className="text-white text-sm font-bold mb-1">🎉 Your Certificate is Ready!</p>
+                        <p className="text-gray-400 text-xs">Take a screenshot now before scrolling.</p>
+                    </div>
+
                     {/* THE END: FRICTIONLESS HANDOVER */}
                     <div className="text-center space-y-4 pb-12">
                         <div className="bg-gray-900 border border-gray-800 p-6 rounded-sm shadow-xl relative overflow-hidden">
                              {/* Gradient Top Line */}
                              <div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div>
                             
-                            <h3 className="text-white font-bold text-lg mb-1">ACCESS THE VAULT</h3>
-                            <p className="text-gray-500 text-xs mb-6">Complete the loop to receive your Prompt Vault.</p>
+                            <h3 className="text-white font-bold text-lg mb-1">CLAIM YOUR BONUS</h3>
+                            <p className="text-gray-500 text-xs mb-6">You've earned access to the Prompt Vault Cheat Sheet.</p>
 
                             <div className="grid grid-cols-1 gap-3">
                                 <div className="text-left space-y-3 text-xs text-gray-300 font-mono mb-2">
                                     <p className="flex items-center"><span className="text-green-500 mr-2">✓</span> Screenshot the certificate above 📸</p>
                                     <p className="flex items-center"><span className="text-green-500 mr-2">✓</span> Post to IG Story & Tag <span className="text-white font-bold bg-gray-800 px-1 ml-1 rounded">@koutalksmoney</span></p>
-                                    <p className="flex items-center"><span className="text-green-500 mr-2">✓</span> I will DM you the Vault Link.</p>
+                                    <p className="flex items-center"><span className="text-green-500 mr-2">✓</span> I'll send your Prompt Vault Cheat Sheet directly.</p>
                                 </div>
 
                                 {/* STEP 1: Copy Button (Friction Remover) */}
@@ -518,16 +750,16 @@
                                     onClick={handleCopy}
                                     className="flex items-center justify-center gap-2 w-full py-3 bg-gray-800 border border-gray-700 hover:bg-gray-700 text-white font-mono text-xs transition-all uppercase"
                                 >
-                                    {copied ? <span className="text-green-500 font-bold">✓ COPIED TO CLIPBOARD</span> : <span>[ COPY CAPTION ]</span>}
+                                    {copied ? <span className="text-green-500 font-bold">✓ Caption Copied to Clipboard</span> : <span>[ Copy Caption Text ]</span>}
                                 </button>
 
-                                {/* STEP 2: Share */}
+                                {/* STEP 2: Share - UNCERTAINTY ANXIETY: Specific CTA */}
                                 <a 
                                     href="https://instagram.com/koutalksmoney" 
                                     target="_blank" 
                                     className={`flex items-center justify-center gap-2 w-full py-3 ${theme.bg} text-black font-bold uppercase text-xs hover:brightness-110 transition-all shadow-lg tracking-wide`}
                                 >
-                                    <span>[ OPEN INSTAGRAM & TAG ME ]</span>
+                                    <span>[ Post to Instagram Story Now ]</span>
                                 </a>
                             </div>
                         </div>
