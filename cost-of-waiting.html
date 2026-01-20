@@ -13,8 +13,6 @@
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Beehiiv Embed Script - REMOVED ASYNC for consistent loading -->
     <script src="https://subscribe-forms.beehiiv.com/embed.js"></script>
     
     <script>
@@ -53,12 +51,11 @@
     </script>
 
     <style>
-        /* Custom Range Slider Styling (The Slider of Doom) */
+        /* Custom Range Slider Styling */
         input[type=range] {
             -webkit-appearance: none; 
             background: transparent;
         }
-        /* THUMB OPTIMIZATION: Increased to 32px for Mobile Grip */
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
             height: 32px;
@@ -67,7 +64,7 @@
             background: #FFFFFF;
             border: 2px solid #FF0000;
             cursor: pointer;
-            margin-top: -14px; /* Centered relative to 4px track */
+            margin-top: -14px;
             box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
         }
         input[type=range]::-webkit-slider-runnable-track {
@@ -77,16 +74,10 @@
             background: #333;
             border-radius: 2px;
         }
-        input[type=range]:focus::-webkit-slider-thumb {
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.9);
-        }
-
+        
         /* Glitch Text Effect */
-        .glitch {
-            position: relative;
-        }
-        .glitch::before,
-        .glitch::after {
+        .glitch { position: relative; }
+        .glitch::before, .glitch::after {
             content: attr(data-text);
             position: absolute;
             top: 0;
@@ -109,17 +100,11 @@
         @keyframes glitch-anim {
             0% { clip: rect(31px, 9999px, 94px, 0); }
             5% { clip: rect(70px, 9999px, 11px, 0); }
-            10% { clip: rect(26px, 9999px, 89px, 0); }
-            15% { clip: rect(6px, 9999px, 14px, 0); }
-            20% { clip: rect(76px, 9999px, 7px, 0); }
             100% { clip: rect(13px, 9999px, 56px, 0); }
         }
         @keyframes glitch-anim2 {
             0% { clip: rect(21px, 9999px, 4px, 0); }
             5% { clip: rect(6px, 9999px, 64px, 0); }
-            10% { clip: rect(56px, 9999px, 39px, 0); }
-            15% { clip: rect(16px, 9999px, 24px, 0); }
-            20% { clip: rect(86px, 9999px, 17px, 0); }
             100% { clip: rect(43px, 9999px, 36px, 0); }
         }
         [x-cloak] { display: none !important; }
@@ -127,135 +112,210 @@
 </head>
 <body class="bg-cyber-black text-white font-sans antialiased min-h-screen flex items-center justify-center p-4">
 
-    <main x-data="costEngine()" class="w-full max-w-lg">
+    <main x-data="costEngine()" class="w-full max-w-lg relative min-h-[600px] flex flex-col justify-center">
 
-        <div class="mb-8 text-center">
-            <h1 class="text-4xl font-black tracking-tighter uppercase glitch" data-text="PROJECT TICKER">
-                PROJECT TICKER
-            </h1>
-            <p class="text-xs text-cyber-gray mt-2 font-mono tracking-widest uppercase">Compound Interest is not a game.</p>
+        <!-- IDLE STATE: Gatekeeper Screen -->
+        <div x-show="state === 'idle'" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:leave="transition ease-in duration-200 opacity-0"
+             class="text-center space-y-8">
+            
+            <div class="space-y-2">
+                <h1 class="text-5xl font-black tracking-tighter text-white glitch" data-text="SYSTEM HALTED">
+                    SYSTEM HALTED
+                </h1>
+                <p class="text-cyber-gray font-mono text-xs uppercase tracking-[0.2em]">
+                    Secure Connection Required
+                </p>
+            </div>
+
+            <button @click="ignite()" 
+                    class="group relative inline-flex items-center justify-center px-8 py-6 overflow-hidden font-mono font-bold text-white transition-all duration-300 bg-transparent border-2 border-cyber-red rounded-none hover:bg-cyber-red/10 focus:outline-none cursor-pointer">
+                <span class="absolute w-0 h-0 transition-all duration-500 ease-out bg-cyber-red rounded-full group-hover:w-80 group-hover:h-80 opacity-10"></span>
+                <span class="relative flex items-center gap-4 text-xl tracking-widest uppercase">
+                    <span class="animate-pulse">⚠️</span> Initialize Engine
+                </span>
+            </button>
+
+            <p class="text-[10px] text-cyber-gray/50 max-w-xs mx-auto mt-8 font-mono">
+                WARNING: This tool projects irreversible financial decay. Proceed with caution.
+            </p>
         </div>
 
-        <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 shadow-2xl">
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                    <label class="block text-xs font-bold text-cyber-gray uppercase mb-2">Current Age</label>
-                    <input type="number" x-model.number="age" 
-                        class="w-full bg-black border border-cyber-gray text-white font-mono text-xl p-3 rounded focus:outline-none focus:border-white transition-colors text-center"
-                        placeholder="20">
+        <!-- PROCESSING STATE: Fake Loading -->
+        <div x-show="state === 'processing'" x-cloak
+             class="absolute inset-0 flex flex-col items-center justify-center z-50">
+            <div class="w-full max-w-xs space-y-4">
+                <div class="font-mono text-xs text-cyber-green space-y-1 h-32 overflow-hidden border-l-2 border-cyber-gray pl-4 flex flex-col justify-end">
+                    <template x-for="log in logs" :key="log">
+                        <div x-text="'> ' + log" class="opacity-80"></div>
+                    </template>
+                    <div class="animate-pulse">_</div>
                 </div>
+                
+                <div class="w-full h-1 bg-cyber-gray rounded-full overflow-hidden">
+                    <div class="h-full bg-cyber-red transition-all duration-300 ease-out" :style="'width: ' + progress + '%'"></div>
+                </div>
+                
+                <p class="text-center font-mono text-white text-sm tracking-widest animate-pulse" x-text="statusText"></p>
+            </div>
+        </div>
+
+        <!-- ACTIVE STATE: Calculator -->
+        <div x-show="state === 'active'" 
+             x-transition:enter="transition ease-out duration-700 transform"
+             x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             x-cloak
+             class="w-full">
+
+            <div class="mb-8 text-center">
+                <h1 class="text-4xl font-black tracking-tighter uppercase glitch" data-text="PROJECT TICKER">
+                    PROJECT TICKER
+                </h1>
+                <div class="flex items-center justify-center gap-2 mt-2">
+                    <span class="w-2 h-2 bg-cyber-green rounded-full animate-pulse"></span>
+                    <p class="text-xs text-cyber-gray font-mono tracking-widest uppercase">Live Connection Active</p>
+                </div>
+            </div>
+
+            <!-- Input Card -->
+            <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 shadow-2xl">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-bold text-cyber-gray uppercase mb-2">Current Age</label>
+                        <input type="number" x-model.number="age" 
+                            class="w-full bg-black border border-cyber-gray text-white font-mono text-xl p-3 rounded focus:outline-none focus:border-white transition-colors text-center"
+                            placeholder="20">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-cyber-gray uppercase mb-2">Monthly Invest</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cyber-gray">$</span>
+                            <input type="number" x-model.number="contribution" 
+                                class="w-full bg-black border border-cyber-gray text-white font-mono text-xl p-3 pl-8 rounded focus:outline-none focus:border-white transition-colors text-center"
+                                placeholder="500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <div class="flex justify-between items-end mb-4">
+                        <label class="text-sm font-bold uppercase tracking-wider text-cyber-red">Years You Wait</label>
+                        <span class="text-3xl font-black font-mono text-cyber-red" x-text="waitYears + ' YRS'"></span>
+                    </div>
+                    <input type="range" min="0" max="10" step="1" x-model.number="waitYears" class="w-full mb-2">
+                    <p class="text-center text-[10px] text-cyber-gray uppercase mt-2">Slide right to see the damage</p>
+                </div>
+            </div>
+
+            <!-- Results Card -->
+            <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-cyber-green opacity-5 blur-[80px]" x-show="waitYears === 0"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 bg-cyber-red opacity-5 blur-[80px]" x-show="waitYears > 0"></div>
+
+                <div class="mb-6 border-b border-dashed border-cyber-gray pb-6">
+                    <p class="text-xs font-bold text-cyber-green uppercase tracking-widest mb-1">Your Potential Net Worth</p>
+                    <div class="text-3xl sm:text-4xl font-black font-mono text-white tracking-tight" x-text="formatMoney(wealthNow)"></div>
+                    <p class="text-[10px] text-cyber-gray mt-1">At age 65 (10% Return)</p>
+                </div>
+
                 <div>
-                    <label class="block text-xs font-bold text-cyber-gray uppercase mb-2">Monthly Invest</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cyber-gray">$</span>
-                        <input type="number" x-model.number="contribution" 
-                            class="w-full bg-black border border-cyber-gray text-white font-mono text-xl p-3 pl-8 rounded focus:outline-none focus:border-white transition-colors text-center"
-                            placeholder="500">
+                    <p class="text-xs font-bold text-cyber-red uppercase tracking-widest mb-1">Wealth You Burned</p>
+                    <div class="text-4xl sm:text-5xl font-black font-mono text-cyber-red tracking-tight" x-text="'-' + formatMoney(loss)"></div>
+                </div>
+
+                <div class="mt-6 p-3 bg-black border border-cyber-red/30 rounded text-center">
+                    <p class="text-sm font-bold text-white uppercase" 
+                       :class="{ 'animate-shake text-cyber-red': loss > 500000 }"
+                       x-text="getFeedback()"></p>
+                </div>
+            </div>
+
+            <!-- CTA Button -->
+            <a href="#" @click.prevent="showModal = true" 
+                class="group block w-full bg-cyber-red hover:bg-red-600 text-white text-center py-4 rounded-xl font-black uppercase tracking-widest transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(255,0,0,0.4)] animate-pulse-fast cursor-pointer">
+                🩸 Plug The Leak (Free Fix) <span class="inline-block transition-transform group-hover:translate-x-1">➜</span>
+            </a>
+            
+            <p class="text-center text-[10px] text-cyber-gray mt-4 opacity-50">
+                Assumes 10% annual return compounded monthly. Not financial advice.
+            </p>
+
+            <!-- OPTIMIZED HYBRID MODAL -->
+            <div x-cloak x-show="showModal" 
+                 class="fixed inset-0 z-[70] flex items-center justify-center p-3"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0">
+                
+                <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showModal = false"></div>
+                
+                <!-- GREEN BORDER: Pattern interrupt from red anxiety -->
+                <div class="relative bg-cyber-dark border-2 border-cyber-green rounded-2xl p-3 w-full max-w-md shadow-[0_0_30px_rgba(0,255,65,0.2)] max-h-[95vh] overflow-y-auto" style="min-height: 514px;"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 scale-90"
+                     x-transition:enter-end="opacity-100 scale-100">
+                    
+                    <!-- Close Button -->
+                    <button @click="showModal = false" 
+                            class="absolute top-2 right-2 text-cyber-gray/50 hover:text-cyber-gray transition-colors z-10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+
+                    <!-- STATUS BADGE: Creates agency -->
+                    <div class="text-center mb-3 mt-2">
+                        <div class="inline-flex items-center gap-2 bg-cyber-green/10 border border-cyber-green/50 px-3 py-1 rounded-full mb-2">
+                            <span class="w-2 h-2 bg-cyber-green rounded-full animate-pulse"></span>
+                            <span class="text-[10px] font-bold text-cyber-green uppercase tracking-widest">Recovery Possible</span>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-black uppercase text-white tracking-tight">
+                            I FOUND THE FIX.
+                        </h2>
+                    </div>
+
+                    <!-- DAILY COST CALCULATOR: Makes impossible feel achievable -->
+                    <div class="bg-black border border-cyber-gray rounded-lg p-4 mb-3 mx-2 text-center" x-show="dailyCost > 0">
+                        <p class="text-xs text-cyber-gray uppercase mb-1">To Erase This Loss, You Need:</p>
+                        <div class="text-3xl font-black text-cyber-green font-mono">
+                            <span x-text="formatMoney(dailyCost)"></span><span class="text-lg text-white">/day</span>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-2 leading-tight">
+                            That's the price of a coffee. Not a lottery win.
+                        </p>
+                    </div>
+
+                    <!-- BRIDGE COPY: Maintains funnel continuity -->
+                    <div class="text-center px-2 mb-2">
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            The <span class="text-cyber-green font-bold">Investment Simplifier</span> shows you exactly where your money goes. 3 inputs. 60 seconds. Your exact tickers.
+                        </p>
+                    </div>
+
+                    <!-- Beehiiv Embed Form -->
+                    <div class="flex justify-center -mx-1" style="min-height: 400px;">
+                        <iframe src="https://subscribe-forms.beehiiv.com/63ac9ac6-ada8-47a5-b5b6-654bdf88a7b6" 
+                                class="beehiiv-embed" 
+                                data-test-id="beehiiv-embed" 
+                                frameborder="0" 
+                                scrolling="no" 
+                                style="width: 100%; max-width: 420px; height: 400px; margin: 0; border-radius: 12px; background-color: transparent; box-shadow: 0 0 #0000;"></iframe>
+                    </div>
+
+                    <!-- REASSURANCE LINE: Final permission slip -->
+                    <div class="text-center mt-2">
+                        <p class="text-[10px] sm:text-xs text-gray-500 font-mono tracking-wide">
+                            Instant access. Zero spam. Just the fix.
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-8">
-                <div class="flex justify-between items-end mb-4">
-                    <label class="text-sm font-bold uppercase tracking-wider text-cyber-red">Years You Wait</label>
-                    <span class="text-3xl font-black font-mono text-cyber-red" x-text="waitYears + ' YRS'"></span>
-                </div>
-                <input type="range" min="0" max="10" step="1" x-model.number="waitYears" class="w-full mb-2">
-                <p class="text-center text-[10px] text-cyber-gray uppercase mt-2">Slide right to see the damage</p>
-            </div>
-        </div>
-
-        <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-cyber-green opacity-5 blur-[80px]" x-show="waitYears === 0"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-cyber-red opacity-5 blur-[80px]" x-show="waitYears > 0"></div>
-
-            <div class="mb-6 border-b border-dashed border-cyber-gray pb-6">
-                <p class="text-xs font-bold text-cyber-green uppercase tracking-widest mb-1">Your Potential Net Worth</p>
-                <div class="text-3xl sm:text-4xl font-black font-mono text-white tracking-tight" x-text="formatMoney(wealthNow)"></div>
-                <p class="text-[10px] text-cyber-gray mt-1">At age 65 (10% Return)</p>
-            </div>
-
-            <div>
-                <p class="text-xs font-bold text-cyber-red uppercase tracking-widest mb-1">Wealth You Burned</p>
-                <div class="text-4xl sm:text-5xl font-black font-mono text-cyber-red tracking-tight" x-text="'-' + formatMoney(loss)"></div>
-            </div>
-
-            <div class="mt-6 p-3 bg-black border border-cyber-red/30 rounded text-center">
-                <p class="text-sm font-bold text-white uppercase" 
-                   :class="{ 'animate-shake text-cyber-red': loss > 500000 }"
-                   x-text="getFeedback()"></p>
-            </div>
-        </div>
-
-        <!-- OPTIMIZED CTA Button -->
-        <a href="#" @click.prevent="showModal = true" 
-            class="group block w-full bg-cyber-red hover:bg-red-600 text-white text-center py-4 rounded-xl font-black uppercase tracking-widest transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(255,0,0,0.4)] animate-pulse-fast">
-            🩸 Plug The Leak (Free Fix) <span class="inline-block transition-transform group-hover:translate-x-1">➜</span>
-        </a>
-        
-        <p class="text-center text-[10px] text-cyber-gray mt-4 opacity-50">
-            Assumes 10% annual return compounded monthly. Not financial advice.
-        </p>
-
-        <!-- OPTIMIZED Modal -->
-        <div x-cloak x-show="showModal" 
-             class="fixed inset-0 z-[70] flex items-center justify-center p-3"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0">
-            
-            <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showModal = false"></div>
-            
-            <div class="relative bg-cyber-dark border-2 border-cyber-red rounded-2xl p-3 w-full max-w-md shadow-[0_0_30px_rgba(255,0,0,0.3)] max-h-[95vh] overflow-y-auto" style="min-height: 514px;"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 scale-90"
-                 x-transition:enter-end="opacity-100 scale-100">
-                
-                <!-- Close Button -->
-                <button @click="showModal = false" 
-                        class="absolute top-2 right-2 text-cyber-gray/50 hover:text-cyber-gray transition-colors z-10">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-
-                <!-- OPTIMIZED Modal Header -->
-                <div class="text-center mb-2">
-                    <h2 class="text-xl sm:text-2xl font-black uppercase text-cyber-red tracking-tight drop-shadow-[0_0_15px_rgba(255,0,0,0.5)]">
-                        🩹 THE TOURNIQUET
-                    </h2>
-                </div>
-
-                <!-- OPTIMIZED Dynamic Loss Display -->
-                <div class="text-center mb-3 px-2">
-                    <p class="text-xs text-gray-300 leading-relaxed">
-                        You're hemorrhaging <span class="text-cyber-red font-black text-sm" x-text="formatMoney(loss)"></span> by standing still.
-                    </p>
-                    <p class="text-xs text-gray-400 mt-2 leading-relaxed">
-                        The Investment Simplifier shows you the <span class="text-white font-semibold">one move</span> to plug the leak. Under 60 seconds.
-                    </p>
-                </div>
-
-                <!-- Beehiiv Embed Form -->
-                <div class="flex justify-center -mx-1" style="min-height: 400px;">
-                    <iframe src="https://subscribe-forms.beehiiv.com/63ac9ac6-ada8-47a5-b5b6-654bdf88a7b6" 
-                            class="beehiiv-embed" 
-                            data-test-id="beehiiv-embed" 
-                            frameborder="0" 
-                            scrolling="no" 
-                            style="width: 100%; max-width: 420px; height: 400px; margin: 0; border-radius: 12px; background-color: transparent; box-shadow: 0 0 #0000;"></iframe>
-                </div>
-
-                <!-- OPTIMIZED Reassurance Line -->
-                <div class="text-center mt-2">
-                    <p class="text-[10px] sm:text-xs text-gray-500 font-mono tracking-wide">
-                        Instant access. Zero spam. Just the fix.
-                    </p>
-                </div>
-            </div>
         </div>
 
     </main>
@@ -268,40 +328,81 @@
                 contribution: 500,
                 waitYears: 0,
                 
+                // Gatekeeper Logic
+                state: 'idle', 
+                statusText: '',
+                logs: [],
+                progress: 0,
+
+                ignite() {
+                    this.state = 'processing';
+                    this.progress = 0;
+                    this.logs = [];
+                    
+                    const sequence = [
+                        { text: "ESTABLISHING SECURE HANDSHAKE...", delay: 500, prog: 10 },
+                        { text: "ACCESSING MARKET HISTORY (1920-2025)...", delay: 1200, prog: 35 },
+                        { text: "ANALYZING INFLATION VECTORS...", delay: 2000, prog: 60 },
+                        { text: "CALCULATING OPPORTUNITY DECAY...", delay: 2800, prog: 85 },
+                        { text: "RENDERING PROJECTION MODEL...", delay: 3500, prog: 100 }
+                    ];
+
+                    let cumulativeTime = 0;
+
+                    sequence.forEach(step => {
+                        setTimeout(() => {
+                            this.statusText = step.text;
+                            this.logs.push(step.text);
+                            this.progress = step.prog;
+                            if (this.logs.length > 5) this.logs.shift();
+                        }, step.delay);
+                        cumulativeTime = step.delay;
+                    });
+
+                    setTimeout(() => {
+                        this.state = 'active';
+                    }, cumulativeTime + 600);
+                },
+
                 // Constants
                 retirementAge: 65,
                 annualRate: 0.10,
 
-                // Computed: The Good Number (Start Now)
-                get wealthNow() {
-                    return this.calculateFV(this.age);
+                // Computed
+                get wealthNow() { return this.calculateFV(this.age); },
+                get wealthLater() { return this.calculateFV(this.age + this.waitYears); },
+                get loss() { return Math.max(0, this.wealthNow - this.wealthLater); },
+
+                // FIXED: Daily cost with edge case handling
+                get dailyCost() {
+                    const yearsRemaining = this.retirementAge - (this.age + this.waitYears);
+                    
+                    // Edge case: No time left or invalid input
+                    if (yearsRemaining <= 0) return 0;
+                    
+                    // Edge case: No loss to recover
+                    if (this.loss <= 0) return 0;
+                    
+                    const daysRemaining = yearsRemaining * 365;
+                    const daily = this.loss / daysRemaining;
+                    
+                    // Edge case: Sanity check
+                    if (isNaN(daily) || !isFinite(daily)) return 0;
+                    
+                    return daily;
                 },
 
-                // Computed: The Bad Number (Start Later)
-                get wealthLater() {
-                    return this.calculateFV(this.age + this.waitYears);
-                },
-
-                // Computed: The Loss
-                get loss() {
-                    return Math.max(0, this.wealthNow - this.wealthLater);
-                },
-
-                // Core Logic: FV = P * (((1 + r)^n - 1) / r)
+                // Core Logic
                 calculateFV(startAge) {
                     if (startAge >= this.retirementAge) return 0;
-                    
                     const years = this.retirementAge - startAge;
                     const months = years * 12;
                     const monthlyRate = this.annualRate / 12;
-                    
                     if (this.contribution <= 0) return 0;
-
-                    const fv = this.contribution * ( (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate );
-                    return fv;
+                    return this.contribution * ( (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate );
                 },
 
-                // Copywriting Logic
+                // Copywriting
                 getFeedback() {
                     if (this.loss === 0) return "YOU ARE ON TRACK. STAY FOCUSED.";
                     if (this.loss < 50000) return "OUCH. THAT'S A DOWN PAYMENT GONE.";
@@ -310,12 +411,13 @@
                     return "YOU ARE SETTING YOUR RETIREMENT ON FIRE.";
                 },
 
-                // Formatter
                 formatMoney(value) {
+                    if (isNaN(value) || !isFinite(value) || value === null) return "$0.00";
                     return new Intl.NumberFormat('en-US', {
                         style: 'currency',
                         currency: 'USD',
-                        maximumFractionDigits: 0
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
                     }).format(value);
                 }
             }
