@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ManyChat Flow Architecture | Kou's Money Machine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --bg-hover: #22222e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #6a6a7a;
+            --border: #2a2a3a;
+            --accent-system: #10b981;
+            --accent-ticker: #f59e0b;
+            --accent-score: #8b5cf6;
+            --accent-early: #3b82f6;
+            --accent-prompt: #ef4444;
+            --accent-welcome: #06b6d4;
+            --gradient-system: linear-gradient(135deg, #10b981, #059669);
+            --gradient-ticker: linear-gradient(135deg, #f59e0b, #d97706);
+            --gradient-score: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            --gradient-early: linear-gradient(135deg, #3b82f6, #2563eb);
+            --gradient-prompt: linear-gradient(135deg, #ef4444, #dc2626);
+            --gradient-welcome: linear-gradient(135deg, #06b6d4, #0891b2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .clock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            margin-bottom: 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        }
+
+        .clock-badge span {
+            color: var(--accent-system);
+            font-weight: 600;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff 0%, #a0a0b0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 18px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 14px 28px;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-tab:hover {
+            background: var(--bg-hover);
+            border-color: var(--text-muted);
+        }
+
+        .nav-tab.active {
+            color: var(--text-primary);
+            border-color: var(--accent-system);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .nav-tab[data-tab="welcome"].active { border-color: var(--accent-welcome); background: rgba(6, 182, 212, 0.1); }
+        .nav-tab[data-tab="system"].active { border-color: var(--accent-system); background: rgba(16, 185, 129, 0.1); }
+        .nav-tab[data-tab="ticker"].active { border-color: var(--accent-ticker); background: rgba(245, 158, 11, 0.1); }
+        .nav-tab[data-tab="score"].active { border-color: var(--accent-score); background: rgba(139, 92, 246, 0.1); }
+        .nav-tab[data-tab="early"].active { border-color: var(--accent-early); background: rgba(59, 130, 246, 0.1); }
+        .nav-tab[data-tab="prompt"].active { border-color: var(--accent-prompt); background: rgba(239, 68, 68, 0.1); }
+
+        /* Flow Content */
+        .flow-section {
+            display: none;
+        }
+
+        .flow-section.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Flow Header */
+        .flow-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .flow-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+        .flow-icon.welcome { background: var(--gradient-welcome); }
+        .flow-icon.system { background: var(--gradient-system); }
+        .flow-icon.ticker { background: var(--gradient-ticker); }
+        .flow-icon.score { background: var(--gradient-score); }
+        .flow-icon.early { background: var(--gradient-early); }
+        .flow-icon.prompt { background: var(--gradient-prompt); }
+
+        .flow-info h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .flow-info p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .flow-meta {
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .flow-meta .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .flow-meta .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Flow Grid */
+        .flow-grid {
+            display: grid;
+            gap: 30px;
+        }
+
+        /* Flow Stage */
+        .flow-stage {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .stage-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stage-number {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .welcome .stage-number { background: var(--gradient-welcome); }
+        .system .stage-number { background: var(--gradient-system); }
+        .ticker .stage-number { background: var(--gradient-ticker); }
+        .score .stage-number { background: var(--gradient-score); }
+        .early .stage-number { background: var(--gradient-early); }
+        .prompt .stage-number { background: var(--gradient-prompt); }
+
+        .stage-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .stage-timing {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .stage-content {
+            padding: 24px;
+        }
+
+        /* Message Bubble */
+        .message-bubble {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .message-bubble::before {
+            content: '💬';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            font-size: 12px;
+        }
+
+        .message-text {
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
+
+        /* Buttons Container */
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .button-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: var(--bg-hover);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .button-item:hover {
+            border-color: var(--text-muted);
+            transform: translateX(4px);
+        }
+
+        .button-emoji {
+            font-size: 18px;
+        }
+
+        .button-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .button-type {
+            margin-left: auto;
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--bg-primary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .button-type.url { color: var(--accent-system); }
+        .button-type.reply { color: var(--accent-ticker); }
+
+        /* Branch Container */
+        .branch-container {
+            margin-top: 20px;
+            padding-left: 20px;
+            border-left: 2px solid var(--border);
+        }
+
+        .branch-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .branch-label::before {
+            content: '';
+            width: 12px;
+            height: 2px;
+            background: var(--border);
+            margin-left: -21px;
+        }
+
+        /* Follow-up Timeline */
+        .followup-timeline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .followup-item {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .followup-item:hover {
+            border-color: var(--text-muted);
+        }
+
+        .followup-day {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .followup-type {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .followup-goal {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* CTA Winners Section */
+        .cta-section {
+            margin-top: 30px;
+            padding: 24px;
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .cta-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cta-section-title::before {
+            content: '🎯';
+        }
+
+        .cta-winner {
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 3px solid;
+        }
+
+        .cta-winner:last-child {
+            margin-bottom: 0;
+        }
+
+        .cta-winner.primary {
+            border-left-color: var(--accent-system);
+        }
+
+        .cta-winner.secondary {
+            border-left-color: var(--accent-ticker);
+        }
+
+        .cta-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .cta-winner.primary .cta-label { color: var(--accent-system); }
+        .cta-winner.secondary .cta-label { color: var(--accent-ticker); }
+
+        .cta-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            font-style: italic;
+        }
+
+        /* Link Reference */
+        .link-ref {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+            padding: 8px 14px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            word-break: break-all;
+        }
+
+        .link-ref::before {
+            content: '🔗';
+            font-size: 12px;
+        }
+
+        /* Arrow Connector */
+        .arrow-down {
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+            color: var(--text-muted);
+        }
+
+        .arrow-down svg {
+            width: 24px;
+            height: 24px;
+            animation: bounce 1.5s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(6px); }
+        }
+
+        /* Summary Table */
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-table th {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: var(--bg-card);
+        }
+
+        .summary-table td {
+            font-size: 14px;
+            vertical-align: top;
+        }
+
+        .summary-table tr:hover td {
+            background: var(--bg-hover);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .nav-tabs {
+                gap: 8px;
+            }
+
+            .nav-tab {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+
+            .flow-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .flow-meta {
+                margin-left: 0;
+                text-align: center;
+            }
+
+            .followup-timeline {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <div class="container">
+        <header class="header">
+            <div class="clock-badge">
+                🕒 THE CLOCK: <span>1,774 Days</span> Remaining
+            </div>
+            <h1>ManyChat Flow Architecture</h1>
+            <p>The complete automation system for converting followers into leads through strategic psychological triggers.</p>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="overview">Overview</button>
+            <button class="nav-tab" data-tab="welcome">Welcome</button>
+            <button class="nav-tab" data-tab="system">SYSTEM</button>
+            <button class="nav-tab" data-tab="ticker">TICKER</button>
+            <button class="nav-tab" data-tab="score">SCORE</button>
+            <button class="nav-tab" data-tab="early">EARLY</button>
+            <button class="nav-tab" data-tab="prompt">PROMPT</button>
+        </nav>
+
+        <!-- OVERVIEW SECTION -->
+        <section class="flow-section active" id="overview">
+            <div class="flow-header">
+                <div class="flow-icon welcome">📊</div>
+                <div class="flow-info">
+                    <h2>System Overview</h2>
+                    <p>Complete ManyChat automation architecture with 5 keyword funnels</p>
+                </div>
+                <div class="flow-meta">
+                    <div class="label">Total Flows</div>
+                    <div class="value">6 Primary + Follow-ups</div>
+                </div>
+            </div>
+
+            <div class="flow-stage welcome">
+                <div class="stage-header">
+                    <div class="stage-number">📋</div>
+                    <div class="stage-title">CTA Winners Summary</div>
+                </div>
+                <div class="stage-content">
+                    <table class="summary-table">
+                        <thead>
+                            <tr>
+                                <th>Keyword</th>
+                                <th>Primary CTA (Specificity)</th>
+                                <th>Secondary CTA (Loss/Challenge)</th>
+                                <th>Asset Link</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong style="color: var(--accent-system);">SYSTEM</strong></td>
+                                <td>One-page flowchart. Three accounts. Two automations. 10 minutes. Runs until you die.</td>
+                                <td>I don't send this to people who bookmark and forget. You in or you out?</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">autopilot-system.html</td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: var(--accent-ticker);">TICKER</strong></td>
+                                <td>Plug in your age and amount. In 9 seconds, see the exact dollar cost of every day you've waited.</td>
+                                <td>You're bleeding compound interest you'll never get back. I'll show you the receipt.</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">cost-of-waiting.html</td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: var(--accent-score);">SCORE</strong></td>
+                                <td>Same 12-step checklist that took me from 650 to 800. Order of operations banks don't advertise.</td>
+                                <td>Check off what you've done, it tells you exactly what to do next. No guessing.</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">800-club.html</td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: var(--accent-early);">EARLY</strong></td>
+                                <td>I'll calculate the exact age you can tell your boss to go to hell. Just math. 30 seconds.</td>
+                                <td>You might be 5 years closer than you think. Or 20 years behind. Stop guessing your life.</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">freedom-calculator.html</td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: var(--accent-prompt);">PROMPT</strong></td>
+                                <td>50 copy-paste AI commands. Literal prompts I type every week. No theory. Just weapons.</td>
+                                <td>Every lazy prompt gets you 20%. I'll send you the commands that unlock the other 80%.</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">prompt-vault.html</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="arrow-down">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+            </div>
+
+            <div class="flow-stage welcome">
+                <div class="stage-header">
+                    <div class="stage-number">🔄</div>
+                    <div class="stage-title">Flow Architecture</div>
+                </div>
+                <div class="stage-content">
+                    <div class="followup-timeline">
+                        <div class="followup-item">
+                            <div class="followup-day">TRIGGER</div>
+                            <div class="followup-type">New Follower</div>
+                            <div class="followup-goal">Welcome flow with 4-way branch based on money problem</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">TRIGGER</div>
+                            <div class="followup-type">Keyword Comment</div>
+                            <div class="followup-goal">Instant delivery + 2-hour check-in + branching responses</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 2-14</div>
+                            <div class="followup-type">Follow-up Sequence</div>
+                            <div class="followup-goal">Value add → Story → Bridge → Urgency → Fork</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 30+</div>
+                            <div class="followup-type">Reactivation</div>
+                            <div class="followup-goal">Pattern interrupt for cold leads with respectful exit</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- WELCOME SECTION -->
+        <section class="flow-section" id="welcome">
+            <div class="flow-header">
+                <div class="flow-icon welcome">👋</div>
+                <div class="flow-info">
+                    <h2>New Follower Welcome Flow</h2>
+                    <p>Trigger: Someone follows @koutalksmoney</p>
+                </div>
+                <div class="flow-meta">
+                    <div class="label">Timing</div>
+                    <div class="value">Immediate (within 1 min)</div>
+                </div>
+            </div>
+
+            <div class="flow-grid">
+                <div class="flow-stage welcome">
+                    <div class="stage-header">
+                        <div class="stage-number">1</div>
+                        <div class="stage-title">Pattern Interrupt</div>
+                        <div class="stage-timing">INSTANT</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">Yo. You just followed a 19 year old who talks about money like it's a video game.<br><br>Quick question: what's your biggest money problem right now?</div>
+                        </div>
+                        <div class="buttons-container">
+                            <div class="button-item">
+                                <span class="button-emoji">💸</span>
+                                <span class="button-text">I don't know where my money goes</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                            <div class="button-item">
+                                <span class="button-emoji">📈</span>
+                                <span class="button-text">I want to start investing</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                            <div class="button-item">
+                                <span class="button-emoji">💳</span>
+                                <span class="button-text">My credit score needs work</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                            <div class="button-item">
+                                <span class="button-emoji">🔥</span>
+                                <span class="button-text">I just want to stop being broke</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow-down">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M19 12l-7 7-7-7"/>
+                    </svg>
+                </div>
+
+                <div class="flow-stage welcome">
+                    <div class="stage-header">
+                        <div class="stage-number">2</div>
+                        <div class="stage-title">Branched Responses</div>
+                        <div class="stage-timing">BASED ON SELECTION</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="branch-container">
+                            <div class="branch-label">If "I don't know where my money goes"</div>
+                            <div class="message-bubble">
+                                <div class="message-text">Real talk: most people don't have an income problem. They have a visibility problem. Money leaks through cracks you can't see.<br><br>I built a system that plugs the leaks automatically. No willpower required. That's the whole point.</div>
+                            </div>
+                            <div class="buttons-container">
+                                <div class="button-item">
+                                    <span class="button-emoji">🔧</span>
+                                    <span class="button-text">Open The Autopilot System</span>
+                                    <span class="button-type url">URL</span>
+                                </div>
+                                <div class="button-item">
+                                    <span class="button-emoji">📊</span>
+                                    <span class="button-text">Show Me My Budget First</span>
+                                    <span class="button-type url">URL</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="branch-container" style="margin-top: 30px;">
+                            <div class="branch-label">If "I want to start investing"</div>
+                            <div class="message-bubble">
+                                <div class="message-text">Here's the thing nobody tells you: the confusion is intentional. Wall Street profits when you feel dumb.<br><br>I made it simple. I built a calculator that shows exactly how much you're losing by waiting. The math is going to hurt. That's the point.</div>
+                            </div>
+                            <div class="buttons-container">
+                                <div class="button-item">
+                                    <span class="button-emoji">💰</span>
+                                    <span class="button-text">See My Cost of Waiting</span>
+                                    <span class="button-type url">URL</span>
+                                </div>
+                                <div class="button-item">
+                                    <span class="button-emoji">📚</span>
+                                    <span class="button-text">Simplify Investing For Me</span>
+                                    <span class="button-type url">URL</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="branch-container" style="margin-top: 30px;">
+                            <div class="branch-label">If "My credit score needs work"</div>
+                            <div class="message-bubble">
+                                <div class="message-text">800 isn't about being responsible. It's about knowing the game. Banks don't reward good people. They reward people who understand the algorithm.<br><br>I built the exact checklist. No guessing. Just execution in the right order.</div>
+                            </div>
+                            <div class="buttons-container">
+                                <div class="button-item">
+                                    <span class="button-emoji">🎯</span>
+                                    <span class="button-text">Open The 800 Club Checklist</span>
+                                    <span class="button-type url">URL</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="branch-container" style="margin-top: 30px;">
+                            <div class="branch-label">If "I just want to stop being broke"</div>
+                            <div class="message-bubble">
+                                <div class="message-text">Respect the honesty. Most people won't admit that.<br><br>Here's what I know: being broke in 2026 is a math problem, not a character flaw. And math problems have solutions.<br><br>This calculator shows the exact age you can stop trading time for money. The number might change everything.</div>
+                            </div>
+                            <div class="buttons-container">
+                                <div class="button-item">
+                                    <span class="button-emoji">🧮</span>
+                                    <span class="button-text">Calculate My Freedom Number</span>
+                                    <span class="button-type url">URL</span>
+                                </div>
+                                <div class="button-item">
+                                    <span class="button-emoji">🔧</span>
+                                    <span class="button-text">Build My Money System First</span>
+                                    <span class="button-type url">URL</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SYSTEM SECTION -->
+        <section class="flow-section" id="system">
+            <div class="flow-header">
+                <div class="flow-icon system">🔧</div>
+                <div class="flow-info">
+                    <h2>SYSTEM Keyword Flow</h2>
+                    <p>Pillar: THE MACHINE | Asset: Autopilot Architecture Map</p>
+                </div>
+                <div class="flow-meta">
+                    <div class="label">Trigger</div>
+                    <div class="value">Comment "SYSTEM"</div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <div class="cta-section-title">Winning CTAs</div>
+                <div class="cta-winner primary">
+                    <div class="cta-label">Primary (Specificity)</div>
+                    <div class="cta-text">"Comment SYSTEM. I'll DM you a one-page flowchart. Three accounts. Two automations. Takes 10 minutes to set up. Runs on autopilot until you die."</div>
+                </div>
+                <div class="cta-winner secondary">
+                    <div class="cta-label">Secondary (Challenge)</div>
+                    <div class="cta-text">"Comment SYSTEM if you're actually going to build it. I don't send this to people who bookmark and forget. You in or you out?"</div>
+                </div>
+            </div>
+
+            <div class="arrow-down">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+            </div>
+
+            <div class="flow-grid">
+                <div class="flow-stage system">
+                    <div class="stage-header">
+                        <div class="stage-number">1</div>
+                        <div class="stage-title">Loading State</div>
+                        <div class="stage-timing">INSTANT</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">Locked in. Give me 10 seconds to pull up your blueprint...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-stage system">
+                    <div class="stage-header">
+                        <div class="stage-number">2</div>
+                        <div class="stage-title">Asset Delivery</div>
+                        <div class="stage-timing">5 SEC DELAY</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">Done.<br><br>This isn't a budget template. It's the exact system I use to pay myself before I even wake up. Money moves while you sleep. That's the game.<br><br>One thing: don't just skim it. Actually set up ONE automation this week. The compound effect kicks in faster than you think.</div>
+                        </div>
+                        <div class="buttons-container">
+                            <div class="button-item">
+                                <span class="button-emoji">🔧</span>
+                                <span class="button-text">Open The Autopilot System</span>
+                                <span class="button-type url">URL</span>
+                            </div>
+                            <div class="button-item">
+                                <span class="button-emoji">📊</span>
+                                <span class="button-text">Calculate My Budget First</span>
+                                <span class="button-type url">URL</span>
+                            </div>
+                        </div>
+                        <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html</div>
+                    </div>
+                </div>
+
+                <div class="flow-stage system">
+                    <div class="stage-header">
+                        <div class="stage-number">3</div>
+                        <div class="stage-title">Engagement Check</div>
+                        <div class="stage-timing">2 HOURS LATER</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">Quick check: did you open the Autopilot System yet?<br><br>Most people save links and never click them. That's why most people stay broke.</div>
+                        </div>
+                        <div class="buttons-container">
+                            <div class="button-item">
+                                <span class="button-emoji">✅</span>
+                                <span class="button-text">Yes, I opened it</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                            <div class="button-item">
+                                <span class="button-emoji">🔄</span>
+                                <span class="button-text">Send it again</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+            </div>
+
+            <div class="flow-stage system">
+                <div class="stage-header">
+                    <div class="stage-number">📅</div>
+                    <div class="stage-title">14-Day Follow-up Sequence</div>
+                </div>
+                <div class="stage-content">
+                    <div class="followup-timeline">
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 2</div>
+                            <div class="followup-type">Value Add</div>
+                            <div class="followup-goal">Correct automation order: Income → Bills → Savings → Investments → Spending</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 4</div>
+                            <div class="followup-type">Story / Proof</div>
+                            <div class="followup-goal">Personal story: $200 account, visibility problem, passenger to pilot shift</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 7</div>
+                            <div class="followup-type">Bridge to TICKER</div>
+                            <div class="followup-goal">Savings mean nothing at 0.01%. Next domino is investing.</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 10</div>
+                            <div class="followup-type">Urgency Seed</div>
+                            <div class="followup-goal">$300/month saved = $50K+ over 10 years at 7%</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 14</div>
+                            <div class="followup-type">The Fork</div>
+                            <div class="followup-goal">A) Running the machine B) Still thinking about it. Respectful exit option.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TICKER SECTION -->
+        <section class="flow-section" id="ticker">
+            <div class="flow-header">
+                <div class="flow-icon ticker">💰</div>
+                <div class="flow-info">
+                    <h2>TICKER Keyword Flow</h2>
+                    <p>Pillar: THE FUEL | Asset: Cost of Waiting Calculator</p>
+                </div>
+                <div class="flow-meta">
+                    <div class="label">Trigger</div>
+                    <div class="value">Comment "TICKER"</div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <div class="cta-section-title">Winning CTAs</div>
+                <div class="cta-winner primary">
+                    <div class="cta-label">Primary (Loss)</div>
+                    <div class="cta-text">"You're not 'saving up to invest later.' You're bleeding compound interest you'll never get back. Comment TICKER and I'll show you the receipt."</div>
+                </div>
+                <div class="cta-winner secondary">
+                    <div class="cta-label">Secondary (Specificity)</div>
+                    <div class="cta-text">"Comment TICKER. I'll send you a calculator. Plug in your age and your monthly amount. In 9 seconds, you'll see the exact dollar cost of every day you've waited."</div>
+                </div>
+            </div>
+
+            <div class="arrow-down">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+            </div>
+
+            <div class="flow-grid">
+                <div class="flow-stage ticker">
+                    <div class="stage-header">
+                        <div class="stage-number">1</div>
+                        <div class="stage-title">Loading State</div>
+                        <div class="stage-timing">INSTANT</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">Got it. Running the numbers on your waiting cost...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-stage ticker">
+                    <div class="stage-header">
+                        <div class="stage-number">2</div>
+                        <div class="stage-title">Asset Delivery</div>
+                        <div class="stage-timing">5 SEC DELAY</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">Here's the truth most people avoid:<br><br>Every 24 hours you're not invested, the market charges you rent. This calculator shows the exact dollar amount you've already lost by waiting.<br><br>Warning: this number makes people uncomfortable. That discomfort is the point. It's the price tag on procrastination.</div>
+                        </div>
+                        <div class="buttons-container">
+                            <div class="button-item">
+                                <span class="button-emoji">😬</span>
+                                <span class="button-text">Show Me The Damage</span>
+                                <span class="button-type url">URL</span>
+                            </div>
+                        </div>
+                        <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html</div>
+                    </div>
+                </div>
+
+                <div class="flow-stage ticker">
+                    <div class="stage-header">
+                        <div class="stage-number">3</div>
+                        <div class="stage-title">Engagement Check</div>
+                        <div class="stage-timing">2 HOURS LATER</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">Did you run your numbers yet?<br><br>If the cost was higher than you expected, that's not bad news. That's clarity. Now you know what inaction actually costs.</div>
+                        </div>
+                        <div class="buttons-container">
+                            <div class="button-item">
+                                <span class="button-emoji">😤</span>
+                                <span class="button-text">Yeah, the number hurt</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                            <div class="button-item">
+                                <span class="button-emoji">🤔</span>
+                                <span class="button-text">I need help understanding it</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                            <div class="button-item">
+                                <span class="button-emoji">🔄</span>
+                                <span class="button-text">Send the calculator again</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+            </div>
+
+            <div class="flow-stage ticker">
+                <div class="stage-header">
+                    <div class="stage-number">📅</div>
+                    <div class="stage-title">14-Day Follow-up Sequence</div>
+                </div>
+                <div class="stage-content">
+                    <div class="followup-timeline">
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 2</div>
+                            <div class="followup-type">Value Add</div>
+                            <div class="followup-goal">WORST time to invest: "next month when things settle down." Things never settle.</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 4</div>
+                            <div class="followup-type">Story / Proof</div>
+                            <div class="followup-goal">Personal: Waiting 17→22 cost $150K by retirement. Started with $50/month.</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 7</div>
+                            <div class="followup-type">Bridge to Asset</div>
+                            <div class="followup-goal">Send Investment Simplifier. Is money automated or relying on willpower?</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 10</div>
+                            <div class="followup-type">Urgency Seed</div>
+                            <div class="followup-goal">Market moved today. The number got bigger. Compound interest doesn't pause.</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 14</div>
+                            <div class="followup-type">The Fork</div>
+                            <div class="followup-goal">A) Started investing B) Still figuring out C) Need more time</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCORE SECTION -->
+        <section class="flow-section" id="score">
+            <div class="flow-header">
+                <div class="flow-icon score">🎯</div>
+                <div class="flow-info">
+                    <h2>SCORE Keyword Flow</h2>
+                    <p>Pillar: THE LEVERAGE | Asset: 800-Club Interactive Checklist</p>
+                </div>
+                <div class="flow-meta">
+                    <div class="label">Trigger</div>
+                    <div class="value">Comment "SCORE"</div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <div class="cta-section-title">Winning CTAs</div>
+                <div class="cta-winner primary">
+                    <div class="cta-label">Primary (Reframe)</div>
+                    <div class="cta-text">"Comment SCORE. I'll send you the same 12-step checklist that took me from 650 to 800. Just the order of operations the banks don't advertise."</div>
+                </div>
+                <div class="cta-winner secondary">
+                    <div class="cta-label">Secondary (Specificity)</div>
+                    <div class="cta-text">"Comment SCORE. I'll send you a 12-step interactive checklist. Check off what you've done, it tells you exactly what to do next. No guessing. Just the sequence."</div>
+                </div>
+            </div>
+
+            <div class="arrow-down">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+            </div>
+
+            <div class="flow-grid">
+                <div class="flow-stage score">
+                    <div class="stage-header">
+                        <div class="stage-number">1</div>
+                        <div class="stage-title">Loading State</div>
+                        <div class="stage-timing">INSTANT</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">Pulling up the 800 Club Protocol...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-stage score">
+                    <div class="stage-header">
+                        <div class="stage-number">2</div>
+                        <div class="stage-title">Asset Delivery</div>
+                        <div class="stage-timing">5 SEC DELAY</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">This isn't theory. It's the exact sequence: what to do first, what to do second, what to never do.<br><br>Credit scoring is an algorithm. Algorithms can be hacked.<br><br>One rule: don't skip steps. The order matters more than the actions.</div>
+                        </div>
+                        <div class="buttons-container">
+                            <div class="button-item">
+                                <span class="button-emoji">🎯</span>
+                                <span class="button-text">Open The 800 Club Checklist</span>
+                                <span class="button-type url">URL</span>
+                            </div>
+                        </div>
+                        <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/800-club.html</div>
+                    </div>
+                </div>
+
+                <div class="flow-stage score">
+                    <div class="stage-header">
+                        <div class="stage-number">3</div>
+                        <div class="stage-title">Engagement Check</div>
+                        <div class="stage-timing">2 HOURS LATER</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">Quick question: do you know your current credit score?<br><br>Not a range. The actual number.<br><br>You can't optimize what you don't measure.</div>
+                        </div>
+                        <div class="buttons-container">
+                            <div class="button-item">
+                                <span class="button-emoji">✅</span>
+                                <span class="button-text">Yes, I know my score</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                            <div class="button-item">
+                                <span class="button-emoji">❌</span>
+                                <span class="button-text">No, I need to check it</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                            <div class="button-item">
+                                <span class="button-emoji">🔄</span>
+                                <span class="button-text">Send the checklist again</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+            </div>
+
+            <div class="flow-stage score">
+                <div class="stage-header">
+                    <div class="stage-number">📅</div>
+                    <div class="stage-title">14-Day Follow-up Sequence</div>
+                </div>
+                <div class="stage-content">
+                    <div class="followup-timeline">
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 2</div>
+                            <div class="followup-type">Value Add</div>
+                            <div class="followup-goal">Utilization ratio > payment history for fast jumps. Under 10% before statement closes.</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 4</div>
+                            <div class="followup-type">Story / Proof</div>
+                            <div class="followup-goal">Personal: 680 → 780+ in 8 months. No credit repair service. Just the algorithm.</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 7</div>
+                            <div class="followup-type">Bridge to EARLY</div>
+                            <div class="followup-goal">800 vs 650 on $300K mortgage = $100K+ difference. It's a leverage multiplier.</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 10</div>
+                            <div class="followup-type">Urgency Seed</div>
+                            <div class="followup-goal">Pulled your credit report? Errors suppress score for free. 15 min check.</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 14</div>
+                            <div class="followup-type">The Fork</div>
+                            <div class="followup-goal">A) Score climbing B) Stuck on step C) Haven't started</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EARLY SECTION -->
+        <section class="flow-section" id="early">
+            <div class="flow-header">
+                <div class="flow-icon early">🧮</div>
+                <div class="flow-info">
+                    <h2>EARLY Keyword Flow</h2>
+                    <p>Pillar: THE MIND | Asset: Freedom Number Calculator</p>
+                </div>
+                <div class="flow-meta">
+                    <div class="label">Trigger</div>
+                    <div class="value">Comment "EARLY"</div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <div class="cta-section-title">Winning CTAs</div>
+                <div class="cta-winner primary">
+                    <div class="cta-label">Primary (Reframe)</div>
+                    <div class="cta-text">"Comment EARLY. I'll calculate the exact age you can tell your boss to go to hell. It's just math. Takes 30 seconds to see your number."</div>
+                </div>
+                <div class="cta-winner secondary">
+                    <div class="cta-label">Secondary (Loss)</div>
+                    <div class="cta-text">"Every year you don't know your freedom number, you're working blind. You might be 5 years closer than you think. Or 20 years behind. Comment EARLY and stop guessing your own life."</div>
+                </div>
+            </div>
+
+            <div class="arrow-down">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+            </div>
+
+            <div class="flow-grid">
+                <div class="flow-stage early">
+                    <div class="stage-header">
+                        <div class="stage-number">1</div>
+                        <div class="stage-title">Loading State</div>
+                        <div class="stage-timing">INSTANT</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">Calculating your freedom number...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-stage early">
+                    <div class="stage-header">
+                        <div class="stage-number">2</div>
+                        <div class="stage-title">Asset Delivery</div>
+                        <div class="stage-timing">5 SEC DELAY</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">This tells you the exact age you can make work optional. Not "retirement age." The age where you have enough invested that your money works harder than you do.<br><br>Plug in your numbers honestly. The output is either going to terrify you or liberate you. Either way, you'll know the target.</div>
+                        </div>
+                        <div class="buttons-container">
+                            <div class="button-item">
+                                <span class="button-emoji">🧮</span>
+                                <span class="button-text">Calculate My Freedom Number</span>
+                                <span class="button-type url">URL</span>
+                            </div>
+                        </div>
+                        <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html</div>
+                    </div>
+                </div>
+
+                <div class="flow-stage early">
+                    <div class="stage-header">
+                        <div class="stage-number">3</div>
+                        <div class="stage-title">Engagement Check</div>
+                        <div class="stage-timing">2 HOURS LATER</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">Did you run the calculator?<br><br>Most people treat financial freedom like a vague dream. "Someday." But someday isn't a date on a calendar.<br><br>When you see the actual number, the goal becomes real. And real goals get hit.</div>
+                        </div>
+                        <div class="buttons-container">
+                            <div class="button-item">
+                                <span class="button-emoji">✅</span>
+                                <span class="button-text">Yes, I got my number</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                            <div class="button-item">
+                                <span class="button-emoji">😰</span>
+                                <span class="button-text">The number scared me</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                            <div class="button-item">
+                                <span class="button-emoji">🔄</span>
+                                <span class="button-text">Send the calculator again</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+            </div>
+
+            <div class="flow-stage early">
+                <div class="stage-header">
+                    <div class="stage-number">📅</div>
+                    <div class="stage-title">14-Day Follow-up Sequence</div>
+                </div>
+                <div class="stage-content">
+                    <div class="followup-timeline">
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 2</div>
+                            <div class="followup-type">Value Add</div>
+                            <div class="followup-goal">Formula: Annual Expenses × 25. Cut $10K/year = drop freedom number by $250K.</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 4</div>
+                            <div class="followup-type">Story / Proof</div>
+                            <div class="followup-goal">Calculated at 18. Number felt impossible. Broke it down monthly. "Aggressive but doable."</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 7</div>
+                            <div class="followup-type">Bridge to SYSTEM</div>
+                            <div class="followup-goal">Knowing the number is step one. Building the machine is step two. Willpower fails.</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 10</div>
+                            <div class="followup-type">Urgency Seed</div>
+                            <div class="followup-goal">Every month without progress = month added to sentence. One year of waiting = one extra year working.</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 14</div>
+                            <div class="followup-type">The Fork</div>
+                            <div class="followup-goal">A) Know number, building toward it B) Know number, haven't started C) Haven't calculated</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROMPT SECTION -->
+        <section class="flow-section" id="prompt">
+            <div class="flow-header">
+                <div class="flow-icon prompt">🤖</div>
+                <div class="flow-info">
+                    <h2>PROMPT Keyword Flow</h2>
+                    <p>Pillar: THE TECH | Asset: Hustler's Prompt Vault</p>
+                </div>
+                <div class="flow-meta">
+                    <div class="label">Trigger</div>
+                    <div class="value">Comment "PROMPT"</div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <div class="cta-section-title">Winning CTAs</div>
+                <div class="cta-winner primary">
+                    <div class="cta-label">Primary (Specificity)</div>
+                    <div class="cta-text">"Comment PROMPT. I'll send you 50 copy-paste AI commands. Content creation. Decision analysis. Business systems. Literal prompts I type every week. No theory. Just weapons."</div>
+                </div>
+                <div class="cta-winner secondary">
+                    <div class="cta-label">Secondary (Loss)</div>
+                    <div class="cta-text">"Every time you type a lazy prompt into ChatGPT, you're getting 20% of what it can actually give you. Comment PROMPT. I'll send you the commands that unlock the other 80%."</div>
+                </div>
+            </div>
+
+            <div class="arrow-down">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+            </div>
+
+            <div class="flow-grid">
+                <div class="flow-stage prompt">
+                    <div class="stage-header">
+                        <div class="stage-number">1</div>
+                        <div class="stage-title">Loading State</div>
+                        <div class="stage-timing">INSTANT</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">Unlocking the vault...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-stage prompt">
+                    <div class="stage-header">
+                        <div class="stage-number">2</div>
+                        <div class="stage-title">Asset Delivery</div>
+                        <div class="stage-timing">5 SEC DELAY</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">These are the exact prompts I use to make AI do my thinking. Research, content, analysis, automation.<br><br>Copy them. Edit them. Profit from them.<br><br>Hard workers will hate this. Smart workers will use it.</div>
+                        </div>
+                        <div class="buttons-container">
+                            <div class="button-item">
+                                <span class="button-emoji">📂</span>
+                                <span class="button-text">Open The Prompt Vault PDF</span>
+                                <span class="button-type url">URL</span>
+                            </div>
+                            <div class="button-item">
+                                <span class="button-emoji">🖥️</span>
+                                <span class="button-text">Use The Interactive Cheat Sheet</span>
+                                <span class="button-type url">URL</span>
+                            </div>
+                        </div>
+                        <div class="link-ref">https://bit.ly/PROMPT-BLUEPRINT</div>
+                        <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html</div>
+                    </div>
+                </div>
+
+                <div class="flow-stage prompt">
+                    <div class="stage-header">
+                        <div class="stage-number">3</div>
+                        <div class="stage-title">Engagement Check</div>
+                        <div class="stage-timing">2 HOURS LATER</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="message-bubble">
+                            <div class="message-text">Real question: have you tried any of the prompts yet?<br><br>The vault is worthless if it sits unopened. Pick ONE prompt from the list, run it, and see what happens.</div>
+                        </div>
+                        <div class="buttons-container">
+                            <div class="button-item">
+                                <span class="button-emoji">✅</span>
+                                <span class="button-text">Yes, I tested one</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                            <div class="button-item">
+                                <span class="button-emoji">🤔</span>
+                                <span class="button-text">Not sure which to try first</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                            <div class="button-item">
+                                <span class="button-emoji">🔄</span>
+                                <span class="button-text">Send the vault again</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+            </div>
+
+            <div class="flow-stage prompt">
+                <div class="stage-header">
+                    <div class="stage-number">📅</div>
+                    <div class="stage-title">14-Day Follow-up Sequence</div>
+                </div>
+                <div class="stage-content">
+                    <div class="followup-timeline">
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 2</div>
+                            <div class="followup-type">Value Add</div>
+                            <div class="followup-goal">Output = 90% input quality. Add "list 3 assumptions" to any prompt. Watch quality jump.</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 4</div>
+                            <div class="followup-type">Story / Proof</div>
+                            <div class="followup-goal">4+ hours research → 20 minutes. Same quality. Templates did the heavy lifting.</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 7</div>
+                            <div class="followup-type">Bridge to SYSTEM</div>
+                            <div class="followup-goal">AI optimizes work. Systems optimize life. Is your financial foundation solid?</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 10</div>
+                            <div class="followup-type">Urgency Seed</div>
+                            <div class="followup-goal">AI moving fast. Early users capture disproportionate gains. Adoption curve math.</div>
+                        </div>
+                        <div class="followup-item">
+                            <div class="followup-day">DAY 14</div>
+                            <div class="followup-type">The Fork</div>
+                            <div class="followup-goal">A) Using AI daily B) Still figuring out integration C) Haven't used vault</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Tab Navigation
+        const tabs = document.querySelectorAll('.nav-tab');
+        const sections = document.querySelectorAll('.flow-section');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.dataset.tab;
+
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Show target section
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === target) {
+                        section.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
