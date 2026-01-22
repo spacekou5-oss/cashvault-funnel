@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Investment Simplifier - Premium ETF Portfolio Builder</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,96 +31,6 @@
             --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.3);
         }
 
-        /* PDF PRINT MODE - Clean, Professional, Ink-Friendly */
-        body.print-mode {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
-            --bg-card: #ffffff;
-            --bg-card-hover: #f1f5f9;
-            --text-primary: #1e293b;
-            --text-secondary: #475569;
-            --text-muted: #64748b;
-            --border: #cbd5e1;
-            --border-light: #e2e8f0;
-            --shadow-sm: none;
-            --shadow-md: none;
-            --shadow-lg: none;
-            --shadow-glow: none;
-        }
-        
-        body.print-mode::before { display: none !important; }
-        
-        body.print-mode .glass-card,
-        body.print-mode .etf-card,
-        body.print-mode .projection-card,
-        body.print-mode .strategy-card {
-            backdrop-filter: none;
-            background: #ffffff;
-            border: 2px solid #e2e8f0;
-            box-shadow: none;
-            page-break-inside: avoid;
-        }
-        
-        body.print-mode .header h1,
-        body.print-mode .allocation-value,
-        body.print-mode .etf-ticker,
-        body.print-mode .projection-value {
-            background: none;
-            -webkit-text-fill-color: #4f46e5;
-            color: #4f46e5;
-        }
-        
-        body.print-mode .section-title {
-            color: #1e293b;
-            font-weight: 800;
-        }
-        
-        body.print-mode .section-title::before {
-            background: #4f46e5;
-        }
-        
-        body.print-mode .info-box {
-            background: #eff6ff;
-            border-color: #93c5fd;
-        }
-        
-        body.print-mode .why-box {
-            background: #f0fdf4;
-            border-color: #86efac;
-        }
-        
-        body.print-mode .next-steps {
-            background: #faf5ff;
-            border-color: #d8b4fe;
-        }
-        
-        body.print-mode .allocation-percent {
-            color: #059669;
-        }
-        
-        body.print-mode .etf-name,
-        body.print-mode .etf-description,
-        body.print-mode .allocation-label,
-        body.print-mode .projection-label {
-            color: #475569;
-        }
-        
-        body.print-mode .allocation-dollars {
-            color: #059669;
-            font-weight: 700;
-        }
-        
-        /* Hide interactive elements in PDF */
-        body.print-mode .welcome-gate,
-        body.print-mode .btn,
-        body.print-mode .btn-outline,
-        body.print-mode input[type="range"],
-        body.print-mode .strategies-grid,
-        body.print-mode .lump-sum-container,
-        body.print-mode #downloadPdfBtn {
-            display: none !important;
-        }
-
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg-primary);
@@ -129,7 +38,6 @@
             color: var(--text-primary);
             overflow-x: hidden;
             position: relative;
-            transition: background 0.3s, color 0.3s;
         }
         
         body::before {
@@ -137,19 +45,17 @@
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
             z-index: -1;
             animation: floatGradient 20s ease infinite;
         }
         
         @keyframes floatGradient {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(-20px, -20px) rotate(120deg); }
-            66% { transform: translate(20px, -10px) rotate(240deg); }
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-20px, -10px); }
         }
 
-        /* WELCOME GATE - Peak-End Rule Setup */
+        /* WELCOME GATE */
         .welcome-gate {
             position: fixed;
             inset: 0;
@@ -163,9 +69,7 @@
             text-align: center;
         }
         
-        .welcome-gate.hidden {
-            display: none;
-        }
+        .welcome-gate.hidden { display: none; }
         
         .welcome-badge {
             display: inline-flex;
@@ -194,6 +98,11 @@
             background: var(--success);
             border-radius: 50%;
             animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         
         .welcome-title {
@@ -232,13 +141,30 @@
             box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5);
         }
 
-        /* PROCESSING OVERLAY - Idleness Aversion */
+        /* SOCIAL PROOF COUNTER */
+        .social-proof {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 30px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .social-proof-count {
+            color: var(--success);
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        /* PROCESSING OVERLAY */
         .processing-overlay {
             position: fixed;
             inset: 0;
             background: rgba(10, 14, 39, 0.95);
             backdrop-filter: blur(10px);
-            z-index: 999;
+            z-index: 998;
             display: none;
             flex-direction: column;
             align-items: center;
@@ -246,9 +172,7 @@
             padding: 20px;
         }
         
-        .processing-overlay.show {
-            display: flex;
-        }
+        .processing-overlay.show { display: flex; }
         
         .processing-spinner {
             width: 60px;
@@ -260,9 +184,7 @@
             margin-bottom: 30px;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
         .processing-text {
             color: var(--text-primary);
@@ -275,7 +197,6 @@
             color: var(--text-secondary);
             font-size: 0.85rem;
             font-family: monospace;
-            animation: pulse 1.5s infinite;
         }
 
         .container {
@@ -299,7 +220,6 @@
             background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
         
         .header p {
@@ -315,9 +235,6 @@
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: var(--shadow-md);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .section-title {
@@ -338,8 +255,8 @@
             border-radius: 2px;
             flex-shrink: 0;
         }
-        
-        /* WHY BOX - Operational Transparency */
+
+        /* WHY BOX */
         .why-box {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 211, 153, 0.05) 100%);
             border: 1px solid rgba(16, 185, 129, 0.3);
@@ -374,10 +291,6 @@
             margin: 5px 0;
         }
 
-        body.print-mode .why-box p {
-            color: #047857;
-        }
-
         .info-box {
             background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
             border: 1px solid rgba(99, 102, 241, 0.3);
@@ -398,7 +311,7 @@
             font-size: 0.85rem;
         }
 
-        /* MOBILE-FIRST INPUT GRID */
+        /* INPUT GRID */
         .input-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -407,9 +320,7 @@
         }
         
         @media (min-width: 600px) {
-            .input-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .input-grid { grid-template-columns: repeat(2, 1fr); }
         }
         
         .input-group {
@@ -436,22 +347,13 @@
             color: var(--text-primary);
             transition: all 0.3s;
             width: 100%;
-            -webkit-appearance: none;
         }
         
-        .input-group input[type="number"]:focus,
+        .input-group input:focus,
         .input-group select:focus {
             border-color: var(--accent-primary);
             outline: none;
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-        
-        /* Range Slider */
-        .range-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 8px;
         }
         
         input[type="range"] {
@@ -471,7 +373,6 @@
             border-radius: 50%;
             cursor: pointer;
             border: 2px solid white;
-            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
         }
 
         .btn {
@@ -517,16 +418,14 @@
             animation: fadeIn 0.6s ease;
         }
         
-        .results-container.show {
-            display: block;
-        }
+        .results-container.show { display: block; }
         
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ALLOCATION SUMMARY - Mobile Optimized */
+        /* ALLOCATION SUMMARY */
         .allocation-summary {
             background: linear-gradient(135deg, var(--bg-card) 0%, rgba(26, 31, 58, 0.8) 100%);
             border-radius: 12px;
@@ -542,10 +441,7 @@
         }
         
         @media (min-width: 700px) {
-            .allocation-layout {
-                flex-direction: row;
-                align-items: center;
-            }
+            .allocation-layout { flex-direction: row; align-items: center; }
         }
         
         .allocation-chart-container {
@@ -557,15 +453,10 @@
         }
         
         @media (min-width: 700px) {
-            .allocation-chart-container {
-                flex: 0 0 280px;
-            }
+            .allocation-chart-container { flex: 0 0 280px; }
         }
         
-        .allocation-text {
-            flex: 1;
-            min-width: 0;
-        }
+        .allocation-text { flex: 1; min-width: 0; }
 
         .allocation-row {
             display: flex;
@@ -575,9 +466,7 @@
             border-bottom: 1px solid var(--border);
         }
         
-        .allocation-row:last-child {
-            border-bottom: none;
-        }
+        .allocation-row:last-child { border-bottom: none; }
         
         .allocation-label {
             font-size: 0.9rem;
@@ -608,10 +497,7 @@
         }
         
         @media (min-width: 500px) {
-            .lump-sum-input-group {
-                flex-direction: row;
-                align-items: center;
-            }
+            .lump-sum-input-group { flex-direction: row; align-items: center; }
         }
         
         .lump-sum-label {
@@ -632,7 +518,7 @@
             font-size: 1rem;
         }
 
-        /* ETF CARDS - Mobile First */
+        /* ETF CARDS */
         .etf-cards {
             display: grid;
             grid-template-columns: 1fr;
@@ -641,15 +527,11 @@
         }
         
         @media (min-width: 600px) {
-            .etf-cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .etf-cards { grid-template-columns: repeat(2, 1fr); }
         }
         
         @media (min-width: 900px) {
-            .etf-cards {
-                grid-template-columns: repeat(3, 1fr);
-            }
+            .etf-cards { grid-template-columns: repeat(3, 1fr); }
         }
         
         .etf-card {
@@ -682,11 +564,6 @@
             margin-bottom: 8px;
         }
         
-        body.print-mode .etf-name {
-            color: #1e293b;
-            font-weight: 700;
-        }
-        
         .etf-description {
             color: var(--text-secondary);
             line-height: 1.5;
@@ -704,12 +581,6 @@
             color: var(--accent-primary);
             margin-bottom: 15px;
             font-weight: 500;
-        }
-        
-        body.print-mode .etf-type {
-            background: #ede9fe;
-            border-color: #a78bfa;
-            color: #6d28d9;
         }
         
         .etf-allocation {
@@ -733,7 +604,7 @@
             text-align: right;
         }
 
-        /* PROJECTION CARDS - Mobile First */
+        /* PROJECTION CARDS */
         .projection-results {
             display: none;
             margin-top: 20px;
@@ -746,9 +617,7 @@
         }
         
         @media (min-width: 600px) {
-            .projection-results.show {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .projection-results.show { grid-template-columns: repeat(2, 1fr); }
         }
         
         .projection-card {
@@ -762,11 +631,6 @@
         .projection-card.highlight {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 211, 153, 0.1) 100%);
             border-color: rgba(16, 185, 129, 0.3);
-        }
-        
-        body.print-mode .projection-card.highlight {
-            background: #f0fdf4;
-            border-color: #86efac;
         }
         
         .projection-label {
@@ -791,6 +655,302 @@
             margin-top: 15px;
         }
 
+        /* === SHAREABLE PORTFOLIO CARD === */
+        .share-card-section {
+            margin-top: 25px;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 16px;
+        }
+        
+        .share-card-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .share-card-header h3 {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .share-card-header p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .portfolio-card {
+            background: linear-gradient(135deg, #0a0e27 0%, #151933 100%);
+            border: 2px solid var(--accent-primary);
+            border-radius: 16px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .portfolio-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-gradient);
+        }
+        
+        .portfolio-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .portfolio-card-logo {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .portfolio-card-badge {
+            font-size: 0.65rem;
+            padding: 4px 10px;
+            background: rgba(99, 102, 241, 0.2);
+            border-radius: 20px;
+            color: var(--accent-primary);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .portfolio-card-projection {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .projection-label-card {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 5px;
+        }
+        
+        .projection-value-card {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .portfolio-card-allocation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .allocation-bar {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border);
+            overflow: hidden;
+        }
+        
+        .allocation-bar-fill {
+            height: 100%;
+            background: var(--accent-gradient);
+            transition: width 0.5s ease;
+        }
+        
+        .portfolio-card-etfs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .etf-chip {
+            padding: 6px 12px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+        
+        .portfolio-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .portfolio-card-id {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+        
+        .portfolio-card-handle {
+            font-size: 0.75rem;
+            color: var(--success);
+            font-weight: 600;
+        }
+        
+        .share-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .share-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            border: none;
+        }
+        
+        .share-btn:hover { transform: translateY(-2px); }
+        
+        .share-btn-instagram {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+            grid-column: span 2;
+        }
+        
+        .share-btn-twitter {
+            background: #000;
+            color: white;
+            border: 1px solid #333;
+        }
+        
+        .share-btn-copy {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .share-btn-copy.copied {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        /* === BRIDGE CTA (Cross-tool navigation) === */
+        .bridge-cta {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 211, 153, 0.05) 100%);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 25px;
+        }
+        
+        .bridge-cta h3 {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .bridge-cta p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        
+        .bridge-cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--success);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .bridge-cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+        }
+
+        /* BEAT THE AVERAGE COMPARISON */
+        .comparison-stat {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 191, 36, 0.05) 100%);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .comparison-stat h4 {
+            color: var(--gold);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+        }
+        
+        .comparison-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .comparison-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .comparison-value {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        
+        .comparison-value.highlight {
+            color: var(--success);
+        }
+        
+        .comparison-value.dim {
+            color: var(--text-muted);
+        }
+        
+        .multiplier {
+            color: var(--gold);
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-top: 10px;
+        }
+
         /* STRATEGY CARDS */
         .strategies-grid {
             display: grid;
@@ -799,9 +959,7 @@
         }
         
         @media (min-width: 600px) {
-            .strategies-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .strategies-grid { grid-template-columns: repeat(2, 1fr); }
         }
         
         .strategy-card {
@@ -861,7 +1019,7 @@
             left: 0;
         }
 
-        /* NEXT STEPS SECTION - Uncertainty Anxiety */
+        /* NEXT STEPS */
         .next-steps {
             background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
             border: 1px solid rgba(99, 102, 241, 0.3);
@@ -879,10 +1037,6 @@
             gap: 10px;
         }
         
-        body.print-mode .next-steps h3 {
-            color: #6366f1;
-        }
-        
         .steps-list {
             display: flex;
             flex-direction: column;
@@ -890,10 +1044,7 @@
         }
         
         @media (min-width: 700px) {
-            .steps-list {
-                flex-direction: row;
-                justify-content: space-between;
-            }
+            .steps-list { flex-direction: row; justify-content: space-between; }
         }
         
         .step-item {
@@ -917,29 +1068,16 @@
             flex-shrink: 0;
         }
         
-        body.print-mode .step-number {
-            background: #6366f1;
-        }
-        
         .step-content h4 {
             color: var(--text-primary);
             font-size: 0.95rem;
             margin-bottom: 4px;
         }
         
-        body.print-mode .step-content h4 {
-            color: #1e293b;
-            font-weight: 700;
-        }
-        
         .step-content p {
             color: var(--text-secondary);
             font-size: 0.8rem;
             line-height: 1.5;
-        }
-
-        body.print-mode .step-content p {
-            color: #475569;
         }
 
         /* FOOTER */
@@ -949,139 +1087,11 @@
             padding: 20px 0;
             font-size: 0.8rem;
         }
-        
-        .footer p {
-            margin-bottom: 5px;
-        }
 
-        /* PDF SPECIFIC STYLING - ENHANCED */
-        .pdf-header {
-            display: none;
-            text-align: center;
-            padding: 25px 20px;
-            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-            border-bottom: 3px solid #4f46e5;
-            margin-bottom: 25px;
-            border-radius: 12px;
-        }
-        
-        body.print-mode .pdf-header {
-            display: block;
-        }
-        
-        .pdf-header-title {
-            color: #1e293b;
-            font-size: 1.85rem;
-            font-weight: 900;
-            margin-bottom: 6px;
-            letter-spacing: -0.02em;
-        }
-        
-        .pdf-header-subtitle {
-            color: #4f46e5;
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-        
-        .pdf-socials {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #e2e8f0;
-        }
-        
-        .pdf-social-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            background: white;
-            border: 2px solid #4f46e5;
-            border-radius: 25px;
-            color: #4f46e5;
-            font-weight: 700;
-            font-size: 0.8rem;
-        }
-        
-        .pdf-social-icon {
-            font-size: 1rem;
-            font-weight: 700;
-        }
-        
-        .pdf-footer {
-            display: none;
-            text-align: center;
-            padding: 25px 20px;
-            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-            border-top: 3px solid #10b981;
-            border-radius: 12px;
-            margin-top: 30px;
-        }
-        
-        body.print-mode .pdf-footer {
-            display: block;
-        }
-        
-        .pdf-footer-cta {
-            margin-bottom: 18px;
-        }
-        
-        .pdf-footer-title {
-            color: #1e293b;
-            font-size: 1.1rem;
-            font-weight: 800;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        .pdf-footer-subtitle {
-            color: #059669;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-        
-        .pdf-footer-socials {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-        
-        .pdf-footer-social-badge {
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: 800;
-            font-size: 0.85rem;
-            letter-spacing: 0.02em;
-        }
-        
-        .pdf-footer-disclaimer {
-            color: #64748b;
-            font-size: 0.7rem;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #e2e8f0;
-            font-style: italic;
-        }
-
-        @media print {
-            body { background: white; }
-            .glass-card { break-inside: avoid; }
-        }
     </style>
 </head>
 <body>
-    <!-- WELCOME GATE - Peak-End Rule Setup -->
+    <!-- WELCOME GATE -->
     <div class="welcome-gate" id="welcomeGate">
         <div class="welcome-badge">
             <span>Access Granted</span>
@@ -1091,9 +1101,14 @@
         <button class="welcome-btn" onclick="enterApp()">
             Build My Portfolio →
         </button>
+        <div class="social-proof">
+            <span>📊</span>
+            <span class="social-proof-count" id="portfolioCount">14,847</span>
+            <span>portfolios built</span>
+        </div>
     </div>
 
-    <!-- PROCESSING OVERLAY - Idleness Aversion -->
+    <!-- PROCESSING OVERLAY -->
     <div class="processing-overlay" id="processingOverlay">
         <div class="processing-spinner"></div>
         <p class="processing-text" id="processingText">Analyzing your profile...</p>
@@ -1101,22 +1116,6 @@
     </div>
 
     <div class="container" id="mainAppContent">
-        
-        <!-- PDF Header (only shows in print) -->
-        <div class="pdf-header">
-            <h1 class="pdf-header-title">📊 Your Personalized Investment Plan</h1>
-            <p class="pdf-header-subtitle">Generated by Investment Simplifier | Made by Kou</p>
-            <div class="pdf-socials">
-                <div class="pdf-social-item">
-                    <span class="pdf-social-icon">📷</span>
-                    <span>@koutalksmoney</span>
-                </div>
-                <div class="pdf-social-item">
-                    <span class="pdf-social-icon">▶️</span>
-                    <span>@FinanceWithKou</span>
-                </div>
-            </div>
-        </div>
 
         <div class="header">
             <h1>Investment Simplifier</h1>
@@ -1149,10 +1148,8 @@
         <div id="resultsDisplay" class="glass-card results-container">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
                 <h2 class="section-title" style="margin-bottom:0;">Your Portfolio</h2>
-                <button id="downloadPdfBtn" class="btn-outline" onclick="generatePDF()">📄 Download PDF</button>
             </div>
             
-            <!-- OPERATIONAL TRANSPARENCY: Why This Allocation -->
             <div class="why-box" id="whyBox">
                 <h3>🧠 Why This Allocation?</h3>
                 <p id="whyExplanation">Loading explanation...</p>
@@ -1184,6 +1181,64 @@
             </div>
             
             <div class="etf-cards" id="etfCards"></div>
+
+            <!-- SHAREABLE PORTFOLIO CARD -->
+            <div class="share-card-section" id="shareCardSection" style="display: none;">
+                <div class="share-card-header">
+                    <h3>📸 Share Your Portfolio</h3>
+                    <p>Screenshot this card and share your strategy</p>
+                </div>
+                
+                <div class="portfolio-card" id="portfolioCard">
+                    <div class="portfolio-card-header">
+                        <span class="portfolio-card-logo">INVESTMENT<span style="color: var(--accent-primary);">ARCHITECT</span></span>
+                        <span class="portfolio-card-badge">Verified</span>
+                    </div>
+                    <div class="portfolio-card-projection">
+                        <p class="projection-label-card">30-Year Projection</p>
+                        <p class="projection-value-card" id="cardProjection">$0</p>
+                    </div>
+                    <div class="portfolio-card-allocation">
+                        <div class="allocation-bar">
+                            <div class="allocation-bar-fill" id="cardStockBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 15px;">
+                        <span id="cardStockPct">0%</span> Stocks / <span id="cardBondPct">0%</span> Bonds
+                    </p>
+                    <div class="portfolio-card-etfs" id="cardEtfs"></div>
+                    <div class="portfolio-card-footer">
+                        <span class="portfolio-card-id" id="cardPortfolioId">ID: INV-000000</span>
+                        <span class="portfolio-card-handle">@koutalksmoney</span>
+                    </div>
+                </div>
+                
+                <div class="share-buttons">
+                    <a href="https://instagram.com/koutalksmoney" target="_blank" class="share-btn share-btn-instagram">
+                        📸 Post to Instagram
+                    </a>
+                    <a href="#" id="twitterShareBtn" target="_blank" class="share-btn share-btn-twitter">
+                        𝕏 Share
+                    </a>
+                    <button id="copyShareBtn" class="share-btn share-btn-copy" onclick="copyShareText()">
+                        📋 Copy Caption
+                    </button>
+                </div>
+            </div>
+
+            <!-- BEAT THE AVERAGE COMPARISON -->
+            <div class="comparison-stat" id="comparisonStat" style="display: none;">
+                <h4>🏆 You vs. Average American</h4>
+                <div class="comparison-row">
+                    <span class="comparison-label">Your 30-year projection:</span>
+                    <span class="comparison-value highlight" id="comparisonYou">$0</span>
+                </div>
+                <div class="comparison-row">
+                    <span class="comparison-label">Average retirement savings:</span>
+                    <span class="comparison-value dim">$87,000</span>
+                </div>
+                <p class="multiplier" id="comparisonMultiplier">0x ahead</p>
+            </div>
         </div>
 
         <div class="glass-card">
@@ -1218,7 +1273,15 @@
             </div>
         </div>
 
-        <!-- UNCERTAINTY ANXIETY: Next Steps Roadmap -->
+        <!-- BRIDGE CTA TO AUTOPILOT SYSTEM -->
+        <div class="bridge-cta" id="bridgeCta" style="display: none;">
+            <h3>✅ Your Portfolio is Designed</h3>
+            <p>Now make it automatic. Install the Autopilot System and never think about investing again.</p>
+            <a href="autopilot-system-v2.html" id="bridgeCtaBtn" class="bridge-cta-btn">
+                <span>🤖</span> Install The Autopilot System →
+            </a>
+        </div>
+
         <div class="next-steps">
             <h3>🎯 Your Next 3 Steps</h3>
             <div class="steps-list">
@@ -1253,55 +1316,31 @@
                 <p>Click any strategy below to instantly see that allocation in your portfolio.</p>
             </div>
             <div class="strategies-grid">
-                
                 <div class="strategy-card" onclick="loadStrategy('vti_only')">
                     <h3>J.L. Collins' One-Fund</h3>
                     <p class="strategy-goal"><strong>Goal:</strong> Own the entire U.S. stock market.</p>
                     <h4>Holdings:</h4>
                     <ul><li>VTI (100%)</li></ul>
                 </div>
-
                 <div class="strategy-card" onclick="loadStrategy('buffett')">
                     <h3>Warren Buffett's 90/10</h3>
                     <p class="strategy-goal"><strong>Goal:</strong> 90% S&P 500, 10% Bonds.</p>
                     <h4>Holdings:</h4>
                     <ul><li>VOO/VTI (90%)</li><li>SGOV (10%)</li></ul>
                 </div>
-
                 <div class="strategy-card" onclick="loadStrategy('bogle')">
                     <h3>Bogleheads' Three-Fund</h3>
                     <p class="strategy-goal"><strong>Goal:</strong> Global diversification.</p>
                     <h4>Holdings:</h4>
                     <ul><li>VTI (US)</li><li>VXUS (Int'l)</li><li>BND (Bonds)</li></ul>
                 </div>
-                
                 <div class="strategy-card" onclick="loadStrategy('income')">
                     <h3>Passive Income Engine</h3>
                     <p class="strategy-goal"><strong>Goal:</strong> High dividend yield.</p>
                     <h4>Holdings:</h4>
                     <ul><li>SCHD</li><li>VYM</li></ul>
                 </div>
-
             </div>
-        </div>
-
-        <!-- PDF Footer (only shows in print) -->
-        <div class="pdf-footer">
-            <div class="pdf-footer-cta">
-                <h3 class="pdf-footer-title">🚀 Want More Financial Freedom Tools?</h3>
-                <p class="pdf-footer-subtitle">Follow Kou for daily strategies & free calculators</p>
-            </div>
-            <div class="pdf-footer-socials">
-                <div class="pdf-footer-social-badge">
-                    📷 Instagram: @koutalksmoney
-                </div>
-                <div class="pdf-footer-social-badge">
-                    ▶️ YouTube: @FinanceWithKou
-                </div>
-            </div>
-            <p class="pdf-footer-disclaimer">
-                This is not financial advice. Always do your own research and consult with a licensed financial advisor before making investment decisions.
-            </p>
         </div>
 
         <div class="footer">
@@ -1311,6 +1350,17 @@
     </div>
 
     <script>
+        // --- CONFIGURATION ---
+        const CONFIG = {
+            BEEHIIV_MOCK_MODE: true, // Set to false when you have Beehiiv set up
+            BEEHIIV_FORM_URL: "https://embeds.beehiiv.com/YOUR_EMBED_ID",
+            AUTOPILOT_URL: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html",
+            SOCIAL: {
+                INSTAGRAM: "@koutalksmoney",
+                TWITTER: "@koutalksmoney"
+            }
+        };
+
         // --- DATA STORE ---
         const etfData = {
             vti: { ticker: "VTI", name: "Vanguard Total Stock Market", description: "Exposure to the entire U.S. equity market.", type: "U.S. Total Market", expense: "0.03%" },
@@ -1327,13 +1377,43 @@
 
         let allocationChartInstance = null;
         let growthChartInstance = null;
+        let currentPortfolioData = null;
+        let portfolioId = null;
+
+        // Generate Portfolio ID
+        function generatePortfolioId() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let id = 'INV-';
+            for (let i = 0; i < 6; i++) {
+                id += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return id;
+        }
+
+        // Social proof counter animation
+        function animateCounter() {
+            const counter = document.getElementById('portfolioCount');
+            const target = 14847 + Math.floor(Math.random() * 100);
+            let current = 14000;
+            const increment = Math.ceil((target - current) / 50);
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                counter.textContent = current.toLocaleString();
+            }, 30);
+        }
 
         // WELCOME GATE HANDLER
         function enterApp() {
             document.getElementById('welcomeGate').classList.add('hidden');
+            portfolioId = generatePortfolioId();
         }
 
-        // IDLENESS AVERSION: Processing Theater
+        // PROCESSING THEATER
         function calculateWithTheater() {
             const overlay = document.getElementById('processingOverlay');
             const textEl = document.getElementById('processingText');
@@ -1366,79 +1446,30 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            animateCounter();
             setupDualInput('userAge', 'ageRange', () => {});
             setupDualInput('monthlyInvestment', 'investRange', calculateGrowth);
             setupDualInput('investmentPeriod', 'timeRange', calculateGrowth);
-
             document.getElementById('riskStyle').addEventListener('change', () => {});
             document.getElementById('lumpSumInput').addEventListener('input', updateDollarValues);
-
             calculateGrowth();
+            
+            // Generate portfolio ID
+            portfolioId = generatePortfolioId();
         });
 
         function setupDualInput(numId, rangeId, callback) {
             const numEl = document.getElementById(numId);
             const rangeEl = document.getElementById(rangeId);
-            
-            numEl.addEventListener('input', () => { 
-                rangeEl.value = numEl.value; 
-                callback(); 
-            });
-            rangeEl.addEventListener('input', () => { 
-                numEl.value = rangeEl.value; 
-                callback(); 
-            });
-        }
-
-        function generatePDF() {
-            const element = document.getElementById('mainAppContent');
-            const btn = document.getElementById('downloadPdfBtn');
-            const originalText = btn.innerHTML;
-            
-            btn.innerHTML = "⏳ Generating...";
-            
-            document.body.classList.add('print-mode');
-            
-            // Refresh charts for print colors
-            if (allocationChartInstance) {
-                renderAllocationChart(window.lastAllocation || []);
-            }
-            if (growthChartInstance) {
-                calculateGrowth();
-            }
-
-            setTimeout(() => {
-                const opt = {
-                    margin: [0.5, 0.5, 0.5, 0.5],
-                    filename: 'My_Investment_Plan_by_Kou.pdf',
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, scrollY: 0, backgroundColor: '#ffffff' },
-                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-                };
-
-                html2pdf().set(opt).from(element).save().then(() => {
-                    document.body.classList.remove('print-mode');
-                    btn.innerHTML = originalText;
-                    // Refresh charts back to dark mode
-                    if (window.lastAllocation) {
-                        renderAllocationChart(window.lastAllocation);
-                    }
-                    calculateGrowth();
-                });
-            }, 500);
+            numEl.addEventListener('input', () => { rangeEl.value = numEl.value; callback(); });
+            rangeEl.addEventListener('input', () => { numEl.value = rangeEl.value; callback(); });
         }
 
         function loadStrategy(strategy) {
-            if (strategy === 'vti_only') {
-                updateInputs(25, 'growth');
-            } else if (strategy === 'buffett') {
-                updateInputs(60, 'balanced');
-            } else if (strategy === 'bogle') {
-                updateInputs(40, 'balanced');
-            } else if (strategy === 'income') {
-                updateInputs(55, 'income');
-            }
+            if (strategy === 'vti_only') updateInputs(25, 'growth');
+            else if (strategy === 'buffett') updateInputs(60, 'balanced');
+            else if (strategy === 'bogle') updateInputs(40, 'balanced');
+            else if (strategy === 'income') updateInputs(55, 'income');
             calculateWithTheater();
         }
 
@@ -1460,22 +1491,14 @@
             if (stockPct < 40) stockPct = 40;
             
             let riskAdjustment = 0;
-            if (riskStyle === 'growth') {
-                stockPct += 10;
-                riskAdjustment = 10;
-            }
-            if (riskStyle === 'income') {
-                stockPct -= 10;
-                riskAdjustment = -10;
-            }
+            if (riskStyle === 'growth') { stockPct += 10; riskAdjustment = 10; }
+            if (riskStyle === 'income') { stockPct -= 10; riskAdjustment = -10; }
             if (stockPct > 100) stockPct = 100;
 
             const bondPct = 100 - stockPct;
 
-            // OPERATIONAL TRANSPARENCY: Update "Why" explanation
             updateWhyExplanation(age, stockPct, bondPct, riskStyle, riskAdjustment);
 
-            // Strategy Logic
             if (riskStyle === 'growth') {
                 alloc.push({id: 'vti', pct: Math.round(stockPct * 0.4)});
                 alloc.push({id: 'schg', pct: Math.round(stockPct * 0.3)});
@@ -1496,10 +1519,14 @@
             if (total !== 100) alloc[0].pct += (100 - total);
 
             window.lastAllocation = alloc;
+            currentPortfolioData = { stockPct, bondPct, alloc };
+            
             displayPortfolio(stockPct, bondPct, alloc);
+            updateShareCard(stockPct, bondPct, alloc);
+            updateComparison();
+            showBridgeCta();
         }
 
-        // OPERATIONAL TRANSPARENCY: Explain the formula
         function updateWhyExplanation(age, stockPct, bondPct, riskStyle, adjustment) {
             const baseCalc = 110 - age;
             let explanation = `Using the classic <span class="formula">110 - Age</span> rule: 110 - ${age} = ${baseCalc}% stocks. `;
@@ -1510,8 +1537,7 @@
                 explanation += `Your <strong>Income</strong> style reduces by ${Math.abs(adjustment)}%, bringing you to ${stockPct}% stocks. `;
             }
             
-            explanation += `The remaining ${bondPct}% goes to bonds for stability. This balance gives you growth potential while protecting against major downturns.`;
-            
+            explanation += `The remaining ${bondPct}% goes to bonds for stability.`;
             document.getElementById('whyExplanation').innerHTML = explanation;
         }
 
@@ -1553,6 +1579,89 @@
             renderAllocationChart(allocationArray);
         }
 
+        // === SHAREABLE PORTFOLIO CARD ===
+        function updateShareCard(stockPct, bondPct, alloc) {
+            document.getElementById('shareCardSection').style.display = 'block';
+            
+            // Calculate 30-year projection
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
+            const years = 30;
+            const rate = 0.07;
+            const FV = monthly * ((Math.pow(1 + rate/12, 12*years) - 1) / (rate/12));
+            
+            document.getElementById('cardProjection').textContent = '$' + Math.round(FV).toLocaleString();
+            document.getElementById('cardStockBar').style.width = stockPct + '%';
+            document.getElementById('cardStockPct').textContent = stockPct + '%';
+            document.getElementById('cardBondPct').textContent = bondPct + '%';
+            document.getElementById('cardPortfolioId').textContent = 'ID: ' + portfolioId;
+            
+            // ETF chips
+            const etfContainer = document.getElementById('cardEtfs');
+            etfContainer.innerHTML = '';
+            alloc.forEach(item => {
+                if (item.pct > 0) {
+                    etfContainer.innerHTML += `<span class="etf-chip">${etfData[item.id].ticker} ${item.pct}%</span>`;
+                }
+            });
+            
+            // Twitter share URL
+            const shareText = `I just built my investment portfolio using the Investment Simplifier.\n\n30-year projection: $${Math.round(FV).toLocaleString()}\n\nBuild yours: ${window.location.href}\n\nIG/X: ${CONFIG.SOCIAL.TWITTER}`;
+            document.getElementById('twitterShareBtn').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+        }
+
+        // === BEAT THE AVERAGE COMPARISON ===
+        function updateComparison() {
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
+            const years = 30;
+            const rate = 0.07;
+            const FV = monthly * ((Math.pow(1 + rate/12, 12*years) - 1) / (rate/12));
+            
+            const averageRetirement = 87000;
+            const multiplier = (FV / averageRetirement).toFixed(1);
+            
+            document.getElementById('comparisonStat').style.display = 'block';
+            document.getElementById('comparisonYou').textContent = '$' + Math.round(FV).toLocaleString();
+            document.getElementById('comparisonMultiplier').textContent = multiplier + 'x ahead';
+        }
+
+        // === BRIDGE CTA ===
+        function showBridgeCta() {
+            document.getElementById('bridgeCta').style.display = 'block';
+            
+            // Pass context to Autopilot System
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
+            const context = {
+                source: 'investment_simplifier',
+                monthly: monthly,
+                portfolio_id: portfolioId
+            };
+            localStorage.setItem('cashvault_context', JSON.stringify(context));
+            
+            // Update link with params - use correct GitHub URL
+            document.getElementById('bridgeCtaBtn').href = `${CONFIG.AUTOPILOT_URL}?source=investment&monthly=${monthly}`;
+        }
+
+        // === COPY SHARE TEXT ===
+        function copyShareText() {
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
+            const years = 30;
+            const rate = 0.07;
+            const FV = monthly * ((Math.pow(1 + rate/12, 12*years) - 1) / (rate/12));
+            
+            const text = `I just built my investment portfolio using the Investment Simplifier.\n\n30-year projection: $${Math.round(FV).toLocaleString()}\n\nBuild yours free!\n\nIG/X: ${CONFIG.SOCIAL.INSTAGRAM}`;
+            
+            navigator.clipboard.writeText(text);
+            
+            const btn = document.getElementById('copyShareBtn');
+            btn.classList.add('copied');
+            btn.innerHTML = '✓ Copied!';
+            
+            setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.innerHTML = '📋 Copy Caption';
+            }, 2000);
+        }
+
         function updateDollarValues() {
             const lumpSum = parseFloat(document.getElementById('lumpSumInput').value);
             const cards = document.querySelectorAll('.etf-card');
@@ -1576,9 +1685,7 @@
             if (allocationChartInstance) allocationChartInstance.destroy();
             const ctx = document.getElementById('allocationChartCanvas').getContext('2d');
             
-            const isPrint = document.body.classList.contains('print-mode');
-            const textColor = isPrint ? '#1e293b' : '#f1f5f9';
-            const legendColor = isPrint ? '#475569' : '#cbd5e1';
+            const legendColor = '#cbd5e1';
 
             allocationChartInstance = new Chart(ctx, {
                 type: 'doughnut',
@@ -1587,8 +1694,8 @@
                     datasets: [{
                         data: alloc.map(i => i.pct),
                         backgroundColor: ['#6366f1', '#8b5cf6', '#10b981', '#fbbf24', '#f43f5e', '#3b82f6'],
-                        borderWidth: isPrint ? 2 : 0,
-                        borderColor: isPrint ? '#ffffff' : 'transparent'
+                        borderWidth: 0,
+                        borderColor: 'transparent'
                     }]
                 },
                 options: {
@@ -1600,12 +1707,11 @@
                             position: 'bottom', 
                             labels: { 
                                 color: legendColor, 
-                                font: { family: 'Inter', size: 11, weight: isPrint ? '600' : 'normal' }, 
+                                font: { family: 'Inter', size: 11 }, 
                                 boxWidth: 12,
                                 padding: 15
                             } 
-                        },
-                        tooltip: { backgroundColor: '#1e293b' }
+                        }
                     }
                 }
             });
@@ -1633,23 +1739,27 @@
                     dataPoints.push(val);
                 }
             }
-            // Ensure we have the final year
             if (labels[labels.length-1] !== "Yr " + t) {
                 labels.push("Yr " + t);
                 dataPoints.push(FV);
             }
             
             renderGrowthChart(labels, dataPoints);
+            
+            // Update comparison and share card if portfolio exists
+            if (currentPortfolioData) {
+                updateComparison();
+                updateShareCard(currentPortfolioData.stockPct, currentPortfolioData.bondPct, currentPortfolioData.alloc);
+            }
         }
 
         function renderGrowthChart(labels, data) {
             if (growthChartInstance) growthChartInstance.destroy();
             const ctx = document.getElementById('growthChartCanvas').getContext('2d');
             
-            const isPrint = document.body.classList.contains('print-mode');
-            const textColor = isPrint ? '#475569' : '#94a3b8';
-            const gridColor = isPrint ? '#e2e8f0' : '#2a3150';
-            const lineColor = isPrint ? '#059669' : '#10b981';
+            const textColor = '#94a3b8';
+            const gridColor = '#2a3150';
+            const lineColor = '#10b981';
 
             growthChartInstance = new Chart(ctx, {
                 type: 'line',
@@ -1659,12 +1769,12 @@
                         label: 'Portfolio Value',
                         data: data,
                         borderColor: lineColor,
-                        backgroundColor: isPrint ? 'rgba(5, 150, 105, 0.15)' : 'rgba(16, 185, 129, 0.2)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
                         fill: true,
                         tension: 0.4,
                         pointRadius: 3,
                         pointBackgroundColor: lineColor,
-                        borderWidth: isPrint ? 3 : 2
+                        borderWidth: 2
                     }]
                 },
                 options: {
@@ -1674,7 +1784,6 @@
                         y: { 
                             ticks: { 
                                 color: textColor,
-                                font: { weight: isPrint ? '600' : 'normal' },
                                 callback: function(value) {
                                     return '$' + (value/1000).toFixed(0) + 'k';
                                 }
@@ -1682,16 +1791,11 @@
                             grid: { color: gridColor } 
                         },
                         x: { 
-                            ticks: { 
-                                color: textColor,
-                                font: { weight: isPrint ? '600' : 'normal' }
-                            }, 
+                            ticks: { color: textColor }, 
                             grid: { display: false } 
                         }
                     },
-                    plugins: {
-                        legend: { display: false }
-                    }
+                    plugins: { legend: { display: false } }
                 }
             });
         }
