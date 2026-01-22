@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Center | Kou Talks Money</title>
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="My Financial Command Center">
+    <meta property="og:description" content="Track your wealth-building progress across all systems.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #050505;
+            --bg-secondary: #0a0a0a;
+            --bg-card: #0f0f0f;
+            --bg-card-hover: #141414;
+            --accent-green: #22c55e;
+            --accent-green-dim: rgba(34, 197, 94, 0.15);
+            --accent-green-glow: rgba(34, 197, 94, 0.4);
+            --accent-gold: #fbbf24;
+            --accent-gold-dim: rgba(251, 191, 36, 0.15);
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #52525b;
+            --border: #1f1f1f;
+            --border-active: #2a2a2a;
+            --danger: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-grid {
+            position: fixed; inset: 0;
+            background-image: 
+                linear-gradient(rgba(34, 197, 94, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 197, 94, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none; z-index: 0;
+        }
+
+        .bg-glow {
+            position: fixed; width: 800px; height: 800px; border-radius: 50%;
+            filter: blur(200px); opacity: 0.08; pointer-events: none; z-index: 0;
+        }
+        .bg-glow-1 { top: -400px; left: -200px; background: var(--accent-green); }
+        .bg-glow-2 { bottom: -400px; right: -200px; background: var(--accent-gold); opacity: 0.05; }
+
+        .container {
+            max-width: 900px; margin: 0 auto; padding: 30px 20px 60px;
+            position: relative; z-index: 1;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border);
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .logo {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--text-secondary);
+        }
+        .logo span { color: var(--accent-green); }
+        .live-indicator {
+            display: flex; align-items: center; gap: 6px; padding: 5px 12px;
+            background: var(--accent-green-dim); border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 50px; font-size: 0.7rem; font-weight: 600;
+            color: var(--accent-green); text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .live-dot {
+            width: 6px; height: 6px; background: var(--accent-green);
+            border-radius: 50%; animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        .architect-badge {
+            display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 8px; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem; font-weight: 600; color: var(--accent-gold);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .architect-badge:hover {
+            border-color: var(--accent-gold); background: var(--accent-gold-dim);
+        }
+
+        /* HERO STATS */
+        .hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        .hero-stat {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px 20px; text-align: center;
+            position: relative; overflow: hidden; transition: all 0.3s;
+        }
+        .hero-stat:hover { border-color: var(--border-active); transform: translateY(-2px); }
+        .hero-stat.primary {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, var(--bg-card) 100%);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+        .hero-stat.gold {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, var(--bg-card) 100%);
+            border-color: rgba(251, 191, 36, 0.3);
+        }
+        .hero-stat-label {
+            font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px;
+        }
+        .hero-stat-value {
+            font-family: 'JetBrains Mono', monospace; font-size: 1.8rem;
+            font-weight: 800; color: var(--text-primary); line-height: 1;
+        }
+        .hero-stat.primary .hero-stat-value { color: var(--accent-green); }
+        .hero-stat.gold .hero-stat-value { color: var(--accent-gold); }
+        .hero-stat-sub { font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px; }
+
+        /* LEVEL SECTION */
+        .level-section {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px; margin-bottom: 25px;
+        }
+        .level-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .level-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
+        .level-badge {
+            display: flex; align-items: center; gap: 6px; padding: 6px 14px;
+            border-radius: 50px; font-size: 0.75rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .level-badge.bronze { background: linear-gradient(135deg, #92400e, #78350f); color: #fbbf24; }
+        .level-badge.silver { background: linear-gradient(135deg, #374151, #1f2937); color: #e5e7eb; }
+        .level-badge.gold { background: linear-gradient(135deg, #854d0e, #713f12); color: #fef08a; }
+        .level-badge.elite { background: linear-gradient(135deg, #166534, #14532d); color: #86efac; }
+        .level-progress { width: 100%; height: 8px; background: var(--bg-secondary); border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+        .level-progress-bar { height: 100%; border-radius: 10px; transition: width 1s ease; }
+        .level-progress-bar.bronze { background: linear-gradient(90deg, #92400e, #fbbf24); }
+        .level-progress-bar.silver { background: linear-gradient(90deg, #6b7280, #e5e7eb); }
+        .level-progress-bar.gold { background: linear-gradient(90deg, #854d0e, #fef08a); }
+        .level-progress-bar.elite { background: linear-gradient(90deg, #166534, #22c55e); }
+        .level-info { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); }
+        .level-info span:last-child { color: var(--accent-green); font-weight: 600; }
+
+        /* SYSTEMS GRID */
+        .systems-section { margin-bottom: 25px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .section-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
+        .section-count {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+            padding: 4px 10px; background: var(--accent-green-dim);
+            border-radius: 20px; color: var(--accent-green); font-weight: 600;
+        }
+        .systems-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .system-card {
+            display: flex; align-items: center; gap: 14px; padding: 18px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; cursor: pointer; transition: all 0.2s; text-decoration: none;
+        }
+        .system-card:hover { border-color: var(--border-active); background: var(--bg-card-hover); transform: translateX(3px); }
+        .system-card.completed { border-color: rgba(34, 197, 94, 0.3); }
+        .system-card.completed:hover { border-color: var(--accent-green); }
+        .system-icon {
+            width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+            background: var(--bg-secondary); border-radius: 10px; font-size: 1.3rem; flex-shrink: 0;
+        }
+        .system-card.completed .system-icon { background: var(--accent-green-dim); }
+        .system-info { flex: 1; min-width: 0; }
+        .system-name { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+        .system-desc { font-size: 0.75rem; color: var(--text-muted); }
+        .system-status { font-size: 1rem; }
+
+        /* NEXT ACTION */
+        .next-action {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, var(--bg-card) 100%);
+            border: 2px solid var(--accent-green); border-radius: 16px;
+            padding: 24px; margin-bottom: 25px; position: relative; overflow: hidden;
+        }
+        .next-action::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.05), transparent);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .next-action-badge {
+            display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px;
+            background: var(--accent-green); color: #000; border-radius: 50px;
+            font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.1em; margin-bottom: 14px;
+        }
+        .next-action-title { font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+        .next-action-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 18px; }
+        .next-action-btn {
+            display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px;
+            background: var(--accent-green); color: #000; border: none; border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700;
+            text-decoration: none; cursor: pointer; transition: all 0.2s; position: relative; z-index: 1;
+        }
+        .next-action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-green-glow); }
+
+        /* SHARE SECTION */
+        .share-section {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px; text-align: center;
+        }
+        .share-title { font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
+        .share-subtitle { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 18px; }
+        .share-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .share-btn {
+            display: flex; align-items: center; gap: 8px; padding: 12px 20px;
+            background: var(--bg-secondary); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--text-secondary); font-size: 0.8rem;
+            font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none;
+        }
+        .share-btn:hover { border-color: var(--accent-green); color: var(--accent-green); background: var(--accent-green-dim); }
+
+        /* FOOTER */
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; }
+        .footer-brand { font-size: 0.75rem; color: var(--text-muted); }
+        .footer-brand a { color: var(--accent-green); text-decoration: none; }
+
+        /* ONBOARDING GATE */
+        .onboarding-gate {
+            position: fixed; inset: 0; background: var(--bg-primary); z-index: 1000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 30px; text-align: center;
+        }
+        .onboarding-gate.hidden { display: none; }
+        .onboarding-icon { font-size: 4rem; margin-bottom: 25px; }
+        .onboarding-title {
+            font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 800; margin-bottom: 12px;
+            background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .onboarding-subtitle { font-size: 1rem; color: var(--text-secondary); margin-bottom: 40px; max-width: 400px; line-height: 1.6; }
+        .onboarding-options { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 350px; }
+        .onboarding-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 18px 30px; border-radius: 12px; font-size: 1rem; font-weight: 700;
+            cursor: pointer; transition: all 0.3s; text-decoration: none;
+        }
+        .onboarding-btn.primary { background: var(--accent-green); color: #000; border: none; }
+        .onboarding-btn.primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px var(--accent-green-glow); }
+        .onboarding-btn.secondary { background: transparent; color: var(--text-secondary); border: 2px solid var(--border); }
+        .onboarding-btn.secondary:hover { border-color: var(--accent-green); color: var(--accent-green); }
+        .onboarding-divider { color: var(--text-muted); font-size: 0.85rem; margin: 5px 0; }
+
+        /* ID MODAL */
+        .id-modal {
+            position: fixed; inset: 0; background: rgba(5, 5, 5, 0.95);
+            backdrop-filter: blur(10px); z-index: 1001; display: none;
+            flex-direction: column; align-items: center; justify-content: center; padding: 30px;
+        }
+        .id-modal.show { display: flex; }
+        .id-modal-card {
+            background: var(--bg-card); border: 2px solid var(--accent-green);
+            border-radius: 20px; padding: 40px; max-width: 420px; width: 100%; text-align: center;
+        }
+        .id-modal-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; }
+        .id-modal-subtitle { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 25px; }
+        .id-input {
+            width: 100%; padding: 16px; background: var(--bg-secondary);
+            border: 2px solid var(--border); border-radius: 10px; color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 600;
+            text-align: center; letter-spacing: 0.1em; margin-bottom: 20px; transition: border-color 0.2s;
+        }
+        .id-input:focus { outline: none; border-color: var(--accent-green); }
+        .id-input::placeholder { color: var(--text-muted); letter-spacing: normal; }
+        .id-modal-btns { display: flex; gap: 12px; }
+        .id-modal-btn { flex: 1; padding: 14px; border-radius: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .id-modal-btn.confirm { background: var(--accent-green); color: #000; border: none; }
+        .id-modal-btn.cancel { background: transparent; color: var(--text-secondary); border: 2px solid var(--border); }
+        .id-error { color: var(--danger); font-size: 0.8rem; margin-bottom: 15px; display: none; }
+
+        /* ALL COMPLETE */
+        .all-complete {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, var(--bg-card) 100%);
+            border: 2px solid var(--accent-gold); border-radius: 16px;
+            padding: 30px; text-align: center; margin-bottom: 25px;
+        }
+        .all-complete-icon { font-size: 3rem; margin-bottom: 15px; }
+        .all-complete-title { font-size: 1.3rem; font-weight: 800; color: var(--accent-gold); margin-bottom: 8px; }
+        .all-complete-desc { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 20px; }
+        .all-complete-stats { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
+        .all-complete-stat-value { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 800; color: var(--text-primary); }
+        .all-complete-stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+
+        /* RESPONSIVE */
+        @media (max-width: 700px) {
+            .hero-stats { grid-template-columns: 1fr; }
+            .systems-grid { grid-template-columns: 1fr; }
+            .header { flex-direction: column; gap: 15px; text-align: center; }
+            .header-left { flex-direction: column; }
+            .share-buttons { flex-direction: column; }
+            .share-btn { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <!-- ONBOARDING GATE -->
+    <div class="onboarding-gate" id="onboardingGate">
+        <div class="onboarding-icon">🎛️</div>
+        <h1 class="onboarding-title">Command Center</h1>
+        <p class="onboarding-subtitle">Track your wealth-building progress across all systems. Do you already have an Architect ID?</p>
+        <div class="onboarding-options">
+            <button class="onboarding-btn secondary" onclick="showIdModal()">🔑 I Have an Architect ID</button>
+            <div class="onboarding-divider">or</div>
+            <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="onboarding-btn primary">🚀 Get My Architect ID</a>
+        </div>
+    </div>
+
+    <!-- ID ENTRY MODAL -->
+    <div class="id-modal" id="idModal">
+        <div class="id-modal-card">
+            <h2 class="id-modal-title">Enter Your Architect ID</h2>
+            <p class="id-modal-subtitle">Find this on your certificate or in your email</p>
+            <input type="text" id="architectIdInput" class="id-input" placeholder="KOU-XXXXXX" maxlength="10">
+            <p class="id-error" id="idError">Invalid ID format. Should be KOU-XXXXXX</p>
+            <div class="id-modal-btns">
+                <button class="id-modal-btn cancel" onclick="hideIdModal()">Cancel</button>
+                <button class="id-modal-btn confirm" onclick="validateAndEnter()">Enter</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div class="container" id="mainDashboard" style="display: none;">
+        <div class="header">
+            <div class="header-left">
+                <div class="logo">COMMAND <span>CENTER</span></div>
+                <div class="live-indicator"><div class="live-dot"></div><span>Live</span></div>
+            </div>
+            <div class="architect-badge" onclick="copyArchitectId()">
+                <span>🏛️</span>
+                <span id="displayArchitectId">KOU-XXXXXX</span>
+            </div>
+        </div>
+
+        <div class="hero-stats">
+            <div class="hero-stat primary">
+                <div class="hero-stat-label">Freedom Number</div>
+                <div class="hero-stat-value" id="freedomNumber">$—</div>
+                <div class="hero-stat-sub" id="freedomSub">Calculate yours →</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-label">30-Year Projection</div>
+                <div class="hero-stat-value" id="projectionValue">$—</div>
+                <div class="hero-stat-sub">Based on your plan</div>
+            </div>
+            <div class="hero-stat gold">
+                <div class="hero-stat-label">Days Until Target</div>
+                <div class="hero-stat-value" id="daysRemaining">—</div>
+                <div class="hero-stat-sub">Nov 30, 2030</div>
+            </div>
+        </div>
+
+        <div class="level-section">
+            <div class="level-header">
+                <span class="level-title">Architect Level</span>
+                <span class="level-badge bronze" id="levelBadge"><span>⭐</span><span id="levelName">Bronze</span></span>
+            </div>
+            <div class="level-progress">
+                <div class="level-progress-bar bronze" id="levelProgressBar" style="width: 15%;"></div>
+            </div>
+            <div class="level-info">
+                <span id="levelCurrentXp">0 / 7 systems</span>
+                <span id="levelNextReward">Complete 3 more → Silver</span>
+            </div>
+        </div>
+
+        <div class="next-action" id="nextAction">
+            <div class="next-action-badge"><span>⚡</span><span>Recommended Next</span></div>
+            <h3 class="next-action-title" id="nextActionTitle">Loading...</h3>
+            <p class="next-action-desc" id="nextActionDesc">Calculating your optimal next move...</p>
+            <a href="#" class="next-action-btn" id="nextActionBtn"><span id="nextActionBtnText">Continue</span><span>→</span></a>
+        </div>
+
+        <div class="all-complete" id="allComplete" style="display: none;">
+            <div class="all-complete-icon">👑</div>
+            <h3 class="all-complete-title">ELITE ARCHITECT STATUS</h3>
+            <p class="all-complete-desc">You've mastered all systems. Your wealth machine is fully operational.</p>
+            <div class="all-complete-stats">
+                <div class="all-complete-stat">
+                    <div class="all-complete-stat-value">7/7</div>
+                    <div class="all-complete-stat-label">Systems Active</div>
+                </div>
+                <div class="all-complete-stat">
+                    <div class="all-complete-stat-value" id="eliteDate">—</div>
+                    <div class="all-complete-stat-label">Elite Since</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="systems-section">
+            <div class="section-header">
+                <span class="section-title">System Status</span>
+                <span class="section-count" id="systemsCount">0/7 Active</span>
+            </div>
+            <div class="systems-grid" id="systemsGrid"></div>
+        </div>
+
+        <div class="share-section">
+            <h3 class="share-title">Share Your Progress</h3>
+            <p class="share-subtitle">Flex on them. You're building while they're sleeping.</p>
+            <div class="share-buttons">
+                <a href="#" class="share-btn" onclick="shareToInstagram()"><span>📸</span><span>Instagram Story</span></a>
+                <a href="#" class="share-btn" onclick="shareToTwitter()"><span>𝕏</span><span>Post on X</span></a>
+                <button class="share-btn" onclick="copyShareText()"><span>📋</span><span>Copy Caption</span></button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-brand">Built by <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a></div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            AUTOPILOT_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html',
+            INVESTMENT_SIMPLIFIER_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html',
+            FREEDOM_CALCULATOR_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html',
+            COST_OF_WAITING_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html',
+            EIGHT_HUNDRED_CLUB_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/800-club.html',
+            BUDGET_CALCULATOR_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/Kous-Budget-Calculator.html',
+            PROMPT_VAULT_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html'
+        };
+
+        const SYSTEMS = [
+            { id: 'autopilot', name: 'Autopilot System', desc: 'Core money machine', icon: '🤖', url: CONFIG.AUTOPILOT_URL, storageKey: 'autopilot_completed', priority: 1 },
+            { id: 'freedom', name: 'Freedom Calculator', desc: 'Your magic number', icon: '🎯', url: CONFIG.FREEDOM_CALCULATOR_URL, storageKey: 'freedom_completed', priority: 2 },
+            { id: 'investment', name: 'Investment Simplifier', desc: 'Portfolio allocation', icon: '📊', url: CONFIG.INVESTMENT_SIMPLIFIER_URL, storageKey: 'investment_completed', priority: 3 },
+            { id: 'waiting', name: 'Cost of Waiting', desc: 'Urgency fuel', icon: '⏰', url: CONFIG.COST_OF_WAITING_URL, storageKey: 'waiting_completed', priority: 4 },
+            { id: '800club', name: '800-Club Protocol', desc: 'Credit optimization', icon: '💳', url: CONFIG.EIGHT_HUNDRED_CLUB_URL, storageKey: 'eightclub_completed', priority: 5 },
+            { id: 'budget', name: 'Budget Calculator', desc: 'Cash flow control', icon: '💰', url: CONFIG.BUDGET_CALCULATOR_URL, storageKey: 'budget_completed', priority: 6 },
+            { id: 'prompt', name: 'Prompt Vault', desc: 'AI command arsenal', icon: '🧠', url: CONFIG.PROMPT_VAULT_URL, storageKey: 'prompt_completed', priority: 7 }
+        ];
+
+        let currentArchitectId = '';
+        let completedSystems = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkExistingSession();
+            setupIdInput();
+        });
+
+        function checkExistingSession() {
+            const storedId = localStorage.getItem('command_center_architect_id') || localStorage.getItem('cashvault_architect_id');
+            if (storedId) {
+                currentArchitectId = storedId;
+                enterDashboard();
+            }
+        }
+
+        function setupIdInput() {
+            const input = document.getElementById('architectIdInput');
+            input.addEventListener('input', (e) => {
+                let value = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+                if (value.length > 0 && !value.startsWith('KOU-') && !value.startsWith('KOU') && !value.startsWith('KO') && !value.startsWith('K')) {
+                    if (value.length <= 6) value = 'KOU-' + value;
+                }
+                if (value.length > 4 && value[3] !== '-') value = value.slice(0, 3) + '-' + value.slice(3);
+                e.target.value = value.slice(0, 10);
+            });
+            input.addEventListener('keypress', (e) => { if (e.key === 'Enter') validateAndEnter(); });
+        }
+
+        function showIdModal() { document.getElementById('idModal').classList.add('show'); document.getElementById('architectIdInput').focus(); }
+        function hideIdModal() { document.getElementById('idModal').classList.remove('show'); document.getElementById('idError').style.display = 'none'; }
+
+        function validateAndEnter() {
+            const input = document.getElementById('architectIdInput');
+            const error = document.getElementById('idError');
+            const value = input.value.trim();
+            if (!/^KOU-[A-Z0-9]{6}$/.test(value)) { error.style.display = 'block'; input.style.borderColor = 'var(--danger)'; return; }
+            currentArchitectId = value;
+            localStorage.setItem('command_center_architect_id', value);
+            hideIdModal();
+            enterDashboard();
+        }
+
+        function enterDashboard() {
+            document.getElementById('onboardingGate').classList.add('hidden');
+            document.getElementById('mainDashboard').style.display = 'block';
+            loadCompletionStatus();
+            renderDashboard();
+        }
+
+        function loadCompletionStatus() {
+            completedSystems = [];
+            SYSTEMS.forEach(system => { if (localStorage.getItem(system.storageKey) === 'true') completedSystems.push(system.id); });
+            if (localStorage.getItem('cashvault_architect_id') && !completedSystems.includes('autopilot')) completedSystems.push('autopilot');
+            if (localStorage.getItem('investment_simplifier_portfolio') && !completedSystems.includes('investment')) completedSystems.push('investment');
+            const saved = JSON.parse(localStorage.getItem('vault_saved_prompts') || '[]');
+            if (saved.length > 0 && !completedSystems.includes('prompt')) completedSystems.push('prompt');
+        }
+
+        function renderDashboard() {
+            document.getElementById('displayArchitectId').textContent = currentArchitectId;
+            const targetDate = new Date('2030-11-30');
+            const daysRemaining = Math.ceil((targetDate - new Date()) / (1000 * 60 * 60 * 24));
+            document.getElementById('daysRemaining').textContent = daysRemaining.toLocaleString();
+            document.getElementById('systemsCount').textContent = `${completedSystems.length}/${SYSTEMS.length} Active`;
+            renderSystemsGrid();
+            updateArchitectLevel();
+            updateNextAction();
+            loadSavedStats();
+        }
+
+        function renderSystemsGrid() {
+            const grid = document.getElementById('systemsGrid');
+            grid.innerHTML = '';
+            SYSTEMS.forEach(system => {
+                const isCompleted = completedSystems.includes(system.id);
+                const card = document.createElement('a');
+                card.href = system.url;
+                card.className = `system-card ${isCompleted ? 'completed' : ''}`;
+                card.innerHTML = `<div class="system-icon">${system.icon}</div><div class="system-info"><div class="system-name">${system.name}</div><div class="system-desc">${system.desc}</div></div><div class="system-status">${isCompleted ? '✅' : '○'}</div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateArchitectLevel() {
+            const count = completedSystems.length;
+            const badge = document.getElementById('levelBadge');
+            const name = document.getElementById('levelName');
+            const bar = document.getElementById('levelProgressBar');
+            const current = document.getElementById('levelCurrentXp');
+            const next = document.getElementById('levelNextReward');
+            let level, progress, nextReward;
+            if (count >= 7) { level = 'elite'; progress = 100; nextReward = 'Maximum level achieved! 👑'; document.getElementById('nextAction').style.display = 'none'; document.getElementById('allComplete').style.display = 'block'; document.getElementById('eliteDate').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+            else if (count >= 5) { level = 'gold'; progress = 70 + ((count - 5) / 2) * 30; nextReward = `Complete ${7 - count} more → Elite`; }
+            else if (count >= 3) { level = 'silver'; progress = 40 + ((count - 3) / 2) * 30; nextReward = `Complete ${5 - count} more → Gold`; }
+            else { level = 'bronze'; progress = 15 + (count / 3) * 25; nextReward = `Complete ${3 - count} more → Silver`; }
+            badge.className = `level-badge ${level}`;
+            name.textContent = level.charAt(0).toUpperCase() + level.slice(1);
+            bar.className = `level-progress-bar ${level}`;
+            bar.style.width = `${progress}%`;
+            current.textContent = `${count} / ${SYSTEMS.length} systems`;
+            next.textContent = nextReward;
+        }
+
+        function updateNextAction() {
+            const title = document.getElementById('nextActionTitle');
+            const desc = document.getElementById('nextActionDesc');
+            const btn = document.getElementById('nextActionBtn');
+            const btnText = document.getElementById('nextActionBtnText');
+            const nextSystem = SYSTEMS.filter(s => !completedSystems.includes(s.id)).sort((a, b) => a.priority - b.priority)[0];
+            if (!nextSystem) { document.getElementById('nextAction').style.display = 'none'; return; }
+            const messages = {
+                autopilot: { title: 'Install The Autopilot System', desc: 'This is your core wealth machine. Everything else builds on top of this. 15 minutes to set up, works for decades.' },
+                freedom: { title: 'Calculate Your Freedom Number', desc: "You can't hit a target you can't see. Find out exactly how much you need to never work again." },
+                investment: { title: 'Build Your Investment Portfolio', desc: 'Turn your autopilot deposits into a growing wealth engine. Age-optimized allocation in 2 minutes.' },
+                waiting: { title: 'See What Waiting Costs You', desc: 'Every day you delay compounds against you. Calculate the exact dollar cost of procrastination.' },
+                '800club': { title: 'Hit 800 Credit Score', desc: 'Credit is leverage. An 800 score unlocks the best rates on everything. Follow the protocol.' },
+                budget: { title: 'Map Your Cash Flow', desc: "Know exactly where your money goes. Can't optimize what you don't measure." },
+                prompt: { title: 'Unlock The AI Prompt Vault', desc: 'Copy my AI homework. Pre-built prompts for career, wealth, and business acceleration.' }
+            };
+            const msg = messages[nextSystem.id];
+            title.textContent = msg.title;
+            desc.textContent = msg.desc;
+            btn.href = nextSystem.url;
+            btnText.textContent = `Open ${nextSystem.name}`;
+        }
+
+        function loadSavedStats() {
+            const freedomData = localStorage.getItem('freedom_calculator_result');
+            if (freedomData) { try { const data = JSON.parse(freedomData); if (data.freedomNumber) { document.getElementById('freedomNumber').textContent = '$' + parseInt(data.freedomNumber).toLocaleString(); document.getElementById('freedomSub').textContent = 'Your target'; } } catch(e) {} }
+            const projectionData = localStorage.getItem('investment_simplifier_projection');
+            if (projectionData) { try { const data = JSON.parse(projectionData); if (data.projectedValue) { document.getElementById('projectionValue').textContent = '$' + parseInt(data.projectedValue).toLocaleString(); } } catch(e) {} }
+        }
+
+        function copyArchitectId() {
+            navigator.clipboard.writeText(currentArchitectId);
+            const badge = document.querySelector('.architect-badge');
+            const original = badge.innerHTML;
+            badge.innerHTML = '<span>✓ Copied!</span>';
+            setTimeout(() => badge.innerHTML = original, 1500);
+        }
+
+        function shareToInstagram() { alert('Screenshot your Command Center and share to Instagram Stories!\n\nTag @koutalksmoney'); }
+
+        function shareToTwitter() {
+            const count = completedSystems.length;
+            const text = encodeURIComponent(`${count}/${SYSTEMS.length} wealth systems active. 🎛️\n\nArchitect ID: ${currentArchitectId}\n\nBuilding the machine while others sleep.\n\nIG/X: @koutalksmoney`);
+            window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+        }
+
+        function copyShareText() {
+            const count = completedSystems.length;
+            const text = `${count}/${SYSTEMS.length} wealth systems active. 🎛️\n\nArchitect ID: ${currentArchitectId}\n\nBuilding the machine while others sleep.\n\nIG/X: @koutalksmoney`;
+            navigator.clipboard.writeText(text);
+            const btn = event.target.closest('.share-btn');
+            const original = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span><span>Copied!</span>';
+            setTimeout(() => btn.innerHTML = original, 1500);
+        }
+
+        window.markSystemComplete = function(systemId) {
+            const system = SYSTEMS.find(s => s.id === systemId);
+            if (system) localStorage.setItem(system.storageKey, 'true');
+        };
+    </script>
+</body>
+</html>
