@@ -22,7 +22,6 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
         .glitch { position: relative; }
-        .glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.8; }
         
         /* === GOAL-GRADIENT: PROGRESS BAR SHIMMER === */
         @keyframes shimmer {
@@ -85,6 +84,15 @@
         }
         .screenshot-pulse {
             animation: screenshotPulse 2s infinite;
+        }
+
+        /* === EMAIL GATE GLOW === */
+        @keyframes emailGateGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(34,197,94,0.2), inset 0 0 30px rgba(34,197,94,0.05); }
+            50% { box-shadow: 0 0 40px rgba(34,197,94,0.4), inset 0 0 50px rgba(34,197,94,0.1); }
+        }
+        .email-gate-glow {
+            animation: emailGateGlow 2s ease-in-out infinite;
         }
 
         /* === OPERATIONAL TRANSPARENCY PANEL === */
@@ -155,6 +163,69 @@
             background: #22c55e;
             color: #000;
         }
+
+        /* === SHARE BUTTON STYLES === */
+        .share-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .share-btn:hover {
+            transform: translateY(-2px);
+        }
+        .share-btn-instagram {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+            border: none;
+        }
+        .share-btn-twitter {
+            background: #000;
+            color: white;
+            border: 1px solid #333;
+        }
+        .share-btn-twitter:hover {
+            background: #111;
+            border-color: #555;
+        }
+        .share-btn-linkedin {
+            background: #0077B5;
+            color: white;
+            border: none;
+        }
+        .share-btn-copy {
+            background: transparent;
+            color: #888;
+            border: 1px solid #333;
+        }
+        .share-btn-copy:hover {
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+        .share-btn-copy.copied {
+            background: #22c55e;
+            border-color: #22c55e;
+            color: #000;
+        }
+
+        /* === COUNTDOWN TIMER === */
+        @keyframes timerPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .timer-pulse {
+            animation: timerPulse 1s ease-in-out infinite;
+        }
         
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
@@ -171,9 +242,19 @@
 
         // --- RUTHLESS CONFIGURATION ---
         const CONFIG = {
+            // === BEEHIIV CONFIGURATION ===
+            BEEHIIV: {
+                PUBLICATION_ID: "YOUR_PUBLICATION_ID", // Replace with your Beehiiv publication ID
+                FORM_URL: "https://embeds.beehiiv.com/YOUR_EMBED_ID", // Replace with your Beehiiv form URL
+                // For testing without Beehiiv, set this to true
+                MOCK_MODE: true
+            },
             LINKS: {
                 SOFI: "https://www.sofi.com/",
                 FIDELITY: "https://www.fidelity.com/",
+                INSTAGRAM: "https://instagram.com/koutalksmoney",
+                TWITTER: "https://twitter.com/koutalksmoney",
+                YOUTUBE: "https://youtube.com/@FinanceWithKou"
             },
             THEMES: {
                 DEFAULT: { 
@@ -203,7 +284,6 @@
                     TECH: { ticker: "VGT", name: "Vanguard Info Tech", return: "15%+", desc: "Pure technology sector play. High volatility." } 
                 }
             },
-            // --- IDLENESS AVERSION: 8 DETAILED PROCESSING STEPS (4-5 seconds total) ---
             PROCESSING_STEPS: [
                 { id: 1, text: "Initializing wealth protocol...", duration: 500 },
                 { id: 2, text: "Validating income parameters...", duration: 500 },
@@ -213,22 +293,101 @@
                 { id: 6, text: "Embossing digital credentials...", duration: 500 },
                 { id: 7, text: "Minting premium certificate...", duration: 600 },
                 { id: 8, text: "Finalizing system installation...", duration: 700 }
-            ]
+            ],
+            // === SHARE TEMPLATES (Pre-written for each platform) ===
+            SHARE_TEMPLATES: {
+                INSTAGRAM: "I just installed the Autopilot Money System. My machine is now building wealth while I sleep. 🤖💰 @koutalksmoney",
+                TWITTER: "Just installed The Autopilot Money System.\n\nMy wealth is now on autopilot.\n\nGet yours: [LINK]\n\n@koutalksmoney",
+                LINKEDIN: "I just completed the Autopilot Money System certification. If you're still manually managing your finances, you're working too hard. Automation > Willpower. #PersonalFinance #WealthBuilding",
+                TIKTOK: "POV: You just installed the Autopilot Money System and your wealth is now building itself 🤖💰 @koutalksmoney"
+            }
         };
+
+        // === UNIQUE ARCHITECT ID GENERATOR ===
+        // Generates truly unique IDs using timestamp encoding + randomness + collision check
+        function generateArchitectId() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed ambiguous chars (0, O, 1, I, L)
+            
+            // Get timestamp component (last 3 chars based on time)
+            const timestamp = Date.now();
+            const timeComponent = (timestamp % 32768).toString(32).toUpperCase().padStart(3, '0');
+            
+            // Generate random component (3 chars)
+            let randomComponent = '';
+            const cryptoRandom = window.crypto || window.msCrypto;
+            if (cryptoRandom && cryptoRandom.getRandomValues) {
+                const randomArray = new Uint32Array(3);
+                cryptoRandom.getRandomValues(randomArray);
+                for (let i = 0; i < 3; i++) {
+                    randomComponent += chars.charAt(randomArray[i] % chars.length);
+                }
+            } else {
+                for (let i = 0; i < 3; i++) {
+                    randomComponent += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+            }
+            
+            // Combine: KOU-[3 time chars][3 random chars]
+            let id = 'KOU-' + timeComponent.slice(-3) + randomComponent;
+            
+            // Ensure only valid chars (convert any lowercase or invalid)
+            id = id.toUpperCase().replace(/[^A-Z0-9-]/g, chars.charAt(Math.floor(Math.random() * chars.length)));
+            
+            // Collision check against stored IDs
+            const storedIds = JSON.parse(localStorage.getItem('generated_architect_ids') || '[]');
+            let attempts = 0;
+            while (storedIds.includes(id) && attempts < 10) {
+                // Regenerate random component if collision
+                randomComponent = '';
+                for (let i = 0; i < 3; i++) {
+                    randomComponent += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                id = 'KOU-' + timeComponent.slice(-3) + randomComponent;
+                attempts++;
+            }
+            
+            // Store this ID to prevent future collisions
+            storedIds.push(id);
+            if (storedIds.length > 1000) storedIds.shift(); // Keep last 1000
+            localStorage.setItem('generated_architect_ids', JSON.stringify(storedIds));
+            
+            return id;
+        }
 
         // --- MAIN APP COMPONENT ---
         function App() {
             const [module, setModule] = useState(0);
             const [context, setContext] = useState(null); 
             const [theme, setTheme] = useState(CONFIG.THEMES.DEFAULT);
+            const [architectId, setArchitectId] = useState(null);
             
             const [userData, setUserData] = useState({
                 userName: "",
+                userEmail: "",
                 income: 0,
                 payFreq: "Bi-weekly",
                 etfChoice: null,
                 checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false }
             });
+
+            // Generate Architect ID on mount - always generate fresh for new sessions
+            useEffect(() => {
+                // Check if this is a continuation of a current session (within 30 min)
+                const savedId = sessionStorage.getItem('current_architect_id');
+                const savedTimestamp = sessionStorage.getItem('architect_id_timestamp');
+                const thirtyMinutes = 30 * 60 * 1000;
+                
+                if (savedId && savedTimestamp && (Date.now() - parseInt(savedTimestamp)) < thirtyMinutes) {
+                    // Continue with existing session ID
+                    setArchitectId(savedId);
+                } else {
+                    // Generate fresh ID for new session
+                    const newId = generateArchitectId();
+                    setArchitectId(newId);
+                    sessionStorage.setItem('current_architect_id', newId);
+                    sessionStorage.setItem('architect_id_timestamp', Date.now().toString());
+                }
+            }, []);
 
             // --- THE CHAMELEON BRAIN ---
             useEffect(() => {
@@ -258,9 +417,10 @@
             const toggleCheck = (key) => setUserData(prev => ({ ...prev, checklist: { ...prev.checklist, [key]: !prev.checklist[key] } }));
 
             // --- GOAL-GRADIENT: Calculate installation percentage ---
-            const installationPercent = Math.round(((module + 1) / 7) * 100);
+            // Now includes email gate as step 7, certificate as step 8
+            const installationPercent = Math.round(((module + 1) / 8) * 100);
 
-            // Router
+            // Router - Now includes EmailGate (module 6) before Certificate (module 7)
             const renderModule = () => {
                 switch(module) {
                     case 0: return <ModuleBridge context={context} theme={theme} next={() => setModule(1)} />;
@@ -269,7 +429,8 @@
                     case 3: return <ModuleAutomation userData={userData} toggleCheck={toggleCheck} theme={theme} next={() => setModule(4)} />;
                     case 4: return <ModuleSelector userData={userData} updateData={updateData} toggleCheck={toggleCheck} theme={theme} next={() => setModule(5)} />;
                     case 5: return <ModuleProjection userData={userData} updateData={updateData} theme={theme} next={() => setModule(6)} />;
-                    case 6: return <ModuleCertificate userData={userData} theme={theme} />;
+                    case 6: return <ModuleEmailGate userData={userData} updateData={updateData} theme={theme} architectId={architectId} next={() => setModule(7)} />;
+                    case 7: return <ModuleCertificate userData={userData} theme={theme} architectId={architectId} />;
                     default: return <ModuleBridge context={context} theme={theme} next={() => setModule(1)} />;
                 }
             };
@@ -277,7 +438,7 @@
             return (
                 <div className={`min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors duration-1000 selection:${theme.bg} selection:text-white`}>
                     
-                    {module !== 6 && (
+                    {module < 7 && (
                         <div className="w-full max-w-2xl mb-8 border-b border-gray-800 pb-4">
                             <div className="flex justify-between items-end mb-3">
                                 <div>
@@ -285,7 +446,7 @@
                                     <p className="text-xs text-gray-500">MODE: <span className={`${theme.color} animate-pulse font-bold uppercase`}>{theme.title}</span></p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-xs text-gray-400">MODULE {module + 1}/7</p>
+                                    <p className="text-xs text-gray-400">MODULE {module + 1}/8</p>
                                 </div>
                             </div>
                             
@@ -309,7 +470,7 @@
                         {renderModule()}
                     </div>
 
-                    {module !== 6 && (
+                    {module < 7 && (
                         <div className="w-full max-w-2xl mt-8 flex justify-between text-xs text-gray-600">
                             <button onClick={() => setModule(m => Math.max(0, m - 1))} className={`hover:text-white ${module === 0 ? 'invisible' : ''}`}>[ ← BACK ]</button>
                             <span>SECURE CONNECTION</span>
@@ -319,7 +480,7 @@
             );
         }
 
-        // --- MODULES 1-5 (STANDARD) ---
+        // --- MODULES 1-5 (UNCHANGED) ---
         function ModuleBridge({ context, theme, next }) {
             const isTicker = context?.source === 'ticker';
             const isScore = context?.source === 'score';
@@ -446,7 +607,6 @@
                         </div>
                     </div>
                     <div className="flex items-center space-x-3 mb-6 bg-black p-3 border border-gray-800"><input type="checkbox" checked={userData.checklist.split} onChange={() => toggleCheck('split')} className={`w-5 h-5 accent-${theme.color.split('-')[1]}-500`} /><label className="text-sm text-gray-300">I have configured the money flow.</label></div>
-                    {/* UNCERTAINTY ANXIETY: Specific CTA */}
                     <button onClick={next} disabled={!userData.checklist.split} className={`w-full py-3 font-bold uppercase transition-all ${userData.checklist.split ? `${theme.bg} text-black hover:brightness-110` : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>[ Confirm Automation is Live ]</button>
                 </div>
             );
@@ -470,7 +630,6 @@
                     <p className="text-sm text-gray-400 mb-6">Based on your profile, your money should buy:</p>
                     <div className={`border ${theme.border} bg-gray-900 p-6 mb-6 text-center relative overflow-hidden`}><div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div><h3 className="text-4xl font-bold text-white mb-2 tracking-tighter">{userData.etfChoice.ticker}</h3><p className={`${theme.color} font-bold mb-4 uppercase text-xs tracking-widest`}>{userData.etfChoice.name}</p><p className="text-sm text-gray-300">{userData.etfChoice.desc}</p><div className="mt-4 text-xs text-gray-500 border-t border-gray-800 pt-2">Avg Return: {userData.etfChoice.return}</div></div>
                     <div className="bg-black p-4 border border-gray-800 mb-6"><p className="text-xs text-white font-bold mb-2">FINAL ACTION:</p><p className="text-xs text-gray-400 mb-3">Log into Fidelity -> Enable "Automatic Investments" -> Buy <strong>{userData.etfChoice.ticker}</strong> with the cash that transfers in.</p><div className="flex items-center space-x-3"><input type="checkbox" checked={userData.checklist.autoInvest} onChange={() => toggleCheck('autoInvest')} className={`w-5 h-5 accent-${theme.color.split('-')[1]}-500`} /><label className="text-sm text-gray-300">I have set the auto-buy.</label></div></div>
-                    {/* UNCERTAINTY ANXIETY: Specific CTA */}
                     <button onClick={next} disabled={!userData.checklist.autoInvest} className={`w-full py-3 font-bold uppercase transition-all ${userData.checklist.autoInvest ? `${theme.bg} text-black hover:brightness-110` : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>[ Activate ${userData.etfChoice.ticker} Auto-Buy ]</button>
                 </div>
             );
@@ -507,7 +666,7 @@
             );
         }
 
-        // --- IDLENESS AVERSION: ENHANCED PROCESSING OVERLAY (4-5 seconds) ---
+        // --- IDLENESS AVERSION: ENHANCED PROCESSING OVERLAY ---
         function ProcessingOverlay({ theme, userName, onComplete }) {
             const [currentStep, setCurrentStep] = useState(0);
             const [panelOpen, setPanelOpen] = useState(true);
@@ -531,15 +690,12 @@
             return (
                 <div className="absolute inset-0 z-50 bg-black flex flex-col items-center justify-center font-mono p-8 animate-fade-in">
                     <div className="w-full max-w-md">
-                        {/* Header */}
                         <div className="text-center mb-6">
                             <h2 className="text-xl font-bold text-white mb-2">INSTALLING SYSTEM</h2>
                             <p className={`${theme.color} text-xs uppercase tracking-widest`}>
                                 {userName ? `FOR: ${userName.toUpperCase()}` : 'GENERATING CREDENTIALS'}
                             </p>
                         </div>
-
-                        {/* Progress Bar */}
                         <div className="mb-4">
                             <div className="flex justify-between text-[10px] mb-1">
                                 <span className="text-gray-500">PROGRESS</span>
@@ -552,15 +708,11 @@
                                 ></div>
                             </div>
                         </div>
-
-                        {/* Current Step Display */}
                         <div className="text-center mb-4">
                             <p className="text-white text-sm font-bold">
                                 {currentStep < steps.length ? steps[currentStep].text : 'Complete!'}
                             </p>
                         </div>
-
-                        {/* Operational Transparency Panel */}
                         <TransparencyPanel 
                             steps={steps}
                             currentStep={currentStep}
@@ -569,8 +721,6 @@
                             onToggle={() => setPanelOpen(!panelOpen)}
                             theme={theme}
                         />
-
-                        {/* Subtext */}
                         <p className="text-[10px] text-gray-600 text-center mt-4">
                             This takes a moment to ensure quality
                         </p>
@@ -579,7 +729,7 @@
             );
         }
 
-        // --- PROJECTION MODULE WITH IDENTITY INPUT ---
+        // --- PROJECTION MODULE (Name Input Only) ---
         function ModuleProjection({ userData, updateData, theme, next }) {
             const [isProcessing, setIsProcessing] = useState(false);
             const monthly = userData.income * 0.2;
@@ -617,7 +767,6 @@
                         ))}
                     </div>
 
-                    {/* PEAK-END: IDENTITY INPUT */}
                     <div className="bg-black border border-gray-800 p-4 mb-6 transition-all focus-within:border-white">
                          <p className="text-gray-400 text-xs mb-2 uppercase tracking-widest">Identity Protocol</p>
                          <input 
@@ -629,25 +778,195 @@
                          />
                     </div>
 
-                    {/* UNCERTAINTY ANXIETY: Specific CTA */}
                     <button 
                         onClick={handleNext} 
                         disabled={!userData.userName}
                         className={`w-full py-3 font-bold uppercase transition-colors shadow-lg shadow-white/10 ${userData.userName ? 'bg-white text-black hover:bg-gray-200' : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}
                     >
-                        [ Print Certificate for {userData.userName || '...'} ]
+                        [ Generate Certificate for {userData.userName || '...'} ]
                     </button>
                     <p className="text-[10px] text-gray-500 text-center mt-3">
-                        *This will lock your configuration file and mint your ID.
+                        *Next: Verify email to unlock your certificate
                     </p>
                 </div>
             );
         }
 
-        // --- PEAK-END: PREMIUM BLACK CARD CERTIFICATE + SCREENSHOT OPTIMIZATION ---
-        function ModuleCertificate({ userData, theme }) {
-            const [copied, setCopied] = useState(false);
+        // === NEW: EMAIL GATE MODULE (THE HIGHEST-LEVERAGE ADDITION) ===
+        function ModuleEmailGate({ userData, updateData, theme, architectId, next }) {
+            const [email, setEmail] = useState(userData.userEmail || '');
+            const [isSubmitting, setIsSubmitting] = useState(false);
+            const [error, setError] = useState('');
+            
+            const projectedWealth = ((userData.income * 0.2) * ((Math.pow(1.10/12, 30*12)-1)/(0.10/12))).toLocaleString(undefined, {maximumFractionDigits:0});
+
+            const validateEmail = (email) => {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            };
+
+            const handleSubmit = async () => {
+                if (!validateEmail(email)) {
+                    setError('Enter a valid email address');
+                    return;
+                }
+                
+                setIsSubmitting(true);
+                setError('');
+
+                // === BEEHIIV INTEGRATION ===
+                if (CONFIG.BEEHIIV.MOCK_MODE) {
+                    // Mock mode for testing
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    updateData('userEmail', email);
+                    localStorage.setItem('autopilot_email_captured', 'true');
+                    localStorage.setItem('autopilot_user_email', email);
+                    next();
+                } else {
+                    // Real Beehiiv submission
+                    try {
+                        const response = await fetch(CONFIG.BEEHIIV.FORM_URL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                email: email,
+                                utm_source: 'autopilot_system',
+                                utm_medium: 'web_app',
+                                referring_site: window.location.href
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            updateData('userEmail', email);
+                            localStorage.setItem('autopilot_email_captured', 'true');
+                            localStorage.setItem('autopilot_user_email', email);
+                            next();
+                        } else {
+                            throw new Error('Subscription failed');
+                        }
+                    } catch (err) {
+                        // Fallback: still proceed but log the error
+                        console.error('Beehiiv submission error:', err);
+                        updateData('userEmail', email);
+                        next();
+                    }
+                }
+            };
+
+            return (
+                <div className="terminal-box p-8 rounded-sm animate-fade-in email-gate-glow" style={{ borderColor: theme.accent, borderWidth: '2px' }}>
+                    <div className="text-center space-y-6">
+                        
+                        {/* Success indicator */}
+                        <div className="mb-4">
+                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${theme.border} ${theme.color} text-xs font-bold uppercase tracking-widest`}>
+                                <span className={`w-2 h-2 rounded-full ${theme.bg} animate-pulse`}></span>
+                                Certificate Ready
+                            </div>
+                        </div>
+
+                        {/* Visual preview of what they're unlocking */}
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
+                            <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-lg p-6 opacity-60 blur-[2px]">
+                                <div className="text-center">
+                                    <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">Your Architect ID</p>
+                                    <p className="text-2xl font-bold text-white tracking-widest">{architectId}</p>
+                                    <div className="mt-4 border-t border-gray-700 pt-4">
+                                        <p className="text-gray-500 text-xs">30-YEAR PROJECTION</p>
+                                        <p className={`text-xl font-bold ${theme.color}`}>${projectedWealth}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* The Gate */}
+                        <div className="space-y-4 pt-4">
+                            <div>
+                                <h2 className="text-xl font-bold text-white mb-2">UNLOCK YOUR CERTIFICATE</h2>
+                                <p className="text-gray-400 text-sm">
+                                    Enter your email to receive your Architect credentials
+                                </p>
+                            </div>
+
+                            <div className="space-y-3">
+                                <div className="relative">
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => {
+                                            setEmail(e.target.value);
+                                            setError('');
+                                        }}
+                                        placeholder="your@email.com"
+                                        className={`w-full bg-black border ${error ? 'border-red-500' : 'border-gray-700'} text-white p-4 rounded text-center font-mono text-lg outline-none focus:border-white transition-colors`}
+                                        disabled={isSubmitting}
+                                    />
+                                    {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
+                                </div>
+
+                                <button
+                                    onClick={handleSubmit}
+                                    disabled={!email || isSubmitting}
+                                    className={`w-full py-4 ${theme.bg} text-black font-bold text-lg rounded transition-all uppercase shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
+                                >
+                                    {isSubmitting ? (
+                                        <>
+                                            <svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <span>Verifying...</span>
+                                        </>
+                                    ) : (
+                                        '[ Unlock My Certificate ]'
+                                    )}
+                                </button>
+                            </div>
+
+                            {/* Trust signals */}
+                            <div className="flex items-center justify-center gap-4 text-[10px] text-gray-500 pt-2">
+                                <span className="flex items-center gap-1">
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                    Secure
+                                </span>
+                                <span>•</span>
+                                <span>No spam, ever</span>
+                                <span>•</span>
+                                <span>Unsubscribe anytime</span>
+                            </div>
+                        </div>
+
+                        {/* What they get */}
+                        <div className="border-t border-gray-800 pt-4 mt-4 text-left">
+                            <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">What you'll receive:</p>
+                            <ul className="space-y-2 text-sm text-gray-300">
+                                <li className="flex items-center gap-2">
+                                    <span className={`${theme.color}`}>✓</span>
+                                    Your personalized Architect Certificate
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <span className={`${theme.color}`}>✓</span>
+                                    Unique verification ID: <span className="font-mono text-white">{architectId}</span>
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <span className={`${theme.color}`}>✓</span>
+                                    Exclusive access to the Prompt Vault Cheat Sheet
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // === ENHANCED CERTIFICATE MODULE (Multi-platform share, countdown timer) ===
+        function ModuleCertificate({ userData, theme, architectId }) {
+            const [copiedPlatform, setCopiedPlatform] = useState(null);
             const [revealed, setRevealed] = useState(false);
+            const [countdown, setCountdown] = useState(24 * 60 * 60); // 24 hours in seconds
+            
             const monthlyInvest = (userData.income * 0.2).toFixed(0);
             const projectedWealth = (monthlyInvest * ((Math.pow(1.10/12, 30*12)-1)/(0.10/12))).toLocaleString(undefined, {maximumFractionDigits:0});
 
@@ -657,12 +976,33 @@
                 return () => clearTimeout(timer);
             }, []);
 
-            // FRICTIONLESS END: Copy Logic
-            const handleCopy = () => {
-                const text = "I just installed the Autopilot Money System. @koutalksmoney";
+            // Countdown timer for urgency
+            useEffect(() => {
+                const timer = setInterval(() => {
+                    setCountdown(prev => prev > 0 ? prev - 1 : 0);
+                }, 1000);
+                return () => clearInterval(timer);
+            }, []);
+
+            const formatCountdown = (seconds) => {
+                const h = Math.floor(seconds / 3600);
+                const m = Math.floor((seconds % 3600) / 60);
+                const s = seconds % 60;
+                return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            };
+
+            // Copy handler for different platforms
+            const handleCopy = (platform) => {
+                const text = CONFIG.SHARE_TEMPLATES[platform];
                 navigator.clipboard.writeText(text);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
+                setCopiedPlatform(platform);
+                setTimeout(() => setCopiedPlatform(null), 2000);
+            };
+
+            // Share URL generators
+            const shareUrls = {
+                twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(CONFIG.SHARE_TEMPLATES.TWITTER)}`,
+                linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`
             };
 
             return (
@@ -678,7 +1018,7 @@
                     {/* THE PEAK: PREMIUM BLACK CARD ASSET */}
                     <div 
                         id="certificate-card" 
-                        className={`relative h-64 w-full rounded-xl mb-6 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`}
+                        className={`relative h-72 w-full rounded-xl mb-6 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`}
                     >
                         
                         {/* Background & Texture */}
@@ -699,68 +1039,113 @@
                                 <span className="text-[10px] text-gray-500 font-mono border border-gray-700 px-2 py-1 rounded">WEALTH ARCHITECT</span>
                             </div>
 
-                            {/* Middle Row: Chip & Number */}
+                            {/* Middle Row: Architect ID & Projection */}
                             <div>
-                                <div className="w-12 h-9 bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-600 rounded-md mb-4 shadow-sm opacity-90"></div>
-                                <div className="card-font text-gray-300 text-lg tracking-[0.15em] opacity-80 embossed">
+                                <div className="mb-2">
+                                    <p className="text-[8px] text-gray-500 uppercase tracking-widest mb-1">Architect ID</p>
+                                    <p className={`${theme.color} font-mono text-lg font-bold tracking-widest`}>{architectId}</p>
+                                </div>
+                                <div className="w-12 h-9 bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-600 rounded-md mb-3 shadow-sm opacity-90"></div>
+                                <div className="card-font text-gray-300 text-xl tracking-[0.15em] opacity-80 embossed">
                                     ${projectedWealth}
                                 </div>
                                 <div className="text-[8px] text-gray-500 uppercase tracking-widest mt-1">Projected Net Worth (30yr)</div>
                             </div>
 
-                            {/* Bottom Row: Name & Info */}
+                            {/* Bottom Row: Name & Verification */}
                             <div className="flex justify-between items-end">
                                 <div>
                                     <p className="text-white font-bold uppercase tracking-widest text-sm embossed card-font">
                                         {userData.userName || "AUTHORIZED USER"}
                                     </p>
-                                    <p className="text-[8px] text-gray-500 mt-1">MEMBER SINCE 2026</p>
+                                    <p className="text-[8px] text-gray-500 mt-1">MEMBER SINCE {new Date().getFullYear()}</p>
                                 </div>
                                 <div className="text-right">
-                                     <div className={`${theme.color} text-xs font-bold`}>VERIFIED</div>
+                                     <div className={`${theme.color} text-xs font-bold`}>✓ VERIFIED</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* PEAK-END: Explicit Screenshot Instructions */}
-                    <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border border-gray-700 p-4 rounded mb-6 text-center">
-                        <p className="text-white text-sm font-bold mb-1">🎉 Your Certificate is Ready!</p>
-                        <p className="text-gray-400 text-xs">Take a screenshot now before scrolling.</p>
+                    {/* URGENCY: Countdown Timer */}
+                    <div className="bg-gradient-to-r from-red-900/30 via-red-800/20 to-red-900/30 border border-red-500/30 p-4 rounded mb-6 text-center">
+                        <p className="text-red-400 text-xs font-bold uppercase tracking-widest mb-1">⏰ Bonus Access Expires In</p>
+                        <p className="text-white text-2xl font-mono font-bold timer-pulse">{formatCountdown(countdown)}</p>
                     </div>
 
-                    {/* THE END: FRICTIONLESS HANDOVER */}
+                    {/* THE END: MULTI-PLATFORM SHARE KIT */}
                     <div className="text-center space-y-4 pb-12">
                         <div className="bg-gray-900 border border-gray-800 p-6 rounded-sm shadow-xl relative overflow-hidden">
                              {/* Gradient Top Line */}
                              <div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div>
                             
-                            <h3 className="text-white font-bold text-lg mb-1">CLAIM YOUR BONUS</h3>
-                            <p className="text-gray-500 text-xs mb-6">You've earned access to the Prompt Vault Cheat Sheet.</p>
+                            <h3 className="text-white font-bold text-lg mb-1">SHARE & CLAIM BONUS</h3>
+                            <p className="text-gray-500 text-xs mb-6">Share your achievement to unlock the Prompt Vault Cheat Sheet.</p>
 
-                            <div className="grid grid-cols-1 gap-3">
-                                <div className="text-left space-y-3 text-xs text-gray-300 font-mono mb-2">
-                                    <p className="flex items-center"><span className="text-green-500 mr-2">✓</span> Screenshot the certificate above 📸</p>
-                                    <p className="flex items-center"><span className="text-green-500 mr-2">✓</span> Post to IG Story & Tag <span className="text-white font-bold bg-gray-800 px-1 ml-1 rounded">@koutalksmoney</span></p>
-                                    <p className="flex items-center"><span className="text-green-500 mr-2">✓</span> I'll send your Prompt Vault Cheat Sheet directly.</p>
-                                </div>
+                            {/* Instructions */}
+                            <div className="text-left space-y-3 text-xs text-gray-300 font-mono mb-6 bg-black p-4 rounded border border-gray-800">
+                                <p className="flex items-center gap-2"><span className="text-green-500">1.</span> Screenshot the certificate above 📸</p>
+                                <p className="flex items-center gap-2"><span className="text-green-500">2.</span> Post to your story & tag <span className="text-white font-bold">@koutalksmoney</span></p>
+                                <p className="flex items-center gap-2"><span className="text-green-500">3.</span> I'll DM your Prompt Vault access directly</p>
+                            </div>
 
-                                {/* STEP 1: Copy Button (Friction Remover) */}
-                                <button 
-                                    onClick={handleCopy}
-                                    className="flex items-center justify-center gap-2 w-full py-3 bg-gray-800 border border-gray-700 hover:bg-gray-700 text-white font-mono text-xs transition-all uppercase"
-                                >
-                                    {copied ? <span className="text-green-500 font-bold">✓ Caption Copied to Clipboard</span> : <span>[ Copy Caption Text ]</span>}
-                                </button>
-
-                                {/* STEP 2: Share - UNCERTAINTY ANXIETY: Specific CTA */}
+                            {/* Multi-Platform Share Buttons */}
+                            <div className="grid grid-cols-2 gap-3 mb-4">
+                                {/* Instagram - Primary */}
                                 <a 
-                                    href="https://instagram.com/koutalksmoney" 
-                                    target="_blank" 
-                                    className={`flex items-center justify-center gap-2 w-full py-3 ${theme.bg} text-black font-bold uppercase text-xs hover:brightness-110 transition-all shadow-lg tracking-wide`}
+                                    href={CONFIG.LINKS.INSTAGRAM}
+                                    target="_blank"
+                                    className="share-btn share-btn-instagram col-span-2"
                                 >
-                                    <span>[ Post to Instagram Story Now ]</span>
+                                    <span>📸</span> Post to Instagram
                                 </a>
+
+                                {/* Twitter/X */}
+                                <a 
+                                    href={shareUrls.twitter}
+                                    target="_blank"
+                                    className="share-btn share-btn-twitter"
+                                >
+                                    <span>𝕏</span> Share on X
+                                </a>
+
+                                {/* LinkedIn */}
+                                <a 
+                                    href={shareUrls.linkedin}
+                                    target="_blank"
+                                    className="share-btn share-btn-linkedin"
+                                >
+                                    <span>in</span> LinkedIn
+                                </a>
+                            </div>
+
+                            {/* Copy Caption Buttons */}
+                            <div className="border-t border-gray-800 pt-4 mt-4">
+                                <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Copy Pre-Written Captions</p>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {['INSTAGRAM', 'TWITTER', 'LINKEDIN', 'TIKTOK'].map(platform => (
+                                        <button
+                                            key={platform}
+                                            onClick={() => handleCopy(platform)}
+                                            className={`share-btn share-btn-copy text-[10px] py-2 ${copiedPlatform === platform ? 'copied' : ''}`}
+                                        >
+                                            {copiedPlatform === platform ? '✓ Copied' : `${platform} Caption`}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Referral Unlock */}
+                            <div className="border-t border-gray-800 pt-4 mt-4">
+                                <div className="bg-black border border-dashed border-gray-700 p-4 rounded">
+                                    <p className="text-gray-400 text-xs mb-2">🎁 UNLOCK EXTRA BONUS</p>
+                                    <p className="text-white text-sm font-bold mb-2">Share your Architect Code with 3 friends</p>
+                                    <p className="text-gray-500 text-xs">They complete the system → You unlock The Protocol Newsletter</p>
+                                    <div className="mt-3 bg-gray-900 p-2 rounded">
+                                        <p className="text-[10px] text-gray-500 uppercase">Your Referral Code</p>
+                                        <p className={`${theme.color} font-mono font-bold text-lg tracking-widest`}>{architectId}</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         
