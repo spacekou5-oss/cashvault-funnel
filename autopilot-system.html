@@ -95,6 +95,15 @@
             animation: emailGateGlow 2s ease-in-out infinite;
         }
 
+        /* === SHIMMER EFFECT === */
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .animate-shimmer {
+            animation: shimmer 2s infinite;
+        }
+
         /* === OPERATIONAL TRANSPARENCY PANEL === */
         .transparency-panel {
             background: rgba(0, 0, 0, 0.8);
@@ -303,16 +312,57 @@
             }
         };
 
-        // === UNIQUE ARCHITECT ID GENERATOR ===
-        // Generates truly unique IDs using timestamp encoding + randomness + collision check
-        function generateArchitectId() {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed ambiguous chars (0, O, 1, I, L)
+        // === EMAIL-BASED ARCHITECT ID GENERATOR ===
+        // Generates unique IDs tied to email address (deterministic)
+        // Same email = Same ID (always)
+        function generateIdFromEmail(email) {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            const normalizedEmail = email.toLowerCase().trim();
             
-            // Get timestamp component (last 3 chars based on time)
+            // Create hash from email
+            let hash1 = 0;
+            let hash2 = 5381; // djb2 algorithm
+            
+            for (let i = 0; i < normalizedEmail.length; i++) {
+                const char = normalizedEmail.charCodeAt(i);
+                hash1 = ((hash1 << 5) - hash1) + char;
+                hash1 = hash1 & hash1;
+                hash2 = ((hash2 << 5) + hash2) + char;
+            }
+            
+            // Combine hashes for 6 characters
+            const combined = Math.abs(hash1) + Math.abs(hash2);
+            let id = 'KOU-';
+            let workingHash = combined;
+            
+            for (let i = 0; i < 6; i++) {
+                // Use different parts of hash for each character
+                const charIndex = (workingHash + (normalizedEmail.charCodeAt(i % normalizedEmail.length) * (i + 1))) % chars.length;
+                id += chars.charAt(Math.abs(charIndex));
+                workingHash = Math.floor(workingHash / 7) + charIndex;
+            }
+            
+            return id;
+        }
+
+        // Check if email already has an ID (for returning users)
+        function getExistingIdForEmail(email) {
+            const normalizedEmail = email.toLowerCase().trim();
+            const storedEmail = localStorage.getItem('architect_email');
+            const storedId = localStorage.getItem('cashvault_architect_id');
+            
+            if (storedEmail && storedId && storedEmail.toLowerCase() === normalizedEmail) {
+                return storedId;
+            }
+            return null;
+        }
+
+        // Legacy random ID generator (kept for backwards compatibility check)
+        function generateArchitectId() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             const timestamp = Date.now();
             const timeComponent = (timestamp % 32768).toString(32).toUpperCase().padStart(3, '0');
             
-            // Generate random component (3 chars)
             let randomComponent = '';
             const cryptoRandom = window.crypto || window.msCrypto;
             if (cryptoRandom && cryptoRandom.getRandomValues) {
@@ -327,29 +377,8 @@
                 }
             }
             
-            // Combine: KOU-[3 time chars][3 random chars]
             let id = 'KOU-' + timeComponent.slice(-3) + randomComponent;
-            
-            // Ensure only valid chars (convert any lowercase or invalid)
             id = id.toUpperCase().replace(/[^A-Z0-9-]/g, chars.charAt(Math.floor(Math.random() * chars.length)));
-            
-            // Collision check against stored IDs
-            const storedIds = JSON.parse(localStorage.getItem('generated_architect_ids') || '[]');
-            let attempts = 0;
-            while (storedIds.includes(id) && attempts < 10) {
-                // Regenerate random component if collision
-                randomComponent = '';
-                for (let i = 0; i < 3; i++) {
-                    randomComponent += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-                id = 'KOU-' + timeComponent.slice(-3) + randomComponent;
-                attempts++;
-            }
-            
-            // Store this ID to prevent future collisions
-            storedIds.push(id);
-            if (storedIds.length > 1000) storedIds.shift(); // Keep last 1000
-            localStorage.setItem('generated_architect_ids', JSON.stringify(storedIds));
             
             return id;
         }
@@ -370,23 +399,16 @@
                 checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false }
             });
 
-            // Generate Architect ID on mount - always generate fresh for new sessions
+            // Check for existing completed user on mount
             useEffect(() => {
-                // Check if this is a continuation of a current session (within 30 min)
-                const savedId = sessionStorage.getItem('current_architect_id');
-                const savedTimestamp = sessionStorage.getItem('architect_id_timestamp');
-                const thirtyMinutes = 30 * 60 * 1000;
+                const existingId = localStorage.getItem('cashvault_architect_id');
+                const existingEmail = localStorage.getItem('architect_email');
                 
-                if (savedId && savedTimestamp && (Date.now() - parseInt(savedTimestamp)) < thirtyMinutes) {
-                    // Continue with existing session ID
-                    setArchitectId(savedId);
-                } else {
-                    // Generate fresh ID for new session
-                    const newId = generateArchitectId();
-                    setArchitectId(newId);
-                    sessionStorage.setItem('current_architect_id', newId);
-                    sessionStorage.setItem('architect_id_timestamp', Date.now().toString());
+                // If user already has an ID, they've completed before
+                if (existingId && existingEmail) {
+                    setArchitectId(existingId);
                 }
+                // Otherwise, ID will be generated when they enter their email
             }, []);
 
             // --- THE CHAMELEON BRAIN ---
@@ -429,7 +451,7 @@
                     case 3: return <ModuleAutomation userData={userData} toggleCheck={toggleCheck} theme={theme} next={() => setModule(4)} />;
                     case 4: return <ModuleSelector userData={userData} updateData={updateData} toggleCheck={toggleCheck} theme={theme} next={() => setModule(5)} />;
                     case 5: return <ModuleProjection userData={userData} updateData={updateData} theme={theme} next={() => setModule(6)} />;
-                    case 6: return <ModuleEmailGate userData={userData} updateData={updateData} theme={theme} architectId={architectId} next={() => setModule(7)} />;
+                    case 6: return <ModuleEmailGate userData={userData} updateData={updateData} theme={theme} architectId={architectId} setArchitectId={setArchitectId} next={() => setModule(7)} />;
                     case 7: return <ModuleCertificate userData={userData} theme={theme} architectId={architectId} />;
                     default: return <ModuleBridge context={context} theme={theme} next={() => setModule(1)} />;
                 }
@@ -793,7 +815,7 @@
         }
 
         // === NEW: EMAIL GATE MODULE (THE HIGHEST-LEVERAGE ADDITION) ===
-        function ModuleEmailGate({ userData, updateData, theme, architectId, next }) {
+        function ModuleEmailGate({ userData, updateData, theme, architectId, setArchitectId, next }) {
             const [email, setEmail] = useState(userData.userEmail || '');
             const [isSubmitting, setIsSubmitting] = useState(false);
             const [error, setError] = useState('');
@@ -813,6 +835,10 @@
                 setIsSubmitting(true);
                 setError('');
 
+                // Generate ID from email (deterministic - same email = same ID)
+                const generatedId = generateIdFromEmail(email);
+                setArchitectId(generatedId);
+
                 // === BEEHIIV INTEGRATION ===
                 if (CONFIG.BEEHIIV.MOCK_MODE) {
                     // Mock mode for testing
@@ -820,6 +846,10 @@
                     updateData('userEmail', email);
                     localStorage.setItem('autopilot_email_captured', 'true');
                     localStorage.setItem('autopilot_user_email', email);
+                    localStorage.setItem('architect_email', email.toLowerCase().trim());
+                    localStorage.setItem('cashvault_architect_id', generatedId);
+                    localStorage.setItem('autopilot_completed', 'true');
+                    localStorage.setItem('command_center_architect_id', generatedId);
                     next();
                 } else {
                     // Real Beehiiv submission
@@ -841,6 +871,10 @@
                             updateData('userEmail', email);
                             localStorage.setItem('autopilot_email_captured', 'true');
                             localStorage.setItem('autopilot_user_email', email);
+                            localStorage.setItem('architect_email', email.toLowerCase().trim());
+                            localStorage.setItem('cashvault_architect_id', generatedId);
+                            localStorage.setItem('autopilot_completed', 'true');
+                            localStorage.setItem('command_center_architect_id', generatedId);
                             next();
                         } else {
                             throw new Error('Subscription failed');
@@ -849,6 +883,10 @@
                         // Fallback: still proceed but log the error
                         console.error('Beehiiv submission error:', err);
                         updateData('userEmail', email);
+                        localStorage.setItem('architect_email', email.toLowerCase().trim());
+                        localStorage.setItem('cashvault_architect_id', generatedId);
+                        localStorage.setItem('autopilot_completed', 'true');
+                        localStorage.setItem('command_center_architect_id', generatedId);
                         next();
                     }
                 }
@@ -858,35 +896,34 @@
                 <div className="terminal-box p-8 rounded-sm animate-fade-in email-gate-glow" style={{ borderColor: theme.accent, borderWidth: '2px' }}>
                     <div className="text-center space-y-6">
                         
-                        {/* Success indicator */}
+                        {/* ID Reserved Badge */}
                         <div className="mb-4">
-                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${theme.border} ${theme.color} text-xs font-bold uppercase tracking-widest`}>
-                                <span className={`w-2 h-2 rounded-full ${theme.bg} animate-pulse`}></span>
-                                Certificate Ready
+                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${theme.bg} text-black text-xs font-bold uppercase tracking-widest animate-pulse`}>
+                                <span>🔐</span>
+                                ID Generated — Awaiting Claim
                             </div>
                         </div>
 
-                        {/* Visual preview of what they're unlocking */}
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
-                            <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-lg p-6 opacity-60 blur-[2px]">
-                                <div className="text-center">
-                                    <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">Your Architect ID</p>
-                                    <p className="text-2xl font-bold text-white tracking-widest">{architectId}</p>
-                                    <div className="mt-4 border-t border-gray-700 pt-4">
-                                        <p className="text-gray-500 text-xs">30-YEAR PROJECTION</p>
-                                        <p className={`text-xl font-bold ${theme.color}`}>${projectedWealth}</p>
-                                    </div>
-                                </div>
+                        {/* The masked ID - shows partial until email submitted */}
+                        <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-lg p-6 border border-gray-700">
+                            <p className="text-gray-500 text-xs uppercase tracking-widest mb-2">Your Unique Architect ID</p>
+                            <div className="relative">
+                                <p className={`text-3xl font-bold tracking-[0.2em] font-mono`}>
+                                    <span className={theme.color}>KOU-</span>
+                                    <span className="text-gray-600">??????</span>
+                                </p>
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
                             </div>
+                            <p className="text-gray-400 text-xs mt-3">Enter your email below to reveal your unique ID</p>
                         </div>
 
                         {/* The Gate */}
-                        <div className="space-y-4 pt-4">
+                        <div className="space-y-4 pt-2">
                             <div>
-                                <h2 className="text-xl font-bold text-white mb-2">UNLOCK YOUR CERTIFICATE</h2>
+                                <h2 className="text-xl font-bold text-white mb-2">UNLOCK YOUR ARCHITECT ID</h2>
                                 <p className="text-gray-400 text-sm">
-                                    Enter your email to receive your Architect credentials
+                                    Your ID unlocks your <span className={`${theme.color} font-semibold`}>Command Center</span> — 
+                                    track your wealth-building progress across all systems.
                                 </p>
                             </div>
 
@@ -917,10 +954,10 @@
                                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
-                                            <span>Verifying...</span>
+                                            <span>Claiming...</span>
                                         </>
                                     ) : (
-                                        '[ Unlock My Certificate ]'
+                                        '[ Reveal My Architect ID ]'
                                     )}
                                 </button>
                             </div>
@@ -938,21 +975,21 @@
                             </div>
                         </div>
 
-                        {/* What they get */}
+                        {/* What they unlock */}
                         <div className="border-t border-gray-800 pt-4 mt-4 text-left">
-                            <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">What you'll receive:</p>
+                            <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">This ID unlocks:</p>
                             <ul className="space-y-2 text-sm text-gray-300">
                                 <li className="flex items-center gap-2">
-                                    <span className={`${theme.color}`}>✓</span>
-                                    Your personalized Architect Certificate
+                                    <span className={`${theme.color}`}>🎛️</span>
+                                    <span><strong className="text-white">Command Center</strong> — Track all 7 wealth systems</span>
                                 </li>
                                 <li className="flex items-center gap-2">
-                                    <span className={`${theme.color}`}>✓</span>
-                                    Unique verification ID: <span className="font-mono text-white">{architectId}</span>
+                                    <span className={`${theme.color}`}>🏛️</span>
+                                    <span><strong className="text-white">Architect Certificate</strong> — Shareable verification</span>
                                 </li>
                                 <li className="flex items-center gap-2">
-                                    <span className={`${theme.color}`}>✓</span>
-                                    Exclusive access to the Prompt Vault Cheat Sheet
+                                    <span className={`${theme.color}`}>✅</span>
+                                    <span><strong className="text-white">Verified Status</strong> — Anyone can verify your ID</span>
                                 </li>
                             </ul>
                         </div>
@@ -1135,22 +1172,32 @@
                                 </div>
                             </div>
 
-                            {/* Referral Unlock */}
+                            {/* Verify Your Status */}
                             <div className="border-t border-gray-800 pt-4 mt-4">
-                                <div className="bg-black border border-dashed border-gray-700 p-4 rounded">
-                                    <p className="text-gray-400 text-xs mb-2">🎁 UNLOCK EXTRA BONUS</p>
-                                    <p className="text-white text-sm font-bold mb-2">Share your Architect Code with 3 friends</p>
-                                    <p className="text-gray-500 text-xs">They complete the system → You unlock The Protocol Newsletter</p>
-                                    <div className="mt-3 bg-gray-900 p-2 rounded">
-                                        <p className="text-[10px] text-gray-500 uppercase">Your Referral Code</p>
-                                        <p className={`${theme.color} font-mono font-bold text-lg tracking-widest`}>{architectId}</p>
+                                <div className={`bg-gradient-to-br from-gray-900 to-black border-2 ${theme.border} p-5 rounded-lg`}>
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <span className="text-2xl">✅</span>
+                                        <div>
+                                            <p className="text-white font-bold text-sm">Verify Your Architect Status</p>
+                                            <p className="text-gray-400 text-xs">Share your ID. Let others verify you're legit.</p>
+                                        </div>
                                     </div>
+                                    <a 
+                                        href={`https://spacekou5-oss.github.io/cashvault-funnel/verify.html?id=${architectId}`}
+                                        target="_blank"
+                                        className={`block w-full py-3 ${theme.bg} text-black font-bold text-sm rounded text-center transition-all hover:opacity-90`}
+                                    >
+                                        Open Verification Page →
+                                    </a>
+                                    <p className="text-gray-500 text-[10px] mt-2 text-center">
+                                        This links directly to your verified status
+                                    </p>
                                 </div>
                             </div>
                         </div>
                         
                         <p className="text-[10px] text-gray-600 max-w-xs mx-auto">
-                            *System Verification: I personally check every notification. If you don't tag, I can't send the link.
+                            Your Architect ID is permanent and can be verified by anyone at any time.
                         </p>
                     </div>
                 </div>
