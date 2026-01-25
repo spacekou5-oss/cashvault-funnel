@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investment Simplifier - Premium ETF Portfolio Builder</title>
+    <title>Investment Simplifier | @koutalksmoney</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -55,7 +55,168 @@
             50% { transform: translate(-20px, -10px); }
         }
 
-        /* WELCOME GATE */
+        /* AUTOPILOT DETECTED GATE */
+        .autopilot-gate {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .autopilot-gate.hidden { display: none; }
+        
+        .detected-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 8px 16px;
+            border-radius: 50px;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+        
+        .detected-badge span {
+            color: var(--success);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .detected-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .detected-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, var(--bg-card) 100%);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 450px;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+        
+        .detected-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .detected-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .detected-etf {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .detected-etf-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+        
+        .detected-etf-ticker {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+        
+        .detected-etf-name {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .detected-monthly {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 10px;
+        }
+        
+        .detected-monthly-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .detected-monthly-value {
+            color: var(--success);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .gate-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+        
+        .gate-btn-primary {
+            background: var(--success);
+            color: white;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .gate-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
+        }
+        
+        .gate-btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        
+        .gate-btn-secondary:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        /* WELCOME GATE (No Autopilot data) */
         .welcome-gate {
             position: fixed;
             inset: 0;
@@ -100,11 +261,6 @@
             animation: pulse 1.5s infinite;
         }
         
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
         .welcome-title {
             font-size: clamp(2rem, 6vw, 3rem);
             font-weight: 800;
@@ -141,7 +297,6 @@
             box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5);
         }
 
-        /* SOCIAL PROOF COUNTER */
         .social-proof {
             display: flex;
             align-items: center;
@@ -227,6 +382,85 @@
             color: var(--text-secondary);
         }
 
+        /* CORE HOLDING BANNER (Shows when Autopilot data exists) */
+        .core-holding-banner {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: none;
+        }
+        
+        .core-holding-banner.show { display: block; }
+        
+        .core-holding-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .core-holding-badge {
+            background: var(--success);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .core-holding-title {
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        .core-holding-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .core-holding-etf {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .core-holding-ticker {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--success);
+        }
+        
+        .core-holding-name {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .core-holding-allocation {
+            background: var(--bg-card);
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .core-holding-allocation-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        
+        .core-holding-allocation-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
         .glass-card {
             background: linear-gradient(135deg, rgba(26, 31, 58, 0.9) 0%, rgba(21, 25, 51, 0.9) 100%);
             backdrop-filter: blur(10px);
@@ -256,7 +490,6 @@
             flex-shrink: 0;
         }
 
-        /* WHY BOX */
         .why-box {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 211, 153, 0.05) 100%);
             border: 1px solid rgba(16, 185, 129, 0.3);
@@ -311,7 +544,6 @@
             font-size: 0.85rem;
         }
 
-        /* INPUT GRID */
         .input-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -395,23 +627,6 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
         }
-        
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--accent-secondary);
-            color: var(--text-primary);
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-        }
-        
-        .btn-outline:hover {
-            background: var(--accent-secondary);
-            color: white;
-        }
 
         .results-container {
             display: none;
@@ -425,7 +640,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ALLOCATION SUMMARY */
         .allocation-summary {
             background: linear-gradient(135deg, var(--bg-card) 0%, rgba(26, 31, 58, 0.8) 100%);
             border-radius: 12px;
@@ -481,7 +695,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* LUMP SUM INPUT */
         .lump-sum-container {
             margin-top: 15px;
             padding: 15px;
@@ -518,7 +731,6 @@
             font-size: 1rem;
         }
 
-        /* ETF CARDS */
         .etf-cards {
             display: grid;
             grid-template-columns: 1fr;
@@ -548,6 +760,24 @@
             border-color: var(--accent-primary);
         }
         
+        .etf-card.core-etf {
+            border: 2px solid var(--success);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, var(--bg-card) 100%);
+        }
+        
+        .etf-card.core-etf::before {
+            content: '★ CORE';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--success);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: 700;
+        }
+        
         .etf-ticker {
             font-size: 1.6rem;
             font-weight: 800;
@@ -555,6 +785,12 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 4px;
+        }
+        
+        .etf-card.core-etf .etf-ticker {
+            background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
         .etf-name {
@@ -604,7 +840,6 @@
             text-align: right;
         }
 
-        /* PROJECTION CARDS */
         .projection-results {
             display: none;
             margin-top: 20px;
@@ -655,7 +890,7 @@
             margin-top: 15px;
         }
 
-        /* === SHAREABLE PORTFOLIO CARD === */
+        /* SHAREABLE PORTFOLIO CARD */
         .share-card-section {
             margin-top: 25px;
             padding: 25px;
@@ -783,6 +1018,12 @@
             font-weight: 600;
         }
         
+        .etf-chip.core {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--success);
+        }
+        
         .portfolio-card-footer {
             display: flex;
             justify-content: space-between;
@@ -854,7 +1095,7 @@
             color: white;
         }
 
-        /* === BRIDGE CTA (Cross-tool navigation) === */
+        /* BRIDGE CTA */
         .bridge-cta {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 211, 153, 0.05) 100%);
             border: 2px solid rgba(16, 185, 129, 0.3);
@@ -899,8 +1140,17 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
         }
+        
+        .bridge-cta.completed {
+            border-color: var(--success);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.05) 100%);
+        }
+        
+        .bridge-cta.completed h3 {
+            color: var(--success);
+        }
 
-        /* BEAT THE AVERAGE COMPARISON */
+        /* COMPARISON STAT */
         .comparison-stat {
             background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 191, 36, 0.05) 100%);
             border: 1px solid rgba(251, 191, 36, 0.3);
@@ -951,7 +1201,7 @@
             margin-top: 10px;
         }
 
-        /* STRATEGY CARDS */
+        /* STRATEGIES GRID */
         .strategies-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -1080,7 +1330,6 @@
             line-height: 1.5;
         }
 
-        /* FOOTER */
         .footer {
             text-align: center;
             color: var(--text-muted);
@@ -1091,7 +1340,39 @@
     </style>
 </head>
 <body>
-    <!-- WELCOME GATE -->
+    <!-- AUTOPILOT DETECTED GATE (Shows when Autopilot was completed) -->
+    <div class="autopilot-gate hidden" id="autopilotGate">
+        <div class="detected-badge">
+            <span>Core Holding Detected</span>
+        </div>
+        
+        <div class="detected-card">
+            <h2 class="detected-title">✅ Autopilot Data Found</h2>
+            <p class="detected-subtitle">
+                You already selected your core ETF in Autopilot. Let's build a diversified portfolio around it.
+            </p>
+            
+            <div class="detected-etf">
+                <p class="detected-etf-label">Your Core Holding from Autopilot</p>
+                <p class="detected-etf-ticker" id="gateEtfTicker">VTI</p>
+                <p class="detected-etf-name" id="gateEtfName">Vanguard Total Stock Market</p>
+            </div>
+            
+            <div class="detected-monthly">
+                <span class="detected-monthly-label">Monthly Investment</span>
+                <span class="detected-monthly-value" id="gateMonthly">$500/mo</span>
+            </div>
+        </div>
+        
+        <button class="gate-btn gate-btn-primary" onclick="continueWithCore()">
+            Build Portfolio Around <span id="gateCoreBtn">VTI</span> →
+        </button>
+        <button class="gate-btn gate-btn-secondary" onclick="chooseDifferentCore()">
+            Choose Different Core
+        </button>
+    </div>
+
+    <!-- WELCOME GATE (Shows when no Autopilot data) -->
     <div class="welcome-gate" id="welcomeGate">
         <div class="welcome-badge">
             <span>Access Granted</span>
@@ -1120,6 +1401,24 @@
         <div class="header">
             <h1>Investment Simplifier</h1>
             <p>Build your premium ETF portfolio with intelligent asset allocation</p>
+        </div>
+
+        <!-- CORE HOLDING BANNER (Shows inside app when continuing with Autopilot ETF) -->
+        <div class="core-holding-banner" id="coreHoldingBanner">
+            <div class="core-holding-header">
+                <span class="core-holding-badge">From Autopilot</span>
+                <span class="core-holding-title">Core Holding Locked In</span>
+            </div>
+            <div class="core-holding-content">
+                <div class="core-holding-etf">
+                    <span class="core-holding-ticker" id="bannerTicker">VTI</span>
+                    <span class="core-holding-name" id="bannerName">Vanguard Total Stock Market</span>
+                </div>
+                <div class="core-holding-allocation">
+                    <p class="core-holding-allocation-label">Core Allocation</p>
+                    <p class="core-holding-allocation-value" id="bannerAllocation">50%</p>
+                </div>
+            </div>
         </div>
 
         <div class="glass-card">
@@ -1275,10 +1574,10 @@
 
         <!-- BRIDGE CTA TO AUTOPILOT SYSTEM -->
         <div class="bridge-cta" id="bridgeCta" style="display: none;">
-            <h3>✅ Your Portfolio is Designed</h3>
-            <p>Now make it automatic. Install the Autopilot System and never think about investing again.</p>
-            <a href="autopilot-system-v2.html" id="bridgeCtaBtn" class="bridge-cta-btn">
-                <span>🤖</span> Install The Autopilot System →
+            <h3 id="bridgeCtaTitle">✅ Your Portfolio is Designed</h3>
+            <p id="bridgeCtaDesc">Now make it automatic. Install the Autopilot System and never think about investing again.</p>
+            <a href="#" id="bridgeCtaBtn" class="bridge-cta-btn">
+                <span>🤖</span> <span id="bridgeCtaBtnText">Install The Autopilot System</span> →
             </a>
         </div>
 
@@ -1344,7 +1643,7 @@
         </div>
 
         <div class="footer">
-            <p>Made by Kou</p>
+            <p>Made by <a href="https://instagram.com/koutalksmoney" target="_blank" style="color: var(--success);">@koutalksmoney</a></p>
             <p>Not financial advice. Research before investing.</p>
         </div>
     </div>
@@ -1352,18 +1651,18 @@
     <script>
         // --- CONFIGURATION ---
         const CONFIG = {
-            BEEHIIV_MOCK_MODE: true, // Set to false when you have Beehiiv set up
-            BEEHIIV_FORM_URL: "https://embeds.beehiiv.com/YOUR_EMBED_ID",
             AUTOPILOT_URL: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html",
+            COMMAND_CENTER_URL: "https://spacekou5-oss.github.io/cashvault-funnel/command-center.html",
             SOCIAL: {
                 INSTAGRAM: "@koutalksmoney",
                 TWITTER: "@koutalksmoney"
             }
         };
 
-        // --- DATA STORE ---
+        // --- ETF DATA ---
         const etfData = {
             vti: { ticker: "VTI", name: "Vanguard Total Stock Market", description: "Exposure to the entire U.S. equity market.", type: "U.S. Total Market", expense: "0.03%" },
+            voo: { ticker: "VOO", name: "Vanguard S&P 500", description: "Top 500 U.S. companies by market cap.", type: "S&P 500", expense: "0.03%" },
             vxus: { ticker: "VXUS", name: "Vanguard Total International", description: "Developed and emerging markets outside the U.S.", type: "International", expense: "0.07%" },
             bnd: { ticker: "BND", name: "Vanguard Total Bond Market", description: "Broad U.S. investment-grade bonds for stability.", type: "U.S. Bonds", expense: "0.03%" },
             schd: { ticker: "SCHD", name: "Schwab U.S. Dividend Equity", description: "High-quality companies with sustainable dividends.", type: "Dividend Growth", expense: "0.06%" },
@@ -1372,13 +1671,27 @@
             avuv: { ticker: "AVUV", name: "Avantis U.S. Small Cap Value", description: "Active ETF targeting undervalued small companies.", type: "Small Cap Value", expense: "0.25%" },
             vym: { ticker: "VYM", name: "Vanguard High Dividend Yield", description: "Stocks with higher than average dividend yields.", type: "High Yield", expense: "0.06%" },
             dgro: { ticker: "DGRO", name: "iShares Core Dividend Growth", description: "Companies with consistently growing dividends.", type: "Dividend Growth", expense: "0.08%" },
-            sgov: { ticker: "SGOV", name: "iShares 0-3 Month Treasury", description: "Ultra-short term U.S. Treasury bonds.", type: "Cash/Treasury", expense: "0.05%" }
+            sgov: { ticker: "SGOV", name: "iShares 0-3 Month Treasury", description: "Ultra-short term U.S. Treasury bonds.", type: "Cash/Treasury", expense: "0.05%" },
+            vgt: { ticker: "VGT", name: "Vanguard Info Tech", description: "Pure technology sector play.", type: "Tech Sector", expense: "0.10%" },
+            vt: { ticker: "VT", name: "Vanguard Total World Stock", description: "Own the entire world economy.", type: "Global Total Market", expense: "0.07%" }
+        };
+
+        // Map Autopilot ETF tickers to our data
+        const autopilotEtfMap = {
+            'SCHD': 'schd',
+            'BND': 'bnd',
+            'VTI': 'vti',
+            'VT': 'vt',
+            'QQQM': 'qqqm',
+            'VGT': 'vgt'
         };
 
         let allocationChartInstance = null;
         let growthChartInstance = null;
         let currentPortfolioData = null;
         let portfolioId = null;
+        let autopilotData = null;
+        let useCoreFromAutopilot = false;
 
         // Generate Portfolio ID
         function generatePortfolioId() {
@@ -1407,7 +1720,95 @@
             }, 30);
         }
 
-        // WELCOME GATE HANDLER
+        // === CHECK FOR AUTOPILOT DATA ===
+        function checkForAutopilotData() {
+            // Check multiple possible storage keys from Autopilot
+            const etfChoice = localStorage.getItem('autopilot_etf_choice');
+            const architectId = localStorage.getItem('cashvault_architect_id');
+            const autopilotCompleted = localStorage.getItem('autopilot_completed');
+            const monthlyInvest = localStorage.getItem('architect_monthly_invest');
+            
+            // Also check for autopilot system data
+            const autopilotSystemData = localStorage.getItem('autopilot_system_data');
+            
+            if (autopilotCompleted === 'true' || (etfChoice && architectId)) {
+                let etf = null;
+                let monthly = 500;
+                
+                // Try to get ETF from dedicated storage
+                if (etfChoice) {
+                    try {
+                        etf = JSON.parse(etfChoice);
+                    } catch(e) {}
+                }
+                
+                // Try to get from system data
+                if (!etf && autopilotSystemData) {
+                    try {
+                        const data = JSON.parse(autopilotSystemData);
+                        if (data.etfChoice) {
+                            etf = data.etfChoice;
+                        }
+                        if (data.income) {
+                            monthly = Math.round(data.income * 0.2);
+                        }
+                    } catch(e) {}
+                }
+                
+                if (monthlyInvest) {
+                    monthly = parseInt(monthlyInvest);
+                }
+                
+                if (etf && etf.ticker) {
+                    autopilotData = {
+                        ticker: etf.ticker,
+                        name: etf.name,
+                        monthly: monthly,
+                        architectId: architectId
+                    };
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        // === GATE HANDLERS ===
+        function showAutopilotGate() {
+            document.getElementById('welcomeGate').classList.add('hidden');
+            document.getElementById('autopilotGate').classList.remove('hidden');
+            
+            // Populate gate with Autopilot data
+            document.getElementById('gateEtfTicker').textContent = autopilotData.ticker;
+            document.getElementById('gateEtfName').textContent = autopilotData.name;
+            document.getElementById('gateMonthly').textContent = '$' + autopilotData.monthly + '/mo';
+            document.getElementById('gateCoreBtn').textContent = autopilotData.ticker;
+        }
+
+        function continueWithCore() {
+            useCoreFromAutopilot = true;
+            document.getElementById('autopilotGate').classList.add('hidden');
+            
+            // Show core holding banner
+            document.getElementById('coreHoldingBanner').classList.add('show');
+            document.getElementById('bannerTicker').textContent = autopilotData.ticker;
+            document.getElementById('bannerName').textContent = autopilotData.name;
+            
+            // Pre-fill monthly investment
+            document.getElementById('monthlyInvestment').value = autopilotData.monthly;
+            document.getElementById('investRange').value = autopilotData.monthly;
+            
+            portfolioId = generatePortfolioId();
+            calculateGrowth();
+        }
+
+        function chooseDifferentCore() {
+            useCoreFromAutopilot = false;
+            autopilotData = null;
+            document.getElementById('autopilotGate').classList.add('hidden');
+            portfolioId = generatePortfolioId();
+        }
+
         function enterApp() {
             document.getElementById('welcomeGate').classList.add('hidden');
             portfolioId = generatePortfolioId();
@@ -1421,7 +1822,12 @@
             
             overlay.classList.add('show');
             
-            const steps = [
+            const steps = useCoreFromAutopilot ? [
+                { text: 'Loading Autopilot core...', step: `Building around ${autopilotData.ticker}...` },
+                { text: 'Calculating diversification...', step: 'Adding complementary assets...' },
+                { text: 'Optimizing allocation...', step: 'Balancing risk/reward...' },
+                { text: 'Finalizing portfolio...', step: 'Locking in allocations...' }
+            ] : [
                 { text: 'Analyzing your age profile...', step: 'Applying 110-Age rule...' },
                 { text: 'Matching risk tolerance...', step: 'Adjusting stock/bond split...' },
                 { text: 'Selecting optimal ETFs...', step: 'Filtering by expense ratio...' },
@@ -1446,7 +1852,13 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            animateCounter();
+            // Check for Autopilot data first
+            if (checkForAutopilotData()) {
+                showAutopilotGate();
+            } else {
+                animateCounter();
+            }
+            
             setupDualInput('userAge', 'ageRange', () => {});
             setupDualInput('monthlyInvestment', 'investRange', calculateGrowth);
             setupDualInput('investmentPeriod', 'timeRange', calculateGrowth);
@@ -1454,7 +1866,6 @@
             document.getElementById('lumpSumInput').addEventListener('input', updateDollarValues);
             calculateGrowth();
             
-            // Generate portfolio ID
             portfolioId = generatePortfolioId();
         });
 
@@ -1466,6 +1877,9 @@
         }
 
         function loadStrategy(strategy) {
+            useCoreFromAutopilot = false; // Override when loading strategy
+            document.getElementById('coreHoldingBanner').classList.remove('show');
+            
             if (strategy === 'vti_only') updateInputs(25, 'growth');
             else if (strategy === 'buffett') updateInputs(60, 'balanced');
             else if (strategy === 'bogle') updateInputs(40, 'balanced');
@@ -1497,26 +1911,64 @@
 
             const bondPct = 100 - stockPct;
 
-            updateWhyExplanation(age, stockPct, bondPct, riskStyle, riskAdjustment);
-
-            if (riskStyle === 'growth') {
-                alloc.push({id: 'vti', pct: Math.round(stockPct * 0.4)});
-                alloc.push({id: 'schg', pct: Math.round(stockPct * 0.3)});
-                alloc.push({id: 'avuv', pct: Math.round(stockPct * 0.2)});
-                alloc.push({id: 'vxus', pct: Math.round(stockPct * 0.1)});
-                if(bondPct > 0) alloc.push({id: 'bnd', pct: bondPct});
-            } else if (riskStyle === 'income') {
-                alloc.push({id: 'schd', pct: Math.round(stockPct * 0.5)});
-                alloc.push({id: 'vym', pct: Math.round(stockPct * 0.5)});
-                alloc.push({id: 'bnd', pct: bondPct});
+            // === CORE FROM AUTOPILOT ===
+            if (useCoreFromAutopilot && autopilotData) {
+                const coreTicker = autopilotData.ticker.toLowerCase();
+                const coreId = autopilotEtfMap[autopilotData.ticker] || coreTicker;
+                const coreAllocation = 50; // Core gets 50%
+                
+                alloc.push({ id: coreId, pct: coreAllocation, isCore: true });
+                
+                // Distribute remaining stock allocation
+                const remainingStock = stockPct - coreAllocation;
+                
+                if (remainingStock > 0) {
+                    // Add diversification based on risk style
+                    if (riskStyle === 'growth') {
+                        alloc.push({ id: 'schg', pct: Math.round(remainingStock * 0.5) });
+                        alloc.push({ id: 'avuv', pct: Math.round(remainingStock * 0.3) });
+                        alloc.push({ id: 'vxus', pct: Math.round(remainingStock * 0.2) });
+                    } else if (riskStyle === 'income') {
+                        alloc.push({ id: 'schd', pct: Math.round(remainingStock * 0.5) });
+                        alloc.push({ id: 'vym', pct: Math.round(remainingStock * 0.5) });
+                    } else {
+                        alloc.push({ id: 'vxus', pct: Math.round(remainingStock * 0.6) });
+                        alloc.push({ id: 'schd', pct: Math.round(remainingStock * 0.4) });
+                    }
+                }
+                
+                if (bondPct > 0) {
+                    alloc.push({ id: 'bnd', pct: bondPct });
+                }
+                
+                updateWhyExplanationWithCore(autopilotData.ticker, coreAllocation, stockPct, bondPct);
             } else {
-                alloc.push({id: 'vti', pct: Math.round(stockPct * 0.7)});
-                alloc.push({id: 'vxus', pct: Math.round(stockPct * 0.3)});
-                alloc.push({id: 'bnd', pct: bondPct});
+                // Standard allocation logic
+                updateWhyExplanation(age, stockPct, bondPct, riskStyle, riskAdjustment);
+
+                if (riskStyle === 'growth') {
+                    alloc.push({id: 'vti', pct: Math.round(stockPct * 0.4)});
+                    alloc.push({id: 'schg', pct: Math.round(stockPct * 0.3)});
+                    alloc.push({id: 'avuv', pct: Math.round(stockPct * 0.2)});
+                    alloc.push({id: 'vxus', pct: Math.round(stockPct * 0.1)});
+                    if(bondPct > 0) alloc.push({id: 'bnd', pct: bondPct});
+                } else if (riskStyle === 'income') {
+                    alloc.push({id: 'schd', pct: Math.round(stockPct * 0.5)});
+                    alloc.push({id: 'vym', pct: Math.round(stockPct * 0.5)});
+                    alloc.push({id: 'bnd', pct: bondPct});
+                } else {
+                    alloc.push({id: 'vti', pct: Math.round(stockPct * 0.7)});
+                    alloc.push({id: 'vxus', pct: Math.round(stockPct * 0.3)});
+                    alloc.push({id: 'bnd', pct: bondPct});
+                }
             }
             
+            // Normalize to 100%
             let total = alloc.reduce((sum, i) => sum + i.pct, 0);
             if (total !== 100) alloc[0].pct += (100 - total);
+
+            // Remove zero allocations
+            alloc = alloc.filter(a => a.pct > 0);
 
             window.lastAllocation = alloc;
             currentPortfolioData = { stockPct, bondPct, alloc };
@@ -1525,6 +1977,15 @@
             updateShareCard(stockPct, bondPct, alloc);
             updateComparison();
             showBridgeCta();
+            
+            // Save to localStorage for cross-tool communication
+            savePortfolioData(stockPct, bondPct, alloc);
+        }
+
+        function updateWhyExplanationWithCore(coreTicker, coreAllocation, stockPct, bondPct) {
+            let explanation = `Your core holding <span class="formula">${coreTicker}</span> from Autopilot takes ${coreAllocation}% of your portfolio. `;
+            explanation += `We've added diversification to reach ${stockPct}% stocks total, with ${bondPct}% in bonds for stability.`;
+            document.getElementById('whyExplanation').innerHTML = explanation;
         }
 
         function updateWhyExplanation(age, stockPct, bondPct, riskStyle, adjustment) {
@@ -1541,6 +2002,34 @@
             document.getElementById('whyExplanation').innerHTML = explanation;
         }
 
+        function savePortfolioData(stockPct, bondPct, alloc) {
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
+            const coreEtf = alloc.find(a => a.isCore) || alloc[0];
+            
+            const context = {
+                source: 'investment_simplifier',
+                monthly: monthly,
+                portfolio_id: portfolioId,
+                risk_style: document.getElementById('riskStyle').value,
+                core_etf: {
+                    ticker: etfData[coreEtf.id]?.ticker || coreEtf.id.toUpperCase(),
+                    name: etfData[coreEtf.id]?.name || 'Unknown',
+                    allocation: coreEtf.pct
+                },
+                allocation: alloc.map(a => ({
+                    ticker: etfData[a.id]?.ticker || a.id.toUpperCase(),
+                    pct: a.pct,
+                    isCore: a.isCore || false
+                })),
+                stock_pct: stockPct,
+                bond_pct: bondPct
+            };
+            
+            localStorage.setItem('cashvault_context', JSON.stringify(context));
+            localStorage.setItem('investment_simplifier_completed', 'true');
+            localStorage.setItem('investment_completed', 'true'); // For Command Center
+        }
+
         function displayPortfolio(stockPct, bondPct, allocationArray) {
             const resultsDiv = document.getElementById('resultsDisplay');
             resultsDiv.classList.add('show');
@@ -1554,9 +2043,15 @@
 
             allocationArray.forEach((item) => {
                 if(item.pct <= 0) return;
-                const data = etfData[item.id];
+                const data = etfData[item.id] || { 
+                    ticker: item.id.toUpperCase(), 
+                    name: 'ETF', 
+                    description: '', 
+                    type: 'Fund' 
+                };
+                const isCore = item.isCore || false;
                 const html = `
-                    <div class="etf-card" data-pct="${item.pct}">
+                    <div class="etf-card ${isCore ? 'core-etf' : ''}" data-pct="${item.pct}">
                         <div class="etf-ticker">${data.ticker}</div>
                         <div class="etf-name">${data.name}</div>
                         <div class="etf-type">${data.type}</div>
@@ -1579,11 +2074,9 @@
             renderAllocationChart(allocationArray);
         }
 
-        // === SHAREABLE PORTFOLIO CARD ===
         function updateShareCard(stockPct, bondPct, alloc) {
             document.getElementById('shareCardSection').style.display = 'block';
             
-            // Calculate 30-year projection
             const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
             const years = 30;
             const rate = 0.07;
@@ -1595,21 +2088,20 @@
             document.getElementById('cardBondPct').textContent = bondPct + '%';
             document.getElementById('cardPortfolioId').textContent = 'ID: ' + portfolioId;
             
-            // ETF chips
             const etfContainer = document.getElementById('cardEtfs');
             etfContainer.innerHTML = '';
             alloc.forEach(item => {
                 if (item.pct > 0) {
-                    etfContainer.innerHTML += `<span class="etf-chip">${etfData[item.id].ticker} ${item.pct}%</span>`;
+                    const ticker = etfData[item.id]?.ticker || item.id.toUpperCase();
+                    const isCore = item.isCore || false;
+                    etfContainer.innerHTML += `<span class="etf-chip ${isCore ? 'core' : ''}">${ticker} ${item.pct}%</span>`;
                 }
             });
             
-            // Twitter share URL
             const shareText = `I just built my investment portfolio using the Investment Simplifier.\n\n30-year projection: $${Math.round(FV).toLocaleString()}\n\nBuild yours: ${window.location.href}\n\nIG/X: ${CONFIG.SOCIAL.TWITTER}`;
             document.getElementById('twitterShareBtn').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
         }
 
-        // === BEAT THE AVERAGE COMPARISON ===
         function updateComparison() {
             const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
             const years = 30;
@@ -1624,24 +2116,26 @@
             document.getElementById('comparisonMultiplier').textContent = multiplier + 'x ahead';
         }
 
-        // === BRIDGE CTA ===
         function showBridgeCta() {
-            document.getElementById('bridgeCta').style.display = 'block';
+            const bridgeCta = document.getElementById('bridgeCta');
+            bridgeCta.style.display = 'block';
             
-            // Pass context to Autopilot System
             const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
-            const context = {
-                source: 'investment_simplifier',
-                monthly: monthly,
-                portfolio_id: portfolioId
-            };
-            localStorage.setItem('cashvault_context', JSON.stringify(context));
+            const autopilotCompleted = localStorage.getItem('autopilot_completed') === 'true';
             
-            // Update link with params - use correct GitHub URL
-            document.getElementById('bridgeCtaBtn').href = `${CONFIG.AUTOPILOT_URL}?source=investment&monthly=${monthly}`;
+            if (autopilotCompleted) {
+                // User already completed Autopilot - direct to Command Center
+                bridgeCta.classList.add('completed');
+                document.getElementById('bridgeCtaTitle').textContent = '✅ Autopilot Already Installed';
+                document.getElementById('bridgeCtaDesc').textContent = 'Your wealth machine is running. Track your progress in Command Center.';
+                document.getElementById('bridgeCtaBtnText').textContent = 'Open Command Center';
+                document.getElementById('bridgeCtaBtn').href = CONFIG.COMMAND_CENTER_URL;
+            } else {
+                // Send to Autopilot
+                document.getElementById('bridgeCtaBtn').href = `${CONFIG.AUTOPILOT_URL}?source=investment&monthly=${monthly}`;
+            }
         }
 
-        // === COPY SHARE TEXT ===
         function copyShareText() {
             const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
             const years = 30;
@@ -1685,15 +2179,22 @@
             if (allocationChartInstance) allocationChartInstance.destroy();
             const ctx = document.getElementById('allocationChartCanvas').getContext('2d');
             
-            const legendColor = '#cbd5e1';
+            const colors = alloc.map((item, i) => {
+                if (item.isCore) return '#10b981'; // Green for core
+                const baseColors = ['#6366f1', '#8b5cf6', '#fbbf24', '#f43f5e', '#3b82f6'];
+                return baseColors[i % baseColors.length];
+            });
 
             allocationChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: alloc.map(i => etfData[i.id].ticker),
+                    labels: alloc.map(i => {
+                        const ticker = etfData[i.id]?.ticker || i.id.toUpperCase();
+                        return i.isCore ? `★ ${ticker}` : ticker;
+                    }),
                     datasets: [{
                         data: alloc.map(i => i.pct),
-                        backgroundColor: ['#6366f1', '#8b5cf6', '#10b981', '#fbbf24', '#f43f5e', '#3b82f6'],
+                        backgroundColor: colors,
                         borderWidth: 0,
                         borderColor: 'transparent'
                     }]
@@ -1706,7 +2207,7 @@
                             display: true, 
                             position: 'bottom', 
                             labels: { 
-                                color: legendColor, 
+                                color: '#cbd5e1', 
                                 font: { family: 'Inter', size: 11 }, 
                                 boxWidth: 12,
                                 padding: 15
@@ -1746,7 +2247,6 @@
             
             renderGrowthChart(labels, dataPoints);
             
-            // Update comparison and share card if portfolio exists
             if (currentPortfolioData) {
                 updateComparison();
                 updateShareCard(currentPortfolioData.stockPct, currentPortfolioData.bondPct, currentPortfolioData.alloc);
@@ -1756,10 +2256,6 @@
         function renderGrowthChart(labels, data) {
             if (growthChartInstance) growthChartInstance.destroy();
             const ctx = document.getElementById('growthChartCanvas').getContext('2d');
-            
-            const textColor = '#94a3b8';
-            const gridColor = '#2a3150';
-            const lineColor = '#10b981';
 
             growthChartInstance = new Chart(ctx, {
                 type: 'line',
@@ -1768,12 +2264,12 @@
                     datasets: [{
                         label: 'Portfolio Value',
                         data: data,
-                        borderColor: lineColor,
+                        borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.2)',
                         fill: true,
                         tension: 0.4,
                         pointRadius: 3,
-                        pointBackgroundColor: lineColor,
+                        pointBackgroundColor: '#10b981',
                         borderWidth: 2
                     }]
                 },
@@ -1783,15 +2279,15 @@
                     scales: {
                         y: { 
                             ticks: { 
-                                color: textColor,
+                                color: '#94a3b8',
                                 callback: function(value) {
                                     return '$' + (value/1000).toFixed(0) + 'k';
                                 }
                             }, 
-                            grid: { color: gridColor } 
+                            grid: { color: '#2a3150' } 
                         },
                         x: { 
-                            ticks: { color: textColor }, 
+                            ticks: { color: '#94a3b8' }, 
                             grid: { display: false } 
                         }
                     },
