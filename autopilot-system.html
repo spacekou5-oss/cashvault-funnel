@@ -425,6 +425,18 @@
                         }
                     } else if (parsed.source === 'score') {
                         setTheme(CONFIG.THEMES.SCORE);
+                    } else if (parsed.source === 'investment_simplifier') {
+                        // User came from Investment Simplifier
+                        setTheme(CONFIG.THEMES.DEFAULT);
+                        if (parsed.monthly) {
+                            const estimatedIncome = parsed.monthly * 5;
+                            setUserData(prev => ({
+                                ...prev, 
+                                income: estimatedIncome,
+                                portfolioId: parsed.portfolio_id,
+                                coreEtf: parsed.core_etf
+                            }));
+                        }
                     }
                 }
                 const savedData = localStorage.getItem("autopilot_system_data");
@@ -506,6 +518,7 @@
         function ModuleBridge({ context, theme, next }) {
             const isTicker = context?.source === 'ticker';
             const isScore = context?.source === 'score';
+            const isInvestment = context?.source === 'investment_simplifier';
             return (
                 <div className="terminal-box p-8 rounded-sm animate-fade-in border-t-2 border-b-2 transition-colors duration-500" style={{ borderColor: theme.accent }}>
                     <div className="text-center space-y-6">
@@ -516,10 +529,10 @@
                             <div className={`absolute bottom-0 right-0 w-3 h-3 border-b border-r ${theme.border}`}></div>
                             <div className={`${theme.color} font-mono text-center transition-colors duration-500`}>
                                 <p className="text-[10px] sm:text-xs tracking-[0.2em] mb-1 opacity-80 uppercase">
-                                    {isTicker ? 'DATA IMPORTED: FEAR DETECTED' : isScore ? 'DATA IMPORTED: STATUS VERIFIED' : 'WELCOME TO THE'}
+                                    {isTicker ? 'DATA IMPORTED: FEAR DETECTED' : isScore ? 'DATA IMPORTED: STATUS VERIFIED' : isInvestment ? 'PORTFOLIO DETECTED' : 'WELCOME TO THE'}
                                 </p>
                                 <p className="text-lg sm:text-xl font-bold tracking-widest uppercase">
-                                    {isTicker ? 'LEAK CONTAINMENT' : isScore ? 'LEVERAGE ARCHITECTURE' : 'ARCHITECTURE'}
+                                    {isTicker ? 'LEAK CONTAINMENT' : isScore ? 'LEVERAGE ARCHITECTURE' : isInvestment ? 'AUTOMATION MODE' : 'ARCHITECTURE'}
                                 </p>
                             </div>
                         </div>
@@ -537,6 +550,18 @@
                                 <p className="text-gray-400 text-sm max-w-md mx-auto leading-relaxed">You dominated the credit game. Now it's time to turn that reputation into real wealth. Level 2 is about Assets.</p>
                             </div>
                         )}
+                        {isInvestment && (
+                            <div className="space-y-4 animate-fade-in">
+                                <div className="inline-block bg-green-500/20 border border-green-500/50 rounded-lg px-4 py-2">
+                                    <p className="text-xs text-green-400 uppercase tracking-widest">From Investment Simplifier</p>
+                                    <p className="text-2xl font-bold text-green-500">{context.core_etf?.ticker || 'PORTFOLIO'}</p>
+                                </div>
+                                <p className="text-sm text-green-400 font-mono">PORTFOLIO: {context.allocation?.length || 0} ETFs DETECTED</p>
+                                <p className="text-gray-400 text-sm max-w-md mx-auto leading-relaxed">
+                                    You built your ${context.monthly || 500}/mo portfolio. Now let's automate it so you never miss a deposit.
+                                </p>
+                            </div>
+                        )}
                         {!context && (
                             <div className="space-y-4 animate-fade-in">
                                 <h2 className="text-3xl font-bold text-white">BUILD THE MACHINE</h2>
@@ -546,10 +571,11 @@
                         <div className="border-t border-gray-800 my-6 pt-6 text-left text-sm text-gray-300 space-y-2 font-mono">
                             <p>> Initializing financial operating system...</p>
                             <p>> Importing user context... <span className={theme.color}>{context ? 'SUCCESS' : 'SKIPPED'}</span></p>
+                            {isInvestment && <p>> Portfolio ID: <span className={theme.color}>{context.portfolio_id}</span></p>}
                             <p>> Loading asset allocation protocols... <span className={theme.color}>READY</span></p>
                         </div>
                         <button onClick={next} className={`w-full py-4 ${theme.bg} hover:brightness-110 text-black font-bold text-lg rounded-sm transition-all uppercase shadow-lg shadow-${theme.color.split('-')[1]}-900/20`}>
-                            [ {isTicker ? 'PLUG THE LEAK' : isScore ? 'ENTER LEVEL 2' : 'START BUILDING'} ]
+                            [ {isTicker ? 'PLUG THE LEAK' : isScore ? 'ENTER LEVEL 2' : isInvestment ? 'AUTOMATE MY PORTFOLIO' : 'START BUILDING'} ]
                         </button>
                     </div>
                 </div>
@@ -850,6 +876,15 @@
                     localStorage.setItem('cashvault_architect_id', generatedId);
                     localStorage.setItem('autopilot_completed', 'true');
                     localStorage.setItem('command_center_architect_id', generatedId);
+                    
+                    // Store ETF choice for Investment Simplifier
+                    if (userData.etfChoice) {
+                        localStorage.setItem('autopilot_etf_choice', JSON.stringify(userData.etfChoice));
+                    }
+                    // Store monthly investment amount
+                    const monthlyInvest = Math.round(userData.income * 0.2);
+                    localStorage.setItem('architect_monthly_invest', monthlyInvest.toString());
+                    
                     next();
                 } else {
                     // Real Beehiiv submission
@@ -875,6 +910,15 @@
                             localStorage.setItem('cashvault_architect_id', generatedId);
                             localStorage.setItem('autopilot_completed', 'true');
                             localStorage.setItem('command_center_architect_id', generatedId);
+                            
+                            // Store ETF choice for Investment Simplifier
+                            if (userData.etfChoice) {
+                                localStorage.setItem('autopilot_etf_choice', JSON.stringify(userData.etfChoice));
+                            }
+                            // Store monthly investment amount
+                            const monthlyInvest = Math.round(userData.income * 0.2);
+                            localStorage.setItem('architect_monthly_invest', monthlyInvest.toString());
+                            
                             next();
                         } else {
                             throw new Error('Subscription failed');
@@ -887,6 +931,15 @@
                         localStorage.setItem('cashvault_architect_id', generatedId);
                         localStorage.setItem('autopilot_completed', 'true');
                         localStorage.setItem('command_center_architect_id', generatedId);
+                        
+                        // Store ETF choice for Investment Simplifier
+                        if (userData.etfChoice) {
+                            localStorage.setItem('autopilot_etf_choice', JSON.stringify(userData.etfChoice));
+                        }
+                        // Store monthly investment amount
+                        const monthlyInvest = Math.round(userData.income * 0.2);
+                        localStorage.setItem('architect_monthly_invest', monthlyInvest.toString());
+                        
                         next();
                     }
                 }
