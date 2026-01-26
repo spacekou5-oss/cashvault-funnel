@@ -502,6 +502,7 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 12px;
+            flex-wrap: wrap;
         }
         
         .core-holding-badge {
@@ -571,13 +572,30 @@
         }
         
         .core-holding-risk {
-            margin-left: auto;
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 0.7rem;
             font-weight: 700;
             background: rgba(251, 191, 36, 0.2);
             color: var(--gold);
+        }
+        
+        .core-holding-toggle {
+            margin-left: auto;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-muted);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .core-holding-toggle:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
         }
 
         .glass-card {
@@ -1459,65 +1477,7 @@
     </style>
 </head>
 <body>
-    <!-- AUTOPILOT DETECTED GATE (Shows when Autopilot was completed) -->
-    <div class="autopilot-gate hidden" id="autopilotGate">
-        <div class="detected-badge">
-            <span>Core Holding Detected</span>
-        </div>
-        
-        <div class="detected-card">
-            <h2 class="detected-title">✅ Autopilot Data Found</h2>
-            <p class="detected-subtitle">
-                You already selected your core ETF in Autopilot. Let's build a diversified portfolio around it.
-            </p>
-            
-            <div class="detected-etf">
-                <p class="detected-etf-label">Your Core Holding from Autopilot</p>
-                <p class="detected-etf-ticker" id="gateEtfTicker">VTI</p>
-                <p class="detected-etf-name" id="gateEtfName">Vanguard Total Stock Market</p>
-            </div>
-            
-            <!-- RISK LEVEL INDICATOR -->
-            <div class="risk-indicator" id="gateRiskIndicator">
-                <span class="risk-label">Risk Level:</span>
-                <span class="risk-value" id="gateRiskLevel">Moderate+</span>
-            </div>
-            
-            <!-- ALLOCATION PREVIEW MATRIX -->
-            <div class="allocation-preview">
-                <p class="preview-title">📊 Smart Allocation Preview</p>
-                <p class="preview-subtitle">Your core holding allocation adjusts based on your investment style:</p>
-                <div class="preview-grid">
-                    <div class="preview-item">
-                        <span class="preview-style">🚀 Growth</span>
-                        <span class="preview-pct" id="previewGrowth">50%</span>
-                    </div>
-                    <div class="preview-item">
-                        <span class="preview-style">⚖️ Balanced</span>
-                        <span class="preview-pct" id="previewBalanced">50%</span>
-                    </div>
-                    <div class="preview-item">
-                        <span class="preview-style">🛡️ Income</span>
-                        <span class="preview-pct" id="previewIncome">35%</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="detected-monthly">
-                <span class="detected-monthly-label">Monthly Investment</span>
-                <span class="detected-monthly-value" id="gateMonthly">$500/mo</span>
-            </div>
-        </div>
-        
-        <button class="gate-btn gate-btn-primary" onclick="continueWithCore()">
-            Build Portfolio Around <span id="gateCoreBtn">VTI</span> →
-        </button>
-        <button class="gate-btn gate-btn-secondary" onclick="chooseDifferentCore()">
-            Choose Different Core
-        </button>
-    </div>
-
-    <!-- WELCOME GATE (Shows when no Autopilot data) -->
+    <!-- WELCOME GATE (Always shows first) -->
     <div class="welcome-gate" id="welcomeGate">
         <div class="welcome-badge">
             <span>Access Granted</span>
@@ -1548,12 +1508,13 @@
             <p>Build your premium ETF portfolio with intelligent asset allocation</p>
         </div>
 
-        <!-- CORE HOLDING BANNER (Shows inside app when continuing with Autopilot ETF) -->
+        <!-- CORE HOLDING BANNER (Shows inside app when Autopilot data detected) -->
         <div class="core-holding-banner" id="coreHoldingBanner">
             <div class="core-holding-header">
                 <span class="core-holding-badge">From Autopilot</span>
-                <span class="core-holding-title">Core Holding Locked In</span>
+                <span class="core-holding-title">Core Holding Detected</span>
                 <span class="core-holding-risk" id="bannerRiskBadge">Moderate+</span>
+                <button class="core-holding-toggle" onclick="chooseDifferentCore()">✕ Use Different</button>
             </div>
             <div class="core-holding-content">
                 <div class="core-holding-etf">
@@ -1561,7 +1522,7 @@
                     <span class="core-holding-name" id="bannerName">Vanguard Total Stock Market</span>
                 </div>
                 <div class="core-holding-allocation">
-                    <p class="core-holding-allocation-label">Core Allocation</p>
+                    <p class="core-holding-allocation-label">Smart Allocation</p>
                     <p class="core-holding-allocation-value" id="bannerAllocation">50%</p>
                     <p class="core-holding-allocation-note">↕️ Adjusts with style</p>
                 </div>
@@ -2007,46 +1968,32 @@
             return false;
         }
 
-        // === GATE HANDLERS ===
-        function showAutopilotGate() {
-            document.getElementById('welcomeGate').classList.add('hidden');
-            document.getElementById('autopilotGate').classList.remove('hidden');
-            
-            // Populate gate with Autopilot data
-            document.getElementById('gateEtfTicker').textContent = autopilotData.ticker;
-            document.getElementById('gateEtfName').textContent = autopilotData.name;
-            document.getElementById('gateMonthly').textContent = '$' + autopilotData.monthly + '/mo';
-            document.getElementById('gateCoreBtn').textContent = autopilotData.ticker;
-            
-            // Get allocation data from matrix
-            const matrix = CORE_ALLOCATION_MATRIX[autopilotData.ticker.toUpperCase()];
-            if (matrix) {
-                // Populate risk level with appropriate styling
-                const riskEl = document.getElementById('gateRiskLevel');
-                riskEl.textContent = matrix.riskLevel;
-                
-                // Add risk-specific class for coloring
-                riskEl.className = 'risk-value'; // Reset classes
-                const riskClass = 'risk-' + matrix.riskLevel.toLowerCase().replace(/[+\s]/g, '-').replace('--', '-');
-                riskEl.classList.add(riskClass);
-                
-                // Populate allocation preview
-                document.getElementById('previewGrowth').textContent = matrix.growth + '%';
-                document.getElementById('previewBalanced').textContent = matrix.balanced + '%';
-                document.getElementById('previewIncome').textContent = matrix.income + '%';
-            }
+        function chooseDifferentCore() {
+            useCoreFromAutopilot = false;
+            autopilotData = null;
+            document.getElementById('coreHoldingBanner').classList.remove('show');
+            portfolioId = generatePortfolioId();
         }
 
-        function continueWithCore() {
-            useCoreFromAutopilot = true;
-            document.getElementById('autopilotGate').classList.add('hidden');
+        function enterApp() {
+            document.getElementById('welcomeGate').classList.add('hidden');
+            portfolioId = generatePortfolioId();
             
-            // Show core holding banner
-            document.getElementById('coreHoldingBanner').classList.add('show');
+            // If Autopilot data exists, show the core holding banner
+            if (autopilotData) {
+                useCoreFromAutopilot = true;
+                showCoreHoldingBanner();
+            }
+        }
+        
+        function showCoreHoldingBanner() {
+            const banner = document.getElementById('coreHoldingBanner');
+            banner.classList.add('show');
+            
             document.getElementById('bannerTicker').textContent = autopilotData.ticker;
             document.getElementById('bannerName').textContent = autopilotData.name;
             
-            // Set risk badge and initial allocation on banner
+            // Set risk badge and allocation
             const matrix = CORE_ALLOCATION_MATRIX[autopilotData.ticker.toUpperCase()];
             if (matrix) {
                 document.getElementById('bannerRiskBadge').textContent = matrix.riskLevel;
@@ -2054,24 +2001,12 @@
                 document.getElementById('bannerAllocation').textContent = matrix.balanced + '%';
             }
             
-            // Pre-fill monthly investment
-            document.getElementById('monthlyInvestment').value = autopilotData.monthly;
-            document.getElementById('investRange').value = autopilotData.monthly;
-            
-            portfolioId = generatePortfolioId();
-            calculateGrowth();
-        }
-
-        function chooseDifferentCore() {
-            useCoreFromAutopilot = false;
-            autopilotData = null;
-            document.getElementById('autopilotGate').classList.add('hidden');
-            portfolioId = generatePortfolioId();
-        }
-
-        function enterApp() {
-            document.getElementById('welcomeGate').classList.add('hidden');
-            portfolioId = generatePortfolioId();
+            // Pre-fill monthly investment from Autopilot
+            if (autopilotData.monthly) {
+                document.getElementById('monthlyInvestment').value = autopilotData.monthly;
+                document.getElementById('investRange').value = autopilotData.monthly;
+                calculateGrowth();
+            }
         }
 
         // PROCESSING THEATER
@@ -2112,12 +2047,11 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Check for Autopilot data first
-            if (checkForAutopilotData()) {
-                showAutopilotGate();
-            } else {
-                animateCounter();
-            }
+            // Always show welcome gate and counter first
+            animateCounter();
+            
+            // Silently check for Autopilot data (don't show gate)
+            checkForAutopilotData();
             
             setupDualInput('userAge', 'ageRange', () => {});
             setupDualInput('monthlyInvestment', 'investRange', calculateGrowth);
