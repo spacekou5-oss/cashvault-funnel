@@ -179,6 +179,109 @@
             font-weight: 700;
             font-size: 1.2rem;
         }
+
+        /* RISK INDICATOR */
+        .risk-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .risk-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .risk-value {
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+        
+        .risk-value.risk-very-low {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+        
+        .risk-value.risk-low-moderate {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+        }
+        
+        .risk-value.risk-moderate {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--gold);
+        }
+        
+        .risk-value.risk-moderate-plus {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+        }
+        
+        .risk-value.risk-high {
+            background: rgba(249, 115, 22, 0.2);
+            color: #f97316;
+        }
+        
+        .risk-value.risk-very-high {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        /* ALLOCATION PREVIEW */
+        .allocation-preview {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .preview-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .preview-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .preview-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 10px 8px;
+            background: var(--bg-card);
+            border-radius: 8px;
+        }
+        
+        .preview-style {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .preview-pct {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--accent-primary);
+        }
         
         .gate-btn {
             width: 100%;
@@ -459,6 +562,22 @@
             font-size: 1.2rem;
             font-weight: 700;
             color: var(--success);
+        }
+        
+        .core-holding-allocation-note {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        
+        .core-holding-risk {
+            margin-left: auto;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--gold);
         }
 
         .glass-card {
@@ -1358,6 +1477,32 @@
                 <p class="detected-etf-name" id="gateEtfName">Vanguard Total Stock Market</p>
             </div>
             
+            <!-- RISK LEVEL INDICATOR -->
+            <div class="risk-indicator" id="gateRiskIndicator">
+                <span class="risk-label">Risk Level:</span>
+                <span class="risk-value" id="gateRiskLevel">Moderate+</span>
+            </div>
+            
+            <!-- ALLOCATION PREVIEW MATRIX -->
+            <div class="allocation-preview">
+                <p class="preview-title">📊 Smart Allocation Preview</p>
+                <p class="preview-subtitle">Your core holding allocation adjusts based on your investment style:</p>
+                <div class="preview-grid">
+                    <div class="preview-item">
+                        <span class="preview-style">🚀 Growth</span>
+                        <span class="preview-pct" id="previewGrowth">50%</span>
+                    </div>
+                    <div class="preview-item">
+                        <span class="preview-style">⚖️ Balanced</span>
+                        <span class="preview-pct" id="previewBalanced">50%</span>
+                    </div>
+                    <div class="preview-item">
+                        <span class="preview-style">🛡️ Income</span>
+                        <span class="preview-pct" id="previewIncome">35%</span>
+                    </div>
+                </div>
+            </div>
+            
             <div class="detected-monthly">
                 <span class="detected-monthly-label">Monthly Investment</span>
                 <span class="detected-monthly-value" id="gateMonthly">$500/mo</span>
@@ -1408,6 +1553,7 @@
             <div class="core-holding-header">
                 <span class="core-holding-badge">From Autopilot</span>
                 <span class="core-holding-title">Core Holding Locked In</span>
+                <span class="core-holding-risk" id="bannerRiskBadge">Moderate+</span>
             </div>
             <div class="core-holding-content">
                 <div class="core-holding-etf">
@@ -1417,6 +1563,7 @@
                 <div class="core-holding-allocation">
                     <p class="core-holding-allocation-label">Core Allocation</p>
                     <p class="core-holding-allocation-value" id="bannerAllocation">50%</p>
+                    <p class="core-holding-allocation-note">↕️ Adjusts with style</p>
                 </div>
             </div>
         </div>
@@ -1686,6 +1833,93 @@
             'VGT': 'vgt'
         };
 
+        // === RISK-AWARE CORE ALLOCATION MATRIX ===
+        // [Autopilot ETF]: { growth: %, balanced: %, income: %, riskLevel: string, riskReason: string }
+        const CORE_ALLOCATION_MATRIX = {
+            'BND': { 
+                growth: 15, balanced: 25, income: 40, 
+                riskLevel: 'Very Low',
+                riskReason: 'Bonds provide stability but limited growth. In Growth mode, we minimize this to maximize returns.'
+            },
+            'SCHD': { 
+                growth: 30, balanced: 40, income: 55, 
+                riskLevel: 'Low-Moderate',
+                riskReason: 'Dividend stocks offer steady income with moderate growth. Perfect core for Income seekers.'
+            },
+            'VT': { 
+                growth: 40, balanced: 45, income: 35, 
+                riskLevel: 'Moderate',
+                riskReason: 'Global diversification reduces risk but may limit US-focused growth potential.'
+            },
+            'VTI': { 
+                growth: 50, balanced: 50, income: 35, 
+                riskLevel: 'Moderate+',
+                riskReason: 'Total US market is the standard core holding. Works well across all strategies.'
+            },
+            'QQQM': { 
+                growth: 55, balanced: 40, income: 25, 
+                riskLevel: 'High',
+                riskReason: 'Tech-heavy NASDAQ offers high growth but significant volatility. We reduce exposure for Income mode.'
+            },
+            'VGT': { 
+                growth: 45, balanced: 35, income: 20, 
+                riskLevel: 'Very High',
+                riskReason: 'Pure tech sector is extremely volatile. Even in Growth mode, we cap this to manage risk.'
+            }
+        };
+
+        // Get intelligent core allocation based on Autopilot ETF and current risk style
+        function getCoreAllocation(autopilotTicker, riskStyle) {
+            const matrix = CORE_ALLOCATION_MATRIX[autopilotTicker];
+            if (!matrix) return { allocation: 50, riskLevel: 'Unknown', riskReason: 'Standard allocation applied.' };
+            
+            return {
+                allocation: matrix[riskStyle] || 50,
+                riskLevel: matrix.riskLevel,
+                riskReason: matrix.riskReason
+            };
+        }
+
+        // Get complementary ETFs based on core ETF and risk style (to avoid duplication)
+        function getComplementaryETFs(coreId, riskStyle, remainingStock) {
+            const complements = [];
+            
+            // Avoid duplicating the core ETF type
+            const isBond = coreId === 'bnd';
+            const isDividend = ['schd', 'vym', 'dgro'].includes(coreId);
+            const isTech = ['qqqm', 'vgt'].includes(coreId);
+            const isUSTotal = ['vti', 'voo'].includes(coreId);
+            const isGlobal = coreId === 'vt';
+            
+            if (riskStyle === 'growth') {
+                // Growth: Add growth-focused complements
+                if (!isTech) complements.push({ id: 'schg', pct: Math.round(remainingStock * 0.4) });
+                if (!isUSTotal && !isGlobal) complements.push({ id: 'vti', pct: Math.round(remainingStock * 0.3) });
+                else complements.push({ id: 'avuv', pct: Math.round(remainingStock * 0.3) });
+                complements.push({ id: 'vxus', pct: Math.round(remainingStock * 0.3) });
+            } else if (riskStyle === 'income') {
+                // Income: Add dividend-focused complements
+                if (!isDividend) {
+                    complements.push({ id: 'schd', pct: Math.round(remainingStock * 0.5) });
+                    complements.push({ id: 'vym', pct: Math.round(remainingStock * 0.5) });
+                } else if (coreId === 'schd') {
+                    complements.push({ id: 'vym', pct: Math.round(remainingStock * 0.5) });
+                    complements.push({ id: 'dgro', pct: Math.round(remainingStock * 0.5) });
+                } else {
+                    complements.push({ id: 'schd', pct: Math.round(remainingStock * 0.5) });
+                    complements.push({ id: 'dgro', pct: Math.round(remainingStock * 0.5) });
+                }
+            } else {
+                // Balanced: Mix of growth and stability
+                if (!isGlobal) complements.push({ id: 'vxus', pct: Math.round(remainingStock * 0.5) });
+                else complements.push({ id: 'vti', pct: Math.round(remainingStock * 0.5) });
+                if (!isDividend) complements.push({ id: 'schd', pct: Math.round(remainingStock * 0.5) });
+                else complements.push({ id: 'vxus', pct: Math.round(remainingStock * 0.5) });
+            }
+            
+            return complements;
+        }
+
         let allocationChartInstance = null;
         let growthChartInstance = null;
         let currentPortfolioData = null;
@@ -1783,6 +2017,24 @@
             document.getElementById('gateEtfName').textContent = autopilotData.name;
             document.getElementById('gateMonthly').textContent = '$' + autopilotData.monthly + '/mo';
             document.getElementById('gateCoreBtn').textContent = autopilotData.ticker;
+            
+            // Get allocation data from matrix
+            const matrix = CORE_ALLOCATION_MATRIX[autopilotData.ticker.toUpperCase()];
+            if (matrix) {
+                // Populate risk level with appropriate styling
+                const riskEl = document.getElementById('gateRiskLevel');
+                riskEl.textContent = matrix.riskLevel;
+                
+                // Add risk-specific class for coloring
+                riskEl.className = 'risk-value'; // Reset classes
+                const riskClass = 'risk-' + matrix.riskLevel.toLowerCase().replace(/[+\s]/g, '-').replace('--', '-');
+                riskEl.classList.add(riskClass);
+                
+                // Populate allocation preview
+                document.getElementById('previewGrowth').textContent = matrix.growth + '%';
+                document.getElementById('previewBalanced').textContent = matrix.balanced + '%';
+                document.getElementById('previewIncome').textContent = matrix.income + '%';
+            }
         }
 
         function continueWithCore() {
@@ -1793,6 +2045,14 @@
             document.getElementById('coreHoldingBanner').classList.add('show');
             document.getElementById('bannerTicker').textContent = autopilotData.ticker;
             document.getElementById('bannerName').textContent = autopilotData.name;
+            
+            // Set risk badge and initial allocation on banner
+            const matrix = CORE_ALLOCATION_MATRIX[autopilotData.ticker.toUpperCase()];
+            if (matrix) {
+                document.getElementById('bannerRiskBadge').textContent = matrix.riskLevel;
+                // Default to balanced allocation initially
+                document.getElementById('bannerAllocation').textContent = matrix.balanced + '%';
+            }
             
             // Pre-fill monthly investment
             document.getElementById('monthlyInvestment').value = autopilotData.monthly;
@@ -1862,7 +2122,17 @@
             setupDualInput('userAge', 'ageRange', () => {});
             setupDualInput('monthlyInvestment', 'investRange', calculateGrowth);
             setupDualInput('investmentPeriod', 'timeRange', calculateGrowth);
-            document.getElementById('riskStyle').addEventListener('change', () => {});
+            
+            // Update banner allocation when risk style changes
+            document.getElementById('riskStyle').addEventListener('change', (e) => {
+                if (useCoreFromAutopilot && autopilotData) {
+                    const matrix = CORE_ALLOCATION_MATRIX[autopilotData.ticker.toUpperCase()];
+                    if (matrix) {
+                        document.getElementById('bannerAllocation').textContent = matrix[e.target.value] + '%';
+                    }
+                }
+            });
+            
             document.getElementById('lumpSumInput').addEventListener('input', updateDollarValues);
             calculateGrowth();
             
@@ -1911,37 +2181,49 @@
 
             const bondPct = 100 - stockPct;
 
-            // === CORE FROM AUTOPILOT ===
+            // === INTELLIGENT CORE FROM AUTOPILOT ===
             if (useCoreFromAutopilot && autopilotData) {
-                const coreTicker = autopilotData.ticker.toLowerCase();
-                const coreId = autopilotEtfMap[autopilotData.ticker] || coreTicker;
-                const coreAllocation = 50; // Core gets 50%
+                const coreTicker = autopilotData.ticker.toUpperCase();
+                const coreId = autopilotEtfMap[coreTicker] || coreTicker.toLowerCase();
+                
+                // Get intelligent allocation from matrix
+                const coreData = getCoreAllocation(coreTicker, riskStyle);
+                const coreAllocation = coreData.allocation;
+                
+                // Update banner with dynamic allocation
+                document.getElementById('bannerAllocation').textContent = coreAllocation + '%';
                 
                 alloc.push({ id: coreId, pct: coreAllocation, isCore: true });
                 
-                // Distribute remaining stock allocation
-                const remainingStock = stockPct - coreAllocation;
+                // Calculate remaining allocation
+                const remainingStock = Math.max(0, stockPct - coreAllocation);
                 
-                if (remainingStock > 0) {
-                    // Add diversification based on risk style
-                    if (riskStyle === 'growth') {
-                        alloc.push({ id: 'schg', pct: Math.round(remainingStock * 0.5) });
-                        alloc.push({ id: 'avuv', pct: Math.round(remainingStock * 0.3) });
-                        alloc.push({ id: 'vxus', pct: Math.round(remainingStock * 0.2) });
-                    } else if (riskStyle === 'income') {
-                        alloc.push({ id: 'schd', pct: Math.round(remainingStock * 0.5) });
-                        alloc.push({ id: 'vym', pct: Math.round(remainingStock * 0.5) });
-                    } else {
-                        alloc.push({ id: 'vxus', pct: Math.round(remainingStock * 0.6) });
-                        alloc.push({ id: 'schd', pct: Math.round(remainingStock * 0.4) });
+                // Handle special case: if core is a bond (BND), we need different logic
+                if (coreId === 'bnd') {
+                    // BND is already bonds, so remaining goes to stocks
+                    const actualBondPct = coreAllocation; // BND allocation IS the bond allocation
+                    const actualStockPct = 100 - actualBondPct;
+                    
+                    // Get stock complements
+                    const complements = getComplementaryETFs(coreId, riskStyle, actualStockPct);
+                    complements.forEach(c => alloc.push(c));
+                    
+                    updateWhyExplanationWithCore(coreTicker, coreAllocation, actualStockPct, actualBondPct, coreData, riskStyle);
+                } else {
+                    // Core is a stock ETF
+                    if (remainingStock > 0) {
+                        // Get complementary ETFs that don't duplicate core
+                        const complements = getComplementaryETFs(coreId, riskStyle, remainingStock);
+                        complements.forEach(c => alloc.push(c));
                     }
+                    
+                    // Add bonds if needed
+                    if (bondPct > 0) {
+                        alloc.push({ id: 'bnd', pct: bondPct });
+                    }
+                    
+                    updateWhyExplanationWithCore(coreTicker, coreAllocation, stockPct, bondPct, coreData, riskStyle);
                 }
-                
-                if (bondPct > 0) {
-                    alloc.push({ id: 'bnd', pct: bondPct });
-                }
-                
-                updateWhyExplanationWithCore(autopilotData.ticker, coreAllocation, stockPct, bondPct);
             } else {
                 // Standard allocation logic
                 updateWhyExplanation(age, stockPct, bondPct, riskStyle, riskAdjustment);
@@ -1982,9 +2264,14 @@
             savePortfolioData(stockPct, bondPct, alloc);
         }
 
-        function updateWhyExplanationWithCore(coreTicker, coreAllocation, stockPct, bondPct) {
-            let explanation = `Your core holding <span class="formula">${coreTicker}</span> from Autopilot takes ${coreAllocation}% of your portfolio. `;
-            explanation += `We've added diversification to reach ${stockPct}% stocks total, with ${bondPct}% in bonds for stability.`;
+        function updateWhyExplanationWithCore(coreTicker, coreAllocation, stockPct, bondPct, coreData, riskStyle) {
+            const riskStyleNames = { growth: 'Growth', balanced: 'Balanced', income: 'Income' };
+            const styleName = riskStyleNames[riskStyle] || 'Balanced';
+            
+            let explanation = `<strong>Intelligent Allocation:</strong> Your <span class="formula">${coreTicker}</span> from Autopilot is a <strong>${coreData.riskLevel}</strong> risk asset. `;
+            explanation += `For your <strong>${styleName}</strong> strategy, we've set it at <span class="formula">${coreAllocation}%</span>. `;
+            explanation += `<br><br><em>${coreData.riskReason}</em> `;
+            explanation += `<br><br>Final split: ${stockPct}% stocks / ${bondPct}% bonds.`;
             document.getElementById('whyExplanation').innerHTML = explanation;
         }
 
