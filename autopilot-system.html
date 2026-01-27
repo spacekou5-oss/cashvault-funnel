@@ -86,20 +86,25 @@
             animation: screenshotPulse 2s infinite;
         }
 
-        /* === EMAIL GATE GLOW === */
-        @keyframes emailGateGlow {
-            0%, 100% { box-shadow: 0 0 20px rgba(34,197,94,0.2), inset 0 0 30px rgba(34,197,94,0.05); }
-            50% { box-shadow: 0 0 40px rgba(34,197,94,0.4), inset 0 0 50px rgba(34,197,94,0.1); }
+        /* === KILL SWITCH: DANGER GLOW === */
+        @keyframes dangerGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(239,68,68,0.3), inset 0 0 30px rgba(239,68,68,0.05); }
+            50% { box-shadow: 0 0 40px rgba(239,68,68,0.5), inset 0 0 50px rgba(239,68,68,0.1); }
         }
-        .email-gate-glow {
-            animation: emailGateGlow 2s ease-in-out infinite;
+        .danger-glow {
+            animation: dangerGlow 1.5s ease-in-out infinite;
+        }
+
+        /* === DANGER PULSE === */
+        @keyframes dangerPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+        .danger-pulse {
+            animation: dangerPulse 1s ease-in-out infinite;
         }
 
         /* === SHIMMER EFFECT === */
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
         .animate-shimmer {
             animation: shimmer 2s infinite;
         }
@@ -253,9 +258,8 @@
         const CONFIG = {
             // === BEEHIIV CONFIGURATION ===
             BEEHIIV: {
-                PUBLICATION_ID: "YOUR_PUBLICATION_ID", // Replace with your Beehiiv publication ID
-                FORM_URL: "https://embeds.beehiiv.com/YOUR_EMBED_ID", // Replace with your Beehiiv form URL
-                // For testing without Beehiiv, set this to true
+                PUBLICATION_ID: "YOUR_PUBLICATION_ID",
+                FORM_URL: "https://embeds.beehiiv.com/YOUR_EMBED_ID",
                 MOCK_MODE: true
             },
             LINKS: {
@@ -303,7 +307,6 @@
                 { id: 7, text: "Minting premium certificate...", duration: 600 },
                 { id: 8, text: "Finalizing system installation...", duration: 700 }
             ],
-            // === SHARE TEMPLATES (Pre-written for each platform) ===
             SHARE_TEMPLATES: {
                 INSTAGRAM: "I just installed the Autopilot Money System. My machine is now building wealth while I sleep. 🤖💰 @koutalksmoney",
                 TWITTER: "Just installed The Autopilot Money System.\n\nMy wealth is now on autopilot.\n\nGet yours: [LINK]\n\n@koutalksmoney",
@@ -313,15 +316,12 @@
         };
 
         // === EMAIL-BASED ARCHITECT ID GENERATOR ===
-        // Generates unique IDs tied to email address (deterministic)
-        // Same email = Same ID (always)
         function generateIdFromEmail(email) {
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             const normalizedEmail = email.toLowerCase().trim();
             
-            // Create hash from email
             let hash1 = 0;
-            let hash2 = 5381; // djb2 algorithm
+            let hash2 = 5381;
             
             for (let i = 0; i < normalizedEmail.length; i++) {
                 const char = normalizedEmail.charCodeAt(i);
@@ -330,13 +330,11 @@
                 hash2 = ((hash2 << 5) + hash2) + char;
             }
             
-            // Combine hashes for 6 characters
             const combined = Math.abs(hash1) + Math.abs(hash2);
             let id = 'KOU-';
             let workingHash = combined;
             
             for (let i = 0; i < 6; i++) {
-                // Use different parts of hash for each character
                 const charIndex = (workingHash + (normalizedEmail.charCodeAt(i % normalizedEmail.length) * (i + 1))) % chars.length;
                 id += chars.charAt(Math.abs(charIndex));
                 workingHash = Math.floor(workingHash / 7) + charIndex;
@@ -345,7 +343,6 @@
             return id;
         }
 
-        // Check if email already has an ID (for returning users)
         function getExistingIdForEmail(email) {
             const normalizedEmail = email.toLowerCase().trim();
             const storedEmail = localStorage.getItem('architect_email');
@@ -357,7 +354,6 @@
             return null;
         }
 
-        // Legacy random ID generator (kept for backwards compatibility check)
         function generateArchitectId() {
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             const timestamp = Date.now();
@@ -399,19 +395,15 @@
                 checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false }
             });
 
-            // Check for existing completed user on mount
             useEffect(() => {
                 const existingId = localStorage.getItem('cashvault_architect_id');
                 const existingEmail = localStorage.getItem('architect_email');
                 
-                // If user already has an ID, they've completed before
                 if (existingId && existingEmail) {
                     setArchitectId(existingId);
                 }
-                // Otherwise, ID will be generated when they enter their email
             }, []);
 
-            // --- THE CHAMELEON BRAIN ---
             useEffect(() => {
                 const savedContext = localStorage.getItem('cashvault_context');
                 if (savedContext) {
@@ -426,7 +418,6 @@
                     } else if (parsed.source === 'score') {
                         setTheme(CONFIG.THEMES.SCORE);
                     } else if (parsed.source === 'investment_simplifier') {
-                        // User came from Investment Simplifier
                         setTheme(CONFIG.THEMES.DEFAULT);
                         if (parsed.monthly) {
                             const estimatedIncome = parsed.monthly * 5;
@@ -450,11 +441,8 @@
             const updateData = (key, value) => setUserData(prev => ({ ...prev, [key]: value }));
             const toggleCheck = (key) => setUserData(prev => ({ ...prev, checklist: { ...prev.checklist, [key]: !prev.checklist[key] } }));
 
-            // --- GOAL-GRADIENT: Calculate installation percentage ---
-            // Now includes email gate as step 7, certificate as step 8
             const installationPercent = Math.round(((module + 1) / 8) * 100);
 
-            // Router - Now includes EmailGate (module 6) before Certificate (module 7)
             const renderModule = () => {
                 switch(module) {
                     case 0: return <ModuleBridge context={context} theme={theme} next={() => setModule(1)} />;
@@ -484,7 +472,6 @@
                                 </div>
                             </div>
                             
-                            {/* GOAL-GRADIENT: Installation Progress with Shimmer */}
                             <div className="space-y-1">
                                 <div className="flex justify-between items-center text-[10px]">
                                     <span className="text-gray-500 uppercase tracking-widest">System Installation</span>
@@ -683,7 +670,7 @@
             );
         }
 
-        // --- OPERATIONAL TRANSPARENCY PANEL COMPONENT ---
+        // --- TRANSPARENCY PANEL COMPONENT ---
         function TransparencyPanel({ steps, currentStep, isProcessing, isOpen, onToggle, theme }) {
             return (
                 <div className="transparency-panel">
@@ -714,7 +701,7 @@
             );
         }
 
-        // --- IDLENESS AVERSION: ENHANCED PROCESSING OVERLAY ---
+        // --- PROCESSING OVERLAY ---
         function ProcessingOverlay({ theme, userName, onComplete }) {
             const [currentStep, setCurrentStep] = useState(0);
             const [panelOpen, setPanelOpen] = useState(true);
@@ -777,7 +764,7 @@
             );
         }
 
-        // --- PROJECTION MODULE (Name Input Only) ---
+        // --- PROJECTION MODULE ---
         function ModuleProjection({ userData, updateData, theme, next }) {
             const [isProcessing, setIsProcessing] = useState(false);
             const monthly = userData.income * 0.2;
@@ -834,19 +821,35 @@
                         [ Generate Certificate for {userData.userName || '...'} ]
                     </button>
                     <p className="text-[10px] text-gray-500 text-center mt-3">
-                        *Next: Verify email to unlock your certificate
+                        *Next: Save your system configuration
                     </p>
                 </div>
             );
         }
 
-        // === NEW: EMAIL GATE MODULE (THE HIGHEST-LEVERAGE ADDITION) ===
+        // === THE KILL SWITCH: EMAIL GATE WITH LOSS AVERSION ===
         function ModuleEmailGate({ userData, updateData, theme, architectId, setArchitectId, next }) {
             const [email, setEmail] = useState(userData.userEmail || '');
             const [isSubmitting, setIsSubmitting] = useState(false);
             const [error, setError] = useState('');
+            const [countdown, setCountdown] = useState(300); // 5 minute countdown for urgency
             
             const projectedWealth = ((userData.income * 0.2) * ((Math.pow(1.10/12, 30*12)-1)/(0.10/12))).toLocaleString(undefined, {maximumFractionDigits:0});
+            const timeInvested = "5+ minutes"; // Approximate time spent configuring
+
+            // Countdown timer for urgency
+            useEffect(() => {
+                const timer = setInterval(() => {
+                    setCountdown(prev => prev > 0 ? prev - 1 : 0);
+                }, 1000);
+                return () => clearInterval(timer);
+            }, []);
+
+            const formatCountdown = (seconds) => {
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                return `${m}:${s.toString().padStart(2, '0')}`;
+            };
 
             const validateEmail = (email) => {
                 return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -854,20 +857,17 @@
 
             const handleSubmit = async () => {
                 if (!validateEmail(email)) {
-                    setError('Enter a valid email address');
+                    setError('Enter a valid email to save your configuration');
                     return;
                 }
                 
                 setIsSubmitting(true);
                 setError('');
 
-                // Generate ID from email (deterministic - same email = same ID)
                 const generatedId = generateIdFromEmail(email);
                 setArchitectId(generatedId);
 
-                // === BEEHIIV INTEGRATION ===
                 if (CONFIG.BEEHIIV.MOCK_MODE) {
-                    // Mock mode for testing
                     await new Promise(resolve => setTimeout(resolve, 1500));
                     updateData('userEmail', email);
                     localStorage.setItem('autopilot_email_captured', 'true');
@@ -877,106 +877,119 @@
                     localStorage.setItem('autopilot_completed', 'true');
                     localStorage.setItem('command_center_architect_id', generatedId);
                     
-                    // Store ETF choice for Investment Simplifier
                     if (userData.etfChoice) {
                         localStorage.setItem('autopilot_etf_choice', JSON.stringify(userData.etfChoice));
                     }
-                    // Store monthly investment amount
                     const monthlyInvest = Math.round(userData.income * 0.2);
                     localStorage.setItem('architect_monthly_invest', monthlyInvest.toString());
                     
                     next();
                 } else {
-                    // Real Beehiiv submission
                     try {
                         const response = await fetch(CONFIG.BEEHIIV.FORM_URL, {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
+                            headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 email: email,
                                 utm_source: 'autopilot_system',
-                                utm_medium: 'web_app',
+                                utm_medium: 'kill_switch',
                                 referring_site: window.location.href
                             })
                         });
                         
-                        if (response.ok) {
-                            updateData('userEmail', email);
-                            localStorage.setItem('autopilot_email_captured', 'true');
-                            localStorage.setItem('autopilot_user_email', email);
-                            localStorage.setItem('architect_email', email.toLowerCase().trim());
-                            localStorage.setItem('cashvault_architect_id', generatedId);
-                            localStorage.setItem('autopilot_completed', 'true');
-                            localStorage.setItem('command_center_architect_id', generatedId);
-                            
-                            // Store ETF choice for Investment Simplifier
-                            if (userData.etfChoice) {
-                                localStorage.setItem('autopilot_etf_choice', JSON.stringify(userData.etfChoice));
-                            }
-                            // Store monthly investment amount
-                            const monthlyInvest = Math.round(userData.income * 0.2);
-                            localStorage.setItem('architect_monthly_invest', monthlyInvest.toString());
-                            
-                            next();
-                        } else {
-                            throw new Error('Subscription failed');
-                        }
-                    } catch (err) {
-                        // Fallback: still proceed but log the error
-                        console.error('Beehiiv submission error:', err);
                         updateData('userEmail', email);
+                        localStorage.setItem('autopilot_email_captured', 'true');
+                        localStorage.setItem('autopilot_user_email', email);
                         localStorage.setItem('architect_email', email.toLowerCase().trim());
                         localStorage.setItem('cashvault_architect_id', generatedId);
                         localStorage.setItem('autopilot_completed', 'true');
                         localStorage.setItem('command_center_architect_id', generatedId);
                         
-                        // Store ETF choice for Investment Simplifier
                         if (userData.etfChoice) {
                             localStorage.setItem('autopilot_etf_choice', JSON.stringify(userData.etfChoice));
                         }
-                        // Store monthly investment amount
                         const monthlyInvest = Math.round(userData.income * 0.2);
                         localStorage.setItem('architect_monthly_invest', monthlyInvest.toString());
                         
+                        next();
+                    } catch (err) {
+                        console.error('Beehiiv submission error:', err);
+                        localStorage.setItem('architect_email', email.toLowerCase().trim());
+                        localStorage.setItem('cashvault_architect_id', generatedId);
+                        localStorage.setItem('autopilot_completed', 'true');
                         next();
                     }
                 }
             };
 
             return (
-                <div className="terminal-box p-8 rounded-sm animate-fade-in email-gate-glow" style={{ borderColor: theme.accent, borderWidth: '2px' }}>
+                <div className="terminal-box p-8 rounded-sm animate-fade-in danger-glow" style={{ borderColor: '#ef4444', borderWidth: '2px' }}>
                     <div className="text-center space-y-6">
                         
-                        {/* ID Reserved Badge */}
+                        {/* === THE KILL SWITCH BADGE (Loss Aversion) === */}
                         <div className="mb-4">
-                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${theme.bg} text-black text-xs font-bold uppercase tracking-widest animate-pulse`}>
-                                <span>🔐</span>
-                                ID Generated — Awaiting Claim
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-900/30 border border-red-500 text-red-500 text-xs font-bold uppercase tracking-widest danger-pulse">
+                                <span>⚠️</span>
+                                SYSTEM CONFIGURATION NOT SAVED
                             </div>
                         </div>
 
-                        {/* The masked ID - shows partial until email submitted */}
-                        <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-lg p-6 border border-gray-700">
-                            <p className="text-gray-500 text-xs uppercase tracking-widest mb-2">Your Unique Architect ID</p>
-                            <div className="relative">
-                                <p className={`text-3xl font-bold tracking-[0.2em] font-mono`}>
-                                    <span className={theme.color}>KOU-</span>
-                                    <span className="text-gray-600">??????</span>
+                        {/* === THE DATA LOSS THREAT === */}
+                        <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-lg p-6 border border-red-500/50 relative overflow-hidden">
+                            <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">Session Status:</p>
+                            <div className="relative z-10">
+                                <p className="text-2xl font-bold font-mono text-white">
+                                    TEMPORARY CACHE
                                 </p>
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
+                                <div className="mt-4 p-3 bg-red-900/20 border border-red-500/30 rounded">
+                                    <p className="text-red-400 text-sm font-bold mb-1">
+                                        ⚠️ DATA DESTRUCTION IMMINENT
+                                    </p>
+                                    <p className="text-red-300 text-xs">
+                                        Closing this tab will <span className="text-white font-bold underline">permanently delete</span> your financial roadmap.
+                                    </p>
+                                </div>
                             </div>
-                            <p className="text-gray-400 text-xs mt-3">Enter your email below to reveal your unique ID</p>
+                            
+                            {/* Countdown urgency */}
+                            <div className="mt-4 text-center">
+                                <p className="text-gray-500 text-[10px] uppercase tracking-widest">Session expires in</p>
+                                <p className="text-red-500 text-xl font-mono font-bold timer-pulse">{formatCountdown(countdown)}</p>
+                            </div>
                         </div>
 
-                        {/* The Gate */}
+                        {/* What they're about to lose */}
+                        <div className="bg-black border border-gray-800 p-4 rounded text-left">
+                            <p className="text-red-400 text-xs font-bold uppercase tracking-widest mb-3">🗑️ You will lose:</p>
+                            <ul className="space-y-2 text-sm text-gray-300">
+                                <li className="flex items-center gap-2">
+                                    <span className="text-red-500">✗</span>
+                                    <span>Your <strong className="text-white">${(userData.income * 0.2).toFixed(0)}/mo</strong> automation setup</span>
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <span className="text-red-500">✗</span>
+                                    <span>Your <strong className="text-white">{userData.etfChoice?.ticker || 'ETF'}</strong> investment strategy</span>
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <span className="text-red-500">✗</span>
+                                    <span>Your <strong className="text-white">${projectedWealth}</strong> 30-year projection</span>
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <span className="text-red-500">✗</span>
+                                    <span>Your unique <strong className="text-white">Architect Certificate</strong></span>
+                                </li>
+                            </ul>
+                            <p className="text-gray-500 text-xs mt-3 text-center">
+                                Time invested: <span className="text-white font-bold">{timeInvested}</span>
+                            </p>
+                        </div>
+
+                        {/* The Save Gate */}
                         <div className="space-y-4 pt-2">
                             <div>
-                                <h2 className="text-xl font-bold text-white mb-2">UNLOCK YOUR ARCHITECT ID</h2>
+                                <h2 className="text-xl font-bold text-white mb-2">SAVE TO CLOUD</h2>
                                 <p className="text-gray-400 text-sm">
-                                    Your ID unlocks your <span className={`${theme.color} font-semibold`}>Command Center</span> — 
-                                    track your wealth-building progress across all systems.
+                                    Enter email to <span className="text-green-500 font-semibold">permanently save</span> your configuration.
                                 </p>
                             </div>
 
@@ -990,7 +1003,7 @@
                                             setError('');
                                         }}
                                         placeholder="your@email.com"
-                                        className={`w-full bg-black border ${error ? 'border-red-500' : 'border-gray-700'} text-white p-4 rounded text-center font-mono text-lg outline-none focus:border-white transition-colors`}
+                                        className={`w-full bg-black border ${error ? 'border-red-500' : 'border-gray-700'} text-white p-4 rounded text-center font-mono text-lg outline-none focus:border-green-500 transition-colors`}
                                         disabled={isSubmitting}
                                     />
                                     {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
@@ -999,7 +1012,7 @@
                                 <button
                                     onClick={handleSubmit}
                                     disabled={!email || isSubmitting}
-                                    className={`w-full py-4 ${theme.bg} text-black font-bold text-lg rounded transition-all uppercase shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
+                                    className="w-full py-4 bg-green-500 hover:bg-green-400 text-black font-bold text-lg rounded transition-all uppercase shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {isSubmitting ? (
                                         <>
@@ -1007,10 +1020,10 @@
                                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
-                                            <span>Claiming...</span>
+                                            <span>Saving Configuration...</span>
                                         </>
                                     ) : (
-                                        '[ Reveal My Architect ID ]'
+                                        '[ 💾 SAVE MY SYSTEM ]'
                                     )}
                                 </button>
                             </div>
@@ -1024,25 +1037,25 @@
                                 <span>•</span>
                                 <span>No spam, ever</span>
                                 <span>•</span>
-                                <span>Unsubscribe anytime</span>
+                                <span>Instant cloud save</span>
                             </div>
                         </div>
 
-                        {/* What they unlock */}
+                        {/* What they get */}
                         <div className="border-t border-gray-800 pt-4 mt-4 text-left">
-                            <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">This ID unlocks:</p>
+                            <p className="text-xs text-green-500 uppercase tracking-widest mb-3">✅ After saving:</p>
                             <ul className="space-y-2 text-sm text-gray-300">
                                 <li className="flex items-center gap-2">
-                                    <span className={`${theme.color}`}>🎛️</span>
-                                    <span><strong className="text-white">Command Center</strong> — Track all 7 wealth systems</span>
+                                    <span className="text-green-500">✓</span>
+                                    <span><strong className="text-white">Permanent Cloud Backup</strong> — Never lose your config</span>
                                 </li>
                                 <li className="flex items-center gap-2">
-                                    <span className={`${theme.color}`}>🏛️</span>
-                                    <span><strong className="text-white">Architect Certificate</strong> — Shareable verification</span>
+                                    <span className="text-green-500">✓</span>
+                                    <span><strong className="text-white">Unique Architect ID</strong> — Your wealth-building identity</span>
                                 </li>
                                 <li className="flex items-center gap-2">
-                                    <span className={`${theme.color}`}>✅</span>
-                                    <span><strong className="text-white">Verified Status</strong> — Anyone can verify your ID</span>
+                                    <span className="text-green-500">✓</span>
+                                    <span><strong className="text-white">Premium Certificate</strong> — Shareable proof of completion</span>
                                 </li>
                             </ul>
                         </div>
@@ -1051,22 +1064,20 @@
             );
         }
 
-        // === ENHANCED CERTIFICATE MODULE (Multi-platform share, countdown timer) ===
+        // === CERTIFICATE MODULE ===
         function ModuleCertificate({ userData, theme, architectId }) {
             const [copiedPlatform, setCopiedPlatform] = useState(null);
             const [revealed, setRevealed] = useState(false);
-            const [countdown, setCountdown] = useState(24 * 60 * 60); // 24 hours in seconds
+            const [countdown, setCountdown] = useState(24 * 60 * 60);
             
             const monthlyInvest = (userData.income * 0.2).toFixed(0);
             const projectedWealth = (monthlyInvest * ((Math.pow(1.10/12, 30*12)-1)/(0.10/12))).toLocaleString(undefined, {maximumFractionDigits:0});
 
-            // Trigger reveal animation
             useEffect(() => {
                 const timer = setTimeout(() => setRevealed(true), 100);
                 return () => clearTimeout(timer);
             }, []);
 
-            // Countdown timer for urgency
             useEffect(() => {
                 const timer = setInterval(() => {
                     setCountdown(prev => prev > 0 ? prev - 1 : 0);
@@ -1081,7 +1092,6 @@
                 return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
             };
 
-            // Copy handler for different platforms
             const handleCopy = (platform) => {
                 const text = CONFIG.SHARE_TEMPLATES[platform];
                 navigator.clipboard.writeText(text);
@@ -1089,7 +1099,6 @@
                 setTimeout(() => setCopiedPlatform(null), 2000);
             };
 
-            // Share URL generators
             const shareUrls = {
                 twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(CONFIG.SHARE_TEMPLATES.TWITTER)}`,
                 linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`
@@ -1098,27 +1107,21 @@
             return (
                 <div className="w-full max-w-md mx-auto animate-fade-in">
                     
-                    {/* PEAK-END: SCREENSHOT PROMPT (Above the card) */}
                     <div className="text-center mb-4">
                         <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${theme.border} ${theme.color} text-xs font-bold uppercase tracking-widest screenshot-pulse`}>
                             <span>📸</span> Screenshot This Card
                         </div>
                     </div>
 
-                    {/* THE PEAK: PREMIUM BLACK CARD ASSET */}
                     <div 
                         id="certificate-card" 
                         className={`relative h-72 w-full rounded-xl mb-6 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`}
                     >
-                        
-                        {/* Background & Texture */}
                         <div className="absolute inset-0 bg-[#0a0a0a]"></div>
                         <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-[#000] to-black opacity-90"></div>
                         <div className="absolute inset-0 premium-shimmer opacity-20 pointer-events-none"></div>
                         
-                        {/* Card Content */}
                         <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
-                            {/* Top Row */}
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-2">
                                     <div className={`w-8 h-8 rounded-full border-2 ${theme.border} flex items-center justify-center`}>
@@ -1129,7 +1132,6 @@
                                 <span className="text-[10px] text-gray-500 font-mono border border-gray-700 px-2 py-1 rounded">WEALTH ARCHITECT</span>
                             </div>
 
-                            {/* Middle Row: Architect ID & Projection */}
                             <div>
                                 <div className="mb-2">
                                     <p className="text-[8px] text-gray-500 uppercase tracking-widest mb-1">Architect ID</p>
@@ -1142,7 +1144,6 @@
                                 <div className="text-[8px] text-gray-500 uppercase tracking-widest mt-1">Projected Net Worth (30yr)</div>
                             </div>
 
-                            {/* Bottom Row: Name & Verification */}
                             <div className="flex justify-between items-end">
                                 <div>
                                     <p className="text-white font-bold uppercase tracking-widest text-sm embossed card-font">
@@ -1157,31 +1158,25 @@
                         </div>
                     </div>
 
-                    {/* URGENCY: Countdown Timer */}
                     <div className="bg-gradient-to-r from-red-900/30 via-red-800/20 to-red-900/30 border border-red-500/30 p-4 rounded mb-6 text-center">
                         <p className="text-red-400 text-xs font-bold uppercase tracking-widest mb-1">⏰ Bonus Access Expires In</p>
                         <p className="text-white text-2xl font-mono font-bold timer-pulse">{formatCountdown(countdown)}</p>
                     </div>
 
-                    {/* THE END: MULTI-PLATFORM SHARE KIT */}
                     <div className="text-center space-y-4 pb-12">
                         <div className="bg-gray-900 border border-gray-800 p-6 rounded-sm shadow-xl relative overflow-hidden">
-                             {/* Gradient Top Line */}
                              <div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div>
                             
                             <h3 className="text-white font-bold text-lg mb-1">SHARE & CLAIM BONUS</h3>
                             <p className="text-gray-500 text-xs mb-6">Share your achievement to unlock the Prompt Vault Cheat Sheet.</p>
 
-                            {/* Instructions */}
                             <div className="text-left space-y-3 text-xs text-gray-300 font-mono mb-6 bg-black p-4 rounded border border-gray-800">
                                 <p className="flex items-center gap-2"><span className="text-green-500">1.</span> Screenshot the certificate above 📸</p>
                                 <p className="flex items-center gap-2"><span className="text-green-500">2.</span> Post to your story & tag <span className="text-white font-bold">@koutalksmoney</span></p>
                                 <p className="flex items-center gap-2"><span className="text-green-500">3.</span> I'll DM your Prompt Vault access directly</p>
                             </div>
 
-                            {/* Multi-Platform Share Buttons */}
                             <div className="grid grid-cols-2 gap-3 mb-4">
-                                {/* Instagram - Primary */}
                                 <a 
                                     href={CONFIG.LINKS.INSTAGRAM}
                                     target="_blank"
@@ -1190,7 +1185,6 @@
                                     <span>📸</span> Post to Instagram
                                 </a>
 
-                                {/* Twitter/X */}
                                 <a 
                                     href={shareUrls.twitter}
                                     target="_blank"
@@ -1199,7 +1193,6 @@
                                     <span>𝕏</span> Share on X
                                 </a>
 
-                                {/* LinkedIn */}
                                 <a 
                                     href={shareUrls.linkedin}
                                     target="_blank"
@@ -1209,7 +1202,6 @@
                                 </a>
                             </div>
 
-                            {/* Copy Caption Buttons */}
                             <div className="border-t border-gray-800 pt-4 mt-4">
                                 <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Copy Pre-Written Captions</p>
                                 <div className="grid grid-cols-2 gap-2">
@@ -1225,7 +1217,6 @@
                                 </div>
                             </div>
 
-                            {/* Verify Your Status */}
                             <div className="border-t border-gray-800 pt-4 mt-4">
                                 <div className={`bg-gradient-to-br from-gray-900 to-black border-2 ${theme.border} p-5 rounded-lg`}>
                                     <div className="flex items-center gap-3 mb-3">
