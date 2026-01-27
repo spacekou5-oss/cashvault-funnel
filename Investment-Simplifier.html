@@ -55,271 +55,158 @@
             50% { transform: translate(-20px, -10px); }
         }
 
-        /* AUTOPILOT DETECTED GATE */
-        .autopilot-gate {
-            position: fixed;
+        /* === BLUR GATE STYLES === */
+        .blur-gate {
+            filter: blur(8px);
+            pointer-events: none;
+            user-select: none;
+            transition: filter 0.5s ease;
+        }
+        
+        .blur-gate.unlocked {
+            filter: blur(0);
+            pointer-events: auto;
+            user-select: auto;
+        }
+        
+        .portfolio-gate-container {
+            position: relative;
+        }
+        
+        .unlock-overlay {
+            position: absolute;
             inset: 0;
-            background: var(--bg-primary);
-            z-index: 1000;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .autopilot-gate.hidden { display: none; }
-        
-        .detected-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            padding: 8px 16px;
-            border-radius: 50px;
-            margin-bottom: 30px;
-            animation: pulse 2s infinite;
-        }
-        
-        .detected-badge span {
-            color: var(--success);
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-        
-        .detected-badge::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .detected-card {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, var(--bg-card) 100%);
-            border: 2px solid rgba(16, 185, 129, 0.3);
+            background: rgba(10, 14, 39, 0.85);
+            z-index: 10;
+            backdrop-filter: blur(4px);
             border-radius: 16px;
-            padding: 30px;
-            max-width: 450px;
-            width: 100%;
-            margin-bottom: 25px;
+            padding: 30px 20px;
+            text-align: center;
+            animation: overlayFadeIn 0.5s ease;
         }
         
-        .detected-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--text-primary);
+        .unlock-overlay.hidden {
+            display: none;
+        }
+        
+        @keyframes overlayFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .unlock-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            animation: lockPulse 2s infinite;
+        }
+        
+        @keyframes lockPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .unlock-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: white;
             margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
-        .detected-subtitle {
+        .unlock-subtitle {
             color: var(--text-secondary);
             font-size: 0.9rem;
             margin-bottom: 20px;
+            max-width: 300px;
             line-height: 1.5;
         }
         
-        .detected-etf {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .detected-etf-label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 8px;
-        }
-        
-        .detected-etf-ticker {
-            font-size: 2rem;
-            font-weight: 800;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 4px;
-        }
-        
-        .detected-etf-name {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
-        
-        .detected-monthly {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: rgba(99, 102, 241, 0.1);
-            border-radius: 10px;
-        }
-        
-        .detected-monthly-label {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
-        
-        .detected-monthly-value {
-            color: var(--success);
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-
-        /* RISK INDICATOR */
-        .risk-indicator {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            background: var(--bg-card);
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        
-        .risk-label {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
-        
-        .risk-value {
-            font-weight: 700;
-            font-size: 0.9rem;
-            padding: 4px 12px;
-            border-radius: 20px;
-        }
-        
-        .risk-value.risk-very-low {
-            background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
-        }
-        
-        .risk-value.risk-low-moderate {
-            background: rgba(34, 197, 94, 0.15);
-            color: #4ade80;
-        }
-        
-        .risk-value.risk-moderate {
-            background: rgba(251, 191, 36, 0.2);
-            color: var(--gold);
-        }
-        
-        .risk-value.risk-moderate-plus {
-            background: rgba(251, 191, 36, 0.15);
-            color: #fbbf24;
-        }
-        
-        .risk-value.risk-high {
-            background: rgba(249, 115, 22, 0.2);
-            color: #f97316;
-        }
-        
-        .risk-value.risk-very-high {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-        }
-
-        /* ALLOCATION PREVIEW */
-        .allocation-preview {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .preview-title {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-        
-        .preview-subtitle {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-        
-        .preview-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-        
-        .preview-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            padding: 10px 8px;
-            background: var(--bg-card);
-            border-radius: 8px;
-        }
-        
-        .preview-style {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        
-        .preview-pct {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--accent-primary);
-        }
-        
-        .gate-btn {
+        .unlock-email-input {
             width: 100%;
-            padding: 16px;
+            max-width: 280px;
+            padding: 14px 18px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--success);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            text-align: center;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+        
+        .unlock-email-input:focus {
+            outline: none;
+            border-color: var(--success-light);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .unlock-email-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .unlock-btn {
+            width: 100%;
+            max-width: 280px;
+            padding: 14px 24px;
+            background: var(--success);
+            color: white;
             border: none;
             border-radius: 10px;
             font-size: 1rem;
             font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
             cursor: pointer;
             transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 12px;
-        }
-        
-        .gate-btn-primary {
-            background: var(--success);
-            color: white;
             box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
         }
         
-        .gate-btn-primary:hover {
-            transform: translateY(-2px);
+        .unlock-btn:hover {
+            transform: scale(1.02);
             box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
         }
         
-        .gate-btn-secondary {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--border);
+        .unlock-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
         
-        .gate-btn-secondary:hover {
-            border-color: var(--accent-primary);
+        .unlock-trust {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        
+        .unlock-error {
+            color: #ef4444;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .unlock-preview-hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 8px;
+            font-size: 0.75rem;
             color: var(--accent-primary);
         }
 
-        /* WELCOME GATE (No Autopilot data) */
+        /* WELCOME GATE */
         .welcome-gate {
             position: fixed;
             inset: 0;
@@ -364,6 +251,11 @@
             animation: pulse 1.5s infinite;
         }
         
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
         .welcome-title {
             font-size: clamp(2rem, 6vw, 3rem);
             font-weight: 800;
@@ -398,6 +290,232 @@
         .welcome-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5);
+        }
+
+        /* AUTOPILOT DETECTED GATE */
+        .autopilot-gate {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .autopilot-gate.hidden { display: none; }
+        
+        .detected-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            padding: 10px 20px;
+            border-radius: 50px;
+            margin-bottom: 25px;
+            animation: glow-pulse 2s infinite;
+        }
+        
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.5); }
+        }
+        
+        .detected-badge span {
+            color: var(--success);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+        
+        .detected-badge::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+        }
+
+        .detected-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, var(--bg-card) 100%);
+            border: 2px solid rgba(16, 185, 129, 0.4);
+            border-radius: 20px;
+            padding: 35px 30px;
+            max-width: 480px;
+            width: 100%;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .detected-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--success), var(--success-light));
+        }
+        
+        .detected-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .detected-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .detected-etf {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .detected-etf-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 10px;
+        }
+        
+        .detected-etf-ticker {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+        
+        .detected-etf-name {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .detected-risk-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .detected-risk-badge.risk-very-low { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .detected-risk-badge.risk-low-moderate { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .detected-risk-badge.risk-moderate { background: rgba(251, 191, 36, 0.2); color: var(--gold); }
+        .detected-risk-badge.risk-moderate-plus { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+        .detected-risk-badge.risk-high { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+        .detected-risk-badge.risk-very-high { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+        .detected-allocation-preview {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 18px;
+        }
+        
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .preview-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .preview-style-badge {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .preview-allocation-bar {
+            height: 12px;
+            background: var(--bg-card);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .preview-allocation-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--success-light));
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+        
+        .preview-allocation-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+        }
+        
+        .preview-allocation-text .core-pct { color: var(--success); font-weight: 700; }
+        .preview-allocation-text .other-pct { color: var(--text-muted); }
+        
+        .gate-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+        
+        .gate-btn-primary {
+            background: var(--success);
+            color: white;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .gate-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
+        }
+        
+        .gate-btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        
+        .gate-btn-secondary:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
         }
 
         .social-proof {
@@ -485,14 +603,24 @@
             color: var(--text-secondary);
         }
 
-        /* CORE HOLDING BANNER (Shows when Autopilot data exists) */
+        /* CORE HOLDING BANNER */
         .core-holding-banner {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
-            border: 2px solid rgba(16, 185, 129, 0.3);
-            border-radius: 14px;
-            padding: 20px;
+            border: 2px solid rgba(16, 185, 129, 0.4);
+            border-radius: 16px;
+            padding: 22px;
             margin-bottom: 25px;
             display: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .core-holding-banner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--success), var(--success-light), var(--success));
         }
         
         .core-holding-banner.show { display: block; }
@@ -501,18 +629,19 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
         }
         
         .core-holding-badge {
             background: var(--success);
             color: white;
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
         .core-holding-title {
@@ -536,7 +665,7 @@
         }
         
         .core-holding-ticker {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 800;
             color: var(--success);
         }
@@ -548,20 +677,22 @@
         
         .core-holding-allocation {
             background: var(--bg-card);
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 12px 18px;
+            border-radius: 10px;
             text-align: center;
+            border: 1px solid var(--border);
         }
         
         .core-holding-allocation-label {
             font-size: 0.65rem;
             color: var(--text-muted);
             text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
         .core-holding-allocation-value {
-            font-size: 1.2rem;
-            font-weight: 700;
+            font-size: 1.4rem;
+            font-weight: 800;
             color: var(--success);
         }
         
@@ -572,12 +703,10 @@
         }
         
         .core-holding-risk {
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.7rem;
             font-weight: 700;
-            background: rgba(251, 191, 36, 0.2);
-            color: var(--gold);
         }
         
         .core-holding-toggle {
@@ -585,8 +714,8 @@
             background: transparent;
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: var(--text-muted);
-            padding: 5px 12px;
-            border-radius: 6px;
+            padding: 6px 14px;
+            border-radius: 8px;
             font-size: 0.7rem;
             cursor: pointer;
             transition: all 0.2s;
@@ -631,14 +760,14 @@
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 211, 153, 0.05) 100%);
             border: 1px solid rgba(16, 185, 129, 0.3);
             border-radius: 12px;
-            padding: 15px;
+            padding: 18px;
             margin-bottom: 20px;
         }
         
         .why-box h3 {
             color: var(--success);
-            font-size: 0.9rem;
-            margin-bottom: 8px;
+            font-size: 0.95rem;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -646,8 +775,8 @@
         
         .why-box p {
             color: var(--text-secondary);
-            font-size: 0.85rem;
-            line-height: 1.6;
+            font-size: 0.88rem;
+            line-height: 1.7;
         }
         
         .why-box .formula {
@@ -658,7 +787,18 @@
             font-family: monospace;
             font-weight: 600;
             color: var(--success);
-            margin: 5px 0;
+            margin: 5px 3px;
+        }
+        
+        .why-box .risk-note {
+            display: block;
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: rgba(251, 191, 36, 0.1);
+            border-left: 3px solid var(--gold);
+            border-radius: 0 6px 6px 0;
+            font-size: 0.82rem;
+            color: var(--gold);
         }
 
         .info-box {
@@ -1477,7 +1617,53 @@
     </style>
 </head>
 <body>
-    <!-- WELCOME GATE (Always shows first) -->
+    <!-- AUTOPILOT DETECTED GATE -->
+    <div class="autopilot-gate hidden" id="autopilotGate">
+        <div class="detected-badge">
+            <span>Autopilot Detected</span>
+        </div>
+        
+        <div class="detected-card">
+            <h2 class="detected-title">Your Core Holding is Ready</h2>
+            <p class="detected-subtitle">Your Autopilot System already selected an ETF. We'll build your full portfolio around it.</p>
+            
+            <div class="detected-etf">
+                <p class="detected-etf-label">Your Autopilot Core ETF</p>
+                <div class="detected-etf-ticker" id="gateTicker">VTI</div>
+                <div class="detected-etf-name" id="gateName">Vanguard Total Stock Market</div>
+                <span class="detected-risk-badge risk-moderate-plus" id="gateRiskBadge">Moderate+ Risk</span>
+            </div>
+            
+            <div class="detected-allocation-preview">
+                <div class="preview-header">
+                    <span class="preview-title">Smart Allocation Preview</span>
+                    <span class="preview-style-badge" id="gateStyleBadge">Balanced</span>
+                </div>
+                <div class="preview-allocation-bar">
+                    <div class="preview-allocation-fill" id="gateAllocationBar" style="width: 50%"></div>
+                </div>
+                <div class="preview-allocation-text">
+                    <span class="core-pct"><span id="gateCoreAlloc">50</span>% Core</span>
+                    <span class="other-pct"><span id="gateOtherAlloc">50</span>% Diversified</span>
+                </div>
+            </div>
+        </div>
+        
+        <button class="gate-btn gate-btn-primary" onclick="enterWithAutopilot()">
+            Build Around This Core →
+        </button>
+        <button class="gate-btn gate-btn-secondary" onclick="enterWithoutAutopilot()">
+            Start Fresh Instead
+        </button>
+        
+        <div class="social-proof">
+            <span>📊</span>
+            <span class="social-proof-count" id="portfolioCountGate">14,847</span>
+            <span>portfolios built</span>
+        </div>
+    </div>
+
+    <!-- WELCOME GATE (Shows when NO Autopilot data) -->
     <div class="welcome-gate" id="welcomeGate">
         <div class="welcome-badge">
             <span>Access Granted</span>
@@ -1508,11 +1694,11 @@
             <p>Build your premium ETF portfolio with intelligent asset allocation</p>
         </div>
 
-        <!-- CORE HOLDING BANNER (Shows inside app when Autopilot data detected) -->
+        <!-- CORE HOLDING BANNER -->
         <div class="core-holding-banner" id="coreHoldingBanner">
             <div class="core-holding-header">
                 <span class="core-holding-badge">From Autopilot</span>
-                <span class="core-holding-title">Core Holding Detected</span>
+                <span class="core-holding-title">Core Holding Locked</span>
                 <span class="core-holding-risk" id="bannerRiskBadge">Moderate+</span>
                 <button class="core-holding-toggle" onclick="chooseDifferentCore()">✕ Use Different</button>
             </div>
@@ -1522,7 +1708,7 @@
                     <span class="core-holding-name" id="bannerName">Vanguard Total Stock Market</span>
                 </div>
                 <div class="core-holding-allocation">
-                    <p class="core-holding-allocation-label">Smart Allocation</p>
+                    <p class="core-holding-allocation-label">Target Allocation</p>
                     <p class="core-holding-allocation-value" id="bannerAllocation">50%</p>
                     <p class="core-holding-allocation-note">↕️ Adjusts with style</p>
                 </div>
@@ -1562,13 +1748,7 @@
                 <p id="whyExplanation">Loading explanation...</p>
             </div>
 
-            <div class="lump-sum-container">
-                <div class="lump-sum-input-group">
-                    <span class="lump-sum-label">💰 Your Investment Amount:</span>
-                    <input type="number" id="lumpSumInput" placeholder="Enter total to invest (e.g. 5000)">
-                </div>
-            </div>
-
+            <!-- VISIBLE: Allocation Summary (Chart stays visible) -->
             <div class="allocation-summary">
                 <div class="allocation-layout">
                     <div class="allocation-chart-container">
@@ -1586,10 +1766,53 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="etf-cards" id="etfCards"></div>
 
-            <!-- SHAREABLE PORTFOLIO CARD -->
+            <!-- === THE BLUR GATE: ETF CARDS WITH EMAIL UNLOCK === -->
+            <div class="portfolio-gate-container" id="portfolioGateContainer">
+                <!-- BLUR OVERLAY -->
+                <div class="unlock-overlay" id="unlockOverlay">
+                    <div class="unlock-icon">🔐</div>
+                    <h3 class="unlock-title">Unlock Your Buy Order</h3>
+                    <p class="unlock-subtitle">Get the exact Tickers and Allocation % sent directly to your inbox.</p>
+                    
+                    <input 
+                        type="email" 
+                        id="unlockEmailInput" 
+                        class="unlock-email-input" 
+                        placeholder="Enter your email..."
+                    >
+                    <p class="unlock-error" id="unlockError">Please enter a valid email address</p>
+                    
+                    <button class="unlock-btn" id="unlockBtn" onclick="unlockPortfolio()">
+                        Reveal My Portfolio
+                    </button>
+                    
+                    <div class="unlock-trust">
+                        <span>🔒 Secure</span>
+                        <span>•</span>
+                        <span>No spam</span>
+                        <span>•</span>
+                        <span>Instant access</span>
+                    </div>
+                    
+                    <div class="unlock-preview-hint">
+                        <span>👆</span>
+                        <span>You've already done the hard work. Don't leave without your allocations.</span>
+                    </div>
+                </div>
+                
+                <!-- BLURRED ETF CARDS -->
+                <div class="etf-cards blur-gate" id="etfCards"></div>
+            </div>
+
+            <div class="lump-sum-container">
+                <div class="lump-sum-input-group">
+                    <span class="lump-sum-label">💰 Your Investment Amount:</span>
+                    <input type="number" id="lumpSumInput" placeholder="Enter total to invest (e.g. 5000)">
+                </div>
+            </div>
+
+            <!-- SHAREABLE PORTFOLIO CARD (Also behind gate) -->
             <div class="share-card-section" id="shareCardSection" style="display: none;">
                 <div class="share-card-header">
                     <h3>📸 Share Your Portfolio</h3>
@@ -1761,6 +1984,8 @@
         const CONFIG = {
             AUTOPILOT_URL: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html",
             COMMAND_CENTER_URL: "https://spacekou5-oss.github.io/cashvault-funnel/command-center.html",
+            BEEHIIV_MOCK_MODE: true,
+            BEEHIIV_FORM_URL: "https://embeds.beehiiv.com/YOUR_EMBED_ID",
             SOCIAL: {
                 INSTAGRAM: "@koutalksmoney",
                 TWITTER: "@koutalksmoney"
@@ -1784,68 +2009,30 @@
             vt: { ticker: "VT", name: "Vanguard Total World Stock", description: "Own the entire world economy.", type: "Global Total Market", expense: "0.07%" }
         };
 
-        // Map Autopilot ETF tickers to our data
         const autopilotEtfMap = {
-            'SCHD': 'schd',
-            'BND': 'bnd',
-            'VTI': 'vti',
-            'VT': 'vt',
-            'QQQM': 'qqqm',
-            'VGT': 'vgt'
+            'SCHD': 'schd', 'BND': 'bnd', 'VTI': 'vti', 'VT': 'vt',
+            'QQQM': 'qqqm', 'VGT': 'vgt', 'VOO': 'voo'
         };
 
-        // === RISK-AWARE CORE ALLOCATION MATRIX ===
-        // [Autopilot ETF]: { growth: %, balanced: %, income: %, riskLevel: string, riskReason: string }
+        // === TIGHTENED CORE ALLOCATION MATRIX ===
         const CORE_ALLOCATION_MATRIX = {
-            'BND': { 
-                growth: 15, balanced: 25, income: 40, 
-                riskLevel: 'Very Low',
-                riskReason: 'Bonds provide stability but limited growth. In Growth mode, we minimize this to maximize returns.'
-            },
-            'SCHD': { 
-                growth: 30, balanced: 40, income: 55, 
-                riskLevel: 'Low-Moderate',
-                riskReason: 'Dividend stocks offer steady income with moderate growth. Perfect core for Income seekers.'
-            },
-            'VT': { 
-                growth: 40, balanced: 45, income: 35, 
-                riskLevel: 'Moderate',
-                riskReason: 'Global diversification reduces risk but may limit US-focused growth potential.'
-            },
-            'VTI': { 
-                growth: 50, balanced: 50, income: 35, 
-                riskLevel: 'Moderate+',
-                riskReason: 'Total US market is the standard core holding. Works well across all strategies.'
-            },
-            'QQQM': { 
-                growth: 55, balanced: 40, income: 25, 
-                riskLevel: 'High',
-                riskReason: 'Tech-heavy NASDAQ offers high growth but significant volatility. We reduce exposure for Income mode.'
-            },
-            'VGT': { 
-                growth: 45, balanced: 35, income: 20, 
-                riskLevel: 'Very High',
-                riskReason: 'Pure tech sector is extremely volatile. Even in Growth mode, we cap this to manage risk.'
-            }
+            'BND': { growth: 20, balanced: 30, income: 45, riskLevel: 'Very Low', riskClass: 'risk-very-low', riskReason: 'Bonds are your stability anchor.' },
+            'SCHD': { growth: 35, balanced: 45, income: 60, riskLevel: 'Low-Moderate', riskClass: 'risk-low-moderate', riskReason: 'Dividend aristocrats give steady income plus moderate growth.' },
+            'VT': { growth: 50, balanced: 50, income: 40, riskLevel: 'Moderate', riskClass: 'risk-moderate', riskReason: 'Global diversification spreads risk across 9,000+ stocks worldwide.' },
+            'VTI': { growth: 60, balanced: 50, income: 40, riskLevel: 'Moderate+', riskClass: 'risk-moderate-plus', riskReason: 'The gold standard core holding.' },
+            'VOO': { growth: 60, balanced: 50, income: 40, riskLevel: 'Moderate+', riskClass: 'risk-moderate-plus', riskReason: 'S&P 500 = 500 battle-tested companies.' },
+            'QQQM': { growth: 45, balanced: 35, income: 20, riskLevel: 'High', riskClass: 'risk-high', riskReason: '⚠️ NASDAQ is volatile. CAPPED at 45% to prevent panic-selling.' },
+            'VGT': { growth: 40, balanced: 30, income: 15, riskLevel: 'Very High', riskClass: 'risk-very-high', riskReason: '⚠️ Pure tech sector = maximum volatility. FORCE diversification.' }
         };
 
-        // Get intelligent core allocation based on Autopilot ETF and current risk style
         function getCoreAllocation(autopilotTicker, riskStyle) {
             const matrix = CORE_ALLOCATION_MATRIX[autopilotTicker];
-            if (!matrix) return { allocation: 50, riskLevel: 'Unknown', riskReason: 'Standard allocation applied.' };
-            
-            return {
-                allocation: matrix[riskStyle] || 50,
-                riskLevel: matrix.riskLevel,
-                riskReason: matrix.riskReason
-            };
+            if (!matrix) return { allocation: 50, riskLevel: 'Unknown', riskClass: 'risk-moderate', riskReason: 'Standard allocation applied.' };
+            return { allocation: matrix[riskStyle] || 50, riskLevel: matrix.riskLevel, riskClass: matrix.riskClass, riskReason: matrix.riskReason };
         }
 
-        // Get complementary ETFs based on core ETF and risk style (to avoid duplication)
         function getComplementaryETFs(coreId, riskStyle, remainingStock) {
             const complements = [];
-            
-            // Avoid duplicating the core ETF type
             const isBond = coreId === 'bnd';
             const isDividend = ['schd', 'vym', 'dgro'].includes(coreId);
             const isTech = ['qqqm', 'vgt'].includes(coreId);
@@ -1853,13 +2040,11 @@
             const isGlobal = coreId === 'vt';
             
             if (riskStyle === 'growth') {
-                // Growth: Add growth-focused complements
                 if (!isTech) complements.push({ id: 'schg', pct: Math.round(remainingStock * 0.4) });
-                if (!isUSTotal && !isGlobal) complements.push({ id: 'vti', pct: Math.round(remainingStock * 0.3) });
-                else complements.push({ id: 'avuv', pct: Math.round(remainingStock * 0.3) });
-                complements.push({ id: 'vxus', pct: Math.round(remainingStock * 0.3) });
+                if (!isUSTotal && !isGlobal) complements.push({ id: 'vti', pct: Math.round(remainingStock * 0.35) });
+                else complements.push({ id: 'avuv', pct: Math.round(remainingStock * 0.35) });
+                complements.push({ id: 'vxus', pct: Math.round(remainingStock * 0.25) });
             } else if (riskStyle === 'income') {
-                // Income: Add dividend-focused complements
                 if (!isDividend) {
                     complements.push({ id: 'schd', pct: Math.round(remainingStock * 0.5) });
                     complements.push({ id: 'vym', pct: Math.round(remainingStock * 0.5) });
@@ -1871,13 +2056,11 @@
                     complements.push({ id: 'dgro', pct: Math.round(remainingStock * 0.5) });
                 }
             } else {
-                // Balanced: Mix of growth and stability
                 if (!isGlobal) complements.push({ id: 'vxus', pct: Math.round(remainingStock * 0.5) });
                 else complements.push({ id: 'vti', pct: Math.round(remainingStock * 0.5) });
                 if (!isDividend) complements.push({ id: 'schd', pct: Math.round(remainingStock * 0.5) });
                 else complements.push({ id: 'vxus', pct: Math.round(remainingStock * 0.5) });
             }
-            
             return complements;
         }
 
@@ -1887,85 +2070,157 @@
         let portfolioId = null;
         let autopilotData = null;
         let useCoreFromAutopilot = false;
+        let portfolioUnlocked = false; // BLUR GATE STATE
 
-        // Generate Portfolio ID
         function generatePortfolioId() {
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             let id = 'INV-';
-            for (let i = 0; i < 6; i++) {
-                id += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
+            for (let i = 0; i < 6; i++) { id += chars.charAt(Math.floor(Math.random() * chars.length)); }
             return id;
         }
 
-        // Social proof counter animation
-        function animateCounter() {
-            const counter = document.getElementById('portfolioCount');
+        function animateCounter(elementId) {
+            const counter = document.getElementById(elementId);
+            if (!counter) return;
             const target = 14847 + Math.floor(Math.random() * 100);
             let current = 14000;
             const increment = Math.ceil((target - current) / 50);
-            
             const timer = setInterval(() => {
                 current += increment;
-                if (current >= target) {
-                    current = target;
-                    clearInterval(timer);
-                }
+                if (current >= target) { current = target; clearInterval(timer); }
                 counter.textContent = current.toLocaleString();
             }, 30);
         }
 
-        // === CHECK FOR AUTOPILOT DATA ===
+        // === CHECK IF ALREADY UNLOCKED ===
+        function checkUnlockStatus() {
+            const unlocked = localStorage.getItem('investment_portfolio_unlocked') === 'true';
+            const email = localStorage.getItem('investment_user_email');
+            if (unlocked && email) {
+                portfolioUnlocked = true;
+                return true;
+            }
+            return false;
+        }
+
+        // === UNLOCK PORTFOLIO (Email Gate) ===
+        async function unlockPortfolio() {
+            const emailInput = document.getElementById('unlockEmailInput');
+            const errorEl = document.getElementById('unlockError');
+            const btn = document.getElementById('unlockBtn');
+            const email = emailInput.value.trim();
+            
+            // Validate email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                errorEl.style.display = 'block';
+                emailInput.style.borderColor = '#ef4444';
+                return;
+            }
+            
+            errorEl.style.display = 'none';
+            emailInput.style.borderColor = 'var(--success)';
+            btn.disabled = true;
+            btn.textContent = 'Unlocking...';
+            
+            // === BEEHIIV INTEGRATION ===
+            if (CONFIG.BEEHIIV_MOCK_MODE) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            } else {
+                try {
+                    await fetch(CONFIG.BEEHIIV_FORM_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: email,
+                            utm_source: 'investment_simplifier',
+                            utm_medium: 'blur_gate',
+                            referring_site: window.location.href
+                        })
+                    });
+                } catch (err) {
+                    console.error('Beehiiv error:', err);
+                }
+            }
+            
+            // Save unlock status
+            localStorage.setItem('investment_portfolio_unlocked', 'true');
+            localStorage.setItem('investment_user_email', email);
+            portfolioUnlocked = true;
+            
+            // Reveal portfolio
+            revealPortfolio();
+        }
+
+        function revealPortfolio() {
+            // Hide overlay
+            document.getElementById('unlockOverlay').classList.add('hidden');
+            
+            // Remove blur from ETF cards
+            document.getElementById('etfCards').classList.remove('blur-gate');
+            document.getElementById('etfCards').classList.add('unlocked');
+            
+            // Show share card section
+            if (currentPortfolioData) {
+                document.getElementById('shareCardSection').style.display = 'block';
+            }
+        }
+
         function checkForAutopilotData() {
-            // Check multiple possible storage keys from Autopilot
             const etfChoice = localStorage.getItem('autopilot_etf_choice');
             const architectId = localStorage.getItem('cashvault_architect_id');
             const autopilotCompleted = localStorage.getItem('autopilot_completed');
             const monthlyInvest = localStorage.getItem('architect_monthly_invest');
-            
-            // Also check for autopilot system data
             const autopilotSystemData = localStorage.getItem('autopilot_system_data');
             
             if (autopilotCompleted === 'true' || (etfChoice && architectId)) {
                 let etf = null;
                 let monthly = 500;
                 
-                // Try to get ETF from dedicated storage
-                if (etfChoice) {
-                    try {
-                        etf = JSON.parse(etfChoice);
-                    } catch(e) {}
-                }
-                
-                // Try to get from system data
+                if (etfChoice) { try { etf = JSON.parse(etfChoice); } catch(e) {} }
                 if (!etf && autopilotSystemData) {
                     try {
                         const data = JSON.parse(autopilotSystemData);
-                        if (data.etfChoice) {
-                            etf = data.etfChoice;
-                        }
-                        if (data.income) {
-                            monthly = Math.round(data.income * 0.2);
-                        }
+                        if (data.etfChoice) etf = data.etfChoice;
+                        if (data.income) monthly = Math.round(data.income * 0.2);
                     } catch(e) {}
                 }
-                
-                if (monthlyInvest) {
-                    monthly = parseInt(monthlyInvest);
-                }
+                if (monthlyInvest) monthly = parseInt(monthlyInvest);
                 
                 if (etf && etf.ticker) {
-                    autopilotData = {
-                        ticker: etf.ticker,
-                        name: etf.name,
-                        monthly: monthly,
-                        architectId: architectId
-                    };
+                    autopilotData = { ticker: etf.ticker, name: etf.name, monthly: monthly, architectId: architectId };
                     return true;
                 }
             }
-            
             return false;
+        }
+
+        function updateGatePreview() {
+            if (!autopilotData) return;
+            const ticker = autopilotData.ticker.toUpperCase();
+            const coreData = getCoreAllocation(ticker, 'balanced');
+            document.getElementById('gateTicker').textContent = ticker;
+            document.getElementById('gateName').textContent = autopilotData.name;
+            const riskBadge = document.getElementById('gateRiskBadge');
+            riskBadge.textContent = coreData.riskLevel + ' Risk';
+            riskBadge.className = 'detected-risk-badge ' + coreData.riskClass;
+            document.getElementById('gateCoreAlloc').textContent = coreData.allocation;
+            document.getElementById('gateOtherAlloc').textContent = 100 - coreData.allocation;
+            document.getElementById('gateAllocationBar').style.width = coreData.allocation + '%';
+        }
+
+        function enterWithAutopilot() {
+            document.getElementById('autopilotGate').classList.add('hidden');
+            useCoreFromAutopilot = true;
+            portfolioId = generatePortfolioId();
+            showCoreHoldingBanner();
+        }
+
+        function enterWithoutAutopilot() {
+            document.getElementById('autopilotGate').classList.add('hidden');
+            useCoreFromAutopilot = false;
+            autopilotData = null;
+            portfolioId = generatePortfolioId();
         }
 
         function chooseDifferentCore() {
@@ -1978,30 +2233,19 @@
         function enterApp() {
             document.getElementById('welcomeGate').classList.add('hidden');
             portfolioId = generatePortfolioId();
-            
-            // If Autopilot data exists, show the core holding banner
-            if (autopilotData) {
-                useCoreFromAutopilot = true;
-                showCoreHoldingBanner();
-            }
         }
         
         function showCoreHoldingBanner() {
             const banner = document.getElementById('coreHoldingBanner');
             banner.classList.add('show');
-            
-            document.getElementById('bannerTicker').textContent = autopilotData.ticker;
+            const ticker = autopilotData.ticker.toUpperCase();
+            document.getElementById('bannerTicker').textContent = ticker;
             document.getElementById('bannerName').textContent = autopilotData.name;
-            
-            // Set risk badge and allocation
-            const matrix = CORE_ALLOCATION_MATRIX[autopilotData.ticker.toUpperCase()];
-            if (matrix) {
-                document.getElementById('bannerRiskBadge').textContent = matrix.riskLevel;
-                // Default to balanced allocation initially
-                document.getElementById('bannerAllocation').textContent = matrix.balanced + '%';
-            }
-            
-            // Pre-fill monthly investment from Autopilot
+            const coreData = getCoreAllocation(ticker, document.getElementById('riskStyle').value);
+            const riskBadge = document.getElementById('bannerRiskBadge');
+            riskBadge.textContent = coreData.riskLevel;
+            riskBadge.className = 'core-holding-risk ' + coreData.riskClass;
+            document.getElementById('bannerAllocation').textContent = coreData.allocation + '%';
             if (autopilotData.monthly) {
                 document.getElementById('monthlyInvestment').value = autopilotData.monthly;
                 document.getElementById('investRange').value = autopilotData.monthly;
@@ -2009,18 +2253,16 @@
             }
         }
 
-        // PROCESSING THEATER
         function calculateWithTheater() {
             const overlay = document.getElementById('processingOverlay');
             const textEl = document.getElementById('processingText');
             const stepsEl = document.getElementById('processingSteps');
-            
             overlay.classList.add('show');
             
             const steps = useCoreFromAutopilot ? [
                 { text: 'Loading Autopilot core...', step: `Building around ${autopilotData.ticker}...` },
+                { text: 'Applying risk brakes...', step: 'Calibrating for volatility...' },
                 { text: 'Calculating diversification...', step: 'Adding complementary assets...' },
-                { text: 'Optimizing allocation...', step: 'Balancing risk/reward...' },
                 { text: 'Finalizing portfolio...', step: 'Locking in allocations...' }
             ] : [
                 { text: 'Analyzing your age profile...', step: 'Applying 110-Age rule...' },
@@ -2047,30 +2289,38 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Always show welcome gate and counter first
-            animateCounter();
+            portfolioId = generatePortfolioId();
             
-            // Silently check for Autopilot data (don't show gate)
-            checkForAutopilotData();
+            // Check if already unlocked
+            checkUnlockStatus();
+            
+            const hasAutopilot = checkForAutopilotData();
+            if (hasAutopilot) {
+                document.getElementById('welcomeGate').classList.add('hidden');
+                document.getElementById('autopilotGate').classList.remove('hidden');
+                updateGatePreview();
+                animateCounter('portfolioCountGate');
+            } else {
+                animateCounter('portfolioCount');
+            }
             
             setupDualInput('userAge', 'ageRange', () => {});
             setupDualInput('monthlyInvestment', 'investRange', calculateGrowth);
             setupDualInput('investmentPeriod', 'timeRange', calculateGrowth);
             
-            // Update banner allocation when risk style changes
             document.getElementById('riskStyle').addEventListener('change', (e) => {
                 if (useCoreFromAutopilot && autopilotData) {
-                    const matrix = CORE_ALLOCATION_MATRIX[autopilotData.ticker.toUpperCase()];
-                    if (matrix) {
-                        document.getElementById('bannerAllocation').textContent = matrix[e.target.value] + '%';
-                    }
+                    const ticker = autopilotData.ticker.toUpperCase();
+                    const coreData = getCoreAllocation(ticker, e.target.value);
+                    document.getElementById('bannerAllocation').textContent = coreData.allocation + '%';
+                    const riskBadge = document.getElementById('bannerRiskBadge');
+                    riskBadge.textContent = coreData.riskLevel;
+                    riskBadge.className = 'core-holding-risk ' + coreData.riskClass;
                 }
             });
             
             document.getElementById('lumpSumInput').addEventListener('input', updateDollarValues);
             calculateGrowth();
-            
-            portfolioId = generatePortfolioId();
         });
 
         function setupDualInput(numId, rangeId, callback) {
@@ -2081,9 +2331,8 @@
         }
 
         function loadStrategy(strategy) {
-            useCoreFromAutopilot = false; // Override when loading strategy
+            useCoreFromAutopilot = false;
             document.getElementById('coreHoldingBanner').classList.remove('show');
-            
             if (strategy === 'vti_only') updateInputs(25, 'growth');
             else if (strategy === 'buffett') updateInputs(60, 'balanced');
             else if (strategy === 'bogle') updateInputs(40, 'balanced');
@@ -2100,7 +2349,6 @@
         function calculatePortfolio() {
             const age = parseInt(document.getElementById('userAge').value);
             const riskStyle = document.getElementById('riskStyle').value;
-            
             if (!age) return;
 
             let alloc = [];
@@ -2112,56 +2360,35 @@
             if (riskStyle === 'growth') { stockPct += 10; riskAdjustment = 10; }
             if (riskStyle === 'income') { stockPct -= 10; riskAdjustment = -10; }
             if (stockPct > 100) stockPct = 100;
+            let bondPct = 100 - stockPct;
 
-            const bondPct = 100 - stockPct;
-
-            // === INTELLIGENT CORE FROM AUTOPILOT ===
             if (useCoreFromAutopilot && autopilotData) {
                 const coreTicker = autopilotData.ticker.toUpperCase();
                 const coreId = autopilotEtfMap[coreTicker] || coreTicker.toLowerCase();
-                
-                // Get intelligent allocation from matrix
                 const coreData = getCoreAllocation(coreTicker, riskStyle);
                 const coreAllocation = coreData.allocation;
-                
-                // Update banner with dynamic allocation
                 document.getElementById('bannerAllocation').textContent = coreAllocation + '%';
-                
                 alloc.push({ id: coreId, pct: coreAllocation, isCore: true });
-                
-                // Calculate remaining allocation
                 const remainingStock = Math.max(0, stockPct - coreAllocation);
                 
-                // Handle special case: if core is a bond (BND), we need different logic
                 if (coreId === 'bnd') {
-                    // BND is already bonds, so remaining goes to stocks
-                    const actualBondPct = coreAllocation; // BND allocation IS the bond allocation
+                    const actualBondPct = coreAllocation;
                     const actualStockPct = 100 - actualBondPct;
-                    
-                    // Get stock complements
                     const complements = getComplementaryETFs(coreId, riskStyle, actualStockPct);
                     complements.forEach(c => alloc.push(c));
-                    
+                    stockPct = actualStockPct;
+                    bondPct = actualBondPct;
                     updateWhyExplanationWithCore(coreTicker, coreAllocation, actualStockPct, actualBondPct, coreData, riskStyle);
                 } else {
-                    // Core is a stock ETF
                     if (remainingStock > 0) {
-                        // Get complementary ETFs that don't duplicate core
                         const complements = getComplementaryETFs(coreId, riskStyle, remainingStock);
                         complements.forEach(c => alloc.push(c));
                     }
-                    
-                    // Add bonds if needed
-                    if (bondPct > 0) {
-                        alloc.push({ id: 'bnd', pct: bondPct });
-                    }
-                    
+                    if (bondPct > 0) alloc.push({ id: 'bnd', pct: bondPct });
                     updateWhyExplanationWithCore(coreTicker, coreAllocation, stockPct, bondPct, coreData, riskStyle);
                 }
             } else {
-                // Standard allocation logic
                 updateWhyExplanation(age, stockPct, bondPct, riskStyle, riskAdjustment);
-
                 if (riskStyle === 'growth') {
                     alloc.push({id: 'vti', pct: Math.round(stockPct * 0.4)});
                     alloc.push({id: 'schg', pct: Math.round(stockPct * 0.3)});
@@ -2179,11 +2406,8 @@
                 }
             }
             
-            // Normalize to 100%
             let total = alloc.reduce((sum, i) => sum + i.pct, 0);
             if (total !== 100) alloc[0].pct += (100 - total);
-
-            // Remove zero allocations
             alloc = alloc.filter(a => a.pct > 0);
 
             window.lastAllocation = alloc;
@@ -2193,32 +2417,24 @@
             updateShareCard(stockPct, bondPct, alloc);
             updateComparison();
             showBridgeCta();
-            
-            // Save to localStorage for cross-tool communication
             savePortfolioData(stockPct, bondPct, alloc);
         }
 
         function updateWhyExplanationWithCore(coreTicker, coreAllocation, stockPct, bondPct, coreData, riskStyle) {
             const riskStyleNames = { growth: 'Growth', balanced: 'Balanced', income: 'Income' };
             const styleName = riskStyleNames[riskStyle] || 'Balanced';
-            
             let explanation = `<strong>Intelligent Allocation:</strong> Your <span class="formula">${coreTicker}</span> from Autopilot is a <strong>${coreData.riskLevel}</strong> risk asset. `;
             explanation += `For your <strong>${styleName}</strong> strategy, we've set it at <span class="formula">${coreAllocation}%</span>. `;
-            explanation += `<br><br><em>${coreData.riskReason}</em> `;
-            explanation += `<br><br>Final split: ${stockPct}% stocks / ${bondPct}% bonds.`;
+            explanation += `<br><br><span class="risk-note">${coreData.riskReason}</span>`;
+            explanation += `<br><br>Final split: <strong>${stockPct}% stocks</strong> / <strong>${bondPct}% bonds</strong>.`;
             document.getElementById('whyExplanation').innerHTML = explanation;
         }
 
         function updateWhyExplanation(age, stockPct, bondPct, riskStyle, adjustment) {
             const baseCalc = 110 - age;
             let explanation = `Using the classic <span class="formula">110 - Age</span> rule: 110 - ${age} = ${baseCalc}% stocks. `;
-            
-            if (adjustment > 0) {
-                explanation += `Your <strong>Growth</strong> style adds +${adjustment}%, bringing you to ${stockPct}% stocks. `;
-            } else if (adjustment < 0) {
-                explanation += `Your <strong>Income</strong> style reduces by ${Math.abs(adjustment)}%, bringing you to ${stockPct}% stocks. `;
-            }
-            
+            if (adjustment > 0) explanation += `Your <strong>Growth</strong> style adds +${adjustment}%, bringing you to ${stockPct}% stocks. `;
+            else if (adjustment < 0) explanation += `Your <strong>Income</strong> style reduces by ${Math.abs(adjustment)}%, bringing you to ${stockPct}% stocks. `;
             explanation += `The remaining ${bondPct}% goes to bonds for stability.`;
             document.getElementById('whyExplanation').innerHTML = explanation;
         }
@@ -2226,35 +2442,28 @@
         function savePortfolioData(stockPct, bondPct, alloc) {
             const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
             const coreEtf = alloc.find(a => a.isCore) || alloc[0];
-            
             const context = {
                 source: 'investment_simplifier',
                 monthly: monthly,
                 portfolio_id: portfolioId,
                 risk_style: document.getElementById('riskStyle').value,
-                core_etf: {
-                    ticker: etfData[coreEtf.id]?.ticker || coreEtf.id.toUpperCase(),
-                    name: etfData[coreEtf.id]?.name || 'Unknown',
-                    allocation: coreEtf.pct
-                },
-                allocation: alloc.map(a => ({
-                    ticker: etfData[a.id]?.ticker || a.id.toUpperCase(),
-                    pct: a.pct,
-                    isCore: a.isCore || false
-                })),
+                core_etf: { ticker: etfData[coreEtf.id]?.ticker || coreEtf.id.toUpperCase(), name: etfData[coreEtf.id]?.name || 'Unknown', allocation: coreEtf.pct },
+                allocation: alloc.map(a => ({ ticker: etfData[a.id]?.ticker || a.id.toUpperCase(), pct: a.pct, isCore: a.isCore || false })),
                 stock_pct: stockPct,
                 bond_pct: bondPct
             };
-            
             localStorage.setItem('cashvault_context', JSON.stringify(context));
             localStorage.setItem('investment_simplifier_completed', 'true');
-            localStorage.setItem('investment_completed', 'true'); // For Command Center
+            localStorage.setItem('investment_completed', 'true');
+            if (!localStorage.getItem('autopilot_completed')) {
+                localStorage.setItem('investment_first', 'true');
+                localStorage.setItem('suggested_etf_from_investment', JSON.stringify({ ticker: context.core_etf.ticker, name: context.core_etf.name, monthly: monthly }));
+            }
         }
 
         function displayPortfolio(stockPct, bondPct, allocationArray) {
             const resultsDiv = document.getElementById('resultsDisplay');
             resultsDiv.classList.add('show');
-
             document.getElementById('stockAllocation').textContent = stockPct + "%";
             document.getElementById('bondAllocation').textContent = bondPct + "%";
 
@@ -2264,12 +2473,7 @@
 
             allocationArray.forEach((item) => {
                 if(item.pct <= 0) return;
-                const data = etfData[item.id] || { 
-                    ticker: item.id.toUpperCase(), 
-                    name: 'ETF', 
-                    description: '', 
-                    type: 'Fund' 
-                };
+                const data = etfData[item.id] || { ticker: item.id.toUpperCase(), name: 'ETF', description: '', type: 'Fund' };
                 const isCore = item.isCore || false;
                 const html = `
                     <div class="etf-card ${isCore ? 'core-etf' : ''}" data-pct="${item.pct}">
@@ -2293,10 +2497,18 @@
             
             updateDollarValues();
             renderAllocationChart(allocationArray);
+            
+            // Check if already unlocked - if so, reveal immediately
+            if (portfolioUnlocked) {
+                revealPortfolio();
+            }
         }
 
         function updateShareCard(stockPct, bondPct, alloc) {
-            document.getElementById('shareCardSection').style.display = 'block';
+            // Only show if unlocked
+            if (portfolioUnlocked) {
+                document.getElementById('shareCardSection').style.display = 'block';
+            }
             
             const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
             const years = 30;
@@ -2328,10 +2540,8 @@
             const years = 30;
             const rate = 0.07;
             const FV = monthly * ((Math.pow(1 + rate/12, 12*years) - 1) / (rate/12));
-            
             const averageRetirement = 87000;
             const multiplier = (FV / averageRetirement).toFixed(1);
-            
             document.getElementById('comparisonStat').style.display = 'block';
             document.getElementById('comparisonYou').textContent = '$' + Math.round(FV).toLocaleString();
             document.getElementById('comparisonMultiplier').textContent = multiplier + 'x ahead';
@@ -2340,20 +2550,19 @@
         function showBridgeCta() {
             const bridgeCta = document.getElementById('bridgeCta');
             bridgeCta.style.display = 'block';
-            
             const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
             const autopilotCompleted = localStorage.getItem('autopilot_completed') === 'true';
             
             if (autopilotCompleted) {
-                // User already completed Autopilot - direct to Command Center
                 bridgeCta.classList.add('completed');
                 document.getElementById('bridgeCtaTitle').textContent = '✅ Autopilot Already Installed';
                 document.getElementById('bridgeCtaDesc').textContent = 'Your wealth machine is running. Track your progress in Command Center.';
                 document.getElementById('bridgeCtaBtnText').textContent = 'Open Command Center';
                 document.getElementById('bridgeCtaBtn').href = CONFIG.COMMAND_CENTER_URL;
             } else {
-                // Send to Autopilot
-                document.getElementById('bridgeCtaBtn').href = `${CONFIG.AUTOPILOT_URL}?source=investment&monthly=${monthly}`;
+                const coreEtf = currentPortfolioData?.alloc?.find(a => a.isCore) || currentPortfolioData?.alloc?.[0];
+                const etfTicker = coreEtf ? (etfData[coreEtf.id]?.ticker || coreEtf.id.toUpperCase()) : 'VTI';
+                document.getElementById('bridgeCtaBtn').href = `${CONFIG.AUTOPILOT_URL}?source=investment&monthly=${monthly}&suggested_etf=${etfTicker}`;
             }
         }
 
@@ -2362,29 +2571,20 @@
             const years = 30;
             const rate = 0.07;
             const FV = monthly * ((Math.pow(1 + rate/12, 12*years) - 1) / (rate/12));
-            
             const text = `I just built my investment portfolio using the Investment Simplifier.\n\n30-year projection: $${Math.round(FV).toLocaleString()}\n\nBuild yours free!\n\nIG/X: ${CONFIG.SOCIAL.INSTAGRAM}`;
-            
             navigator.clipboard.writeText(text);
-            
             const btn = document.getElementById('copyShareBtn');
             btn.classList.add('copied');
             btn.innerHTML = '✓ Copied!';
-            
-            setTimeout(() => {
-                btn.classList.remove('copied');
-                btn.innerHTML = '📋 Copy Caption';
-            }, 2000);
+            setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 Copy Caption'; }, 2000);
         }
 
         function updateDollarValues() {
             const lumpSum = parseFloat(document.getElementById('lumpSumInput').value);
             const cards = document.querySelectorAll('.etf-card');
-            
             cards.forEach(card => {
                 const pct = parseFloat(card.getAttribute('data-pct'));
                 const dollarEl = card.querySelector('.allocation-dollars');
-                
                 if (lumpSum && lumpSum > 0) {
                     const val = (lumpSum * pct) / 100;
                     dollarEl.textContent = '$' + val.toLocaleString('en-US', {maximumFractionDigits: 0});
@@ -2399,55 +2599,28 @@
         function renderAllocationChart(alloc) {
             if (allocationChartInstance) allocationChartInstance.destroy();
             const ctx = document.getElementById('allocationChartCanvas').getContext('2d');
-            
             const colors = alloc.map((item, i) => {
-                if (item.isCore) return '#10b981'; // Green for core
+                if (item.isCore) return '#10b981';
                 const baseColors = ['#6366f1', '#8b5cf6', '#fbbf24', '#f43f5e', '#3b82f6'];
                 return baseColors[i % baseColors.length];
             });
-
             allocationChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: alloc.map(i => {
-                        const ticker = etfData[i.id]?.ticker || i.id.toUpperCase();
-                        return i.isCore ? `★ ${ticker}` : ticker;
-                    }),
-                    datasets: [{
-                        data: alloc.map(i => i.pct),
-                        backgroundColor: colors,
-                        borderWidth: 0,
-                        borderColor: 'transparent'
-                    }]
+                    labels: alloc.map(i => { const ticker = etfData[i.id]?.ticker || i.id.toUpperCase(); return i.isCore ? `★ ${ticker}` : ticker; }),
+                    datasets: [{ data: alloc.map(i => i.pct), backgroundColor: colors, borderWidth: 0, borderColor: 'transparent' }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { 
-                            display: true, 
-                            position: 'bottom', 
-                            labels: { 
-                                color: '#cbd5e1', 
-                                font: { family: 'Inter', size: 11 }, 
-                                boxWidth: 12,
-                                padding: 15
-                            } 
-                        }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'bottom', labels: { color: '#cbd5e1', font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 15 } } } }
             });
         }
 
         function calculateGrowth() {
             const P = parseInt(document.getElementById('monthlyInvestment').value) || 500;
             const t = parseInt(document.getElementById('investmentPeriod').value) || 20;
-            
             const r = 0.07;
             const n = 12;
             const FV = P * ((Math.pow(1 + r/n, n*t) - 1) / (r/n));
             const totalCash = P * n * t;
-
             document.getElementById('cashSaved').textContent = '$' + totalCash.toLocaleString();
             document.getElementById('projectedValue').textContent = '$' + Math.round(FV).toLocaleString();
 
@@ -2456,64 +2629,20 @@
             for(let i=0; i<=t; i+=Math.ceil(t/10)) {
                 labels.push("Yr " + i);
                 if(i===0) dataPoints.push(0);
-                else {
-                    let val = P * ((Math.pow(1 + r/n, n*i) - 1) / (r/n));
-                    dataPoints.push(val);
-                }
+                else { let val = P * ((Math.pow(1 + r/n, n*i) - 1) / (r/n)); dataPoints.push(val); }
             }
-            if (labels[labels.length-1] !== "Yr " + t) {
-                labels.push("Yr " + t);
-                dataPoints.push(FV);
-            }
-            
+            if (labels[labels.length-1] !== "Yr " + t) { labels.push("Yr " + t); dataPoints.push(FV); }
             renderGrowthChart(labels, dataPoints);
-            
-            if (currentPortfolioData) {
-                updateComparison();
-                updateShareCard(currentPortfolioData.stockPct, currentPortfolioData.bondPct, currentPortfolioData.alloc);
-            }
+            if (currentPortfolioData) { updateComparison(); updateShareCard(currentPortfolioData.stockPct, currentPortfolioData.bondPct, currentPortfolioData.alloc); }
         }
 
         function renderGrowthChart(labels, data) {
             if (growthChartInstance) growthChartInstance.destroy();
             const ctx = document.getElementById('growthChartCanvas').getContext('2d');
-
             growthChartInstance = new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Portfolio Value',
-                        data: data,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 3,
-                        pointBackgroundColor: '#10b981',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { 
-                            ticks: { 
-                                color: '#94a3b8',
-                                callback: function(value) {
-                                    return '$' + (value/1000).toFixed(0) + 'k';
-                                }
-                            }, 
-                            grid: { color: '#2a3150' } 
-                        },
-                        x: { 
-                            ticks: { color: '#94a3b8' }, 
-                            grid: { display: false } 
-                        }
-                    },
-                    plugins: { legend: { display: false } }
-                }
+                data: { labels: labels, datasets: [{ label: 'Portfolio Value', data: data, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.2)', fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#10b981', borderWidth: 2 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { ticks: { color: '#94a3b8', callback: function(value) { return '$' + (value/1000).toFixed(0) + 'k'; } }, grid: { color: '#2a3150' } }, x: { ticks: { color: '#94a3b8' }, grid: { display: false } } }, plugins: { legend: { display: false } } }
             });
         }
     </script>
