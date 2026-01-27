@@ -19,9 +19,12 @@
             --accent-green-glow: rgba(34, 197, 94, 0.4);
             --accent-gold: #fbbf24;
             --accent-gold-dim: rgba(251, 191, 36, 0.15);
+            --accent-gold-glow: rgba(251, 191, 36, 0.4);
             --accent-blue: #3b82f6;
             --accent-purple: #8b5cf6;
             --accent-pink: #ec4899;
+            --accent-pink-dim: rgba(236, 72, 153, 0.15);
+            --accent-pink-glow: rgba(236, 72, 153, 0.4);
             --text-primary: #ffffff;
             --text-secondary: #a1a1aa;
             --text-muted: #52525b;
@@ -180,7 +183,7 @@
         }
         .systems-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         
-        /* SYSTEM CARDS - Clean, no mini badges */
+        /* SYSTEM CARDS */
         .system-card {
             display: flex; align-items: center; gap: 12px; padding: 16px;
             background: var(--bg-card); border: 1px solid var(--border);
@@ -195,11 +198,93 @@
         .system-card.locked:hover { transform: none; background: var(--bg-card); opacity: 0.8; }
         .system-card.locked .system-icon { filter: grayscale(1); }
 
+        /* SOCIAL ACTION CARDS - Special Styling */
+        .system-card.social-action {
+            position: relative;
+        }
+        
+        .system-card.social-action.dm-unlock {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.08) 0%, var(--bg-card) 100%);
+            border-color: rgba(236, 72, 153, 0.3);
+            border-style: solid;
+        }
+        
+        .system-card.social-action.dm-unlock:hover {
+            border-color: var(--accent-pink);
+            box-shadow: 0 0 25px var(--accent-pink-glow);
+        }
+        
+        .system-card.social-action.story-unlock {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, var(--bg-card) 100%);
+            border-color: rgba(251, 191, 36, 0.3);
+            border-style: solid;
+        }
+        
+        .system-card.social-action.story-unlock:hover {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 25px var(--accent-gold-glow);
+        }
+        
+        /* Pulsing animation for social action cards */
+        .system-card.social-action.locked::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 14px;
+            padding: 2px;
+            background: linear-gradient(90deg, transparent, rgba(236, 72, 153, 0.3), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: social-pulse 2s ease-in-out infinite;
+        }
+        
+        .system-card.social-action.story-unlock.locked::before {
+            background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent);
+        }
+        
+        @keyframes social-pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        /* Action Badge inside cards */
+        .action-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.55rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        
+        .action-badge.dm {
+            background: var(--accent-pink);
+            color: white;
+        }
+        
+        .action-badge.story {
+            background: var(--accent-gold);
+            color: #000;
+        }
+        
+        @keyframes badge-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
         .system-icon {
             width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
             background: var(--bg-secondary); border-radius: 10px; font-size: 1.2rem; flex-shrink: 0;
         }
         .system-card.completed .system-icon { background: var(--accent-green-dim); }
+        .system-card.social-action.dm-unlock .system-icon { background: var(--accent-pink-dim); }
+        .system-card.social-action.story-unlock .system-icon { background: var(--accent-gold-dim); }
+        
         .system-info { flex: 1; min-width: 0; }
         .system-name { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
         .system-desc { font-size: 0.7rem; color: var(--text-muted); }
@@ -380,7 +465,7 @@
             cursor: pointer; transition: all 0.2s;
         }
         .dual-option:hover { border-color: var(--accent-green); }
-        .dual-option.selected { border-color: var(--accent-pink); background: rgba(236, 72, 153, 0.1); }
+        .dual-option.selected { border-color: var(--accent-gold); background: rgba(251, 191, 36, 0.1); }
         .dual-option-icon { font-size: 1.5rem; margin-bottom: 8px; }
         .dual-option-title { font-size: 0.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
         .dual-option-desc { font-size: 0.65rem; color: var(--text-muted); }
@@ -465,11 +550,11 @@
         <div class="info-modal-card gold">
             <div class="info-modal-icon">🔑</div>
             <h2 class="info-modal-title">Enter Vault Code</h2>
-            <p class="info-modal-subtitle">DM your Architect Certificate screenshot to @koutalksmoney</p>
+            <p class="info-modal-subtitle">Post your Architect Certificate on your Instagram Story, tag @koutalksmoney, and I'll DM you the code!</p>
             
             <div class="code-input-group">
                 <input type="text" id="vaultCodeInput" class="code-input" placeholder="Enter code here" maxlength="12">
-                <p class="code-error" id="vaultCodeError">Invalid code. DM your certificate screenshot to get the correct code.</p>
+                <p class="code-error" id="vaultCodeError">Invalid code. Post your certificate to your story and tag me to get the correct code.</p>
             </div>
             
             <div class="info-modal-btns">
@@ -588,6 +673,60 @@
             VAULT_CODE: 'CERTIFIED'
         };
 
+        // === MASTER SYSTEM CONFIGURATION ===
+        // The "Wide Net" Strategy: Check explicit flags AND data artifacts
+        const SYSTEM_CONFIG = {
+            'autopilot': {
+                primaryKey: 'autopilot_completed',
+                fallbackKey: 'cashvault_architect_id',
+                logic: (p, f) => p === 'true' || !!localStorage.getItem(f)
+            },
+            'freedom': {
+                primaryKey: 'freedom_completed',
+                fallbackKey: 'freedom_calculator_result',
+                logic: (p, f) => p === 'true' || !!localStorage.getItem(f)
+            },
+            'waiting': {
+                primaryKey: 'waiting_completed',
+                fallbackKey: 'cost_of_waiting_data',
+                logic: (p, f) => p === 'true' || !!localStorage.getItem(f)
+            },
+            'investment': {
+                primaryKey: 'investment_completed',
+                fallbackKey: 'investment_simplifier_completed',
+                logic: (p, f) => p === 'true' || localStorage.getItem(f) === 'true'
+            },
+            '800club': {
+                primaryKey: 'eightclub_completed',
+                fallbackKey: 'credit_protocol_score',
+                logic: (p, f) => p === 'true' || parseInt(localStorage.getItem(f) || '0') > 0
+            },
+            'budget': {
+                primaryKey: 'budget_completed',
+                fallbackKey: 'budget_unlocked',
+                logic: (p, f) => p === 'true' || localStorage.getItem(f) === 'true'
+            },
+            'prompt': {
+                primaryKey: 'prompt_completed',
+                fallbackKey: 'vault_saved_prompts',
+                logic: (p, f) => {
+                    // Advanced Logic: Mark complete only if they are truly engaged
+                    const categories = JSON.parse(localStorage.getItem('prompt_vault_categories_used') || '[]');
+                    const savedPrompts = JSON.parse(localStorage.getItem(f) || '[]');
+                    return p === 'true' || categories.length >= 3 || savedPrompts.length > 0;
+                }
+            }
+        };
+
+        // === ROBUST CHECK FUNCTION ===
+        function checkSystemCompletion(systemId) {
+            const config = SYSTEM_CONFIG[systemId];
+            if (!config) return false;
+            
+            const primary = localStorage.getItem(config.primaryKey);
+            return config.logic(primary, config.fallbackKey);
+        }
+
         // SYSTEMS WITH UNLOCK EXPLANATIONS
         const SYSTEMS = [
             { 
@@ -599,6 +738,7 @@
                 storageKey: 'autopilot_completed',
                 unlockType: 'always',
                 priority: 1,
+                socialAction: null,
                 unlockExplanation: {
                     title: 'Always Available',
                     subtitle: 'This is your entry point. Start here.',
@@ -615,6 +755,7 @@
                 unlockType: 'completion',
                 unlockRequires: 'autopilot',
                 priority: 2,
+                socialAction: null,
                 unlockExplanation: {
                     title: 'Complete Autopilot System',
                     subtitle: "You need to install your core wealth machine first.",
@@ -631,6 +772,7 @@
                 unlockType: 'completion',
                 unlockRequires: 'freedom',
                 priority: 3,
+                socialAction: null,
                 unlockExplanation: {
                     title: 'Complete Freedom Calculator',
                     subtitle: "Know your target before seeing what delays cost you.",
@@ -647,6 +789,7 @@
                 unlockType: 'completion',
                 unlockRequires: 'waiting',
                 priority: 4,
+                socialAction: null,
                 unlockExplanation: {
                     title: 'Complete Cost of Waiting',
                     subtitle: "Now that you feel the urgency, learn HOW to invest.",
@@ -663,6 +806,7 @@
                 unlockType: 'level',
                 unlockLevel: 'silver',
                 priority: 5,
+                socialAction: null,
                 unlockExplanation: {
                     title: 'Reach Silver Level',
                     subtitle: "Complete 3 systems to reach Silver and unlock credit mastery.",
@@ -680,6 +824,7 @@
                 unlockType: 'code',
                 unlockKey: 'budget_unlocked',
                 priority: 6,
+                socialAction: 'dm', // DM to unlock
                 unlockExplanation: {
                     title: 'DM Secret Keyword',
                     subtitle: "Get exclusive access by connecting with me directly.",
@@ -699,6 +844,7 @@
                 unlockLevel: 'gold',
                 unlockKey: 'vault_unlocked',
                 priority: 7,
+                socialAction: 'story', // Story post to unlock
                 unlockExplanation: {
                     title: 'Two Ways to Unlock',
                     subtitle: "Choose your path to the AI arsenal.",
@@ -710,10 +856,10 @@
                             steps: ['Complete any 5 systems', 'Reach Gold Architect level', 'Prompt Vault unlocks automatically']
                         },
                         { 
-                            icon: '🏛️', 
-                            title: 'Screenshot Certificate', 
-                            desc: 'DM for instant access',
-                            steps: ['Open Autopilot System', 'Scroll to your Architect Certificate', 'Screenshot the certificate card', 'DM screenshot to @koutalksmoney', "I'll reply with your Vault code instantly"]
+                            icon: '📸', 
+                            title: 'Post Certificate', 
+                            desc: 'Tag me on your story',
+                            steps: ['Open Autopilot System', 'Scroll to your Architect Certificate', 'Screenshot the certificate card', '<strong>Post it on your Instagram Story</strong>', '<strong>Tag @koutalksmoney in the story</strong>', "I'll DM you the Vault code!"]
                         }
                     ],
                     hasCodeInput: true
@@ -746,13 +892,22 @@
             }
         }
 
+        // === UPDATED LOAD COMPLETION STATUS WITH WIDE NET STRATEGY ===
         function loadCompletionStatus() {
             completedSystems = [];
+            
+            // Iterate through our defined systems and check status using robust check
             SYSTEMS.forEach(system => {
-                if (localStorage.getItem(system.storageKey) === 'true') {
+                if (checkSystemCompletion(system.id)) {
                     completedSystems.push(system.id);
+                    // Self-heal: ensure primary key is set if we detected completion via fallback
+                    if (localStorage.getItem(system.storageKey) !== 'true') {
+                        localStorage.setItem(system.storageKey, 'true');
+                    }
                 }
             });
+            
+            // Legacy Fallback: Ensure Autopilot is marked if Architect ID exists (Safety Net)
             if (localStorage.getItem('cashvault_architect_id') && !completedSystems.includes('autopilot')) {
                 completedSystems.push('autopilot');
                 localStorage.setItem('autopilot_completed', 'true');
@@ -763,12 +918,14 @@
             unlockedSystems = ['autopilot'];
             
             SYSTEMS.forEach(system => {
+                // Completion-based unlock
                 if (system.unlockType === 'completion' && system.unlockRequires) {
                     if (completedSystems.includes(system.unlockRequires)) {
                         if (!unlockedSystems.includes(system.id)) unlockedSystems.push(system.id);
                     }
                 }
                 
+                // Level-based unlock
                 if (system.unlockType === 'level') {
                     const level = getArchitectLevel();
                     if (system.unlockLevel === 'silver' && ['silver', 'gold', 'elite'].includes(level)) {
@@ -776,10 +933,12 @@
                     }
                 }
 
+                // Code-based unlock
                 if (system.unlockType === 'code' && localStorage.getItem(system.unlockKey) === 'true') {
                     if (!unlockedSystems.includes(system.id)) unlockedSystems.push(system.id);
                 }
 
+                // Dual unlock (level OR code)
                 if (system.unlockType === 'dual') {
                     const level = getArchitectLevel();
                     const hasCode = localStorage.getItem(system.unlockKey) === 'true';
@@ -789,6 +948,7 @@
                 }
             });
 
+            // Ensure completed systems are also unlocked
             completedSystems.forEach(id => {
                 if (!unlockedSystems.includes(id)) unlockedSystems.push(id);
             });
@@ -860,12 +1020,36 @@
             SYSTEMS.forEach(system => {
                 const isCompleted = completedSystems.includes(system.id);
                 const isUnlocked = unlockedSystems.includes(system.id);
+                const isSocialAction = system.socialAction && !isUnlocked && !isCompleted;
                 
                 const card = document.createElement('div');
-                card.className = `system-card ${isCompleted ? 'completed' : ''} ${!isUnlocked ? 'locked' : ''}`;
                 
-                // Clean card - NO mini badges, just the big lock icon
+                // Build class list
+                let classNames = ['system-card'];
+                if (isCompleted) classNames.push('completed');
+                if (!isUnlocked) classNames.push('locked');
+                
+                // Add social action styling for locked social apps
+                if (isSocialAction) {
+                    classNames.push('social-action');
+                    if (system.socialAction === 'dm') classNames.push('dm-unlock');
+                    if (system.socialAction === 'story') classNames.push('story-unlock');
+                }
+                
+                card.className = classNames.join(' ');
+                
+                // Build action badge HTML
+                let actionBadgeHtml = '';
+                if (isSocialAction) {
+                    if (system.socialAction === 'dm') {
+                        actionBadgeHtml = '<span class="action-badge dm">🗝️ DM to Unlock</span>';
+                    } else if (system.socialAction === 'story') {
+                        actionBadgeHtml = '<span class="action-badge story">📸 Story to Unlock</span>';
+                    }
+                }
+                
                 card.innerHTML = `
+                    ${actionBadgeHtml}
                     <div class="system-icon">${system.icon}</div>
                     <div class="system-info">
                         <div class="system-name">${system.name}</div>
@@ -899,8 +1083,8 @@
             
             // Set modal style based on type
             card.className = 'info-modal-card';
-            if (system.unlockType === 'code') card.classList.add('pink');
-            if (system.unlockType === 'dual') card.classList.add('gold');
+            if (system.unlockType === 'code' || system.socialAction === 'dm') card.classList.add('pink');
+            if (system.unlockType === 'dual' || system.socialAction === 'story') card.classList.add('gold');
             
             icon.textContent = system.icon;
             title.textContent = `Unlock ${system.name}`;
@@ -943,7 +1127,7 @@
                     
                     // Show code input for certificate option
                     if (i === 1) {
-                        contentHtml += `<p style="text-align:center;margin-top:15px;"><button class="info-modal-btn primary pink" style="width:100%;" onclick="showVaultCodeModal()">I Have My Code →</button></p>`;
+                        contentHtml += `<p style="text-align:center;margin-top:15px;"><button class="info-modal-btn primary gold" style="width:100%;" onclick="showVaultCodeModal()">I Have My Code →</button></p>`;
                     }
                     
                     contentHtml += '</div>';
