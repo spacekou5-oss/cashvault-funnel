@@ -5,15 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Budget & Wealth Architect</title>
 
-  <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Chart.js + Datalabels -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.1.0"></script>
 
@@ -34,6 +31,33 @@
     .animate-fade-in {
       animation: fadeIn 0.4s ease-out;
     }
+    
+    /* === THE PROTOCOL LOCK STYLES (CMO OPTIMIZATION) === */
+    .blur-gate {
+        filter: blur(8px);
+        user-select: none;
+        pointer-events: none;
+        transition: filter 0.6s ease;
+    }
+    .unlocked {
+        filter: blur(0);
+        user-select: auto;
+        pointer-events: auto;
+    }
+    .protocol-modal {
+        background: linear-gradient(145deg, rgba(17, 24, 39, 0.95), rgba(0, 0, 0, 0.98));
+        border: 1px solid rgba(245, 158, 11, 0.3); /* Amber border */
+        box-shadow: 0 0 50px rgba(245, 158, 11, 0.15);
+        backdrop-filter: blur(10px);
+    }
+    .secret-code-box {
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px dashed rgba(245, 158, 11, 0.5);
+        color: #fbbf24;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 0.2em;
+    }
+
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: #1f2937; }
     ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
@@ -43,9 +67,7 @@
 <body>
   <div class="container mx-auto max-w-4xl p-4 sm:p-6 md:p-8 min-h-screen flex flex-col justify-center text-slate-300">
 
-    <!-- Header -->
     <header class="text-center mb-8">
-      <!-- Added line -->
       <p class="text-sm text-slate-500 mb-1 uppercase tracking-wide">made by kou</p>
       <p class="text-xs text-slate-500 mb-3">
         Instagram: @koutalksmoney · YouTube: @FinanceWithKou
@@ -59,10 +81,8 @@
       </p>
     </header>
 
-    <!-- Main Card -->
     <main class="bg-slate-900/60 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden transition-all duration-500 relative min-h-[400px]">
 
-      <!-- STEP 1: INTRO -->
       <section id="step-intro" class="p-8 text-center flex flex-col items-center justify-center h-full space-y-8 animate-fade-in">
         <div class="bg-amber-500/10 p-6 rounded-full mb-4">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-amber-500">
@@ -81,7 +101,6 @@
         </button>
       </section>
 
-      <!-- STEP 2: QUIZ -->
       <section id="step-quiz" class="hidden p-6 sm:p-10 animate-fade-in">
         <div class="w-full bg-slate-800 rounded-full h-2 mb-8">
           <div id="quiz-progress-inner" class="bg-amber-500 h-2 rounded-full transition-all duration-500" style="width: 0%;"></div>
@@ -96,7 +115,6 @@
         <div id="quiz-options-container" class="space-y-3"></div>
       </section>
 
-      <!-- STEP 3: CALCULATING -->
       <section id="step-calculating" class="hidden flex flex-col items-center justify-center h-[500px] space-y-6">
         <div class="relative w-20 h-20">
           <div class="absolute top-0 left-0 w-full h-full border-4 border-slate-700 rounded-full"></div>
@@ -107,7 +125,6 @@
         </p>
       </section>
 
-      <!-- STEP 4: DASHBOARD -->
       <section id="step-dashboard" class="hidden animate-fade-in">
         <div class="bg-gradient-to-r from-amber-600/20 to-amber-900/20 border-b border-amber-500/30 p-6 text-center">
           <p class="text-amber-400 font-semibold uppercase tracking-wider text-sm mb-1">
@@ -117,7 +134,6 @@
         </div>
 
         <div class="p-6 sm:p-8 space-y-8">
-          <!-- Income inputs -->
           <section class="bg-slate-800/50 p-6 rounded-xl border border-white/5">
             <label class="block text-slate-400 text-sm font-semibold mb-3">
               ENTER YOUR MONTHLY OR ANNUAL INCOME
@@ -146,23 +162,54 @@
             </div>
           </section>
 
-          <!-- Content + Chart -->
-          <div class="flex flex-col lg:flex-row gap-8">
-            <div class="w-full lg:w-1/2 space-y-6">
+          <div class="flex flex-col lg:flex-row gap-8 relative">
+            
+            <div class="w-full lg:w-1/2 space-y-6 relative">
+              
               <div>
                 <h3 class="text-xl font-bold text-white mb-2">How it works</h3>
                 <p id="system-desc" class="text-slate-300 leading-relaxed"></p>
               </div>
-              <div>
-                <h3 class="text-xl font-bold text-white mb-2">Why it fits you</h3>
-                <p id="system-advantage" class="text-amber-400/90 leading-relaxed"></p>
+              
+              <div id="gate-overlay" class="absolute top-[180px] left-0 right-0 bottom-0 z-20 flex flex-col items-center justify-start pt-10">
+                  <div class="protocol-modal p-8 rounded-2xl max-w-sm text-center transform hover:scale-105 transition-transform duration-300">
+                      <div class="text-4xl mb-4">🔒</div>
+                      <h3 class="text-white font-bold text-xl mb-2 uppercase tracking-wide">Protocol Locked</h3>
+                      <p class="text-slate-400 text-sm mb-6">
+                          Your custom financial operating system is ready. Unlock the breakdown and get your <strong>Command Center Code</strong>.
+                      </p>
+                      
+                      <div class="space-y-3">
+                          <input type="email" id="user-email" placeholder="Enter your email..." class="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-white text-center focus:border-amber-500 outline-none">
+                          <button onclick="unlockProtocol()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold py-3 rounded-lg uppercase tracking-widest text-sm shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all">
+                              UNLOCK MY PLAN
+                          </button>
+                      </div>
+                      <p class="text-[10px] text-slate-600 mt-4">Secure Access. No Spam.</p>
+                  </div>
               </div>
 
-              <div class="h-px bg-white/10 my-6"></div>
+              <div id="locked-content" class="blur-gate">
+                  <div>
+                    <h3 class="text-xl font-bold text-white mb-2">Why it fits you</h3>
+                    <p id="system-advantage" class="text-amber-400/90 leading-relaxed"></p>
+                  </div>
 
-              <div id="breakdown-list" class="space-y-3">
-                <p class="text-slate-500 italic">Enter your income to see the breakdown.</p>
+                  <div class="h-px bg-white/10 my-6"></div>
+
+                  <div id="breakdown-list" class="space-y-3">
+                    <p class="text-slate-500 italic">Enter your income to see the breakdown.</p>
+                  </div>
               </div>
+              
+              <div id="secret-code-reveal" class="hidden mt-6 animate-fade-in">
+                  <div class="secret-code-box p-4 rounded-xl text-center">
+                      <p class="text-[10px] text-amber-500/70 uppercase mb-2">Command Center Access Code</p>
+                      <div class="text-2xl font-bold" id="reveal-code">CASHFLOW</div>
+                      <p class="text-[10px] text-slate-500 mt-2">Use this code to unlock the Budget Module in your Command Center.</p>
+                  </div>
+              </div>
+
             </div>
 
             <div class="w-full lg:w-1/2 flex items-center justify-center bg-slate-800/30 rounded-xl border border-white/5 p-4 min-h-[300px]">
@@ -172,7 +219,6 @@
             </div>
           </div>
 
-          <!-- System Switcher -->
           <div class="border-t border-white/10 pt-6">
             <h4 class="text-center text-slate-400 text-sm font-semibold uppercase tracking-wider mb-4">
               Explore Other Systems
@@ -205,6 +251,42 @@
   </div>
 
   <script>
+    // === THE UNLOCK LOGIC (CMO ADDITION) ===
+    function unlockProtocol() {
+        const email = document.getElementById('user-email').value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailRegex.test(email)) {
+            alert("Please enter a valid email to unlock your protocol.");
+            return;
+        }
+
+        // 1. Visual Unlock
+        const gate = document.getElementById('gate-overlay');
+        const content = document.getElementById('locked-content');
+        const secret = document.getElementById('secret-code-reveal');
+
+        // Fade out gate
+        gate.style.opacity = '0';
+        setTimeout(() => gate.style.display = 'none', 500);
+
+        // Unblur content
+        content.classList.remove('blur-gate');
+        content.classList.add('unlocked');
+        
+        // Reveal Secret Code
+        secret.classList.remove('hidden');
+
+        // 2. Data Persistence (For Command Center)
+        localStorage.setItem('budget_user_email', email);
+        localStorage.setItem('budget_unlocked', 'true'); // This unlocks it in Command Center
+        localStorage.setItem('budget_completed', 'true');
+        
+        // Optional: Send to Beehiiv API here
+        console.log("Lead captured:", email);
+    }
+
+    // --- STANDARD APP LOGIC ---
     const budgetSystems = {
       '50-30-20': {
         title: '50/30/20 Rule',
