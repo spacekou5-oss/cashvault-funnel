@@ -19,10 +19,8 @@
             --accent-secondary: #8b5cf6;
             --success: #10b981;
             --gold: #fbbf24;
-            --danger: #ef4444;
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
-            --text-muted: #64748b;
             --border: #2a3150;
         }
 
@@ -96,17 +94,6 @@
             border-color: var(--accent-primary);
             box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
         }
-        .premium-input.error {
-            border-color: var(--danger);
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
-        }
-        .input-error-text {
-            color: var(--danger);
-            font-size: 0.7rem;
-            margin-top: 4px;
-            display: none;
-        }
-        .input-error-text.show { display: block; }
 
         .btn-primary {
             background: var(--accent-gradient);
@@ -140,31 +127,12 @@
             font-size: 0.85rem;
             font-weight: 600;
             white-space: nowrap;
-            position: relative;
         }
         .nav-pill.active {
             background: var(--accent-gradient);
             color: white;
             border-color: transparent;
             box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
-        .nav-pill.completed {
-            border-color: var(--success);
-        }
-        .nav-pill.completed::after {
-            content: '✓';
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            background: var(--success);
-            color: white;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            font-size: 0.6rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         @media (max-width: 768px) { .nav-pill { padding: 8px 14px; font-size: 0.75rem; } }
@@ -323,7 +291,7 @@
         }
         .transparency-step.active .step-text { color: var(--text-primary); }
 
-        /* === OUTPUT BOX === */
+        /* === PEAK-END GLOW EFFECT === */
         .output-box {
             background: #0f1221;
             border: 1px solid var(--success);
@@ -338,6 +306,20 @@
             50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.4), 0 0 80px rgba(99, 102, 241, 0.2); }
             100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); transform: scale(1); opacity: 1; }
         }
+        .output-box::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px; right: -1px; bottom: -1px;
+            background: linear-gradient(135deg, var(--success), var(--accent-primary));
+            border-radius: 13px;
+            z-index: -1;
+            opacity: 0;
+            animation: borderPulse 2s ease-in-out infinite;
+        }
+        @keyframes borderPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
         .output-code {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.85rem;
@@ -347,41 +329,22 @@
             word-break: break-word;
         }
 
-        /* === WATERMARK STYLING (STATUS FRICTION) === */
-        .watermark-section {
+        /* === OUTPUT BRANDING WATERMARK === */
+        .output-branding {
             margin-top: 16px;
-            padding: 16px;
-            border: 2px dashed var(--danger);
-            border-radius: 8px;
-            background: rgba(239, 68, 68, 0.1);
-            animation: watermarkPulse 2s ease-in-out infinite;
-        }
-        @keyframes watermarkPulse {
-            0%, 100% { border-color: var(--danger); }
-            50% { border-color: rgba(239, 68, 68, 0.5); }
-        }
-        .watermark-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--danger);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border);
+            text-align: right;
             font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .watermark-text {
+            color: var(--text-muted);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            color: var(--danger);
-            margin-top: 12px;
-            padding: 10px;
-            background: rgba(239, 68, 68, 0.1);
-            border-radius: 4px;
-            border-left: 3px solid var(--danger);
+        }
+        .output-branding a {
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+        .output-branding a:hover {
+            text-decoration: underline;
         }
 
         /* === LOADING STATE === */
@@ -407,7 +370,7 @@
             color: var(--text-secondary);
         }
 
-        /* === MODAL === */
+        /* === SAVE TO LIBRARY MODAL === */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -431,7 +394,6 @@
             text-align: center;
             animation: modalReveal 0.4s ease;
             box-shadow: 0 0 60px rgba(99, 102, 241, 0.3);
-            position: relative;
         }
         @keyframes modalReveal {
             from { opacity: 0; transform: scale(0.9) translateY(20px); }
@@ -468,9 +430,9 @@
             border-color: var(--accent-primary);
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
         }
-        .modal-input.error { border-color: var(--danger); }
+        .modal-input.error { border-color: #ef4444; }
         .modal-error {
-            color: var(--danger);
+            color: #ef4444;
             font-size: 0.8rem;
             margin-bottom: 10px;
             display: none;
@@ -519,59 +481,132 @@
         }
         .modal-close:hover { color: white; }
 
-        /* === UNLOCK BANNER (COST OF WAITING) === */
-        .unlock-banner {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
+        /* === ACHIEVEMENT/CERTIFICATE === */
+        .achievement-banner {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(251, 191, 36, 0.05) 100%);
+            border: 2px solid rgba(251, 191, 36, 0.4);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            text-align: center;
+            animation: achievementReveal 0.6s ease;
+            display: none;
         }
-        .unlock-banner.unlocked {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%);
-            border-color: var(--danger);
-            animation: unlockedPulse 2s ease-in-out infinite;
+        .achievement-banner.show { display: block; }
+        @keyframes achievementReveal {
+            0% { opacity: 0; transform: scale(0.9); }
+            50% { transform: scale(1.02); }
+            100% { opacity: 1; transform: scale(1); }
         }
-        @keyframes unlockedPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-            50% { box-shadow: 0 0 20px 0 rgba(239, 68, 68, 0.2); }
+        .achievement-icon { font-size: 2.5rem; margin-bottom: 15px; }
+        .achievement-title {
+            color: var(--gold);
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
         }
-        .unlock-banner-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .unlock-banner-icon { font-size: 1.5rem; }
-        .unlock-banner-text h4 {
-            color: var(--danger);
-            font-size: 0.9rem;
-            font-weight: 700;
-            margin: 0 0 4px 0;
-        }
-        .unlock-banner-text p {
+        .achievement-subtitle {
             color: var(--text-secondary);
-            font-size: 0.75rem;
-            margin: 0;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
         }
-        .unlock-banner-progress {
+        .achievement-card {
+            background: linear-gradient(135deg, #0a0e27 0%, #151933 100%);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 350px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        .achievement-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), #f59e0b, var(--gold));
+        }
+        .achievement-card-header {
             display: flex;
-            gap: 8px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
-        .unlock-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--border);
-            transition: all 0.3s;
+        .achievement-card-logo {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
         }
-        .unlock-dot.complete {
-            background: var(--danger);
-            box-shadow: 0 0 10px var(--danger);
+        .achievement-card-badge {
+            font-size: 0.6rem;
+            padding: 4px 10px;
+            background: rgba(251, 191, 36, 0.2);
+            border-radius: 20px;
+            color: var(--gold);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .achievement-card-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--gold);
+            margin-bottom: 5px;
+        }
+        .achievement-card-name {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .achievement-card-stats {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+        .achievement-stat {
+            text-align: center;
+        }
+        .achievement-stat-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--success);
+        }
+        .achievement-stat-label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .achievement-share-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .achievement-share-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            border: none;
+        }
+        .achievement-share-btn:hover { transform: translateY(-2px); }
+        .achievement-share-btn.instagram {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            color: white;
+        }
+        .achievement-share-btn.copy {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        .achievement-share-btn.copy.copied {
+            background: var(--success);
+            border-color: var(--success);
         }
 
         /* === BRIDGE CTA === */
@@ -612,6 +647,29 @@
         .bridge-cta-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        /* === SAVED PROMPTS COUNTER === */
+        .saved-counter {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .saved-counter-icon { font-size: 1rem; }
+        .saved-counter-text {
+            font-size: 0.8rem;
+            color: var(--success);
+            font-weight: 600;
+        }
+        .saved-counter-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
         }
 
         /* === GRID LAYOUTS === */
@@ -697,16 +755,6 @@
             margin-left: 8px;
         }
         .save-btn:hover { background: var(--gold); color: #000; }
-        .save-btn.email-cta {
-            border-color: var(--accent-primary);
-            background: var(--accent-gradient);
-            color: white;
-            animation: emailPulse 2s ease-in-out infinite;
-        }
-        @keyframes emailPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-            50% { box-shadow: 0 0 0 8px rgba(99, 102, 241, 0); }
-        }
 
         .output-header {
             display: flex;
@@ -788,37 +836,6 @@
             padding-top: 20px;
             border-top: 1px solid var(--border);
         }
-
-        /* === LOCKED TOOL CARD === */
-        .locked-tool {
-            background: rgba(239, 68, 68, 0.05);
-            border: 1px dashed rgba(239, 68, 68, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            opacity: 0.7;
-            position: relative;
-            overflow: hidden;
-        }
-        .locked-tool::before {
-            content: '🔒';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3rem;
-            opacity: 0.1;
-        }
-        .locked-tool h4 {
-            color: var(--danger);
-            font-size: 0.85rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .locked-tool p {
-            color: var(--text-muted);
-            font-size: 0.75rem;
-        }
     </style>
 </head>
 <body>
@@ -832,7 +849,6 @@
             BEEHIIV_MOCK_MODE: true,
             BEEHIIV_FORM_URL: "https://embeds.beehiiv.com/YOUR_EMBED_ID",
             LINKS: {
-                COST_OF_WAITING: "https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html",
                 FREEDOM_CALCULATOR: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html",
                 INVESTMENT_SIMPLIFIER: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html",
                 AUTOPILOT_SYSTEM: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html",
@@ -840,14 +856,6 @@
                 CHATGPT: "https://chat.openai.com"
             }
         };
-
-        // === THE WATERMARK (STATUS FRICTION PSYCHOLOGY) ===
-        const PROMO_FOOTER = `
-
--------------------
-🔒 Generated by The Vault (FREE TIER)
-⚠️ WATERMARK ATTACHED — Remove by verifying email
-📧 Get clean version: @koutalksmoney`;
 
         // --- PROMPT DATABASE ---
         const PROMPTS = {
@@ -986,7 +994,7 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             );
         }
 
-        // --- WATERMARK REMOVAL MODAL ---
+        // --- SAVE TO LIBRARY MODAL ---
         function SaveModal({ isOpen, onClose, onSave, promptCategory }) {
             const [email, setEmail] = useState('');
             const [isSubmitting, setIsSubmitting] = useState(false);
@@ -1012,7 +1020,7 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                             body: JSON.stringify({
                                 email: email,
                                 utm_source: 'prompt_vault',
-                                utm_medium: 'watermark_removal',
+                                utm_medium: 'save_to_library',
                                 utm_campaign: promptCategory
                             })
                         });
@@ -1031,17 +1039,13 @@ Show me the math in simple terms. Give me hope, but be realistic.`
 
             return (
                 <div className="modal-overlay show">
-                    <div className="modal-card">
+                    <div className="modal-card" style={{ position: 'relative' }}>
                         <button className="modal-close" onClick={onClose}>×</button>
-                        <div className="modal-icon">🔓</div>
-                        <h2 className="modal-title">Remove Watermark</h2>
+                        <div className="modal-icon">💾</div>
+                        <h2 className="modal-title">Save to My Vault</h2>
                         <p className="modal-subtitle">
-                            <strong style={{color: 'var(--danger)'}}>⚠️ Your prompt has a visible watermark.</strong>
-                            <br /><br />
-                            Nobody wants to send a resume or cover letter with 
-                            <span style={{color: 'var(--danger)'}}> "Generated by AI"</span> at the bottom.
-                            <br /><br />
-                            Enter your email to get the <strong>clean, professional version</strong>.
+                            Create your free Vault to save prompts across sessions. 
+                            Never lose your custom prompts again.
                         </p>
                         <input
                             type="email"
@@ -1060,10 +1064,10 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                             {isSubmitting ? (
                                 <>
                                     <span className="loading-spinner" style={{ width: '20px', height: '20px', margin: 0 }}></span>
-                                    <span>Removing Watermark...</span>
+                                    <span>Creating Vault...</span>
                                 </>
                             ) : (
-                                '[ Send Me Clean Version ]'
+                                '[ Create My Vault ]'
                             )}
                         </button>
                         <div className="modal-trust">
@@ -1071,70 +1075,293 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                             <span>•</span>
                             <span>No spam</span>
                             <span>•</span>
-                            <span>Instant delivery</span>
+                            <span>Unsubscribe anytime</span>
                         </div>
                     </div>
                 </div>
             );
         }
 
-        // --- COST OF WAITING UNLOCK BANNER (HIGH LEVERAGE) ---
-        function UnlockBanner({ categoriesUsed }) {
-            const usedCount = Object.values(categoriesUsed).filter(Boolean).length;
-            const allUnlocked = usedCount >= 3;
+        // --- SAVED PROMPTS VIEWER (Access "The Vault") ---
+        function SavedPromptsViewer({ savedPrompts, isOpen, onToggle, onDelete }) {
+            if (savedPrompts.length === 0) return null;
 
-            // Strategic framing: They've planned. Now feel the cost of not acting.
-            if (allUnlocked) {
-                return (
-                    <div className="unlock-banner unlocked">
-                        <div className="unlock-banner-content">
-                            <div className="unlock-banner-icon">⚠️</div>
-                            <div className="unlock-banner-text">
-                                <h4>YOU'VE BUILT THE PLAN. NOW SEE THE COST OF INACTION.</h4>
-                                <p>Every day you delay costs you real money. See the math.</p>
+            const categoryLabels = {
+                'CAREER': '💼 Career',
+                'VENTURE': '🚀 Venture', 
+                'WEALTH': '💰 Wealth'
+            };
+
+            const handleCopy = (prompt, index) => {
+                navigator.clipboard.writeText(prompt);
+                // Visual feedback handled by individual button state
+            };
+
+            return (
+                <div className="glass-card" style={{ marginBottom: '25px' }}>
+                    <div 
+                        onClick={onToggle}
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            paddingBottom: isOpen ? '16px' : '0',
+                            borderBottom: isOpen ? '1px solid var(--border)' : 'none',
+                            marginBottom: isOpen ? '16px' : '0'
+                        }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ fontSize: '1.25rem' }}>🗄️</span>
+                            <div>
+                                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--gold)', margin: 0 }}>
+                                    My Vault
+                                </h3>
+                                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
+                                    {savedPrompts.length} saved prompt{savedPrompts.length !== 1 ? 's' : ''}
+                                </p>
                             </div>
                         </div>
+                        <span style={{ 
+                            color: 'var(--text-secondary)', 
+                            fontSize: '0.8rem',
+                            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.3s'
+                        }}>▼</span>
+                    </div>
+
+                    {isOpen && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {savedPrompts.map((item, index) => (
+                                <SavedPromptCard 
+                                    key={index}
+                                    item={item}
+                                    index={index}
+                                    categoryLabel={categoryLabels[item.category] || item.category}
+                                    onCopy={() => handleCopy(item.prompt, index)}
+                                    onDelete={() => onDelete(index)}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        function SavedPromptCard({ item, index, categoryLabel, onCopy, onDelete }) {
+            const [copied, setCopied] = useState(false);
+            const [expanded, setExpanded] = useState(false);
+
+            const handleCopy = () => {
+                navigator.clipboard.writeText(item.prompt + '\n\n---\nGenerated by The Vault | @koutalksmoney');
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            };
+
+            const preview = item.prompt.substring(0, 100) + (item.prompt.length > 100 ? '...' : '');
+            const timeAgo = getTimeAgo(item.timestamp);
+
+            return (
+                <div style={{
+                    background: 'rgba(10, 14, 39, 0.6)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '10px',
+                    padding: '14px',
+                    transition: 'all 0.2s'
+                }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{
+                                fontSize: '0.65rem',
+                                padding: '4px 8px',
+                                background: 'rgba(99, 102, 241, 0.2)',
+                                border: '1px solid rgba(99, 102, 241, 0.3)',
+                                borderRadius: '12px',
+                                color: 'var(--accent-primary)',
+                                fontWeight: 600
+                            }}>{categoryLabel}</span>
+                            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{timeAgo}</span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                            <button 
+                                onClick={handleCopy}
+                                style={{
+                                    padding: '4px 10px',
+                                    fontSize: '0.65rem',
+                                    background: copied ? 'var(--success)' : 'transparent',
+                                    border: `1px solid ${copied ? 'var(--success)' : 'var(--border)'}`,
+                                    borderRadius: '4px',
+                                    color: copied ? '#fff' : 'var(--text-secondary)',
+                                    cursor: 'pointer',
+                                    fontWeight: 600
+                                }}
+                            >
+                                {copied ? '✓' : '📋'}
+                            </button>
+                            <button 
+                                onClick={onDelete}
+                                style={{
+                                    padding: '4px 10px',
+                                    fontSize: '0.65rem',
+                                    background: 'transparent',
+                                    border: '1px solid var(--border)',
+                                    borderRadius: '4px',
+                                    color: 'var(--text-muted)',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                    <div 
+                        onClick={() => setExpanded(!expanded)}
+                        style={{ cursor: 'pointer' }}
+                    >
+                        <pre style={{
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: '0.75rem',
+                            color: 'var(--text-secondary)',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word',
+                            lineHeight: 1.5,
+                            margin: 0,
+                            maxHeight: expanded ? 'none' : '60px',
+                            overflow: 'hidden'
+                        }}>
+                            {expanded ? item.prompt : preview}
+                        </pre>
+                        {item.prompt.length > 100 && (
+                            <span style={{ 
+                                fontSize: '0.7rem', 
+                                color: 'var(--accent-primary)', 
+                                fontWeight: 600,
+                                marginTop: '6px',
+                                display: 'inline-block'
+                            }}>
+                                {expanded ? '▲ Collapse' : '▼ Expand'}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        function getTimeAgo(timestamp) {
+            const seconds = Math.floor((Date.now() - timestamp) / 1000);
+            if (seconds < 60) return 'Just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        // --- ACHIEVEMENT BANNER (Updated with clear reward) ---
+        function AchievementBanner({ isVisible, promptsGenerated, userName, onCopy }) {
+            const [copied, setCopied] = useState(false);
+
+            const handleCopy = () => {
+                const text = `I just earned AI Commander status in The Vault!\n\nGenerated ${promptsGenerated} custom prompts.\n\nGet yours: @koutalksmoney`;
+                navigator.clipboard.writeText(text);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+                onCopy();
+            };
+
+            if (!isVisible) return null;
+
+            return (
+                <div className="achievement-banner show">
+                    <div className="achievement-icon">🏆</div>
+                    <h3 className="achievement-title">Achievement Unlocked!</h3>
+                    <p className="achievement-subtitle">You've earned AI Commander status by mastering all 3 categories</p>
+                    
+                    <div className="achievement-card">
+                        <div className="achievement-card-header">
+                            <span className="achievement-card-logo">THE<span style={{ color: 'var(--gold)' }}>VAULT</span></span>
+                            <span className="achievement-card-badge">AI Commander</span>
+                        </div>
+                        <div className="achievement-card-title">AI COMMANDER</div>
+                        <div className="achievement-card-name">{userName || 'Elite Operator'}</div>
+                        <div className="achievement-card-stats">
+                            <div className="achievement-stat">
+                                <div className="achievement-stat-value">{promptsGenerated}</div>
+                                <div className="achievement-stat-label">Prompts</div>
+                            </div>
+                            <div className="achievement-stat">
+                                <div className="achievement-stat-value">3/3</div>
+                                <div className="achievement-stat-label">Categories</div>
+                            </div>
+                            <div className="achievement-stat">
+                                <div className="achievement-stat-value">✓</div>
+                                <div className="achievement-stat-label">Elite</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* UNLOCKED REWARDS */}
+                    <div style={{
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        border: '1px solid rgba(16, 185, 129, 0.3)',
+                        borderRadius: '12px',
+                        padding: '20px',
+                        marginTop: '20px',
+                        marginBottom: '20px',
+                        textAlign: 'left'
+                    }}>
+                        <h4 style={{ color: 'var(--success)', fontSize: '0.85rem', fontWeight: 700, marginBottom: '12px', textTransform: 'uppercase' }}>
+                            🎁 You've Unlocked:
+                        </h4>
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                            <li style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                <span style={{ color: 'var(--success)' }}>✓</span>
+                                <span><strong style={{ color: 'var(--text-primary)' }}>Permanent Vault Access</strong> — Save unlimited prompts</span>
+                            </li>
+                            <li style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                <span style={{ color: 'var(--success)' }}>✓</span>
+                                <span><strong style={{ color: 'var(--text-primary)' }}>AI Commander Badge</strong> — Share your status</span>
+                            </li>
+                            <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ color: 'var(--success)' }}>✓</span>
+                                <span><strong style={{ color: 'var(--text-primary)' }}>Next Level Access</strong> — Bridge to Autopilot System</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div className="achievement-share-btns">
+                        <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="achievement-share-btn instagram">
+                            📸 Share on Instagram
+                        </a>
+                        <button className={`achievement-share-btn copy ${copied ? 'copied' : ''}`} onClick={handleCopy}>
+                            {copied ? '✓ Copied!' : '📋 Copy Caption'}
+                        </button>
+                    </div>
+
+                    {/* Bridge to next tool */}
+                    <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '12px' }}>
+                            Ready to automate your wealth? →
+                        </p>
                         <a 
-                            href={CONFIG.LINKS.COST_OF_WAITING}
-                            onClick={() => {
-                                // Track that they earned access
-                                localStorage.setItem('cost_of_waiting_unlocked_from', 'prompt_vault');
-                                localStorage.setItem('prompt_vault_all_categories', 'true');
-                            }}
+                            href={CONFIG.LINKS.AUTOPILOT_SYSTEM}
                             style={{
-                                background: 'var(--danger)',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                background: 'var(--success)',
                                 color: 'white',
                                 padding: '12px 24px',
                                 borderRadius: '8px',
                                 fontSize: '0.85rem',
                                 fontWeight: 700,
                                 textDecoration: 'none',
-                                textTransform: 'uppercase',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                animation: 'emailPulse 2s ease-in-out infinite'
+                                textTransform: 'uppercase'
                             }}
                         >
-                            💸 See My Daily Loss →
+                            🤖 Install The Autopilot System
                         </a>
-                    </div>
-                );
-            }
-
-            return (
-                <div className="unlock-banner">
-                    <div className="unlock-banner-content">
-                        <div className="unlock-banner-icon">🔒</div>
-                        <div className="unlock-banner-text">
-                            <h4>Unlock: Cost of Waiting Calculator</h4>
-                            <p>Complete all 3 categories to see how much each day of delay costs you</p>
-                        </div>
-                    </div>
-                    <div className="unlock-banner-progress">
-                        <div className={`unlock-dot ${categoriesUsed.CAREER ? 'complete' : ''}`} title="Career"></div>
-                        <div className={`unlock-dot ${categoriesUsed.VENTURE ? 'complete' : ''}`} title="Venture"></div>
-                        <div className={`unlock-dot ${categoriesUsed.WEALTH ? 'complete' : ''}`} title="Wealth"></div>
                     </div>
                 </div>
             );
@@ -1142,7 +1369,7 @@ Show me the math in simple terms. Give me hope, but be realistic.`
 
         // --- GOAL-GRADIENT PROGRESS BAR ---
         function GoalGradientBar({ fields, requiredFields }) {
-            const filledCount = requiredFields.filter(field => fields[field] && fields[field].toString().trim() !== '').length;
+            const filledCount = requiredFields.filter(field => fields[field] && fields[field].trim() !== '').length;
             const progress = (filledCount / requiredFields.length) * 100;
             
             return (
@@ -1190,39 +1417,17 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             );
         }
 
-        // --- BRIDGE CTA ---
-        function BridgeCTA({ category, categoriesUsed }) {
-            const allComplete = Object.values(categoriesUsed).filter(Boolean).length >= 3;
+        // --- BRIDGE CTA COMPONENT ---
+        function BridgeCTA({ category }) {
             const cta = BRIDGE_CTAS[category];
-            
-            // If they haven't completed all categories, show locked state
-            if (!allComplete) {
-                const remaining = 3 - Object.values(categoriesUsed).filter(Boolean).length;
-                return (
-                    <div className="locked-tool">
-                        <h4>🔒 Tool Locked</h4>
-                        <p>Complete {remaining} more categor{remaining === 1 ? 'y' : 'ies'} to unlock the Cost of Waiting Calculator</p>
-                    </div>
-                );
-            }
+            if (!cta) return null;
 
-            // After all complete, show the FEAR CTA
             return (
-                <div className="bridge-cta" style={{ 
-                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%)',
-                    borderColor: 'rgba(239, 68, 68, 0.4)'
-                }}>
-                    <h4 style={{ color: 'var(--danger)' }}>⚠️ You've Built the Blueprint</h4>
-                    <p>Now see what happens if you don't execute. Every day you wait costs you money.</p>
-                    <a 
-                        href={CONFIG.LINKS.COST_OF_WAITING}
-                        className="bridge-cta-btn"
-                        style={{ background: 'var(--danger)' }}
-                        onClick={() => {
-                            localStorage.setItem('cost_of_waiting_unlocked_from', 'prompt_vault');
-                        }}
-                    >
-                        💸 Calculate My Daily Loss →
+                <div className="bridge-cta">
+                    <h4>{cta.title}</h4>
+                    <p>{cta.subtitle}</p>
+                    <a href={cta.link} className="bridge-cta-btn">
+                        {cta.btnText}
                     </a>
                 </div>
             );
@@ -1232,10 +1437,13 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             const [locked, setLocked] = useState(true);
             const [activeTab, setActiveTab] = useState('CAREER'); 
             const [currentTip, setCurrentTip] = useState(0);
-            const [categoriesUsed, setCategoriesUsed] = useState({ CAREER: false, VENTURE: false, WEALTH: false });
+            const [savedPrompts, setSavedPrompts] = useState([]);
+            const [promptsGenerated, setPromptsGenerated] = useState({ CAREER: 0, VENTURE: 0, WEALTH: 0 });
+            const [showAchievement, setShowAchievement] = useState(false);
             const [userEmail, setUserEmail] = useState('');
             const [showSaveModal, setShowSaveModal] = useState(false);
             const [pendingSave, setPendingSave] = useState(null);
+            const [vaultOpen, setVaultOpen] = useState(false);
 
             useEffect(() => {
                 const interval = setInterval(() => {
@@ -1244,35 +1452,62 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                 return () => clearInterval(interval);
             }, []);
 
-            // Load saved data
+            // Check for existing email
             useEffect(() => {
                 const savedEmail = localStorage.getItem('vault_user_email');
                 if (savedEmail) setUserEmail(savedEmail);
                 
-                const savedCategories = localStorage.getItem('prompt_vault_categories_used');
-                if (savedCategories) setCategoriesUsed(JSON.parse(savedCategories));
+                const savedPromptsData = localStorage.getItem('vault_saved_prompts');
+                if (savedPromptsData) setSavedPrompts(JSON.parse(savedPromptsData));
             }, []);
 
+            // Check for achievement unlock - triggers after using all 3 categories
+            useEffect(() => {
+                const uniqueCategories = Object.values(promptsGenerated).filter(c => c > 0).length;
+                
+                if (uniqueCategories >= 3 && !localStorage.getItem('vault_achievement_shown')) {
+                    setShowAchievement(true);
+                    localStorage.setItem('vault_achievement_shown', 'true');
+                }
+            }, [promptsGenerated]);
+
             const handlePromptGenerated = (category) => {
-                const newCategoriesUsed = { ...categoriesUsed, [category]: true };
-                setCategoriesUsed(newCategoriesUsed);
-                localStorage.setItem('prompt_vault_categories_used', JSON.stringify(newCategoriesUsed));
+                setPromptsGenerated(prev => ({
+                    ...prev,
+                    [category]: prev[category] + 1
+                }));
             };
 
-            const handleRequestClean = (prompt, category) => {
-                setPendingSave({ prompt, category });
-                setShowSaveModal(true);
+            const handleSavePrompt = (prompt, category) => {
+                if (!userEmail && !localStorage.getItem('vault_email_captured')) {
+                    setPendingSave({ prompt, category });
+                    setShowSaveModal(true);
+                    return;
+                }
+                
+                const newSaved = [...savedPrompts, { prompt, category, timestamp: Date.now() }];
+                setSavedPrompts(newSaved);
+                localStorage.setItem('vault_saved_prompts', JSON.stringify(newSaved));
+            };
+
+            const handleDeletePrompt = (index) => {
+                const newSaved = savedPrompts.filter((_, i) => i !== index);
+                setSavedPrompts(newSaved);
+                localStorage.setItem('vault_saved_prompts', JSON.stringify(newSaved));
             };
 
             const handleEmailSaved = (email) => {
                 setUserEmail(email);
                 setShowSaveModal(false);
-                setPendingSave(null);
+                if (pendingSave) {
+                    handleSavePrompt(pendingSave.prompt, pendingSave.category);
+                    setPendingSave(null);
+                }
             };
 
             if (locked) return <Gatekeeper onUnlock={() => setLocked(false)} />;
 
-            const totalCategories = Object.values(categoriesUsed).filter(Boolean).length;
+            const totalGenerated = Object.values(promptsGenerated).reduce((a, b) => a + b, 0);
 
             return (
                 <div className="container">
@@ -1284,14 +1519,37 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                         promptCategory={activeTab}
                     />
 
+                    {/* Achievement Banner */}
+                    <AchievementBanner 
+                        isVisible={showAchievement}
+                        promptsGenerated={totalGenerated}
+                        userName={userEmail?.split('@')[0]}
+                        onCopy={() => {}}
+                    />
+
                     {/* Header */}
                     <div className="animate-fade-in" style={{textAlign: 'center', marginBottom: '32px'}}>
                         <h1 className="gradient-text" style={{fontSize: '2.25rem', fontWeight: 800, marginBottom: '8px'}}>The Vault</h1>
                         <p style={{color: '#94a3b8', fontSize: '0.95rem'}}>AI Command Console for High Performers</p>
                     </div>
 
-                    {/* COST OF WAITING UNLOCK BANNER */}
-                    <UnlockBanner categoriesUsed={categoriesUsed} />
+                    {/* Saved Prompts Viewer - "My Vault" */}
+                    <SavedPromptsViewer 
+                        savedPrompts={savedPrompts}
+                        isOpen={vaultOpen}
+                        onToggle={() => setVaultOpen(!vaultOpen)}
+                        onDelete={handleDeletePrompt}
+                    />
+
+                    {/* Saved Counter */}
+                    {savedPrompts.length > 0 && (
+                        <div className="saved-counter">
+                            <span className="saved-counter-icon">💾</span>
+                            <span className="saved-counter-text">
+                                <span className="saved-counter-number">{savedPrompts.length}</span> prompts saved to your Vault
+                            </span>
+                        </div>
+                    )}
 
                     <div className="main-grid">
                         
@@ -1305,9 +1563,14 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                                         <button 
                                             key={tab}
                                             onClick={() => setActiveTab(tab)}
-                                            className={`nav-pill ${activeTab === tab ? 'active' : ''} ${categoriesUsed[tab] ? 'completed' : ''}`}
+                                            className={`nav-pill ${activeTab === tab ? 'active' : ''}`}
                                         >
                                             {tab} OPS
+                                            {promptsGenerated[tab] > 0 && (
+                                                <span style={{ marginLeft: '6px', fontSize: '0.7rem', opacity: 0.8 }}>
+                                                    ({promptsGenerated[tab]})
+                                                </span>
+                                            )}
                                         </button>
                                     ))}
                                 </div>
@@ -1318,28 +1581,28 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                                 {activeTab === 'CAREER' && (
                                     <CareerModule 
                                         onGenerated={() => handlePromptGenerated('CAREER')}
-                                        onRequestClean={(prompt) => handleRequestClean(prompt, 'CAREER')}
+                                        onSave={(prompt) => handleSavePrompt(prompt, 'CAREER')}
                                         hasEmail={!!userEmail}
                                     />
                                 )}
                                 {activeTab === 'VENTURE' && (
                                     <VentureModule 
                                         onGenerated={() => handlePromptGenerated('VENTURE')}
-                                        onRequestClean={(prompt) => handleRequestClean(prompt, 'VENTURE')}
+                                        onSave={(prompt) => handleSavePrompt(prompt, 'VENTURE')}
                                         hasEmail={!!userEmail}
                                     />
                                 )}
                                 {activeTab === 'WEALTH' && (
                                     <WealthModule 
                                         onGenerated={() => handlePromptGenerated('WEALTH')}
-                                        onRequestClean={(prompt) => handleRequestClean(prompt, 'WEALTH')}
+                                        onSave={(prompt) => handleSavePrompt(prompt, 'WEALTH')}
                                         hasEmail={!!userEmail}
                                     />
                                 )}
                             </div>
 
-                            {/* Bridge CTA - Strategic unlock */}
-                            <BridgeCTA category={activeTab} categoriesUsed={categoriesUsed} />
+                            {/* Bridge CTA */}
+                            <BridgeCTA category={activeTab} />
                         </div>
 
                         {/* Sidebar */}
@@ -1364,61 +1627,25 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                                 </div>
                             </div>
 
-                            {/* Progress Tracker - Unlock Status */}
+                            {/* Progress Tracker */}
                             <div className="glass-card">
-                                <h3 className="assets-label">🔓 Unlock Progress</h3>
+                                <h3 className="assets-label">Your Progress</h3>
                                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                        <span>Categories Complete:</span>
-                                        <span style={{ color: totalCategories >= 3 ? 'var(--danger)' : 'var(--accent-primary)', fontWeight: 700 }}>
-                                            {totalCategories}/3
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                        <span>Prompts Generated:</span>
+                                        <span style={{ color: 'var(--success)', fontWeight: 700 }}>{totalGenerated}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                        <span>Categories Used:</span>
+                                        <span style={{ color: 'var(--accent-primary)', fontWeight: 700 }}>
+                                            {Object.values(promptsGenerated).filter(c => c > 0).length}/3
                                         </span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-                                        {['CAREER', 'VENTURE', 'WEALTH'].map(cat => (
-                                            <div 
-                                                key={cat}
-                                                style={{
-                                                    flex: 1,
-                                                    padding: '8px',
-                                                    background: categoriesUsed[cat] ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)',
-                                                    border: `1px solid ${categoriesUsed[cat] ? 'var(--danger)' : 'var(--border)'}`,
-                                                    borderRadius: '6px',
-                                                    textAlign: 'center',
-                                                    fontSize: '0.65rem',
-                                                    fontWeight: 600,
-                                                    color: categoriesUsed[cat] ? 'var(--danger)' : 'var(--text-muted)'
-                                                }}
-                                            >
-                                                {categoriesUsed[cat] ? '✓' : ''} {cat}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    
-                                    {/* Reward Preview */}
-                                    <div style={{
-                                        background: totalCategories >= 3 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255,255,255,0.02)',
-                                        border: `1px solid ${totalCategories >= 3 ? 'var(--danger)' : 'var(--border)'}`,
-                                        borderRadius: '8px',
-                                        padding: '12px',
-                                        textAlign: 'center'
-                                    }}>
-                                        <p style={{ 
-                                            fontSize: '0.7rem', 
-                                            color: totalCategories >= 3 ? 'var(--danger)' : 'var(--text-muted)',
-                                            fontWeight: 600,
-                                            marginBottom: '4px'
-                                        }}>
-                                            {totalCategories >= 3 ? '🔓 UNLOCKED' : '🔒 LOCKED'}
-                                        </p>
-                                        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
-                                            Cost of Waiting Calculator
-                                        </p>
-                                        {totalCategories < 3 && (
-                                            <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '6px' }}>
-                                                {3 - totalCategories} more to unlock
-                                            </p>
-                                        )}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span>Achievement:</span>
+                                        <span style={{ color: showAchievement ? 'var(--gold)' : 'var(--text-muted)', fontWeight: 700 }}>
+                                            {showAchievement ? '🏆 Unlocked!' : '🔒 Use 3 categories'}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -1433,7 +1660,7 @@ Show me the math in simple terms. Give me hope, but be realistic.`
 
         // --- SUB-MODULES ---
 
-        function CareerModule({ onGenerated, onRequestClean, hasEmail }) {
+        function CareerModule({ onGenerated, onSave, hasEmail }) {
             const [mode, setMode] = useState('RESUME');
             const [inputs, setInputs] = useState({ role: '', company: '', resume: '', jobDesc: '', skills: '', reason: '' });
             
@@ -1469,7 +1696,7 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                                     data={inputs} 
                                     btnText="Generate Resume Prompt" 
                                     onGenerated={onGenerated}
-                                    onRequestClean={onRequestClean}
+                                    onSave={onSave}
                                     hasEmail={hasEmail}
                                 />
                             </>
@@ -1483,7 +1710,7 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                                     data={inputs} 
                                     btnText="Generate Email Prompt"
                                     onGenerated={onGenerated}
-                                    onRequestClean={onRequestClean}
+                                    onSave={onSave}
                                     hasEmail={hasEmail}
                                 />
                             </>
@@ -1493,7 +1720,7 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             );
         }
 
-        function VentureModule({ onGenerated, onRequestClean, hasEmail }) {
+        function VentureModule({ onGenerated, onSave, hasEmail }) {
             const [inputs, setInputs] = useState({ friendsAsk: '', easyTask: '', interests: '', problemSolved: '' });
             const requiredFields = ['friendsAsk', 'easyTask', 'interests', 'problemSolved'];
 
@@ -1516,7 +1743,7 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                             data={inputs} 
                             btnText="Analyze My Market Value"
                             onGenerated={onGenerated}
-                            onRequestClean={onRequestClean}
+                            onSave={onSave}
                             hasEmail={hasEmail}
                         />
                     </div>
@@ -1524,31 +1751,9 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             );
         }
 
-        // === WEALTH MODULE WITH NUMBER-ONLY VALIDATION ===
-        function WealthModule({ onGenerated, onRequestClean, hasEmail }) {
+        function WealthModule({ onGenerated, onSave, hasEmail }) {
             const [inputs, setInputs] = useState({ age: '', retireAge: '40', expenses: '', invested: '0', monthlyInvest: '' });
-            const [errors, setErrors] = useState({});
             const requiredFields = ['age', 'retireAge', 'expenses', 'monthlyInvest'];
-
-            const handleNumberInput = (field, value) => {
-                const numericValue = value.replace(/[^0-9]/g, '');
-                setInputs({ ...inputs, [field]: numericValue });
-                if (numericValue !== '') {
-                    setErrors(prev => ({ ...prev, [field]: false }));
-                }
-            };
-
-            const validateAll = () => {
-                const newErrors = {};
-                requiredFields.forEach(field => {
-                    const value = inputs[field];
-                    if (value === '' || isNaN(parseInt(value))) {
-                        newErrors[field] = true;
-                    }
-                });
-                setErrors(newErrors);
-                return Object.keys(newErrors).length === 0;
-            };
 
             return (
                 <div>
@@ -1560,43 +1765,13 @@ Show me the math in simple terms. Give me hope, but be realistic.`
 
                     <div className="space-y-5">
                         <div className="grid-2">
-                            <NumberInput 
-                                label="Current Age" 
-                                value={inputs.age} 
-                                onChange={v => handleNumberInput('age', v)} 
-                                placeholder="25" 
-                                error={errors.age}
-                            />
-                            <NumberInput 
-                                label="Target Retire Age" 
-                                value={inputs.retireAge} 
-                                onChange={v => handleNumberInput('retireAge', v)} 
-                                placeholder="40" 
-                                error={errors.retireAge}
-                            />
+                            <Input label="Current Age" value={inputs.age} onChange={v => setInputs({...inputs, age: v})} placeholder="25" />
+                            <Input label="Target Retire Age" value={inputs.retireAge} onChange={v => setInputs({...inputs, retireAge: v})} placeholder="40" />
                         </div>
-                        <NumberInput 
-                            label="Annual Expenses ($)" 
-                            value={inputs.expenses} 
-                            onChange={v => handleNumberInput('expenses', v)} 
-                            placeholder="50000" 
-                            error={errors.expenses}
-                        />
+                        <Input label="Annual Expenses ($)" value={inputs.expenses} onChange={v => setInputs({...inputs, expenses: v})} placeholder="50000" />
                         <div className="grid-2">
-                            <NumberInput 
-                                label="Invested Assets ($)" 
-                                value={inputs.invested} 
-                                onChange={v => handleNumberInput('invested', v)} 
-                                placeholder="10000" 
-                                error={errors.invested}
-                            />
-                            <NumberInput 
-                                label="Monthly Contrib ($)" 
-                                value={inputs.monthlyInvest} 
-                                onChange={v => handleNumberInput('monthlyInvest', v)} 
-                                placeholder="500" 
-                                error={errors.monthlyInvest}
-                            />
+                            <Input label="Invested Assets ($)" value={inputs.invested} onChange={v => setInputs({...inputs, invested: v})} placeholder="10000" />
+                            <Input label="Monthly Contrib ($)" value={inputs.monthlyInvest} onChange={v => setInputs({...inputs, monthlyInvest: v})} placeholder="500" />
                         </div>
 
                         <Generator 
@@ -1604,9 +1779,8 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                             data={inputs} 
                             btnText="Calculate My Freedom Date"
                             onGenerated={onGenerated}
-                            onRequestClean={onRequestClean}
+                            onSave={onSave}
                             hasEmail={hasEmail}
-                            validateBeforeGenerate={validateAll}
                         />
                     </div>
                 </div>
@@ -1630,24 +1804,6 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             );
         }
 
-        function NumberInput({ label, value, onChange, placeholder, error }) {
-            return (
-                <div className="input-group">
-                    <label>{label}</label>
-                    <input 
-                        type="text" 
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        value={value} 
-                        onChange={e => onChange(e.target.value)} 
-                        placeholder={placeholder}
-                        className={`premium-input ${error ? 'error' : ''}`}
-                    />
-                    <p className={`input-error-text ${error ? 'show' : ''}`}>⚠️ Numbers only</p>
-                </div>
-            );
-        }
-
         function TextArea({ label, value, onChange, placeholder }) {
             return (
                 <div className="input-group">
@@ -1663,23 +1819,20 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             );
         }
 
-        // === GENERATOR WITH WATERMARK (STATUS FRICTION) ===
-        function Generator({ template, data, btnText, onGenerated, onRequestClean, hasEmail, validateBeforeGenerate }) {
+        function Generator({ template, data, btnText, onGenerated, onSave, hasEmail }) {
             const [generated, setGenerated] = useState(null);
             const [copied, setCopied] = useState(false);
+            const [saved, setSaved] = useState(false);
             const [isProcessing, setIsProcessing] = useState(false);
             const [currentStep, setCurrentStep] = useState(0);
             const [panelOpen, setPanelOpen] = useState(true);
 
             const handleGenerate = () => {
-                if (validateBeforeGenerate && !validateBeforeGenerate()) {
-                    return;
-                }
-
                 setIsProcessing(true);
                 setGenerated(null);
                 setCurrentStep(0);
                 setPanelOpen(true);
+                setSaved(false);
 
                 const stepDuration = 600;
                 
@@ -1703,15 +1856,17 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             };
 
             const handleCopy = () => {
-                // If no email, copy includes watermark
-                const textToCopy = hasEmail ? generated : generated + PROMO_FOOTER;
-                navigator.clipboard.writeText(textToCopy);
+                // Add branding to copied text
+                const brandedText = generated + '\n\n---\nGenerated by The Vault | @koutalksmoney';
+                navigator.clipboard.writeText(brandedText);
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
             };
 
-            const handleEmailRequest = () => {
-                onRequestClean(generated);
+            const handleSave = () => {
+                onSave(generated);
+                setSaved(true);
+                setTimeout(() => setSaved(false), 2000);
             };
 
             return (
@@ -1752,38 +1907,23 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                                         onClick={handleCopy}
                                         className={`copy-btn ${copied ? 'copied' : ''}`}
                                     >
-                                        {copied ? "✓ Copied" : "Copy"}
+                                        {copied ? "✓ Copied" : "Copy to Clipboard"}
                                     </button>
                                     <button 
-                                        onClick={hasEmail ? handleCopy : handleEmailRequest}
-                                        className={`save-btn ${hasEmail ? '' : 'email-cta'}`}
+                                        onClick={handleSave}
+                                        className={`save-btn ${saved ? 'copied' : ''}`}
+                                        style={saved ? { background: 'var(--success)', borderColor: 'var(--success)', color: '#fff' } : {}}
                                     >
-                                        {hasEmail ? "💾 Save Clean" : "📧 Email Me Clean Version"}
+                                        {saved ? "✓ Saved" : "💾 Save to Vault"}
                                     </button>
                                 </div>
                             </div>
                             <div className="output-scroll">
                                 <pre className="output-code">{generated}</pre>
-                                
-                                {/* === THE WATERMARK (Status Friction) === */}
-                                {!hasEmail && (
-                                    <div className="watermark-section">
-                                        <div className="watermark-badge">
-                                            <span>🔒</span>
-                                            FREE TIER — WATERMARK ATTACHED
-                                        </div>
-                                        <div className="watermark-text">
-                                            -------------------<br/>
-                                            🔒 Generated by The Vault (FREE TIER)<br/>
-                                            ⚠️ WATERMARK ATTACHED — Remove by verifying email<br/>
-                                            📧 Get clean version: @koutalksmoney
-                                        </div>
-                                        <p style={{ marginTop: '12px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                                            ⚠️ <strong style={{ color: 'white' }}>This watermark copies with your prompt.</strong><br/>
-                                            Nobody wants to send a resume with "Generated by AI" at the bottom.
-                                        </p>
-                                    </div>
-                                )}
+                            </div>
+                            {/* OUTPUT BRANDING */}
+                            <div className="output-branding">
+                                Generated by <a href={CONFIG.LINKS.INSTAGRAM} target="_blank">The Vault</a> | @koutalksmoney
                             </div>
                         </div>
                     )}
