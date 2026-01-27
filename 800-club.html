@@ -70,7 +70,6 @@
     </script>
 
     <style>
-        /* Checkbox Styling */
         .check-box {
             appearance: none;
             background-color: transparent;
@@ -108,7 +107,6 @@
             box-shadow: inset 1em 1em #00F0FF;
         }
 
-        /* Gold Mode Override */
         .gold-mode .check-box:checked {
             border-color: #FFD700;
             background-color: rgba(255, 215, 0, 0.1);
@@ -118,7 +116,6 @@
             box-shadow: inset 1em 1em #FFD700;
         }
 
-        /* Cash Rain Animation */
         .cash-drop {
             position: fixed;
             top: -50px;
@@ -130,7 +127,6 @@
             to { transform: translateY(110vh) rotate(360deg); }
         }
 
-        /* RANK UP Flash Effect */
         .rank-flash {
             position: fixed;
             inset: 0;
@@ -202,7 +198,6 @@
                 <div class="flex justify-between items-end mb-2">
                     <div>
                         <h1 class="font-mono text-xs text-stealth-text tracking-widest uppercase">Credit Protocol</h1>
-                        <!-- PEAK-END: Animated status text on rank change -->
                         <div class="text-2xl font-black italic tracking-tighter transition-all duration-300" 
                              :class="[
                                  progress > 100 ? 'text-stealth-gold drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]' : 'text-stealth-blue drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]',
@@ -211,13 +206,11 @@
                              x-text="statusText">
                         </div>
                     </div>
-                    <!-- GOAL-GRADIENT: Score pops on change -->
                     <div class="text-3xl font-black font-mono transition-transform" 
                          :class="scorePop ? 'animate-score-pop' : ''"
                          x-text="displayProgress + '%'"></div>
                 </div>
 
-                <!-- GOAL-GRADIENT: Progress bar starts at 15% -->
                 <div class="w-full h-3 bg-stealth-card rounded-full overflow-hidden border border-stealth-border relative">
                     <div class="absolute top-0 left-0 h-full bg-stealth-blue transition-all duration-500 ease-out"
                          :style="`width: ${Math.min(100, displayProgress)}%`">
@@ -228,7 +221,6 @@
                     </div>
                 </div>
                 
-                <!-- GOAL-GRADIENT: "You showed up" message -->
                 <p class="text-[10px] text-stealth-text text-center mt-2 font-mono" x-show="progress === 0 && !onboarding">
                     You showed up. That's Step Zero. <span class="text-stealth-blue">+15%</span>
                 </p>
@@ -236,14 +228,12 @@
 
             <div class="px-4 mt-6 space-y-3 pb-40" :class="{ 'gold-mode': progress > 100 }">
                 
-                <!-- CHECKLIST ITEMS WITH CREDIT IMPACT (Operational Transparency) -->
                 <template x-for="item in items" :key="item.id">
                     <label class="flex items-center gap-4 bg-stealth-card border border-stealth-border p-4 rounded-xl cursor-pointer hover:border-stealth-blue/30 transition-colors group">
                         <input type="checkbox" x-model="item.checked" @change="onCheckChange(item)" class="check-box flex-shrink-0">
                         <div class="flex-1">
                             <div class="flex justify-between items-start">
                                 <p class="font-bold text-sm text-white group-hover:text-stealth-blue transition-colors" x-text="item.title"></p>
-                                <!-- OPERATIONAL TRANSPARENCY: Show credit impact -->
                                 <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-stealth-blue/10 text-stealth-blue" x-text="'+' + item.impact + ' pts'"></span>
                             </div>
                             <p class="text-[10px] text-stealth-text mt-0.5" x-text="item.desc"></p>
@@ -276,7 +266,7 @@
                             <span class="text-2xl animate-bounce">🔒</span>
                             <div class="text-center">
                                 <p class="text-xs font-black text-stealth-gold uppercase tracking-widest">
-                                    Level 2: Wealth Mode
+                                    Level 2: The Budget Layer
                                 </p>
                                 <p class="text-white/50 text-[10px] font-mono mt-1">
                                     [ACCESS RESTRICTED]
@@ -313,13 +303,15 @@
                class="flex items-center justify-center gap-3 w-full max-w-lg mx-auto py-4 rounded-xl font-black uppercase text-center transition-all duration-500">
                
                <span x-text="displayProgress >= 70 ? '🔓' : '🔒'"></span>
-               <span x-text="displayProgress >= 70 ? 'UNLOCK LEVEL 2: WEALTH MODE' : 'LEVEL 2 LOCKED (REACH 70%)'"></span>
+               <span x-text="displayProgress >= 70 ? 'UNLOCK LEVEL 2: THE BUDGET LAYER' : 'LEVEL 2 LOCKED (REACH 70%)'"></span>
                
             </button>
             
         </div>
 
-        <!-- MODAL WITH "WHAT HAPPENS NEXT" (Uncertainty Anxiety) -->
+        <!-- ============================================== -->
+        <!-- REFRAMED EMAIL GATE: 800 CLUB → BUDGET CALCULATOR -->
+        <!-- ============================================== -->
         <div x-cloak x-show="showModal" 
              class="fixed inset-0 z-[70] flex items-center justify-center p-3"
              x-transition:enter="transition ease-out duration-300"
@@ -343,23 +335,27 @@
                     </svg>
                 </button>
 
+                <!-- REFRAMED HEADLINE -->
                 <div class="text-center mb-2">
                     <h2 class="text-xl sm:text-2xl font-black uppercase text-stealth-gold tracking-tight drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]">
-                        🎮 PROTOCOL COMPLETE
+                        💰 CREDIT COMPLETE
                     </h2>
-                    <p class="text-stealth-blue font-mono text-xs mt-1 uppercase tracking-widest">Initiate Level 2</p>
+                    <p class="text-stealth-blue font-mono text-[10px] mt-1 uppercase tracking-widest">
+                        Phase 1 Done → Phase 2: Budget Allocation
+                    </p>
                 </div>
 
+                <!-- REFRAMED SUBHEAD -->
                 <div class="text-center mb-3 px-2">
                     <p class="text-xs text-gray-300 leading-relaxed">
                         You just proved you can execute. <span class="text-white font-semibold">Most quit at Step 3. You didn't.</span>
                     </p>
                     <p class="text-xs text-gray-400 mt-2 leading-relaxed">
-                        Level 2: The Autopilot Architecture Map. The system that turns your credit score into <span class="text-stealth-gold font-bold">leverage</span>.
+                        Your credit score is your <span class="text-stealth-blue font-bold">reputation</span>. But reputation without cash flow is useless. The Budget Calculator shows you exactly where every dollar of your income should go—the <span class="text-stealth-gold font-bold">70/20/10 split</span> that builds wealth.
                     </p>
                 </div>
 
-                <!-- UNCERTAINTY ANXIETY: What Happens Next Roadmap -->
+                <!-- REFRAMED ROADMAP: Email → Budget → Automate -->
                 <div class="bg-black/50 border border-stealth-border rounded-lg p-3 mb-3 mx-2">
                     <p class="text-[10px] text-stealth-text uppercase tracking-widest mb-2 text-center">What Happens Next:</p>
                     <div class="flex items-center gap-2 text-[10px]">
@@ -370,18 +366,19 @@
                         <div class="flex-1 h-px bg-stealth-border"></div>
                         <div class="flex flex-col items-center">
                             <div class="w-6 h-6 rounded-full bg-stealth-blue/20 border border-stealth-blue flex items-center justify-center text-stealth-blue font-bold">2</div>
-                            <span class="text-gray-500 mt-1">Instant</span>
+                            <span class="text-gray-500 mt-1">Budget</span>
                         </div>
                         <div class="flex-1 h-px bg-stealth-border"></div>
                         <div class="flex flex-col items-center">
                             <div class="w-6 h-6 rounded-full bg-stealth-text/20 border border-stealth-text flex items-center justify-center text-stealth-text font-bold">3</div>
-                            <span class="text-gray-500 mt-1">Execute</span>
+                            <span class="text-gray-500 mt-1">Automate</span>
                         </div>
                     </div>
                 </div>
 
+                <!-- BEEHIIV EMBED - REPLACE WITH YOUR FORM ID -->
                 <div class="flex justify-center -mx-1" style="min-height: 400px;">
-                    <iframe src="https://subscribe-forms.beehiiv.com/90d138cb-47b1-4e1c-a5e2-ffd2119b2021" 
+                    <iframe src="https://subscribe-forms.beehiiv.com/YOUR_800_CLUB_FORM_ID" 
                             class="beehiiv-embed" 
                             data-test-id="beehiiv-embed" 
                             frameborder="0" 
@@ -389,9 +386,10 @@
                             style="width: 100%; max-width: 420px; height: 400px; margin: 0; border-radius: 12px; background-color: transparent; box-shadow: 0 0 #0000;"></iframe>
                 </div>
 
+                <!-- REFRAMED TRUST LINE -->
                 <div class="text-center mt-2">
                     <p class="text-[10px] sm:text-xs text-gray-500 font-mono tracking-wide">
-                        Instant access. No course. Just the next protocol.
+                        Instant access. Your personalized 70/20/10 split. Zero spam.
                     </p>
                 </div>
             </div>
@@ -405,16 +403,13 @@
                 onboarding: true,
                 showModal: false,
                 
-                // PEAK-END: Flash effects
                 showRankFlash: false,
                 rankFlashGold: false,
                 statusAnimating: false,
                 scorePop: false,
                 
-                // Track previous status for rank-up detection
                 previousStatus: 'GHOST',
                 
-                // OPERATIONAL TRANSPARENCY: Credit impact per step (equal weight)
                 items: [
                     { id: 1, title: 'The Spy', desc: 'Download Credit Karma / Experian app.', checked: false, impact: 10 },
                     { id: 2, title: 'The Safety', desc: 'Turn on "Autopay" (Minimum Balance).', checked: false, impact: 10 },
@@ -429,15 +424,15 @@
                 ],
                 bonus: { id: 11, title: 'The Piggyback', desc: 'Become Authorized User on parent\'s card (750+).', checked: false, impact: 10 },
                 
+                // REFRAMED: Level 2 preview now hints at budget
                 lockedItems: [
-                    { title: 'The LLC Structuring', desc: 'Separate personal liability from assets.' },
-                    { title: 'Business Credit Lines', desc: 'Access $50k+ in non-personal funding.' },
-                    { title: 'The Amex Trifecta', desc: 'Maximize points for free travel.' }
+                    { title: 'The 70% Rule', desc: 'Cap your spending at 70% of income.' },
+                    { title: 'The 20% Engine', desc: 'Auto-invest 20% before you see it.' },
+                    { title: 'The 10% Safety', desc: 'Emergency fund that saves itself.' }
                 ],
 
                 celebrated: false,
 
-                // Raw progress (0-110)
                 get progress() {
                     let score = this.items.filter(i => i.checked).length * 10;
                     if (this.bonus.checked) score += 10;
@@ -451,7 +446,6 @@
                     return score;
                 },
 
-                // GOAL-GRADIENT: Display progress starts at 15%
                 get displayProgress() {
                     return this.progress + 15;
                 },
@@ -465,13 +459,10 @@
                     return "STATUS: GHOST";
                 },
 
-                // PEAK-END: Trigger rank-up animation on status change
                 onCheckChange(item) {
-                    // Trigger score pop
                     this.scorePop = true;
                     setTimeout(() => this.scorePop = false, 300);
                     
-                    // Check for rank change
                     const newStatus = this.statusText;
                     if (newStatus !== this.previousStatus) {
                         this.triggerRankUp(newStatus);
@@ -480,12 +471,10 @@
                 },
 
                 triggerRankUp(newStatus) {
-                    // Flash effect
                     this.rankFlashGold = newStatus.includes('GOD') || newStatus.includes('BOSS');
                     this.showRankFlash = true;
                     setTimeout(() => this.showRankFlash = false, 500);
                     
-                    // Status text animation
                     this.statusAnimating = true;
                     setTimeout(() => this.statusAnimating = false, 600);
                 },
