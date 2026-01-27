@@ -240,6 +240,17 @@
         .timer-pulse {
             animation: timerPulse 1s ease-in-out infinite;
         }
+
+        /* === MONEY CONFETTI CANVAS === */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
         
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
@@ -250,9 +261,125 @@
 </head>
 <body>
     <div id="root"></div>
+    <canvas id="confetti-canvas"></canvas>
 
     <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
+        const { useState, useEffect, useMemo, useRef } = React;
+
+        // === MONEY CONFETTI ENGINE ===
+        const MoneyConfetti = {
+            canvas: null,
+            ctx: null,
+            particles: [],
+            isRunning: false,
+            
+            init() {
+                this.canvas = document.getElementById('confetti-canvas');
+                if (!this.canvas) return;
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+            },
+            
+            resize() {
+                if (!this.canvas) return;
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            },
+            
+            createParticle() {
+                const types = ['$', '💵', '💰', '🪙', '💲', '🤑', '$', '$', '💵', '🪙'];
+                const colors = ['#22c55e', '#16a34a', '#fbbf24', '#f59e0b', '#4ade80', '#86efac'];
+                
+                return {
+                    x: Math.random() * this.canvas.width,
+                    y: -50,
+                    type: types[Math.floor(Math.random() * types.length)],
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: Math.random() * 20 + 16,
+                    speedY: Math.random() * 3 + 2,
+                    speedX: (Math.random() - 0.5) * 4,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: (Math.random() - 0.5) * 10,
+                    opacity: 1,
+                    wobble: Math.random() * 10,
+                    wobbleSpeed: Math.random() * 0.1 + 0.05
+                };
+            },
+            
+            launch(duration = 4000, intensity = 60) {
+                if (this.isRunning) return;
+                this.isRunning = true;
+                this.particles = [];
+                
+                const startTime = Date.now();
+                const spawnInterval = setInterval(() => {
+                    if (Date.now() - startTime > duration * 0.7) {
+                        clearInterval(spawnInterval);
+                        return;
+                    }
+                    for (let i = 0; i < intensity / 10; i++) {
+                        this.particles.push(this.createParticle());
+                    }
+                }, 100);
+                
+                const animate = () => {
+                    if (!this.ctx) return;
+                    
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    
+                    this.particles = this.particles.filter(p => {
+                        p.y += p.speedY;
+                        p.x += p.speedX + Math.sin(p.wobble) * 0.5;
+                        p.rotation += p.rotationSpeed;
+                        p.wobble += p.wobbleSpeed;
+                        
+                        if (p.y > this.canvas.height - 100) {
+                            p.opacity -= 0.02;
+                        }
+                        
+                        if (p.opacity <= 0 || p.y > this.canvas.height + 50) {
+                            return false;
+                        }
+                        
+                        this.ctx.save();
+                        this.ctx.translate(p.x, p.y);
+                        this.ctx.rotate(p.rotation * Math.PI / 180);
+                        this.ctx.globalAlpha = p.opacity;
+                        this.ctx.font = `${p.size}px Arial`;
+                        this.ctx.textAlign = 'center';
+                        this.ctx.textBaseline = 'middle';
+                        
+                        // Add glow effect for $ symbols
+                        if (p.type === '$' || p.type === '💲') {
+                            this.ctx.shadowColor = p.color;
+                            this.ctx.shadowBlur = 10;
+                            this.ctx.fillStyle = p.color;
+                            this.ctx.fillText(p.type, 0, 0);
+                        } else {
+                            this.ctx.fillText(p.type, 0, 0);
+                        }
+                        
+                        this.ctx.restore();
+                        return true;
+                    });
+                    
+                    if (this.particles.length > 0 || Date.now() - startTime < duration) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        this.isRunning = false;
+                        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    }
+                };
+                
+                animate();
+            }
+        };
+
+        // Initialize confetti on load
+        if (typeof window !== 'undefined') {
+            window.addEventListener('load', () => MoneyConfetti.init());
+        }
 
         // --- RUTHLESS CONFIGURATION ---
         const CONFIG = {
@@ -832,12 +959,11 @@
             const [email, setEmail] = useState(userData.userEmail || '');
             const [isSubmitting, setIsSubmitting] = useState(false);
             const [error, setError] = useState('');
-            const [countdown, setCountdown] = useState(300); // 5 minute countdown for urgency
+            const [countdown, setCountdown] = useState(300);
             
             const projectedWealth = ((userData.income * 0.2) * ((Math.pow(1.10/12, 30*12)-1)/(0.10/12))).toLocaleString(undefined, {maximumFractionDigits:0});
-            const timeInvested = "5+ minutes"; // Approximate time spent configuring
+            const timeInvested = "5+ minutes";
 
-            // Countdown timer for urgency
             useEffect(() => {
                 const timer = setInterval(() => {
                     setCountdown(prev => prev > 0 ? prev - 1 : 0);
@@ -926,7 +1052,6 @@
                 <div className="terminal-box p-8 rounded-sm animate-fade-in danger-glow" style={{ borderColor: '#ef4444', borderWidth: '2px' }}>
                     <div className="text-center space-y-6">
                         
-                        {/* === THE KILL SWITCH BADGE (Loss Aversion) === */}
                         <div className="mb-4">
                             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-900/30 border border-red-500 text-red-500 text-xs font-bold uppercase tracking-widest danger-pulse">
                                 <span>⚠️</span>
@@ -934,7 +1059,6 @@
                             </div>
                         </div>
 
-                        {/* === THE DATA LOSS THREAT === */}
                         <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-lg p-6 border border-red-500/50 relative overflow-hidden">
                             <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">Session Status:</p>
                             <div className="relative z-10">
@@ -951,14 +1075,12 @@
                                 </div>
                             </div>
                             
-                            {/* Countdown urgency */}
                             <div className="mt-4 text-center">
                                 <p className="text-gray-500 text-[10px] uppercase tracking-widest">Session expires in</p>
                                 <p className="text-red-500 text-xl font-mono font-bold timer-pulse">{formatCountdown(countdown)}</p>
                             </div>
                         </div>
 
-                        {/* What they're about to lose */}
                         <div className="bg-black border border-gray-800 p-4 rounded text-left">
                             <p className="text-red-400 text-xs font-bold uppercase tracking-widest mb-3">🗑️ You will lose:</p>
                             <ul className="space-y-2 text-sm text-gray-300">
@@ -984,7 +1106,6 @@
                             </p>
                         </div>
 
-                        {/* The Save Gate */}
                         <div className="space-y-4 pt-2">
                             <div>
                                 <h2 className="text-xl font-bold text-white mb-2">SAVE TO CLOUD</h2>
@@ -1028,7 +1149,6 @@
                                 </button>
                             </div>
 
-                            {/* Trust signals */}
                             <div className="flex items-center justify-center gap-4 text-[10px] text-gray-500 pt-2">
                                 <span className="flex items-center gap-1">
                                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -1041,7 +1161,6 @@
                             </div>
                         </div>
 
-                        {/* What they get */}
                         <div className="border-t border-gray-800 pt-4 mt-4 text-left">
                             <p className="text-xs text-green-500 uppercase tracking-widest mb-3">✅ After saving:</p>
                             <ul className="space-y-2 text-sm text-gray-300">
@@ -1064,17 +1183,30 @@
             );
         }
 
-        // === CERTIFICATE MODULE ===
+        // === CERTIFICATE MODULE WITH MONEY CONFETTI ===
         function ModuleCertificate({ userData, theme, architectId }) {
             const [copiedPlatform, setCopiedPlatform] = useState(null);
             const [revealed, setRevealed] = useState(false);
             const [countdown, setCountdown] = useState(24 * 60 * 60);
+            const confettiLaunched = useRef(false);
             
             const monthlyInvest = (userData.income * 0.2).toFixed(0);
             const projectedWealth = (monthlyInvest * ((Math.pow(1.10/12, 30*12)-1)/(0.10/12))).toLocaleString(undefined, {maximumFractionDigits:0});
 
+            // PEAK MOMENT: Launch money confetti on certificate reveal
             useEffect(() => {
-                const timer = setTimeout(() => setRevealed(true), 100);
+                const timer = setTimeout(() => {
+                    setRevealed(true);
+                    
+                    // Launch confetti at the PEAK moment (certificate reveal)
+                    if (!confettiLaunched.current) {
+                        confettiLaunched.current = true;
+                        // Small delay to let certificate animation start
+                        setTimeout(() => {
+                            MoneyConfetti.launch(5000, 80); // 5 seconds, high intensity
+                        }, 200);
+                    }
+                }, 100);
                 return () => clearTimeout(timer);
             }, []);
 
