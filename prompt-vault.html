@@ -21,6 +21,7 @@
             --gold: #fbbf24;
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
+            --text-muted: #64748b;
             --border: #2a3150;
         }
 
@@ -183,8 +184,8 @@
         .progress-percent {
             font-size: 0.8rem;
             font-weight: 700;
-            color: var(--accent-primary);
             font-family: 'JetBrains Mono', monospace;
+            transition: color 0.3s;
         }
         .progress-bar-track {
             height: 6px;
@@ -194,9 +195,8 @@
         }
         .progress-bar-fill {
             height: 100%;
-            background: var(--accent-gradient);
             border-radius: 3px;
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
             position: relative;
         }
         .progress-bar-fill::after {
@@ -291,7 +291,126 @@
         }
         .transparency-step.active .step-text { color: var(--text-primary); }
 
-        /* === PEAK-END GLOW EFFECT === */
+        /* === BLUR GATE OVERLAY === */
+        .blur-gate-container {
+            position: relative;
+            margin-top: 20px;
+        }
+        .blur-gate-preview {
+            background: #0f1221;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .blur-gate-visible {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            word-break: break-word;
+            margin-bottom: 12px;
+        }
+        .blur-gate-blurred {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            word-break: break-word;
+            filter: blur(8px);
+            user-select: none;
+            pointer-events: none;
+        }
+        .blur-gate-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to bottom, transparent 0%, rgba(10, 14, 39, 0.9) 30%, rgba(10, 14, 39, 0.98) 100%);
+            padding: 60px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .blur-gate-lock {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+        .blur-gate-title {
+            color: var(--gold);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .blur-gate-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 16px;
+            max-width: 280px;
+        }
+        .blur-gate-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 14px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            text-align: center;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+        .blur-gate-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+        }
+        .blur-gate-input.error { border-color: #ef4444; }
+        .blur-gate-error {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-bottom: 8px;
+        }
+        .blur-gate-btn {
+            width: 100%;
+            max-width: 300px;
+            background: linear-gradient(135deg, var(--gold) 0%, #f59e0b 100%);
+            color: #000;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .blur-gate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
+        }
+        .blur-gate-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        .blur-gate-trust {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 12px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        /* === UNLOCKED OUTPUT === */
         .output-box {
             background: #0f1221;
             border: 1px solid var(--success);
@@ -329,24 +448,6 @@
             word-break: break-word;
         }
 
-        /* === OUTPUT BRANDING WATERMARK === */
-        .output-branding {
-            margin-top: 16px;
-            padding-top: 12px;
-            border-top: 1px dashed var(--border);
-            text-align: right;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .output-branding a {
-            color: var(--accent-primary);
-            text-decoration: none;
-        }
-        .output-branding a:hover {
-            text-decoration: underline;
-        }
-
         /* === LOADING STATE === */
         .loading-container { text-align: center; padding: 30px 20px; }
         .loading-spinner {
@@ -370,116 +471,215 @@
             color: var(--text-secondary);
         }
 
-        /* === SAVE TO LIBRARY MODAL === */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(10, 14, 39, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .modal-overlay.show { display: flex; }
-        
-        .modal-card {
-            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(21, 25, 51, 0.95) 100%);
-            border: 2px solid var(--accent-primary);
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 450px;
-            width: 100%;
-            text-align: center;
-            animation: modalReveal 0.4s ease;
-            box-shadow: 0 0 60px rgba(99, 102, 241, 0.3);
-        }
-        @keyframes modalReveal {
-            from { opacity: 0; transform: scale(0.9) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        
-        .modal-icon { font-size: 3rem; margin-bottom: 20px; }
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--text-primary);
-            margin-bottom: 10px;
-        }
-        .modal-subtitle {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
+        /* === THE VAULT (PRIMARY) === */
+        .vault-container {
             margin-bottom: 25px;
-            line-height: 1.5;
+            transition: all 0.3s ease;
         }
-        .modal-input {
-            width: 100%;
-            padding: 16px;
-            background: var(--bg-primary);
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            text-align: center;
-            margin-bottom: 15px;
+        .vault-card {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(245, 158, 11, 0.04) 100%);
+            border: 2px solid rgba(251, 191, 36, 0.3);
+            border-radius: 20px;
+            overflow: hidden;
             transition: all 0.3s;
         }
-        .modal-input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        .vault-card.expanded {
+            border-color: rgba(251, 191, 36, 0.5);
+            box-shadow: 0 0 40px rgba(251, 191, 36, 0.15);
         }
-        .modal-input.error { border-color: #ef4444; }
-        .modal-error {
-            color: #ef4444;
-            font-size: 0.8rem;
-            margin-bottom: 10px;
-            display: none;
-        }
-        .modal-btn {
-            width: 100%;
-            background: var(--accent-gradient);
-            color: white;
-            padding: 16px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 700;
+        .vault-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
             cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.3s;
+            transition: background 0.3s;
+        }
+        .vault-header:hover { background: rgba(251, 191, 36, 0.05); }
+        .vault-header-left {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            gap: 14px;
         }
-        .modal-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+        .vault-icon {
+            font-size: 1.8rem;
         }
-        .modal-btn:disabled { opacity: 0.7; cursor: not-allowed; }
-        .modal-trust {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
+        .vault-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--gold);
+            margin: 0;
+        }
+        .vault-subtitle {
             font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        .vault-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: var(--gold);
+            font-weight: 700;
+        }
+        .vault-toggle {
+            color: var(--gold);
+            font-size: 0.9rem;
+            transition: transform 0.3s;
+        }
+        .vault-toggle.open { transform: rotate(180deg); }
+        .vault-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        .vault-content.open {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .vault-content-inner {
+            padding: 0 24px 24px;
+        }
+        .vault-empty {
+            text-align: center;
+            padding: 40px 20px;
             color: var(--text-muted);
         }
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
+        .vault-empty-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5; }
+        .vault-empty-text { font-size: 0.9rem; margin-bottom: 8px; }
+        .vault-empty-hint { font-size: 0.75rem; }
+
+        /* === VAULT PROMPT CARDS === */
+        .vault-prompt-card {
+            background: rgba(10, 14, 39, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+        .vault-prompt-card:hover {
+            border-color: rgba(251, 191, 36, 0.3);
+        }
+        .vault-prompt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .vault-prompt-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .vault-prompt-category {
+            font-size: 0.65rem;
+            padding: 4px 10px;
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+        .vault-prompt-time {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+        .vault-prompt-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .vault-prompt-btn {
+            padding: 5px 10px;
+            font-size: 0.65rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .vault-prompt-btn:hover {
+            border-color: var(--accent-primary);
+            color: white;
+        }
+        .vault-prompt-btn.copied {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        .vault-prompt-btn.delete:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        .vault-prompt-preview {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.5;
+            cursor: pointer;
+            transition: max-height 0.3s;
+        }
+        .vault-prompt-expand {
+            font-size: 0.7rem;
+            color: var(--accent-primary);
+            font-weight: 600;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
+        /* === VAULT POINTER NOTIFICATION === */
+        .vault-pointer {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--success);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: pointerPulse 2s ease-in-out infinite, fadeSlideIn 0.5s ease;
+        }
+        @keyframes pointerPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 20px 4px rgba(16, 185, 129, 0.2); }
+        }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .vault-pointer-icon { font-size: 1.5rem; }
+        .vault-pointer-text {
+            flex: 1;
+        }
+        .vault-pointer-title {
+            color: var(--success);
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .vault-pointer-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+        .vault-pointer-dismiss {
             background: none;
             border: none;
-            color: var(--text-secondary);
-            font-size: 1.5rem;
+            color: var(--text-muted);
             cursor: pointer;
-            padding: 5px;
+            font-size: 1.2rem;
+            padding: 4px;
             line-height: 1;
         }
-        .modal-close:hover { color: white; }
+        .vault-pointer-dismiss:hover { color: white; }
 
         /* === ACHIEVEMENT/CERTIFICATE === */
         .achievement-banner {
@@ -607,69 +807,6 @@
         .achievement-share-btn.copy.copied {
             background: var(--success);
             border-color: var(--success);
-        }
-
-        /* === BRIDGE CTA === */
-        .bridge-cta {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 211, 153, 0.05) 100%);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-            text-align: center;
-        }
-        .bridge-cta h4 {
-            color: var(--success);
-            font-size: 0.9rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .bridge-cta p {
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            margin-bottom: 15px;
-        }
-        .bridge-cta-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--success);
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        .bridge-cta-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
-        }
-
-        /* === SAVED PROMPTS COUNTER === */
-        .saved-counter {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 10px 16px;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .saved-counter-icon { font-size: 1rem; }
-        .saved-counter-text {
-            font-size: 0.8rem;
-            color: var(--success);
-            font-weight: 600;
-        }
-        .saved-counter-number {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
         }
 
         /* === GRID LAYOUTS === */
@@ -842,16 +979,13 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
         // --- CONFIGURATION ---
         const CONFIG = {
             BEEHIIV_MOCK_MODE: true,
             BEEHIIV_FORM_URL: "https://embeds.beehiiv.com/YOUR_EMBED_ID",
             LINKS: {
-                FREEDOM_CALCULATOR: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html",
-                INVESTMENT_SIMPLIFIER: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html",
-                AUTOPILOT_SYSTEM: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html",
                 INSTAGRAM: "https://instagram.com/koutalksmoney",
                 CHATGPT: "https://chat.openai.com"
             }
@@ -918,28 +1052,6 @@ Calculate:
 Show me the math in simple terms. Give me hope, but be realistic.`
         };
 
-        // --- BRIDGE CTAs BY CATEGORY ---
-        const BRIDGE_CTAS = {
-            CAREER: {
-                title: "💼 Master Your Career Path",
-                subtitle: "Now calculate when you'll be financially free from your job",
-                link: CONFIG.LINKS.FREEDOM_CALCULATOR,
-                btnText: "Calculate Freedom Date →"
-            },
-            VENTURE: {
-                title: "🚀 Automate Your First $500/Month",
-                subtitle: "Turn your side hustle income into an automated wealth machine",
-                link: CONFIG.LINKS.AUTOPILOT_SYSTEM,
-                btnText: "Install Autopilot System →"
-            },
-            WEALTH: {
-                title: "📈 Build Your Portfolio",
-                subtitle: "Now invest that money with the right ETF allocation",
-                link: CONFIG.LINKS.INVESTMENT_SIMPLIFIER,
-                btnText: "Design My Portfolio →"
-            }
-        };
-
         const TIPS = [
             "💡 Pro Tip: Be specific. Vague input = Vague output.",
             "💡 Pro Tip: Treat AI like an intern. Give it examples.",
@@ -954,6 +1066,24 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             { id: 4, text: "Formatting output for ChatGPT..." },
             { id: 5, text: "Finalizing your custom prompt..." }
         ];
+
+        const CATEGORY_LABELS = {
+            'CAREER': '💼 Career',
+            'VENTURE': '🚀 Venture', 
+            'WEALTH': '💰 Wealth'
+        };
+
+        // --- HELPER FUNCTIONS ---
+        function getTimeAgo(timestamp) {
+            const seconds = Math.floor((Date.now() - timestamp) / 1000);
+            if (seconds < 60) return 'Just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
 
         // --- COMPONENTS ---
 
@@ -994,252 +1124,105 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             );
         }
 
-        // --- SAVE TO LIBRARY MODAL ---
-        function SaveModal({ isOpen, onClose, onSave, promptCategory }) {
-            const [email, setEmail] = useState('');
-            const [isSubmitting, setIsSubmitting] = useState(false);
-            const [error, setError] = useState('');
-
-            const handleSubmit = async () => {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    setError('Please enter a valid email address');
-                    return;
-                }
-
-                setIsSubmitting(true);
-                setError('');
-
-                if (CONFIG.BEEHIIV_MOCK_MODE) {
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                } else {
-                    try {
-                        await fetch(CONFIG.BEEHIIV_FORM_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                email: email,
-                                utm_source: 'prompt_vault',
-                                utm_medium: 'save_to_library',
-                                utm_campaign: promptCategory
-                            })
-                        });
-                    } catch (err) {
-                        console.error('Beehiiv error:', err);
-                    }
-                }
-
-                localStorage.setItem('vault_user_email', email);
-                localStorage.setItem('vault_email_captured', 'true');
-                setIsSubmitting(false);
-                onSave(email);
-            };
-
-            if (!isOpen) return null;
+        // --- THE VAULT (PRIMARY COMPONENT) ---
+        function TheVault({ savedPrompts, isOpen, onToggle, onDelete, onCopy, userEmail }) {
+            const isEmpty = savedPrompts.length === 0;
 
             return (
-                <div className="modal-overlay show">
-                    <div className="modal-card" style={{ position: 'relative' }}>
-                        <button className="modal-close" onClick={onClose}>×</button>
-                        <div className="modal-icon">💾</div>
-                        <h2 className="modal-title">Save to My Vault</h2>
-                        <p className="modal-subtitle">
-                            Create your free Vault to save prompts across sessions. 
-                            Never lose your custom prompts again.
-                        </p>
-                        <input
-                            type="email"
-                            className={`modal-input ${error ? 'error' : ''}`}
-                            placeholder="your@email.com"
-                            value={email}
-                            onChange={(e) => { setEmail(e.target.value); setError(''); }}
-                            disabled={isSubmitting}
-                        />
-                        <p className="modal-error" style={{ display: error ? 'block' : 'none' }}>{error}</p>
-                        <button
-                            className="modal-btn"
-                            onClick={handleSubmit}
-                            disabled={!email || isSubmitting}
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <span className="loading-spinner" style={{ width: '20px', height: '20px', margin: 0 }}></span>
-                                    <span>Creating Vault...</span>
-                                </>
-                            ) : (
-                                '[ Create My Vault ]'
-                            )}
-                        </button>
-                        <div className="modal-trust">
-                            <span>🔒 Secure</span>
-                            <span>•</span>
-                            <span>No spam</span>
-                            <span>•</span>
-                            <span>Unsubscribe anytime</span>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-
-        // --- SAVED PROMPTS VIEWER (Access "The Vault") ---
-        function SavedPromptsViewer({ savedPrompts, isOpen, onToggle, onDelete }) {
-            if (savedPrompts.length === 0) return null;
-
-            const categoryLabels = {
-                'CAREER': '💼 Career',
-                'VENTURE': '🚀 Venture', 
-                'WEALTH': '💰 Wealth'
-            };
-
-            const handleCopy = (prompt, index) => {
-                navigator.clipboard.writeText(prompt);
-                // Visual feedback handled by individual button state
-            };
-
-            return (
-                <div className="glass-card" style={{ marginBottom: '25px' }}>
-                    <div 
-                        onClick={onToggle}
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            cursor: 'pointer',
-                            paddingBottom: isOpen ? '16px' : '0',
-                            borderBottom: isOpen ? '1px solid var(--border)' : 'none',
-                            marginBottom: isOpen ? '16px' : '0'
-                        }}
-                    >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ fontSize: '1.25rem' }}>🗄️</span>
-                            <div>
-                                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--gold)', margin: 0 }}>
-                                    My Vault
-                                </h3>
-                                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
-                                    {savedPrompts.length} saved prompt{savedPrompts.length !== 1 ? 's' : ''}
-                                </p>
+                <div className="vault-container">
+                    <div className={`vault-card ${isOpen ? 'expanded' : ''}`}>
+                        <div className="vault-header" onClick={onToggle}>
+                            <div className="vault-header-left">
+                                <span className="vault-icon">🗄️</span>
+                                <div>
+                                    <h2 className="vault-title">MY VAULT</h2>
+                                    <p className="vault-subtitle">
+                                        {isEmpty 
+                                            ? 'Generate prompts below to fill your vault' 
+                                            : `${savedPrompts.length} prompt${savedPrompts.length !== 1 ? 's' : ''} saved`
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                {!isEmpty && (
+                                    <div className="vault-badge">
+                                        <span>💾</span>
+                                        <span>{savedPrompts.length}</span>
+                                    </div>
+                                )}
+                                <span className={`vault-toggle ${isOpen ? 'open' : ''}`}>▼</span>
                             </div>
                         </div>
-                        <span style={{ 
-                            color: 'var(--text-secondary)', 
-                            fontSize: '0.8rem',
-                            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                            transition: 'transform 0.3s'
-                        }}>▼</span>
-                    </div>
 
-                    {isOpen && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {savedPrompts.map((item, index) => (
-                                <SavedPromptCard 
-                                    key={index}
-                                    item={item}
-                                    index={index}
-                                    categoryLabel={categoryLabels[item.category] || item.category}
-                                    onCopy={() => handleCopy(item.prompt, index)}
-                                    onDelete={() => onDelete(index)}
-                                />
-                            ))}
+                        <div className={`vault-content ${isOpen ? 'open' : ''}`}>
+                            <div className="vault-content-inner">
+                                {isEmpty ? (
+                                    <div className="vault-empty">
+                                        <div className="vault-empty-icon">📭</div>
+                                        <p className="vault-empty-text">Your vault is empty</p>
+                                        <p className="vault-empty-hint">Generate a prompt below and unlock it with your email to save it here</p>
+                                    </div>
+                                ) : (
+                                    savedPrompts.map((item, index) => (
+                                        <VaultPromptCard 
+                                            key={index}
+                                            item={item}
+                                            index={index}
+                                            onCopy={() => onCopy(item.prompt)}
+                                            onDelete={() => onDelete(index)}
+                                        />
+                                    ))
+                                )}
+                            </div>
                         </div>
-                    )}
+                    </div>
                 </div>
             );
         }
 
-        function SavedPromptCard({ item, index, categoryLabel, onCopy, onDelete }) {
+        function VaultPromptCard({ item, index, onCopy, onDelete }) {
             const [copied, setCopied] = useState(false);
             const [expanded, setExpanded] = useState(false);
 
-            const handleCopy = () => {
-                navigator.clipboard.writeText(item.prompt + '\n\n---\nGenerated by The Vault | @koutalksmoney');
+            const handleCopy = (e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(item.prompt);
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
             };
 
-            const preview = item.prompt.substring(0, 100) + (item.prompt.length > 100 ? '...' : '');
-            const timeAgo = getTimeAgo(item.timestamp);
+            const preview = item.prompt.substring(0, 120) + (item.prompt.length > 120 ? '...' : '');
 
             return (
-                <div style={{
-                    background: 'rgba(10, 14, 39, 0.6)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '10px',
-                    padding: '14px',
-                    transition: 'all 0.2s'
-                }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{
-                                fontSize: '0.65rem',
-                                padding: '4px 8px',
-                                background: 'rgba(99, 102, 241, 0.2)',
-                                border: '1px solid rgba(99, 102, 241, 0.3)',
-                                borderRadius: '12px',
-                                color: 'var(--accent-primary)',
-                                fontWeight: 600
-                            }}>{categoryLabel}</span>
-                            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{timeAgo}</span>
+                <div className="vault-prompt-card">
+                    <div className="vault-prompt-header">
+                        <div className="vault-prompt-meta">
+                            <span className="vault-prompt-category">{CATEGORY_LABELS[item.category] || item.category}</span>
+                            <span className="vault-prompt-time">{getTimeAgo(item.timestamp)}</span>
                         </div>
-                        <div style={{ display: 'flex', gap: '6px' }}>
+                        <div className="vault-prompt-actions">
                             <button 
                                 onClick={handleCopy}
-                                style={{
-                                    padding: '4px 10px',
-                                    fontSize: '0.65rem',
-                                    background: copied ? 'var(--success)' : 'transparent',
-                                    border: `1px solid ${copied ? 'var(--success)' : 'var(--border)'}`,
-                                    borderRadius: '4px',
-                                    color: copied ? '#fff' : 'var(--text-secondary)',
-                                    cursor: 'pointer',
-                                    fontWeight: 600
-                                }}
+                                className={`vault-prompt-btn ${copied ? 'copied' : ''}`}
                             >
-                                {copied ? '✓' : '📋'}
+                                {copied ? '✓' : '📋 Copy'}
                             </button>
                             <button 
-                                onClick={onDelete}
-                                style={{
-                                    padding: '4px 10px',
-                                    fontSize: '0.65rem',
-                                    background: 'transparent',
-                                    border: '1px solid var(--border)',
-                                    borderRadius: '4px',
-                                    color: 'var(--text-muted)',
-                                    cursor: 'pointer'
-                                }}
+                                onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                                className="vault-prompt-btn delete"
                             >
                                 🗑️
                             </button>
                         </div>
                     </div>
-                    <div 
-                        onClick={() => setExpanded(!expanded)}
-                        style={{ cursor: 'pointer' }}
-                    >
-                        <pre style={{
-                            fontFamily: "'JetBrains Mono', monospace",
-                            fontSize: '0.75rem',
-                            color: 'var(--text-secondary)',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word',
-                            lineHeight: 1.5,
-                            margin: 0,
-                            maxHeight: expanded ? 'none' : '60px',
-                            overflow: 'hidden'
-                        }}>
+                    <div onClick={() => setExpanded(!expanded)}>
+                        <pre className="vault-prompt-preview" style={{ maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
                             {expanded ? item.prompt : preview}
                         </pre>
-                        {item.prompt.length > 100 && (
-                            <span style={{ 
-                                fontSize: '0.7rem', 
-                                color: 'var(--accent-primary)', 
-                                fontWeight: 600,
-                                marginTop: '6px',
-                                display: 'inline-block'
-                            }}>
-                                {expanded ? '▲ Collapse' : '▼ Expand'}
+                        {item.prompt.length > 120 && (
+                            <span className="vault-prompt-expand">
+                                {expanded ? '▲ Collapse' : '▼ Expand full prompt'}
                             </span>
                         )}
                     </div>
@@ -1247,139 +1230,50 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             );
         }
 
-        function getTimeAgo(timestamp) {
-            const seconds = Math.floor((Date.now() - timestamp) / 1000);
-            if (seconds < 60) return 'Just now';
-            const minutes = Math.floor(seconds / 60);
-            if (minutes < 60) return `${minutes}m ago`;
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return `${hours}h ago`;
-            const days = Math.floor(hours / 24);
-            return `${days}d ago`;
-        }
-
-        // --- ACHIEVEMENT BANNER (Updated with clear reward) ---
-        function AchievementBanner({ isVisible, promptsGenerated, userName, onCopy }) {
-            const [copied, setCopied] = useState(false);
-
-            const handleCopy = () => {
-                const text = `I just earned AI Commander status in The Vault!\n\nGenerated ${promptsGenerated} custom prompts.\n\nGet yours: @koutalksmoney`;
-                navigator.clipboard.writeText(text);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-                onCopy();
-            };
-
+        // --- VAULT POINTER (Post-Signup Notification) ---
+        function VaultPointer({ isVisible, onDismiss }) {
             if (!isVisible) return null;
 
             return (
-                <div className="achievement-banner show">
-                    <div className="achievement-icon">🏆</div>
-                    <h3 className="achievement-title">Achievement Unlocked!</h3>
-                    <p className="achievement-subtitle">You've earned AI Commander status by mastering all 3 categories</p>
-                    
-                    <div className="achievement-card">
-                        <div className="achievement-card-header">
-                            <span className="achievement-card-logo">THE<span style={{ color: 'var(--gold)' }}>VAULT</span></span>
-                            <span className="achievement-card-badge">AI Commander</span>
-                        </div>
-                        <div className="achievement-card-title">AI COMMANDER</div>
-                        <div className="achievement-card-name">{userName || 'Elite Operator'}</div>
-                        <div className="achievement-card-stats">
-                            <div className="achievement-stat">
-                                <div className="achievement-stat-value">{promptsGenerated}</div>
-                                <div className="achievement-stat-label">Prompts</div>
-                            </div>
-                            <div className="achievement-stat">
-                                <div className="achievement-stat-value">3/3</div>
-                                <div className="achievement-stat-label">Categories</div>
-                            </div>
-                            <div className="achievement-stat">
-                                <div className="achievement-stat-value">✓</div>
-                                <div className="achievement-stat-label">Elite</div>
-                            </div>
-                        </div>
+                <div className="vault-pointer">
+                    <span className="vault-pointer-icon">☝️</span>
+                    <div className="vault-pointer-text">
+                        <p className="vault-pointer-title">Prompt Saved to Your Vault!</p>
+                        <p className="vault-pointer-subtitle">All your prompts are stored above. Click "MY VAULT" to access them anytime.</p>
                     </div>
-
-                    {/* UNLOCKED REWARDS */}
-                    <div style={{
-                        background: 'rgba(16, 185, 129, 0.1)',
-                        border: '1px solid rgba(16, 185, 129, 0.3)',
-                        borderRadius: '12px',
-                        padding: '20px',
-                        marginTop: '20px',
-                        marginBottom: '20px',
-                        textAlign: 'left'
-                    }}>
-                        <h4 style={{ color: 'var(--success)', fontSize: '0.85rem', fontWeight: 700, marginBottom: '12px', textTransform: 'uppercase' }}>
-                            🎁 You've Unlocked:
-                        </h4>
-                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                            <li style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                                <span style={{ color: 'var(--success)' }}>✓</span>
-                                <span><strong style={{ color: 'var(--text-primary)' }}>Permanent Vault Access</strong> — Save unlimited prompts</span>
-                            </li>
-                            <li style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                                <span style={{ color: 'var(--success)' }}>✓</span>
-                                <span><strong style={{ color: 'var(--text-primary)' }}>AI Commander Badge</strong> — Share your status</span>
-                            </li>
-                            <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span style={{ color: 'var(--success)' }}>✓</span>
-                                <span><strong style={{ color: 'var(--text-primary)' }}>Next Level Access</strong> — Bridge to Autopilot System</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div className="achievement-share-btns">
-                        <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="achievement-share-btn instagram">
-                            📸 Share on Instagram
-                        </a>
-                        <button className={`achievement-share-btn copy ${copied ? 'copied' : ''}`} onClick={handleCopy}>
-                            {copied ? '✓ Copied!' : '📋 Copy Caption'}
-                        </button>
-                    </div>
-
-                    {/* Bridge to next tool */}
-                    <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '12px' }}>
-                            Ready to automate your wealth? →
-                        </p>
-                        <a 
-                            href={CONFIG.LINKS.AUTOPILOT_SYSTEM}
-                            style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                background: 'var(--success)',
-                                color: 'white',
-                                padding: '12px 24px',
-                                borderRadius: '8px',
-                                fontSize: '0.85rem',
-                                fontWeight: 700,
-                                textDecoration: 'none',
-                                textTransform: 'uppercase'
-                            }}
-                        >
-                            🤖 Install The Autopilot System
-                        </a>
-                    </div>
+                    <button className="vault-pointer-dismiss" onClick={onDismiss}>×</button>
                 </div>
             );
         }
 
-        // --- GOAL-GRADIENT PROGRESS BAR ---
+        // --- GOAL-GRADIENT PROGRESS BAR (Green when progressing) ---
         function GoalGradientBar({ fields, requiredFields }) {
             const filledCount = requiredFields.filter(field => fields[field] && fields[field].trim() !== '').length;
             const progress = (filledCount / requiredFields.length) * 100;
+            const isComplete = progress === 100;
+            
+            const progressColor = isComplete 
+                ? 'var(--success)' 
+                : progress > 0 
+                    ? 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)' 
+                    : 'var(--accent-gradient)';
+            
+            const percentColor = isComplete ? 'var(--success)' : progress > 0 ? '#10b981' : 'var(--accent-primary)';
             
             return (
                 <div className="progress-container">
                     <div className="progress-header">
                         <span className="progress-label">Prompt Readiness</span>
-                        <span className="progress-percent">{Math.round(progress)}%</span>
+                        <span className="progress-percent" style={{ color: percentColor }}>{Math.round(progress)}%</span>
                     </div>
                     <div className="progress-bar-track">
-                        <div className="progress-bar-fill" style={{width: `${progress}%`}}></div>
+                        <div 
+                            className="progress-bar-fill" 
+                            style={{
+                                width: `${Math.max(progress, 5)}%`,
+                                background: progressColor
+                            }}
+                        ></div>
                     </div>
                 </div>
             );
@@ -1417,22 +1311,61 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             );
         }
 
-        // --- BRIDGE CTA COMPONENT ---
-        function BridgeCTA({ category }) {
-            const cta = BRIDGE_CTAS[category];
-            if (!cta) return null;
+        // --- ACHIEVEMENT BANNER ---
+        function AchievementBanner({ isVisible, promptsGenerated, userName, onCopy }) {
+            const [copied, setCopied] = useState(false);
+
+            const handleCopy = () => {
+                const text = `I just earned AI Commander status in The Vault!\n\nGenerated ${promptsGenerated} custom prompts.\n\nGet yours: @koutalksmoney`;
+                navigator.clipboard.writeText(text);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            };
+
+            if (!isVisible) return null;
 
             return (
-                <div className="bridge-cta">
-                    <h4>{cta.title}</h4>
-                    <p>{cta.subtitle}</p>
-                    <a href={cta.link} className="bridge-cta-btn">
-                        {cta.btnText}
-                    </a>
+                <div className="achievement-banner show">
+                    <div className="achievement-icon">🏆</div>
+                    <h3 className="achievement-title">Achievement Unlocked!</h3>
+                    <p className="achievement-subtitle">You've earned AI Commander status by mastering all 3 categories</p>
+                    
+                    <div className="achievement-card">
+                        <div className="achievement-card-header">
+                            <span className="achievement-card-logo">THE<span style={{ color: 'var(--gold)' }}>VAULT</span></span>
+                            <span className="achievement-card-badge">AI Commander</span>
+                        </div>
+                        <div className="achievement-card-title">AI COMMANDER</div>
+                        <div className="achievement-card-name">{userName || 'Elite Operator'}</div>
+                        <div className="achievement-card-stats">
+                            <div className="achievement-stat">
+                                <div className="achievement-stat-value">{promptsGenerated}</div>
+                                <div className="achievement-stat-label">Prompts</div>
+                            </div>
+                            <div className="achievement-stat">
+                                <div className="achievement-stat-value">3/3</div>
+                                <div className="achievement-stat-label">Categories</div>
+                            </div>
+                            <div className="achievement-stat">
+                                <div className="achievement-stat-value">✓</div>
+                                <div className="achievement-stat-label">Elite</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="achievement-share-btns">
+                        <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="achievement-share-btn instagram">
+                            📸 Share on Instagram
+                        </a>
+                        <button className={`achievement-share-btn copy ${copied ? 'copied' : ''}`} onClick={handleCopy}>
+                            {copied ? '✓ Copied!' : '📋 Copy Caption'}
+                        </button>
+                    </div>
                 </div>
             );
         }
 
+        // --- MAIN APP ---
         function App() {
             const [locked, setLocked] = useState(true);
             const [activeTab, setActiveTab] = useState('CAREER'); 
@@ -1441,9 +1374,8 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             const [promptsGenerated, setPromptsGenerated] = useState({ CAREER: 0, VENTURE: 0, WEALTH: 0 });
             const [showAchievement, setShowAchievement] = useState(false);
             const [userEmail, setUserEmail] = useState('');
-            const [showSaveModal, setShowSaveModal] = useState(false);
-            const [pendingSave, setPendingSave] = useState(null);
             const [vaultOpen, setVaultOpen] = useState(false);
+            const [showVaultPointer, setShowVaultPointer] = useState(false);
 
             useEffect(() => {
                 const interval = setInterval(() => {
@@ -1452,7 +1384,7 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                 return () => clearInterval(interval);
             }, []);
 
-            // Check for existing email
+            // Check for existing email and saved prompts
             useEffect(() => {
                 const savedEmail = localStorage.getItem('vault_user_email');
                 if (savedEmail) setUserEmail(savedEmail);
@@ -1461,7 +1393,7 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                 if (savedPromptsData) setSavedPrompts(JSON.parse(savedPromptsData));
             }, []);
 
-            // Check for achievement unlock - triggers after using all 3 categories
+            // Achievement unlock check
             useEffect(() => {
                 const uniqueCategories = Object.values(promptsGenerated).filter(c => c > 0).length;
                 
@@ -1478,13 +1410,25 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                 }));
             };
 
-            const handleSavePrompt = (prompt, category) => {
-                if (!userEmail && !localStorage.getItem('vault_email_captured')) {
-                    setPendingSave({ prompt, category });
-                    setShowSaveModal(true);
-                    return;
-                }
+            const handleEmailUnlock = (email, prompt, category) => {
+                setUserEmail(email);
+                localStorage.setItem('vault_user_email', email);
+                localStorage.setItem('vault_email_captured', 'true');
                 
+                // Save the prompt
+                const newSaved = [...savedPrompts, { prompt, category, timestamp: Date.now() }];
+                setSavedPrompts(newSaved);
+                localStorage.setItem('vault_saved_prompts', JSON.stringify(newSaved));
+                
+                // Open vault and show pointer
+                setVaultOpen(true);
+                setShowVaultPointer(true);
+                
+                // Auto-dismiss pointer after 8 seconds
+                setTimeout(() => setShowVaultPointer(false), 8000);
+            };
+
+            const handleSavePrompt = (prompt, category) => {
                 const newSaved = [...savedPrompts, { prompt, category, timestamp: Date.now() }];
                 setSavedPrompts(newSaved);
                 localStorage.setItem('vault_saved_prompts', JSON.stringify(newSaved));
@@ -1496,13 +1440,8 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                 localStorage.setItem('vault_saved_prompts', JSON.stringify(newSaved));
             };
 
-            const handleEmailSaved = (email) => {
-                setUserEmail(email);
-                setShowSaveModal(false);
-                if (pendingSave) {
-                    handleSavePrompt(pendingSave.prompt, pendingSave.category);
-                    setPendingSave(null);
-                }
+            const handleCopyPrompt = (prompt) => {
+                navigator.clipboard.writeText(prompt);
             };
 
             if (locked) return <Gatekeeper onUnlock={() => setLocked(false)} />;
@@ -1511,14 +1450,6 @@ Show me the math in simple terms. Give me hope, but be realistic.`
 
             return (
                 <div className="container">
-                    {/* Save Modal */}
-                    <SaveModal 
-                        isOpen={showSaveModal}
-                        onClose={() => setShowSaveModal(false)}
-                        onSave={handleEmailSaved}
-                        promptCategory={activeTab}
-                    />
-
                     {/* Achievement Banner */}
                     <AchievementBanner 
                         isVisible={showAchievement}
@@ -1533,23 +1464,21 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                         <p style={{color: '#94a3b8', fontSize: '0.95rem'}}>AI Command Console for High Performers</p>
                     </div>
 
-                    {/* Saved Prompts Viewer - "My Vault" */}
-                    <SavedPromptsViewer 
+                    {/* Vault Pointer Notification */}
+                    <VaultPointer 
+                        isVisible={showVaultPointer}
+                        onDismiss={() => setShowVaultPointer(false)}
+                    />
+
+                    {/* THE VAULT (Primary) */}
+                    <TheVault 
                         savedPrompts={savedPrompts}
                         isOpen={vaultOpen}
                         onToggle={() => setVaultOpen(!vaultOpen)}
                         onDelete={handleDeletePrompt}
+                        onCopy={handleCopyPrompt}
+                        userEmail={userEmail}
                     />
-
-                    {/* Saved Counter */}
-                    {savedPrompts.length > 0 && (
-                        <div className="saved-counter">
-                            <span className="saved-counter-icon">💾</span>
-                            <span className="saved-counter-text">
-                                <span className="saved-counter-number">{savedPrompts.length}</span> prompts saved to your Vault
-                            </span>
-                        </div>
-                    )}
 
                     <div className="main-grid">
                         
@@ -1581,28 +1510,28 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                                 {activeTab === 'CAREER' && (
                                     <CareerModule 
                                         onGenerated={() => handlePromptGenerated('CAREER')}
-                                        onSave={(prompt) => handleSavePrompt(prompt, 'CAREER')}
-                                        hasEmail={!!userEmail}
+                                        onEmailUnlock={handleEmailUnlock}
+                                        onSave={handleSavePrompt}
+                                        userEmail={userEmail}
                                     />
                                 )}
                                 {activeTab === 'VENTURE' && (
                                     <VentureModule 
                                         onGenerated={() => handlePromptGenerated('VENTURE')}
-                                        onSave={(prompt) => handleSavePrompt(prompt, 'VENTURE')}
-                                        hasEmail={!!userEmail}
+                                        onEmailUnlock={handleEmailUnlock}
+                                        onSave={handleSavePrompt}
+                                        userEmail={userEmail}
                                     />
                                 )}
                                 {activeTab === 'WEALTH' && (
                                     <WealthModule 
                                         onGenerated={() => handlePromptGenerated('WEALTH')}
-                                        onSave={(prompt) => handleSavePrompt(prompt, 'WEALTH')}
-                                        hasEmail={!!userEmail}
+                                        onEmailUnlock={handleEmailUnlock}
+                                        onSave={handleSavePrompt}
+                                        userEmail={userEmail}
                                     />
                                 )}
                             </div>
-
-                            {/* Bridge CTA */}
-                            <BridgeCTA category={activeTab} />
                         </div>
 
                         {/* Sidebar */}
@@ -1641,6 +1570,10 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                                             {Object.values(promptsGenerated).filter(c => c > 0).length}/3
                                         </span>
                                     </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                        <span>Prompts Saved:</span>
+                                        <span style={{ color: 'var(--gold)', fontWeight: 700 }}>{savedPrompts.length}</span>
+                                    </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                         <span>Achievement:</span>
                                         <span style={{ color: showAchievement ? 'var(--gold)' : 'var(--text-muted)', fontWeight: 700 }}>
@@ -1660,7 +1593,7 @@ Show me the math in simple terms. Give me hope, but be realistic.`
 
         // --- SUB-MODULES ---
 
-        function CareerModule({ onGenerated, onSave, hasEmail }) {
+        function CareerModule({ onGenerated, onEmailUnlock, onSave, userEmail }) {
             const [mode, setMode] = useState('RESUME');
             const [inputs, setInputs] = useState({ role: '', company: '', resume: '', jobDesc: '', skills: '', reason: '' });
             
@@ -1696,8 +1629,10 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                                     data={inputs} 
                                     btnText="Generate Resume Prompt" 
                                     onGenerated={onGenerated}
+                                    onEmailUnlock={onEmailUnlock}
                                     onSave={onSave}
-                                    hasEmail={hasEmail}
+                                    userEmail={userEmail}
+                                    category="CAREER"
                                 />
                             </>
                         ) : (
@@ -1710,8 +1645,10 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                                     data={inputs} 
                                     btnText="Generate Email Prompt"
                                     onGenerated={onGenerated}
+                                    onEmailUnlock={onEmailUnlock}
                                     onSave={onSave}
-                                    hasEmail={hasEmail}
+                                    userEmail={userEmail}
+                                    category="CAREER"
                                 />
                             </>
                         )}
@@ -1720,7 +1657,7 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             );
         }
 
-        function VentureModule({ onGenerated, onSave, hasEmail }) {
+        function VentureModule({ onGenerated, onEmailUnlock, onSave, userEmail }) {
             const [inputs, setInputs] = useState({ friendsAsk: '', easyTask: '', interests: '', problemSolved: '' });
             const requiredFields = ['friendsAsk', 'easyTask', 'interests', 'problemSolved'];
 
@@ -1743,15 +1680,17 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                             data={inputs} 
                             btnText="Analyze My Market Value"
                             onGenerated={onGenerated}
+                            onEmailUnlock={onEmailUnlock}
                             onSave={onSave}
-                            hasEmail={hasEmail}
+                            userEmail={userEmail}
+                            category="VENTURE"
                         />
                     </div>
                 </div>
             );
         }
 
-        function WealthModule({ onGenerated, onSave, hasEmail }) {
+        function WealthModule({ onGenerated, onEmailUnlock, onSave, userEmail }) {
             const [inputs, setInputs] = useState({ age: '', retireAge: '40', expenses: '', invested: '0', monthlyInvest: '' });
             const requiredFields = ['age', 'retireAge', 'expenses', 'monthlyInvest'];
 
@@ -1779,8 +1718,10 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                             data={inputs} 
                             btnText="Calculate My Freedom Date"
                             onGenerated={onGenerated}
+                            onEmailUnlock={onEmailUnlock}
                             onSave={onSave}
-                            hasEmail={hasEmail}
+                            userEmail={userEmail}
+                            category="WEALTH"
                         />
                     </div>
                 </div>
@@ -1819,13 +1760,27 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             );
         }
 
-        function Generator({ template, data, btnText, onGenerated, onSave, hasEmail }) {
+        // === THE BLUR GATE GENERATOR ===
+        function Generator({ template, data, btnText, onGenerated, onEmailUnlock, onSave, userEmail, category }) {
             const [generated, setGenerated] = useState(null);
+            const [isUnlocked, setIsUnlocked] = useState(false);
             const [copied, setCopied] = useState(false);
             const [saved, setSaved] = useState(false);
             const [isProcessing, setIsProcessing] = useState(false);
             const [currentStep, setCurrentStep] = useState(0);
             const [panelOpen, setPanelOpen] = useState(true);
+            
+            // Blur gate state
+            const [gateEmail, setGateEmail] = useState('');
+            const [gateError, setGateError] = useState('');
+            const [gateSubmitting, setGateSubmitting] = useState(false);
+
+            // Check if user already has email (auto-unlock)
+            useEffect(() => {
+                if (userEmail) {
+                    setIsUnlocked(true);
+                }
+            }, [userEmail]);
 
             const handleGenerate = () => {
                 setIsProcessing(true);
@@ -1833,6 +1788,7 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                 setCurrentStep(0);
                 setPanelOpen(true);
                 setSaved(false);
+                setIsUnlocked(!!userEmail); // Only unlock if email exists
 
                 const stepDuration = 600;
                 
@@ -1855,19 +1811,47 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                 }, 3000);
             };
 
+            const handleUnlock = async () => {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(gateEmail)) {
+                    setGateError('Enter a valid email to unlock');
+                    return;
+                }
+
+                setGateSubmitting(true);
+                setGateError('');
+
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 1200));
+
+                setIsUnlocked(true);
+                setGateSubmitting(false);
+                onEmailUnlock(gateEmail, generated, category);
+            };
+
             const handleCopy = () => {
-                // Add branding to copied text
-                const brandedText = generated + '\n\n---\nGenerated by The Vault | @koutalksmoney';
-                navigator.clipboard.writeText(brandedText);
+                navigator.clipboard.writeText(generated);
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
             };
 
             const handleSave = () => {
-                onSave(generated);
+                onSave(generated, category);
                 setSaved(true);
                 setTimeout(() => setSaved(false), 2000);
             };
+
+            // Calculate visible/blurred portions
+            const getVisiblePortion = (text) => {
+                if (!text) return { visible: '', blurred: '' };
+                const cutoff = Math.floor(text.length * 0.18); // Show ~18%
+                return {
+                    visible: text.substring(0, cutoff),
+                    blurred: text.substring(cutoff)
+                };
+            };
+
+            const portions = generated ? getVisiblePortion(generated) : { visible: '', blurred: '' };
 
             return (
                 <div className="section-divider">
@@ -1898,10 +1882,62 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                         </div>
                     )}
 
-                    {generated && !isProcessing && (
+                    {/* === BLUR GATE (Locked State) === */}
+                    {generated && !isProcessing && !isUnlocked && (
+                        <div className="blur-gate-container animate-fade-in">
+                            <div className="blur-gate-preview">
+                                <pre className="blur-gate-visible">{portions.visible}</pre>
+                                <pre className="blur-gate-blurred">{portions.blurred}</pre>
+                                
+                                <div className="blur-gate-overlay">
+                                    <div className="blur-gate-lock">🔒</div>
+                                    <h3 className="blur-gate-title">Unlock Full Prompt</h3>
+                                    <p className="blur-gate-subtitle">
+                                        Enter your email to unlock the complete prompt and save it to your Vault forever.
+                                    </p>
+                                    
+                                    <input
+                                        type="email"
+                                        value={gateEmail}
+                                        onChange={(e) => { setGateEmail(e.target.value); setGateError(''); }}
+                                        placeholder="your@email.com"
+                                        className={`blur-gate-input ${gateError ? 'error' : ''}`}
+                                        disabled={gateSubmitting}
+                                    />
+                                    {gateError && <p className="blur-gate-error">{gateError}</p>}
+                                    
+                                    <button
+                                        onClick={handleUnlock}
+                                        disabled={!gateEmail || gateSubmitting}
+                                        className="blur-gate-btn"
+                                    >
+                                        {gateSubmitting ? (
+                                            <>
+                                                <span className="loading-spinner" style={{ width: '18px', height: '18px', margin: 0, borderWidth: '2px' }}></span>
+                                                <span>Unlocking...</span>
+                                            </>
+                                        ) : (
+                                            '[ 🔓 Unlock & Save to Vault ]'
+                                        )}
+                                    </button>
+                                    
+                                    <div className="blur-gate-trust">
+                                        <span>🔒 Secure</span>
+                                        <span>•</span>
+                                        <span>No spam</span>
+                                        <span>•</span>
+                                        <span>Instant access</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* === UNLOCKED OUTPUT === */}
+                    {generated && !isProcessing && isUnlocked && (
                         <div className="output-box animate-fade-in">
                             <div className="output-header">
-                                <span className="output-status">Prompt Generated</span>
+                                <span className="output-status">Prompt Unlocked</span>
                                 <div>
                                     <button 
                                         onClick={handleCopy}
@@ -1920,10 +1956,6 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                             </div>
                             <div className="output-scroll">
                                 <pre className="output-code">{generated}</pre>
-                            </div>
-                            {/* OUTPUT BRANDING */}
-                            <div className="output-branding">
-                                Generated by <a href={CONFIG.LINKS.INSTAGRAM} target="_blank">The Vault</a> | @koutalksmoney
                             </div>
                         </div>
                     )}
