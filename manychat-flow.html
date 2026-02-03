@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ManyChat Flow Architecture | Kou Talks Money</title>
+    <title>ManyChat Flow Architecture V2 | Kou Talks Money</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -12,6 +12,8 @@
             --bg-card: #1a1a24;
             --bg-hover: #22222e;
             --bg-message: #252532;
+            --bg-response: #1e3a2f;
+            --bg-decline: #3a1e1e;
             --text-primary: #ffffff;
             --text-secondary: #a0a0b0;
             --text-muted: #6a6a7a;
@@ -24,6 +26,8 @@
             --accent-cheat: #ef4444;
             --accent-build50: #06b6d4;
             --accent-payday: #ec4899;
+            --accent-success: #22c55e;
+            --accent-warning: #eab308;
             --gradient-autopilot: linear-gradient(135deg, #10b981, #059669);
             --gradient-leak: linear-gradient(135deg, #f59e0b, #d97706);
             --gradient-elite800: linear-gradient(135deg, #8b5cf6, #7c3aed);
@@ -33,54 +37,36 @@
             --gradient-payday: linear-gradient(135deg, #ec4899, #db2777);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Space Grotesk', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
-            overflow-x: hidden;
             line-height: 1.6;
         }
 
         .noise-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             opacity: 0.03;
             pointer-events: none;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
             z-index: 1000;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
 
         /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 50px;
-            position: relative;
-        }
-
+        .header { text-align: center; margin-bottom: 50px; position: relative; }
         .header::before {
             content: '';
             position: absolute;
-            top: -100px;
-            left: 50%;
+            top: -100px; left: 50%;
             transform: translateX(-50%);
-            width: 600px;
-            height: 600px;
+            width: 600px; height: 600px;
             background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
             pointer-events: none;
         }
@@ -104,9 +90,17 @@
             50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
         }
 
-        .clock-badge span {
-            color: var(--accent-autopilot);
+        .clock-badge span { color: var(--accent-autopilot); font-weight: 600; }
+
+        .version-badge {
+            display: inline-block;
+            background: var(--gradient-autopilot);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            margin-left: 10px;
         }
 
         .header h1 {
@@ -119,21 +113,10 @@
             background-clip: text;
         }
 
-        .header p {
-            color: var(--text-secondary);
-            font-size: 18px;
-            max-width: 700px;
-            margin: 0 auto;
-        }
+        .header p { color: var(--text-secondary); font-size: 18px; max-width: 700px; margin: 0 auto; }
 
         /* Navigation */
-        .nav-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-        }
+        .nav-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; flex-wrap: wrap; }
 
         .nav-tab {
             padding: 12px 20px;
@@ -149,14 +132,8 @@
             letter-spacing: 0.5px;
         }
 
-        .nav-tab:hover {
-            background: var(--bg-hover);
-            border-color: var(--text-muted);
-        }
-
-        .nav-tab.active {
-            color: var(--text-primary);
-        }
+        .nav-tab:hover { background: var(--bg-hover); border-color: var(--text-muted); }
+        .nav-tab.active { color: var(--text-primary); }
 
         .nav-tab[data-tab="overview"].active { border-color: var(--accent-autopilot); background: rgba(16, 185, 129, 0.1); }
         .nav-tab[data-tab="autopilot"].active { border-color: var(--accent-autopilot); background: rgba(16, 185, 129, 0.1); }
@@ -168,14 +145,8 @@
         .nav-tab[data-tab="payday"].active { border-color: var(--accent-payday); background: rgba(236, 72, 153, 0.1); }
 
         /* Sections */
-        .flow-section {
-            display: none;
-        }
-
-        .flow-section.active {
-            display: block;
-            animation: fadeIn 0.4s ease;
-        }
+        .flow-section { display: none; }
+        .flow-section.active { display: block; animation: fadeIn 0.4s ease; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -196,8 +167,7 @@
         }
 
         .flow-icon {
-            width: 60px;
-            height: 60px;
+            width: 60px; height: 60px;
             border-radius: 14px;
             display: flex;
             align-items: center;
@@ -215,41 +185,13 @@
         .flow-icon.payday { background: var(--gradient-payday); }
         .flow-icon.overview { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
 
-        .flow-info h2 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
+        .flow-info h2 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+        .flow-info p { color: var(--text-secondary); font-size: 14px; }
 
-        .flow-info p {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        .flow-meta {
-            margin-left: auto;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .meta-item {
-            text-align: right;
-        }
-
-        .meta-item .label {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .meta-item .value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 2px;
-        }
+        .flow-meta { margin-left: auto; display: flex; gap: 20px; flex-wrap: wrap; }
+        .meta-item { text-align: right; }
+        .meta-item .label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .meta-item .value { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
 
         /* Flow Stage */
         .flow-stage {
@@ -270,8 +212,7 @@
         }
 
         .stage-number {
-            width: 32px;
-            height: 32px;
+            width: 32px; height: 32px;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -289,11 +230,7 @@
         .build50 .stage-number { background: var(--gradient-build50); }
         .payday .stage-number { background: var(--gradient-payday); }
 
-        .stage-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
+        .stage-title { font-size: 16px; font-weight: 600; }
         .stage-timing {
             margin-left: auto;
             font-family: 'JetBrains Mono', monospace;
@@ -304,9 +241,7 @@
             border-radius: 6px;
         }
 
-        .stage-content {
-            padding: 20px;
-        }
+        .stage-content { padding: 20px; }
 
         /* Message Block */
         .message-block {
@@ -318,6 +253,8 @@
             position: relative;
         }
 
+        .message-block.consolidated { border-left: 3px solid var(--accent-autopilot); }
+
         .message-label {
             display: flex;
             align-items: center;
@@ -327,6 +264,7 @@
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            flex-wrap: wrap;
         }
 
         .message-label .char-count {
@@ -336,6 +274,15 @@
             background: var(--bg-primary);
             padding: 2px 8px;
             border-radius: 4px;
+        }
+
+        .message-label .optimized-badge {
+            background: var(--accent-autopilot);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
         }
 
         .message-text {
@@ -348,8 +295,7 @@
 
         .copy-btn {
             position: absolute;
-            top: 12px;
-            right: 12px;
+            top: 12px; right: 12px;
             background: var(--bg-primary);
             border: 1px solid var(--border);
             color: var(--text-muted);
@@ -361,25 +307,11 @@
             font-family: 'Space Grotesk', sans-serif;
         }
 
-        .copy-btn:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            border-color: var(--text-muted);
-        }
-
-        .copy-btn.copied {
-            background: var(--accent-autopilot);
-            color: #fff;
-            border-color: var(--accent-autopilot);
-        }
+        .copy-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--text-muted); }
+        .copy-btn.copied { background: var(--accent-autopilot); color: #fff; border-color: var(--accent-autopilot); }
 
         /* Button Block */
-        .button-block {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 14px;
-        }
+        .button-block { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
 
         .button-item {
             display: flex;
@@ -392,19 +324,12 @@
             transition: all 0.2s ease;
         }
 
-        .button-item:hover {
-            border-color: var(--text-muted);
-            transform: translateX(4px);
-        }
+        .button-item:hover { border-color: var(--text-muted); transform: translateX(4px); }
+        .button-item.primary { border-left: 3px solid var(--accent-autopilot); }
+        .button-item.secondary { border-left: 3px solid var(--accent-warning); }
 
-        .button-emoji {
-            font-size: 16px;
-        }
-
-        .button-text {
-            font-size: 13px;
-            font-weight: 500;
-        }
+        .button-emoji { font-size: 16px; }
+        .button-text { font-size: 13px; font-weight: 500; }
 
         .button-type {
             margin-left: auto;
@@ -434,24 +359,40 @@
             border: 1px solid var(--border);
         }
 
-        .link-ref::before {
-            content: '🔗';
-            font-size: 12px;
+        .link-ref::before { content: '🔗'; font-size: 12px; }
+
+        /* Response Block */
+        .response-block {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
         }
+
+        .response-block.accept { background: var(--bg-response); border-color: var(--accent-autopilot); }
+        .response-block.objection { background: rgba(234, 179, 8, 0.1); border-color: var(--accent-warning); }
+        .response-block.decline { background: var(--bg-decline); border-color: #ef4444; }
+        .response-block.requalify { background: rgba(139, 92, 246, 0.1); border-color: var(--accent-elite800); }
+
+        .response-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .response-header.accept { color: var(--accent-autopilot); }
+        .response-header.objection { color: var(--accent-warning); }
+        .response-header.decline { color: #ef4444; }
+        .response-header.requalify { color: var(--accent-elite800); }
 
         /* Arrow Connector */
-        .arrow-down {
-            display: flex;
-            justify-content: center;
-            padding: 16px 0;
-            color: var(--text-muted);
-        }
-
-        .arrow-down svg {
-            width: 20px;
-            height: 20px;
-            animation: bounce 1.5s ease-in-out infinite;
-        }
+        .arrow-down { display: flex; justify-content: center; padding: 16px 0; color: var(--text-muted); }
+        .arrow-down svg { width: 20px; height: 20px; animation: bounce 1.5s ease-in-out infinite; }
 
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
@@ -476,35 +417,14 @@
             border-bottom: 1px solid var(--border);
         }
 
-        .branch-icon {
-            font-size: 18px;
-        }
+        .branch-icon { font-size: 18px; }
+        .branch-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+        .branch-subtitle { margin-left: auto; font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
 
-        .branch-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
+        /* Follow-up Grid */
+        .followup-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 
-        .branch-subtitle {
-            margin-left: auto;
-            font-size: 11px;
-            color: var(--text-muted);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* Follow-up Timeline */
-        .followup-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-        }
-
-        @media (max-width: 900px) {
-            .followup-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        @media (max-width: 1100px) { .followup-grid { grid-template-columns: 1fr; } }
 
         .followup-card {
             background: var(--bg-message);
@@ -517,16 +437,13 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px;
             color: var(--text-muted);
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .followup-day::before {
-            content: '📅';
-            font-size: 12px;
-        }
+        .followup-day::before { content: '📅'; font-size: 12px; }
 
         /* Cross-sell Section */
         .crosssell-section {
@@ -537,31 +454,42 @@
             border: 1px solid var(--accent-autopilot);
         }
 
-        .crosssell-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 14px;
+        .crosssell-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .crosssell-icon { font-size: 18px; }
+        .crosssell-title { font-size: 14px; font-weight: 600; color: var(--accent-autopilot); }
+        .crosssell-trigger { margin-left: auto; font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+        /* Re-qualification Section */
+        .requalify-section {
+            margin-top: 24px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+            border-radius: 12px;
+            border: 1px solid var(--accent-elite800);
         }
 
-        .crosssell-icon {
-            font-size: 18px;
+        .requalify-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .requalify-title { font-size: 14px; font-weight: 600; color: var(--accent-elite800); }
+
+        .requalify-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+            margin-top: 14px;
         }
 
-        .crosssell-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--accent-autopilot);
+        .requalify-option {
+            background: var(--bg-message);
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
         }
 
-        .crosssell-trigger {
-            margin-left: auto;
-            font-size: 11px;
-            color: var(--text-muted);
-            font-family: 'JetBrains Mono', monospace;
-        }
+        .requalify-option-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; }
+        .requalify-option-text { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+        .requalify-option-arrow { font-size: 12px; color: var(--accent-elite800); }
 
-        /* Overview Section */
+        /* Overview Cards */
         .overview-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -577,43 +505,13 @@
             transition: all 0.3s ease;
         }
 
-        .overview-card:hover {
-            border-color: var(--text-muted);
-            transform: translateY(-2px);
-        }
+        .overview-card:hover { border-color: var(--text-muted); transform: translateY(-2px); }
 
-        .overview-card-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-
-        .overview-card-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        .overview-card-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .overview-card-subtitle {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .overview-card-body {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
+        .overview-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+        .overview-card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .overview-card-title { font-size: 16px; font-weight: 600; }
+        .overview-card-subtitle { font-size: 12px; color: var(--text-muted); }
+        .overview-card-body { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
 
         .overview-card-footer {
             margin-top: 14px;
@@ -626,71 +524,12 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Ecosystem Flow */
-        .ecosystem-flow {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 24px;
-            border: 1px solid var(--border);
-            margin-bottom: 30px;
-            overflow-x: auto;
-        }
-
-        .ecosystem-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .ecosystem-title::before {
-            content: '🔄';
-        }
-
-        .flow-diagram {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            line-height: 1.8;
-            color: var(--text-secondary);
-            white-space: pre;
-            overflow-x: auto;
-            padding: 16px;
-            background: var(--bg-primary);
-            border-radius: 10px;
-        }
-
         /* Summary Table */
-        .summary-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        .summary-table th,
-        .summary-table td {
-            padding: 12px 14px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .summary-table th {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            background: var(--bg-card);
-        }
-
-        .summary-table td {
-            vertical-align: top;
-        }
-
-        .summary-table tr:hover td {
-            background: var(--bg-hover);
-        }
+        .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .summary-table th, .summary-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+        .summary-table th { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; background: var(--bg-card); }
+        .summary-table td { vertical-align: top; }
+        .summary-table tr:hover td { background: var(--bg-hover); }
 
         .keyword-badge {
             display: inline-block;
@@ -711,32 +550,12 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 28px;
-            }
-
-            .nav-tabs {
-                gap: 6px;
-            }
-
-            .nav-tab {
-                padding: 10px 14px;
-                font-size: 11px;
-            }
-
-            .flow-header {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .flow-meta {
-                margin-left: 0;
-                justify-content: center;
-            }
-
-            .meta-item {
-                text-align: center;
-            }
+            .header h1 { font-size: 28px; }
+            .nav-tabs { gap: 6px; }
+            .nav-tab { padding: 10px 14px; font-size: 11px; }
+            .flow-header { flex-direction: column; text-align: center; }
+            .flow-meta { margin-left: 0; justify-content: center; }
+            .meta-item { text-align: center; }
         }
     </style>
 </head>
@@ -748,8 +567,8 @@
             <div class="clock-badge">
                 🕒 THE CLOCK: <span>1,762 Days</span> Remaining
             </div>
-            <h1>ManyChat Flow Architecture</h1>
-            <p>Complete automation system for converting followers into leads through 7 strategic keyword funnels. Copy-paste ready scripts with psychological triggers built in.</p>
+            <h1>ManyChat Flow Architecture <span class="version-badge">V2 OPTIMIZED</span></h1>
+            <p>Consolidated messages, strategic objection handlers, and win-win decline flows. Every button click moves forward.</p>
         </header>
 
         <nav class="nav-tabs">
@@ -763,23 +582,69 @@
             <button class="nav-tab" data-tab="payday">PAYDAY</button>
         </nav>
 
-        <!-- OVERVIEW SECTION -->
+        <!-- ==================== OVERVIEW SECTION ==================== -->
         <section class="flow-section active" id="overview">
             <div class="flow-header">
                 <div class="flow-icon overview">📊</div>
                 <div class="flow-info">
-                    <h2>System Overview</h2>
-                    <p>7 keyword funnels with complete automation sequences</p>
+                    <h2>System Overview V2</h2>
+                    <p>Optimized flows with consolidated messages + objection handlers</p>
                 </div>
                 <div class="flow-meta">
                     <div class="meta-item">
-                        <div class="label">Total Flows</div>
-                        <div class="value">7 Primary + Follow-ups</div>
+                        <div class="label">Messages</div>
+                        <div class="value">2 per sequence</div>
                     </div>
                     <div class="meta-item">
-                        <div class="label">Follow-up Cadence</div>
-                        <div class="value">Day 1, Day 3, Day 7</div>
+                        <div class="label">Win Rate</div>
+                        <div class="value">Every click = forward</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- V2 Optimizations Table -->
+            <div class="flow-stage" style="margin-bottom: 30px;">
+                <div class="stage-header">
+                    <div class="stage-number" style="background: var(--gradient-autopilot);">⚡</div>
+                    <div class="stage-title">V2 Optimizations</div>
+                </div>
+                <div class="stage-content">
+                    <table class="summary-table">
+                        <thead>
+                            <tr>
+                                <th>Optimization</th>
+                                <th>Before (V1)</th>
+                                <th>After (V2)</th>
+                                <th>Leverage Gained</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Message Structure</strong></td>
+                                <td>3 separate messages</td>
+                                <td>2 messages (Hook+Value → CTA)</td>
+                                <td>Faster delivery, less drop-off</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Button Count</strong></td>
+                                <td>1 button (primary only)</td>
+                                <td>2 buttons (primary + objection)</td>
+                                <td>Captures hesitant leads</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Decline Handling</strong></td>
+                                <td>End sequence</td>
+                                <td>Re-qualify into different flow</td>
+                                <td>No lead lost, just redirected</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Objection Response</strong></td>
+                                <td>None</td>
+                                <td>Custom script per objection</td>
+                                <td>Builds trust, answers concerns</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -794,11 +659,11 @@
                         </div>
                     </div>
                     <div class="overview-card-body">
-                        System installation that automates savings, investing, and wealth building. No willpower needed.
+                        <strong>Objection:</strong> "How Long?" → Time breakdown + micro-step offer
                     </div>
                     <div class="overview-card-footer">
-                        <span>Direct Flow</span>
-                        <span>Cross-sell → CHEAT</span>
+                        <span>2 buttons</span>
+                        <span>→ CHEAT</span>
                     </div>
                 </div>
 
@@ -811,11 +676,11 @@
                         </div>
                     </div>
                     <div class="overview-card-body">
-                        Cost of Waiting Calculator shows exact dollar amount draining from future every day you wait.
+                        <strong>Objection:</strong> "Start Gentler" → Bridges to PAYDAY
                     </div>
                     <div class="overview-card-footer">
-                        <span>Funnel Flow (Email Gate)</span>
-                        <span>Cross-sell → AUTOPILOT</span>
+                        <span>2 buttons</span>
+                        <span>→ AUTOPILOT</span>
                     </div>
                 </div>
 
@@ -828,11 +693,11 @@
                         </div>
                     </div>
                     <div class="overview-card-body">
-                        800-Club Checklist with exact steps to stop paying the broke tax on every loan, card, and apartment.
+                        <strong>Objection:</strong> "How Long?" → Timeline breakdown by starting score
                     </div>
                     <div class="overview-card-footer">
-                        <span>Funnel Flow (Email Gate)</span>
-                        <span>Cross-sell → PAYDAY</span>
+                        <span>2 buttons</span>
+                        <span>→ PAYDAY</span>
                     </div>
                 </div>
 
@@ -845,11 +710,11 @@
                         </div>
                     </div>
                     <div class="overview-card-body">
-                        Freedom Calculator reveals exact dollar amount needed to never work again based on lifestyle.
+                        <strong>Objection:</strong> "What If Huge?" → Fear reframe + clarity promise
                     </div>
                     <div class="overview-card-footer">
-                        <span>Funnel Flow (Email Gate)</span>
-                        <span>Cross-sell → AUTOPILOT</span>
+                        <span>2 buttons</span>
+                        <span>→ AUTOPILOT</span>
                     </div>
                 </div>
 
@@ -862,11 +727,11 @@
                         </div>
                     </div>
                     <div class="overview-card-body">
-                        Prompt Vault with AI cheat codes for budgeting, investing, side hustles, and automating tasks.
+                        <strong>Objection:</strong> "Show Me One" → Sample prompt as proof
                     </div>
                     <div class="overview-card-footer">
-                        <span>Direct Flow</span>
-                        <span>Cross-sell → BUILD50</span>
+                        <span>2 buttons</span>
+                        <span>→ BUILD50</span>
                     </div>
                 </div>
 
@@ -879,11 +744,11 @@
                         </div>
                     </div>
                     <div class="overview-card-body">
-                        Investment Simplifier tells exactly which ETFs to buy based on budget. No more paralysis.
+                        <strong>Objection:</strong> "I Have Less" → Confirms low barrier works
                     </div>
                     <div class="overview-card-footer">
-                        <span>Direct Flow (Email Gate)</span>
-                        <span>Cross-sell → AUTOPILOT</span>
+                        <span>2 buttons</span>
+                        <span>→ AUTOPILOT</span>
                     </div>
                 </div>
 
@@ -896,56 +761,147 @@
                         </div>
                     </div>
                     <div class="overview-card-body">
-                        Budget Calculator matches with right system based on psychology. 50/30/20 doesn't work for everyone.
+                        <strong>Objection:</strong> "Failed Before" → Validates past, reframes future
                     </div>
                     <div class="overview-card-footer">
-                        <span>Direct Flow (Email Gate)</span>
-                        <span>Cross-sell → LEAK</span>
+                        <span>2 buttons</span>
+                        <span>→ LEAK</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Ecosystem Flow -->
-            <div class="ecosystem-flow">
-                <div class="ecosystem-title">Cross-Sell Ecosystem Flow</div>
-                <div class="flow-diagram">
-         ┌─────────────────────────────────────────────────────────┐
-         │                    ENTRY POINTS                         │
-         │                 (Keyword Comments)                      │
-         └─────────────────────────────────────────────────────────┘
-                                    │
-     ┌──────────┬──────────┬────────┴────────┬──────────┬──────────┐
-     ▼          ▼          ▼                 ▼          ▼          ▼
-┌─────────┐┌─────────┐┌──────────┐    ┌──────────┐┌─────────┐┌─────────┐
-│  LEAK   ││MYNUMBER ││ ELITE800 │    │  PAYDAY  ││ BUILD50 ││AUTOPILOT│
-│ (Fear)  ││(Clarity)││ (Status) │    │ (Match)  ││(Action) ││(System) │
-└────┬────┘└────┬────┘└────┬─────┘    └────┬─────┘└────┬────┘└────┬────┘
-     │          │          │               │          │          │
-     ▼          ▼          ▼               ▼          ▼          ▼
-┌─────────┐┌─────────┐┌──────────┐    ┌──────────┐┌─────────┐┌─────────┐
-│Cost of  ││ Freedom ││ 800-Club │    │  Budget  ││Investment│ Autopilot│
-│Waiting  ││  Calc   ││ Checklist│    │   Calc   ││Simplifier│   APP   │
-│ [EMAIL] ││ [EMAIL] ││  [EMAIL] │    │  [EMAIL] ││ [EMAIL] ││ [EMAIL] │
-└────┬────┘└────┬────┘└────┬─────┘    └────┬─────┘└────┬────┘└────┬────┘
-     │          │          │               │          │          │
-     ▼          ▼          ▼               ▼          ▼          ▼
-┌─────────┐┌─────────┐┌──────────┐    ┌──────────┐┌─────────┐┌─────────┐
-│Investment│Investment│  Budget  │    │   LEAK   ││AUTOPILOT││  CHEAT  │
-│Simplifier│Simplifier│   Calc   │    │(Cross-Sell)(Cross-Sell)(Cross-Sell)
-│[NO GATE]││[NO GATE]││ [NO GATE]│    └──────────┘└─────────┘└────┬────┘
-└────┬────┘└────┬────┘└────┬─────┘                                │
-     │          │          │                                      ▼
-     └──────────┴──────────┴──────────────────────────────► ┌─────────┐
-                                                            │ BUILD50 │
-                                                            │(Cross-Sell)
-                                                            └─────────┘</div>
+            <!-- Universal Re-Qualification Flow -->
+            <div class="requalify-section">
+                <div class="requalify-header">
+                    <span style="font-size: 18px;">🔄</span>
+                    <span class="requalify-title">Universal Win-Win Decline Flow (All Keywords)</span>
+                </div>
+                <div class="message-block" style="margin-bottom: 14px;">
+                    <div class="message-label">
+                        💬 Re-Qualification Trigger (When User Clicks "Not Now")
+                        <span class="char-count">89 chars</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                    <div class="message-text">Got it. Before I go, quick question: what's your biggest money challenge right now?</div>
+                </div>
+                <div class="requalify-options">
+                    <div class="requalify-option">
+                        <div class="requalify-option-label">BUTTON 1</div>
+                        <div class="requalify-option-text">💸 Money disappears and I don't know where</div>
+                        <div class="requalify-option-arrow">→ Routes to PAYDAY flow</div>
+                    </div>
+                    <div class="requalify-option">
+                        <div class="requalify-option-label">BUTTON 2</div>
+                        <div class="requalify-option-text">📈 I want to start investing but don't know how</div>
+                        <div class="requalify-option-arrow">→ Routes to BUILD50 flow</div>
+                    </div>
+                    <div class="requalify-option">
+                        <div class="requalify-option-label">BUTTON 3</div>
+                        <div class="requalify-option-text">💳 My credit score needs serious work</div>
+                        <div class="requalify-option-arrow">→ Routes to ELITE800 flow</div>
+                    </div>
+                    <div class="requalify-option">
+                        <div class="requalify-option-label">BUTTON 4</div>
+                        <div class="requalify-option-text">😔 I just feel behind everyone else</div>
+                        <div class="requalify-option-arrow">→ Routes to MYNUMBER flow</div>
+                    </div>
+                    <div class="requalify-option">
+                        <div class="requalify-option-label">BUTTON 5</div>
+                        <div class="requalify-option-text">👋 Just browsing for now</div>
+                        <div class="requalify-option-arrow">→ Graceful exit with seed planted</div>
+                    </div>
+                </div>
+
+                <!-- Response Scripts for Each Re-Qual Option -->
+                <div class="response-block objection" style="margin-top: 20px;">
+                    <div class="response-header objection">💸 If "Money Disappears" → PAYDAY</div>
+                    <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                        <div class="message-label">💬 Bridge Script <span class="char-count">213 chars</span></div>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                        <div class="message-text">That's the most common one. And it's fixable.
+
+I built a quiz that matches you with a budget system based on YOUR psychology. Not some generic rule that makes you feel like a failure. Takes 2 minutes.</div>
+                    </div>
+                    <div class="button-block">
+                        <div class="button-item primary">
+                            <span class="button-emoji">💰</span>
+                            <span class="button-text">Find My System</span>
+                            <span class="button-type url">URL → PAYDAY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="response-block objection" style="margin-top: 16px;">
+                    <div class="response-header objection">📈 If "Want to Invest" → BUILD50</div>
+                    <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                        <div class="message-label">💬 Bridge Script <span class="char-count">198 chars</span></div>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                        <div class="message-text">Good. That urge is valuable. Don't let it fade.
+
+I built a tool that tells you exactly which ETFs to buy based on your budget. No guessing. No "do your own research." Just a list.</div>
+                    </div>
+                    <div class="button-block">
+                        <div class="button-item primary">
+                            <span class="button-emoji">📈</span>
+                            <span class="button-text">Build My Portfolio</span>
+                            <span class="button-type url">URL → BUILD50</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="response-block objection" style="margin-top: 16px;">
+                    <div class="response-header objection">💳 If "Credit Needs Work" → ELITE800</div>
+                    <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                        <div class="message-label">💬 Bridge Script <span class="char-count">187 chars</span></div>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                        <div class="message-text">Smart to fix that first. Below 800, you're paying extra on everything: loans, apartments, even insurance.
+
+I built the exact checklist I used to hit 800+. No theory. Just steps.</div>
+                    </div>
+                    <div class="button-block">
+                        <div class="button-item primary">
+                            <span class="button-emoji">🎯</span>
+                            <span class="button-text">Get The Checklist</span>
+                            <span class="button-type url">URL → ELITE800</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="response-block objection" style="margin-top: 16px;">
+                    <div class="response-header objection">😔 If "Feel Behind" → MYNUMBER</div>
+                    <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                        <div class="message-label">💬 Bridge Script <span class="char-count">219 chars</span></div>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                        <div class="message-text">That feeling usually comes from not knowing the actual goal.
+
+I built a calculator that shows your exact "freedom number" — the amount where you never have to work again. Once you know it, everything gets clearer.</div>
+                    </div>
+                    <div class="button-block">
+                        <div class="button-item primary">
+                            <span class="button-emoji">🧮</span>
+                            <span class="button-text">Find My Number</span>
+                            <span class="button-type url">URL → MYNUMBER</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="response-block decline" style="margin-top: 16px;">
+                    <div class="response-header decline">👋 If "Just Browsing" → Graceful Exit</div>
+                    <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                        <div class="message-label">💬 Exit Script <span class="char-count">178 chars</span></div>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                        <div class="message-text">Respect. I won't spam you.
+
+When you're ready to build, comment any keyword on my posts: AUTOPILOT, LEAK, ELITE800, MYNUMBER, CHEAT, BUILD50, or PAYDAY. I'll be here.</div>
+                    </div>
+                </div>
             </div>
 
             <!-- Quick Reference Table -->
-            <div class="flow-stage" style="margin-bottom: 0;">
+            <div class="flow-stage" style="margin-top: 30px;">
                 <div class="stage-header">
                     <div class="stage-number" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">📋</div>
-                    <div class="stage-title">Quick Reference: Links & Cross-Sells</div>
+                    <div class="stage-title">Quick Reference: All Links</div>
                 </div>
                 <div class="stage-content">
                     <table class="summary-table">
@@ -961,43 +917,43 @@
                             <tr>
                                 <td><span class="keyword-badge autopilot">AUTOPILOT</span></td>
                                 <td>Autopilot APP</td>
-                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">autopilot-system.html</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 10px;">spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html</td>
                                 <td>→ CHEAT</td>
                             </tr>
                             <tr>
                                 <td><span class="keyword-badge leak">LEAK</span></td>
                                 <td>Cost of Waiting Calculator</td>
-                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">cost-of-waiting.html</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 10px;">spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html</td>
                                 <td>→ AUTOPILOT</td>
                             </tr>
                             <tr>
                                 <td><span class="keyword-badge elite800">ELITE800</span></td>
                                 <td>800-Club Checklist</td>
-                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">800-club.html</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 10px;">spacekou5-oss.github.io/cashvault-funnel/800-club.html</td>
                                 <td>→ PAYDAY</td>
                             </tr>
                             <tr>
                                 <td><span class="keyword-badge mynumber">MYNUMBER</span></td>
                                 <td>Freedom Calculator</td>
-                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">freedom-calculator.html</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 10px;">spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html</td>
                                 <td>→ AUTOPILOT</td>
                             </tr>
                             <tr>
                                 <td><span class="keyword-badge cheat">CHEAT</span></td>
                                 <td>Prompt Vault App</td>
-                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">prompt-vault.html</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 10px;">spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html</td>
                                 <td>→ BUILD50</td>
                             </tr>
                             <tr>
                                 <td><span class="keyword-badge build50">BUILD50</span></td>
                                 <td>Investment Simplifier</td>
-                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">Investment-Simplifier.html</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 10px;">spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html</td>
                                 <td>→ AUTOPILOT</td>
                             </tr>
                             <tr>
                                 <td><span class="keyword-badge payday">PAYDAY</span></td>
                                 <td>Budget Calculator</td>
-                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">Kou's-Budget-Calculator.html</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 10px;">spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html</td>
                                 <td>→ LEAK</td>
                             </tr>
                         </tbody>
@@ -1006,7 +962,7 @@
             </div>
         </section>
 
-        <!-- AUTOPILOT SECTION -->
+        <!-- ==================== AUTOPILOT SECTION ==================== -->
         <section class="flow-section" id="autopilot">
             <div class="flow-header">
                 <div class="flow-icon autopilot">🔧</div>
@@ -1030,53 +986,72 @@
             <div class="flow-stage autopilot">
                 <div class="stage-header">
                     <div class="stage-number">1</div>
-                    <div class="stage-title">Initial Sequence</div>
+                    <div class="stage-title">Initial Sequence (Consolidated)</div>
                     <div class="stage-timing">TRIGGER: Comment "AUTOPILOT"</div>
                 </div>
                 <div class="stage-content">
-                    <div class="message-block">
+                    <div class="message-block consolidated">
                         <div class="message-label">
-                            💬 Message 1: Hook
-                            <span class="char-count">156 chars</span>
+                            💬 Message 1: Hook + Value
+                            <span class="optimized-badge">CONSOLIDATED</span>
+                            <span class="char-count">397 chars</span>
                         </div>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                        <div class="message-text">Yo {{first_name}}. You commented AUTOPILOT. Smart move. Most people let their money sit doing nothing. You're about to build something that works without you.</div>
+                        <div class="message-text">Yo {{first_name}}. You commented AUTOPILOT. Smart move.
+
+Most people let their money sit doing nothing. You're about to build something that works without you.
+
+Here's what you're getting: a full system installation that automates your savings, investing, and wealth building. No willpower needed. You set it up once, and it runs forever. I spent 6 months building this so you don't have to figure it out yourself.</div>
                     </div>
 
                     <div class="message-block">
                         <div class="message-label">
-                            💬 Message 2: Value Setup (3 sec delay)
-                            <span class="char-count">241 chars</span>
-                        </div>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                        <div class="message-text">Here's what you're getting: a full system installation that automates your savings, investing, and wealth building. No willpower needed. You'll set it up once, and it runs forever. I spent 6 months building this so you don't have to figure it out yourself.</div>
-                    </div>
-
-                    <div class="message-block">
-                        <div class="message-label">
-                            💬 Message 3: CTA (2 sec delay)
+                            💬 Message 2: CTA
                             <span class="char-count">89 chars</span>
+                            <span style="margin-left: 8px; font-size: 10px; color: var(--text-muted);">3 sec delay</span>
                         </div>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
                         <div class="message-text">Tap below to start the installation. Takes about 15 minutes to set up your machine.</div>
                     </div>
 
                     <div class="button-block">
-                        <div class="button-item">
+                        <div class="button-item primary">
                             <span class="button-emoji">🔧</span>
                             <span class="button-text">Install Now</span>
                             <span class="button-type url">URL</span>
                         </div>
+                        <div class="button-item secondary">
+                            <span class="button-emoji">⏱️</span>
+                            <span class="button-text">How Long?</span>
+                            <span class="button-type reply">REPLY</span>
+                        </div>
                     </div>
 
                     <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html</div>
+
+                    <!-- Objection: How Long? -->
+                    <div class="response-block objection">
+                        <div class="response-header objection">⏱️ If "How Long?" Response</div>
+                        <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                            <div class="message-label">💬 Objection Handler <span class="char-count">284 chars</span></div>
+                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                            <div class="message-text">Real talk: 15 minutes for the full setup. But here's the thing — you can do Module 1 in under 5 minutes and already have your first automation running.
+
+Most people finish the whole thing in one sitting because the momentum kicks in. But even 5 minutes today puts you ahead of 90% of people.</div>
+                        </div>
+                        <div class="button-block">
+                            <div class="button-item primary">
+                                <span class="button-emoji">⚡</span>
+                                <span class="button-text">Start Module 1</span>
+                                <span class="button-type url">URL</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="arrow-down">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M19 12l-7 7-7-7"/>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
             </div>
 
             <!-- Follow-up: No Response -->
@@ -1084,69 +1059,79 @@
                 <div class="branch-header">
                     <span class="branch-icon">🔕</span>
                     <span class="branch-title">Follow-Up: No Response Track</span>
-                    <span class="branch-subtitle">User didn't click button</span>
+                    <span class="branch-subtitle">User didn't click any button</span>
                 </div>
 
                 <div class="followup-grid">
                     <div class="followup-card">
                         <div class="followup-day">DAY 1 (24 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">127 chars</span>
-                            </div>
+                        <div class="message-block" style="margin-bottom: 12px;">
+                            <div class="message-label">💬 Message <span class="char-count">127 chars</span></div>
                             <button class="copy-btn" onclick="copyText(this)">Copy</button>
                             <div class="message-text">{{first_name}}, you grabbed AUTOPILOT but haven't started. The system is ready. Your future self will thank you for the 15 minutes.</div>
                         </div>
                         <div class="button-block">
-                            <div class="button-item">
+                            <div class="button-item primary">
                                 <span class="button-emoji">🔧</span>
                                 <span class="button-text">Start Now</span>
                                 <span class="button-type url">URL</span>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 3 (72 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">118 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Quick check: still want the Autopilot system? It's sitting here waiting. One tap and your money starts working for you.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">✅</span>
-                                <span class="button-text">Yes, Open</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                            <div class="button-item">
+                            <div class="button-item secondary">
                                 <span class="button-emoji">❌</span>
                                 <span class="button-text">Not Now</span>
                                 <span class="button-type reply">REPLY</span>
                             </div>
                         </div>
+                        <div style="margin-top: 10px; padding: 8px 12px; background: rgba(139, 92, 246, 0.1); border-radius: 6px; font-size: 11px; color: var(--accent-elite800);">
+                            ❌ "Not Now" → Triggers Re-Qualification Flow
+                        </div>
+                    </div>
+
+                    <div class="followup-card">
+                        <div class="followup-day">DAY 3 (72 hrs)</div>
+                        <div class="message-block" style="margin-bottom: 12px;">
+                            <div class="message-label">💬 Message <span class="char-count">118 chars</span></div>
+                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                            <div class="message-text">Quick check: still want the Autopilot system? It's sitting here waiting. One tap and your money starts working for you.</div>
+                        </div>
+                        <div class="button-block">
+                            <div class="button-item primary">
+                                <span class="button-emoji">✅</span>
+                                <span class="button-text">Yes, Open</span>
+                                <span class="button-type url">URL</span>
+                            </div>
+                            <div class="button-item secondary">
+                                <span class="button-emoji">❌</span>
+                                <span class="button-text">Not Now</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; padding: 8px 12px; background: rgba(139, 92, 246, 0.1); border-radius: 6px; font-size: 11px; color: var(--accent-elite800);">
+                            ❌ "Not Now" → Triggers Re-Qualification Flow
+                        </div>
                     </div>
 
                     <div class="followup-card">
                         <div class="followup-day">DAY 7 (168 hrs) - FINAL</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">134 chars</span>
-                            </div>
+                        <div class="message-block" style="margin-bottom: 12px;">
+                            <div class="message-label">💬 Message <span class="char-count">134 chars</span></div>
                             <button class="copy-btn" onclick="copyText(this)">Copy</button>
                             <div class="message-text">Last reminder on AUTOPILOT, {{first_name}}. After today I won't bug you again. But the machine is still here if you want to build it.</div>
                         </div>
                         <div class="button-block">
-                            <div class="button-item">
+                            <div class="button-item primary">
                                 <span class="button-emoji">🔧</span>
                                 <span class="button-text">Build It</span>
                                 <span class="button-type url">URL</span>
                             </div>
+                            <div class="button-item secondary">
+                                <span class="button-emoji">👋</span>
+                                <span class="button-text">Maybe Later</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; padding: 8px 12px; background: rgba(139, 92, 246, 0.1); border-radius: 6px; font-size: 11px; color: var(--accent-elite800);">
+                            👋 "Maybe Later" → Triggers Re-Qualification Flow
                         </div>
                     </div>
                 </div>
@@ -1156,70 +1141,87 @@
             <div class="branch-section">
                 <div class="branch-header">
                     <span class="branch-icon">⚠️</span>
-                    <span class="branch-title">Follow-Up: Clicked But Didn't Complete Track</span>
+                    <span class="branch-title">Follow-Up: Clicked But Didn't Complete</span>
                     <span class="branch-subtitle">User clicked but abandoned app</span>
                 </div>
 
                 <div class="followup-grid">
                     <div class="followup-card">
                         <div class="followup-day">DAY 1 (24 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">119 chars</span>
-                            </div>
+                        <div class="message-block" style="margin-bottom: 12px;">
+                            <div class="message-label">💬 Message <span class="char-count">119 chars</span></div>
                             <button class="copy-btn" onclick="copyText(this)">Copy</button>
                             <div class="message-text">{{first_name}}, you started the Autopilot installation but didn't finish. You're 70% there. Want me to walk you through it?</div>
                         </div>
                         <div class="button-block">
-                            <div class="button-item">
+                            <div class="button-item primary">
                                 <span class="button-emoji">✅</span>
                                 <span class="button-text">Continue</span>
                                 <span class="button-type url">URL</span>
                             </div>
-                            <div class="button-item">
-                                <span class="button-emoji">💬</span>
-                                <span class="button-text">Help Me</span>
+                            <div class="button-item secondary">
+                                <span class="button-emoji">🤔</span>
+                                <span class="button-text">I Got Stuck</span>
                                 <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+
+                        <!-- Got Stuck Response -->
+                        <div class="response-block objection" style="margin-top: 12px;">
+                            <div class="response-header objection">🤔 If "I Got Stuck"</div>
+                            <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                                <div class="message-label">💬 Support Script <span class="char-count">178 chars</span></div>
+                                <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                                <div class="message-text">No worries. Most common sticking point is Module 3 (the account connections). What part tripped you up? Just reply with the module number or describe the issue and I'll help you through it.</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="followup-card">
                         <div class="followup-day">DAY 3 (72 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">108 chars</span>
-                            </div>
+                        <div class="message-block" style="margin-bottom: 12px;">
+                            <div class="message-label">💬 Message <span class="char-count">108 chars</span></div>
                             <button class="copy-btn" onclick="copyText(this)">Copy</button>
                             <div class="message-text">Your Autopilot system is half-built. That's like buying a car and leaving it in the driveway. Let's finish.</div>
                         </div>
                         <div class="button-block">
-                            <div class="button-item">
+                            <div class="button-item primary">
                                 <span class="button-emoji">🚗</span>
                                 <span class="button-text">Finish</span>
                                 <span class="button-type url">URL</span>
                             </div>
+                            <div class="button-item secondary">
+                                <span class="button-emoji">❌</span>
+                                <span class="button-text">Not Now</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; padding: 8px 12px; background: rgba(139, 92, 246, 0.1); border-radius: 6px; font-size: 11px; color: var(--accent-elite800);">
+                            ❌ "Not Now" → Triggers Re-Qualification Flow
                         </div>
                     </div>
 
                     <div class="followup-card">
                         <div class="followup-day">DAY 7 (168 hrs) - FINAL</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">132 chars</span>
-                            </div>
+                        <div class="message-block" style="margin-bottom: 12px;">
+                            <div class="message-label">💬 Message <span class="char-count">132 chars</span></div>
                             <button class="copy-btn" onclick="copyText(this)">Copy</button>
                             <div class="message-text">Final nudge: your incomplete system is just sitting there. 10 more minutes and your wealth runs on autopilot. Worth it? Tap below.</div>
                         </div>
                         <div class="button-block">
-                            <div class="button-item">
+                            <div class="button-item primary">
                                 <span class="button-emoji">⚡</span>
                                 <span class="button-text">Finish Setup</span>
                                 <span class="button-type url">URL</span>
                             </div>
+                            <div class="button-item secondary">
+                                <span class="button-emoji">👋</span>
+                                <span class="button-text">Maybe Later</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; padding: 8px 12px; background: rgba(139, 92, 246, 0.1); border-radius: 6px; font-size: 11px; color: var(--accent-elite800);">
+                            👋 "Maybe Later" → Triggers Re-Qualification Flow
                         </div>
                     </div>
                 </div>
@@ -1229,29 +1231,47 @@
             <div class="crosssell-section">
                 <div class="crosssell-header">
                     <span class="crosssell-icon">🔗</span>
-                    <span class="crosssell-title">Cross-Sell: After Completion</span>
-                    <span class="crosssell-trigger">TRIGGER: User completes Autopilot APP | 24 hrs later</span>
+                    <span class="crosssell-title">Cross-Sell: After Completion → CHEAT</span>
+                    <span class="crosssell-trigger">24 hrs after completion</span>
                 </div>
                 <div class="message-block" style="margin-bottom: 0;">
-                    <div class="message-label">
-                        💬 Message
-                        <span class="char-count">138 chars</span>
-                    </div>
+                    <div class="message-label">💬 Cross-Sell Message <span class="char-count">138 chars</span></div>
                     <button class="copy-btn" onclick="copyText(this)">Copy</button>
                     <div class="message-text">{{first_name}}, your Autopilot is live. Want to 10x your speed? I built an AI prompt vault that does the thinking for you. Comment CHEAT.</div>
                 </div>
                 <div class="button-block">
-                    <div class="button-item">
+                    <div class="button-item primary">
                         <span class="button-emoji">🤖</span>
                         <span class="button-text">Open Vault</span>
                         <span class="button-type url">URL</span>
                     </div>
+                    <div class="button-item secondary">
+                        <span class="button-emoji">🤔</span>
+                        <span class="button-text">What's Inside?</span>
+                        <span class="button-type reply">REPLY</span>
+                    </div>
                 </div>
                 <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html</div>
+
+                <div class="response-block objection" style="margin-top: 16px;">
+                    <div class="response-header objection">🤔 If "What's Inside?"</div>
+                    <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                        <div class="message-label">💬 Preview Script <span class="char-count">241 chars</span></div>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                        <div class="message-text">50+ copy-paste prompts I use every week. Categories: Budget analysis, investment research, side hustle ideas, content creation, and task automation. Each one took me hours to refine. You just paste and profit. Want to see the full vault?</div>
+                    </div>
+                    <div class="button-block">
+                        <div class="button-item primary">
+                            <span class="button-emoji">🤖</span>
+                            <span class="button-text">Show Me</span>
+                            <span class="button-type url">URL</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- LEAK SECTION -->
+        <!-- ==================== LEAK SECTION ==================== -->
         <section class="flow-section" id="leak">
             <div class="flow-header">
                 <div class="flow-icon leak">💸</div>
@@ -1271,57 +1291,79 @@
                 </div>
             </div>
 
-            <!-- Initial Sequence -->
             <div class="flow-stage leak">
                 <div class="stage-header">
                     <div class="stage-number">1</div>
-                    <div class="stage-title">Initial Sequence</div>
+                    <div class="stage-title">Initial Sequence (Consolidated)</div>
                     <div class="stage-timing">TRIGGER: Comment "LEAK"</div>
                 </div>
                 <div class="stage-content">
-                    <div class="message-block">
+                    <div class="message-block consolidated">
                         <div class="message-label">
-                            💬 Message 1: Hook
-                            <span class="char-count">149 chars</span>
+                            💬 Message 1: Hook + Value
+                            <span class="optimized-badge">CONSOLIDATED</span>
+                            <span class="char-count">387 chars</span>
                         </div>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                        <div class="message-text">{{first_name}}. You commented LEAK. That tells me you want to see the real math. Most people avoid this because the number hurts. You're not most people.</div>
+                        <div class="message-text">{{first_name}}. You commented LEAK. That tells me you want to see the real math. Most people avoid this because the number hurts. You're not most people.
+
+I built a calculator that shows you exactly how much money you're losing by not being invested. Not some vague "you should start early" advice. The actual dollar amount draining from your future every single day you wait. Takes 30 seconds.</div>
                     </div>
 
                     <div class="message-block">
                         <div class="message-label">
-                            💬 Message 2: Value Setup (3 sec delay)
-                            <span class="char-count">238 chars</span>
-                        </div>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                        <div class="message-text">I built a calculator that shows you exactly how much money you're losing by not being invested. Not some vague "you should start early" advice. The actual dollar amount draining from your future every single day you wait. It takes 30 seconds.</div>
-                    </div>
-
-                    <div class="message-block">
-                        <div class="message-label">
-                            💬 Message 3: CTA (2 sec delay)
+                            💬 Message 2: CTA
                             <span class="char-count">94 chars</span>
+                            <span style="margin-left: 8px; font-size: 10px; color: var(--text-muted);">3 sec delay</span>
                         </div>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
                         <div class="message-text">Tap below to see your leak. Warning: the number might piss you off. That's the point.</div>
                     </div>
 
                     <div class="button-block">
-                        <div class="button-item">
+                        <div class="button-item primary">
                             <span class="button-emoji">💸</span>
                             <span class="button-text">See My Leak</span>
                             <span class="button-type url">URL</span>
                         </div>
+                        <div class="button-item secondary">
+                            <span class="button-emoji">😰</span>
+                            <span class="button-text">Start Gentler</span>
+                            <span class="button-type reply">REPLY</span>
+                        </div>
                     </div>
 
                     <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html</div>
+
+                    <!-- Objection: Start Gentler (Bridge to PAYDAY) -->
+                    <div class="response-block objection">
+                        <div class="response-header objection">😰 If "Start Gentler" → Bridges to PAYDAY</div>
+                        <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                            <div class="message-label">💬 Bridge Script <span class="char-count">256 chars</span></div>
+                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                            <div class="message-text">Totally fair. The leak calculator hits hard and some people aren't ready for that yet.
+
+Here's a softer start: let's figure out where your money actually goes first. I have a 2-minute quiz that matches you with the right budget system for your brain. No scary numbers. Just clarity.</div>
+                        </div>
+                        <div class="button-block">
+                            <div class="button-item primary">
+                                <span class="button-emoji">💰</span>
+                                <span class="button-text">Find My Budget</span>
+                                <span class="button-type url">URL → PAYDAY</span>
+                            </div>
+                            <div class="button-item secondary">
+                                <span class="button-emoji">💪</span>
+                                <span class="button-text">I Can Handle It</span>
+                                <span class="button-type url">URL → LEAK</span>
+                            </div>
+                        </div>
+                        <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html</div>
+                    </div>
                 </div>
             </div>
 
             <div class="arrow-down">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M19 12l-7 7-7-7"/>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
             </div>
 
             <!-- Follow-up: No Response -->
@@ -1329,69 +1371,79 @@
                 <div class="branch-header">
                     <span class="branch-icon">🔕</span>
                     <span class="branch-title">Follow-Up: No Response Track</span>
-                    <span class="branch-subtitle">User didn't click button</span>
+                    <span class="branch-subtitle">User didn't click any button</span>
                 </div>
 
                 <div class="followup-grid">
                     <div class="followup-card">
                         <div class="followup-day">DAY 1 (24 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">121 chars</span>
-                            </div>
+                        <div class="message-block" style="margin-bottom: 12px;">
+                            <div class="message-label">💬 Message <span class="char-count">121 chars</span></div>
                             <button class="copy-btn" onclick="copyText(this)">Copy</button>
                             <div class="message-text">{{first_name}}, you asked to see your leak but never checked. The money is still draining. 30 seconds to see how much.</div>
                         </div>
                         <div class="button-block">
-                            <div class="button-item">
+                            <div class="button-item primary">
                                 <span class="button-emoji">💸</span>
                                 <span class="button-text">See Leak</span>
                                 <span class="button-type url">URL</span>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 3 (72 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">129 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Still curious about your leak? The calculator is ready. Most people who run it start investing within 48 hours. Just saying.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">✅</span>
-                                <span class="button-text">Run It</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                            <div class="button-item">
+                            <div class="button-item secondary">
                                 <span class="button-emoji">❌</span>
                                 <span class="button-text">Not Now</span>
                                 <span class="button-type reply">REPLY</span>
                             </div>
                         </div>
+                        <div style="margin-top: 10px; padding: 8px 12px; background: rgba(139, 92, 246, 0.1); border-radius: 6px; font-size: 11px; color: var(--accent-elite800);">
+                            ❌ "Not Now" → Triggers Re-Qualification Flow
+                        </div>
+                    </div>
+
+                    <div class="followup-card">
+                        <div class="followup-day">DAY 3 (72 hrs)</div>
+                        <div class="message-block" style="margin-bottom: 12px;">
+                            <div class="message-label">💬 Message <span class="char-count">129 chars</span></div>
+                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                            <div class="message-text">Still curious about your leak? The calculator is ready. Most people who run it start investing within 48 hours. Just saying.</div>
+                        </div>
+                        <div class="button-block">
+                            <div class="button-item primary">
+                                <span class="button-emoji">✅</span>
+                                <span class="button-text">Run It</span>
+                                <span class="button-type url">URL</span>
+                            </div>
+                            <div class="button-item secondary">
+                                <span class="button-emoji">❌</span>
+                                <span class="button-text">Not Now</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; padding: 8px 12px; background: rgba(139, 92, 246, 0.1); border-radius: 6px; font-size: 11px; color: var(--accent-elite800);">
+                            ❌ "Not Now" → Triggers Re-Qualification Flow
+                        </div>
                     </div>
 
                     <div class="followup-card">
                         <div class="followup-day">DAY 7 (168 hrs) - FINAL</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">137 chars</span>
-                            </div>
+                        <div class="message-block" style="margin-bottom: 12px;">
+                            <div class="message-label">💬 Message <span class="char-count">137 chars</span></div>
                             <button class="copy-btn" onclick="copyText(this)">Copy</button>
                             <div class="message-text">Last call on the leak calculator, {{first_name}}. I won't message again. But every day you don't know the number, it keeps growing.</div>
                         </div>
                         <div class="button-block">
-                            <div class="button-item">
+                            <div class="button-item primary">
                                 <span class="button-emoji">💸</span>
                                 <span class="button-text">Final Look</span>
                                 <span class="button-type url">URL</span>
                             </div>
+                            <div class="button-item secondary">
+                                <span class="button-emoji">👋</span>
+                                <span class="button-text">Maybe Later</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; padding: 8px 12px; background: rgba(139, 92, 246, 0.1); border-radius: 6px; font-size: 11px; color: var(--accent-elite800);">
+                            👋 "Maybe Later" → Triggers Re-Qualification Flow
                         </div>
                     </div>
                 </div>
@@ -1401,65 +1453,94 @@
             <div class="branch-section">
                 <div class="branch-header">
                     <span class="branch-icon">⚠️</span>
-                    <span class="branch-title">Follow-Up: Clicked But Didn't Complete Track</span>
+                    <span class="branch-title">Follow-Up: Clicked But Didn't Complete</span>
                     <span class="branch-subtitle">User clicked but abandoned app</span>
                 </div>
 
                 <div class="followup-grid">
                     <div class="followup-card">
                         <div class="followup-day">DAY 1 (24 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">124 chars</span>
-                            </div>
+                        <div class="message-block" style="margin-bottom: 12px;">
+                            <div class="message-label">💬 Message <span class="char-count">124 chars</span></div>
                             <button class="copy-btn" onclick="copyText(this)">Copy</button>
                             <div class="message-text">{{first_name}}, you opened the leak calculator but didn't finish. Scared of the number? That fear is exactly why you need it.</div>
                         </div>
                         <div class="button-block">
-                            <div class="button-item">
+                            <div class="button-item primary">
                                 <span class="button-emoji">💪</span>
                                 <span class="button-text">Face It</span>
                                 <span class="button-type url">URL</span>
+                            </div>
+                            <div class="button-item secondary">
+                                <span class="button-emoji">😰</span>
+                                <span class="button-text">Too Scary</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+
+                        <!-- Too Scary → Bridge to PAYDAY -->
+                        <div class="response-block objection" style="margin-top: 12px;">
+                            <div class="response-header objection">😰 If "Too Scary" → Bridge to PAYDAY</div>
+                            <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                                <div class="message-label">💬 Bridge Script <span class="char-count">198 chars</span></div>
+                                <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                                <div class="message-text">I get it. That number can be heavy. Let's start somewhere lighter: figure out where your money actually goes first. Once you have clarity on cash flow, the investing part feels less overwhelming.</div>
+                            </div>
+                            <div class="button-block">
+                                <div class="button-item primary">
+                                    <span class="button-emoji">💰</span>
+                                    <span class="button-text">Find My Budget</span>
+                                    <span class="button-type url">URL → PAYDAY</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="followup-card">
                         <div class="followup-day">DAY 3 (72 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">111 chars</span>
-                            </div>
+                        <div class="message-block" style="margin-bottom: 12px;">
+                            <div class="message-label">💬 Message <span class="char-count">111 chars</span></div>
                             <button class="copy-btn" onclick="copyText(this)">Copy</button>
                             <div class="message-text">Your leak calculation is waiting. You're one input away from seeing the truth. 30 seconds. That's all it takes.</div>
                         </div>
                         <div class="button-block">
-                            <div class="button-item">
+                            <div class="button-item primary">
                                 <span class="button-emoji">⏱️</span>
                                 <span class="button-text">30 Seconds</span>
                                 <span class="button-type url">URL</span>
                             </div>
+                            <div class="button-item secondary">
+                                <span class="button-emoji">❌</span>
+                                <span class="button-text">Not Now</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; padding: 8px 12px; background: rgba(139, 92, 246, 0.1); border-radius: 6px; font-size: 11px; color: var(--accent-elite800);">
+                            ❌ "Not Now" → Triggers Re-Qualification Flow
                         </div>
                     </div>
 
                     <div class="followup-card">
                         <div class="followup-day">DAY 7 (168 hrs) - FINAL</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">128 chars</span>
-                            </div>
+                        <div class="message-block" style="margin-bottom: 12px;">
+                            <div class="message-label">💬 Message <span class="char-count">128 chars</span></div>
                             <button class="copy-btn" onclick="copyText(this)">Copy</button>
                             <div class="message-text">Final reminder: the leak doesn't stop because you didn't calculate it. It just keeps draining. See the number and fix it.</div>
                         </div>
                         <div class="button-block">
-                            <div class="button-item">
+                            <div class="button-item primary">
                                 <span class="button-emoji">🔧</span>
                                 <span class="button-text">Finish Calc</span>
                                 <span class="button-type url">URL</span>
                             </div>
+                            <div class="button-item secondary">
+                                <span class="button-emoji">👋</span>
+                                <span class="button-text">Maybe Later</span>
+                                <span class="button-type reply">REPLY</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; padding: 8px 12px; background: rgba(139, 92, 246, 0.1); border-radius: 6px; font-size: 11px; color: var(--accent-elite800);">
+                            👋 "Maybe Later" → Triggers Re-Qualification Flow
                         </div>
                     </div>
                 </div>
@@ -1469,29 +1550,47 @@
             <div class="crosssell-section">
                 <div class="crosssell-header">
                     <span class="crosssell-icon">🔗</span>
-                    <span class="crosssell-title">Cross-Sell: After Completion</span>
-                    <span class="crosssell-trigger">TRIGGER: User completes Cost of Waiting + Investment Simplifier | 24 hrs later</span>
+                    <span class="crosssell-title">Cross-Sell: After Completion → AUTOPILOT</span>
+                    <span class="crosssell-trigger">24 hrs after completion</span>
                 </div>
                 <div class="message-block" style="margin-bottom: 0;">
-                    <div class="message-label">
-                        💬 Message
-                        <span class="char-count">140 chars</span>
-                    </div>
+                    <div class="message-label">💬 Cross-Sell Message <span class="char-count">140 chars</span></div>
                     <button class="copy-btn" onclick="copyText(this)">Copy</button>
                     <div class="message-text">{{first_name}}, you saw the leak and got your ETF list. Now automate it so you never miss a deposit. Comment AUTOPILOT to install the system.</div>
                 </div>
                 <div class="button-block">
-                    <div class="button-item">
+                    <div class="button-item primary">
                         <span class="button-emoji">🔧</span>
                         <span class="button-text">Install</span>
                         <span class="button-type url">URL</span>
                     </div>
+                    <div class="button-item secondary">
+                        <span class="button-emoji">🤔</span>
+                        <span class="button-text">What's This?</span>
+                        <span class="button-type reply">REPLY</span>
+                    </div>
                 </div>
                 <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html</div>
+
+                <div class="response-block objection" style="margin-top: 16px;">
+                    <div class="response-header objection">🤔 If "What's This?"</div>
+                    <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                        <div class="message-label">💬 Explainer Script <span class="char-count">223 chars</span></div>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                        <div class="message-text">The Autopilot system connects your paycheck to your investments automatically. Money moves to savings, investments, and bills without you touching it. Set it up once, runs forever. No willpower needed. Want to see how it works?</div>
+                    </div>
+                    <div class="button-block">
+                        <div class="button-item primary">
+                            <span class="button-emoji">🔧</span>
+                            <span class="button-text">Show Me</span>
+                            <span class="button-type url">URL</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- ELITE800 SECTION -->
+        <!-- ==================== ELITE800 SECTION ==================== -->
         <section class="flow-section" id="elite800">
             <div class="flow-header">
                 <div class="flow-icon elite800">🎯</div>
@@ -1511,197 +1610,86 @@
                 </div>
             </div>
 
-            <!-- Initial Sequence -->
             <div class="flow-stage elite800">
                 <div class="stage-header">
                     <div class="stage-number">1</div>
-                    <div class="stage-title">Initial Sequence</div>
+                    <div class="stage-title">Initial Sequence (Consolidated)</div>
                     <div class="stage-timing">TRIGGER: Comment "ELITE800"</div>
                 </div>
                 <div class="stage-content">
-                    <div class="message-block">
+                    <div class="message-block consolidated">
                         <div class="message-label">
-                            💬 Message 1: Hook
-                            <span class="char-count">152 chars</span>
+                            💬 Message 1: Hook + Value
+                            <span class="optimized-badge">CONSOLIDATED</span>
+                            <span class="char-count">399 chars</span>
                         </div>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                        <div class="message-text">{{first_name}}. ELITE800. You're ready to stop paying the broke tax. Below 800, banks charge you extra for everything. Above 800, doors open. Let's go.</div>
+                        <div class="message-text">{{first_name}}. ELITE800. You're ready to stop paying the broke tax. Below 800, banks charge you extra for everything. Above 800, doors open. Let's go.
+
+I'm sending you the exact checklist I used to hit 800+. Not theory. Not "pay your bills on time" advice you've heard a million times. The specific moves that actually move the needle. Credit utilization hacks, dispute scripts, and timeline benchmarks.</div>
                     </div>
 
                     <div class="message-block">
                         <div class="message-label">
-                            💬 Message 2: Value Setup (3 sec delay)
-                            <span class="char-count">247 chars</span>
-                        </div>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                        <div class="message-text">I'm sending you the exact checklist I used to hit 800+. Not theory. Not "pay your bills on time" advice you've heard a million times. The specific moves that actually move the needle. Credit utilization hacks, dispute scripts, and timeline benchmarks.</div>
-                    </div>
-
-                    <div class="message-block">
-                        <div class="message-label">
-                            💬 Message 3: CTA (2 sec delay)
+                            💬 Message 2: CTA
                             <span class="char-count">87 chars</span>
+                            <span style="margin-left: 8px; font-size: 10px; color: var(--text-muted);">3 sec delay</span>
                         </div>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
                         <div class="message-text">Tap below to get the 800 Club checklist. Follow it step by step. Watch the score climb.</div>
                     </div>
 
                     <div class="button-block">
-                        <div class="button-item">
+                        <div class="button-item primary">
                             <span class="button-emoji">🎯</span>
                             <span class="button-text">Get Checklist</span>
                             <span class="button-type url">URL</span>
                         </div>
+                        <div class="button-item secondary">
+                            <span class="button-emoji">⏱️</span>
+                            <span class="button-text">How Long?</span>
+                            <span class="button-type reply">REPLY</span>
+                        </div>
                     </div>
 
                     <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/800-club.html</div>
+
+                    <!-- Objection: How Long? -->
+                    <div class="response-block objection">
+                        <div class="response-header objection">⏱️ If "How Long?" Response</div>
+                        <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                            <div class="message-label">💬 Timeline Script <span class="char-count">267 chars</span></div>
+                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                            <div class="message-text">Depends where you're starting:
+
+• 30-50 point jump: 60-90 days (utilization fixes)
+• 100+ point jump: 4-6 months (full protocol)
+• 800+ club: 6-12 months (if starting below 700)
+
+The checklist shows you exactly what moves the needle fastest based on your current score. No guessing.</div>
+                        </div>
+                        <div class="button-block">
+                            <div class="button-item primary">
+                                <span class="button-emoji">🎯</span>
+                                <span class="button-text">Get The Checklist</span>
+                                <span class="button-type url">URL</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="arrow-down">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M19 12l-7 7-7-7"/>
-                </svg>
-            </div>
-
-            <!-- Follow-up: No Response -->
+            <!-- Follow-ups follow same pattern - abbreviated for space -->
             <div class="branch-section">
                 <div class="branch-header">
-                    <span class="branch-icon">🔕</span>
-                    <span class="branch-title">Follow-Up: No Response Track</span>
-                    <span class="branch-subtitle">User didn't click button</span>
+                    <span class="branch-icon">📝</span>
+                    <span class="branch-title">Follow-Up Pattern: Same as AUTOPILOT/LEAK</span>
                 </div>
-
-                <div class="followup-grid">
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 1 (24 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">118 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">{{first_name}}, you wanted the 800 Club checklist but didn't grab it. Still paying higher interest rates? Let's fix that.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">🎯</span>
-                                <span class="button-text">Get It</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 3 (72 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">127 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Quick math: 800+ credit saves you thousands on every loan, card, and apartment. The checklist takes 5 minutes to review. Worth it?</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">✅</span>
-                                <span class="button-text">Worth It</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                            <div class="button-item">
-                                <span class="button-emoji">❌</span>
-                                <span class="button-text">Not Now</span>
-                                <span class="button-type reply">REPLY</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 7 (168 hrs) - FINAL</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">121 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Last reminder on ELITE800. The checklist is here. Your credit score isn't going to fix itself. One tap and you're in.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">🎯</span>
-                                <span class="button-text">Join Club</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Follow-up: Clicked But Didn't Complete -->
-            <div class="branch-section">
-                <div class="branch-header">
-                    <span class="branch-icon">⚠️</span>
-                    <span class="branch-title">Follow-Up: Clicked But Didn't Complete Track</span>
-                    <span class="branch-subtitle">User clicked but abandoned app</span>
-                </div>
-
-                <div class="followup-grid">
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 1 (24 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">116 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">{{first_name}}, you started the 800 Club protocol but didn't finish. You're halfway to unlocking better rates. Keep going.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">⚡</span>
-                                <span class="button-text">Continue</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 3 (72 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">109 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Your 800 Club checklist is waiting. Every day below 800 is money wasted on interest. Let's close the gap.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">📈</span>
-                                <span class="button-text">Close Gap</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 7 (168 hrs) - FINAL</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">124 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Final push: the checklist isn't going to check itself. 10 minutes now saves you thousands later. Tap below to finish.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">✅</span>
-                                <span class="button-text">Finish</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
+                <div style="padding: 16px; color: var(--text-secondary); font-size: 13px; line-height: 1.7;">
+                    <strong>Day 1:</strong> "You wanted the 800 Club checklist but didn't grab it. Still paying higher interest rates? Let's fix that."<br>
+                    <strong>Day 3:</strong> "Quick math: 800+ credit saves you thousands on every loan, card, and apartment. The checklist takes 5 minutes to review."<br>
+                    <strong>Day 7:</strong> "Last reminder on ELITE800. Your credit score isn't going to fix itself. One tap and you're in."<br><br>
+                    All "Not Now" buttons → Trigger Universal Re-Qualification Flow
                 </div>
             </div>
 
@@ -1709,29 +1697,47 @@
             <div class="crosssell-section">
                 <div class="crosssell-header">
                     <span class="crosssell-icon">🔗</span>
-                    <span class="crosssell-title">Cross-Sell: After Completion</span>
-                    <span class="crosssell-trigger">TRIGGER: User completes 800-Club + Budget Calculator | 24 hrs later</span>
+                    <span class="crosssell-title">Cross-Sell: After Completion → PAYDAY</span>
+                    <span class="crosssell-trigger">24 hrs after completion</span>
                 </div>
                 <div class="message-block" style="margin-bottom: 0;">
-                    <div class="message-label">
-                        💬 Message
-                        <span class="char-count">139 chars</span>
-                    </div>
+                    <div class="message-label">💬 Cross-Sell Message <span class="char-count">139 chars</span></div>
                     <button class="copy-btn" onclick="copyText(this)">Copy</button>
                     <div class="message-text">{{first_name}}, credit is handled. Now optimize your cash flow. I'll match you with the budget system built for your brain. Comment PAYDAY.</div>
                 </div>
                 <div class="button-block">
-                    <div class="button-item">
+                    <div class="button-item primary">
                         <span class="button-emoji">💰</span>
                         <span class="button-text">Find Match</span>
                         <span class="button-type url">URL</span>
                     </div>
+                    <div class="button-item secondary">
+                        <span class="button-emoji">🤔</span>
+                        <span class="button-text">Why Budget?</span>
+                        <span class="button-type reply">REPLY</span>
+                    </div>
                 </div>
                 <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html</div>
+
+                <div class="response-block objection" style="margin-top: 16px;">
+                    <div class="response-header objection">🤔 If "Why Budget?"</div>
+                    <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                        <div class="message-label">💬 Connection Script <span class="char-count">198 chars</span></div>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                        <div class="message-text">Good credit opens doors. But cash flow keeps them open. Most people fix their credit then go right back into debt because they never fixed the spending. This closes that loop. 2 minutes. Worth it?</div>
+                    </div>
+                    <div class="button-block">
+                        <div class="button-item primary">
+                            <span class="button-emoji">💰</span>
+                            <span class="button-text">Take The Quiz</span>
+                            <span class="button-type url">URL</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- MYNUMBER SECTION -->
+        <!-- ==================== MYNUMBER SECTION ==================== -->
         <section class="flow-section" id="mynumber">
             <div class="flow-header">
                 <div class="flow-icon mynumber">🧮</div>
@@ -1751,193 +1757,64 @@
                 </div>
             </div>
 
-            <!-- Initial Sequence -->
             <div class="flow-stage mynumber">
                 <div class="stage-header">
                     <div class="stage-number">1</div>
-                    <div class="stage-title">Initial Sequence</div>
+                    <div class="stage-title">Initial Sequence (Consolidated)</div>
                     <div class="stage-timing">TRIGGER: Comment "MYNUMBER"</div>
                 </div>
                 <div class="stage-content">
-                    <div class="message-block">
+                    <div class="message-block consolidated">
                         <div class="message-label">
-                            💬 Message 1: Hook
-                            <span class="char-count">147 chars</span>
+                            💬 Message 1: Hook + Value
+                            <span class="optimized-badge">CONSOLIDATED</span>
+                            <span class="char-count">378 chars</span>
                         </div>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                        <div class="message-text">{{first_name}}. MYNUMBER. You want to know exactly how much it costs to never work again. Not a guess. Not a dream. A specific dollar amount. Let's go.</div>
+                        <div class="message-text">{{first_name}}. MYNUMBER. You want to know exactly how much it costs to never work again. Not a guess. Not a dream. A specific dollar amount. Let's go.
+
+Freedom isn't a vibe. It's math. I built a calculator that tells you the exact number you need based on your lifestyle, location, and goals. Once you know it, every financial decision becomes simple. You're either moving toward it or away from it.</div>
                     </div>
 
                     <div class="message-block">
                         <div class="message-label">
-                            💬 Message 2: Value Setup (3 sec delay)
-                            <span class="char-count">231 chars</span>
-                        </div>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                        <div class="message-text">Freedom isn't a vibe. It's math. I built a calculator that tells you the exact number you need based on your lifestyle, location, and goals. Once you know it, every financial decision becomes simple. You're either moving toward it or away from it.</div>
-                    </div>
-
-                    <div class="message-block">
-                        <div class="message-label">
-                            💬 Message 3: CTA (2 sec delay)
+                            💬 Message 2: CTA
                             <span class="char-count">78 chars</span>
+                            <span style="margin-left: 8px; font-size: 10px; color: var(--text-muted);">3 sec delay</span>
                         </div>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
                         <div class="message-text">Tap below to calculate your freedom number. Takes less than 60 seconds.</div>
                     </div>
 
                     <div class="button-block">
-                        <div class="button-item">
+                        <div class="button-item primary">
                             <span class="button-emoji">🧮</span>
                             <span class="button-text">Find My Number</span>
                             <span class="button-type url">URL</span>
                         </div>
+                        <div class="button-item secondary">
+                            <span class="button-emoji">😰</span>
+                            <span class="button-text">What If It's Huge?</span>
+                            <span class="button-type reply">REPLY</span>
+                        </div>
                     </div>
 
                     <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html</div>
-                </div>
-            </div>
 
-            <div class="arrow-down">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M19 12l-7 7-7-7"/>
-                </svg>
-            </div>
-
-            <!-- Follow-up: No Response -->
-            <div class="branch-section">
-                <div class="branch-header">
-                    <span class="branch-icon">🔕</span>
-                    <span class="branch-title">Follow-Up: No Response Track</span>
-                    <span class="branch-subtitle">User didn't click button</span>
-                </div>
-
-                <div class="followup-grid">
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 1 (24 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">130 chars</span>
-                            </div>
+                    <!-- Objection: What If It's Huge? -->
+                    <div class="response-block objection">
+                        <div class="response-header objection">😰 If "What If It's Huge?" Response</div>
+                        <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                            <div class="message-label">💬 Fear Reframe Script <span class="char-count">289 chars</span></div>
                             <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">{{first_name}}, you wanted your freedom number but didn't calculate it. Still guessing how much you need? That's why people retire broke.</div>
+                            <div class="message-text">Here's the thing: the number exists whether you calculate it or not. Not knowing doesn't make it smaller. It just makes you anxious.
+
+When you see the actual number, two things happen: 1) It's usually more achievable than the scary blob in your head, and 2) You can actually build a plan toward it.</div>
                         </div>
                         <div class="button-block">
-                            <div class="button-item">
+                            <div class="button-item primary">
                                 <span class="button-emoji">🧮</span>
-                                <span class="button-text">Calculate</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 3 (72 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">117 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Your freedom number is sitting there uncalculated. 60 seconds to know exactly what you're building toward. Worth it?</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">✅</span>
-                                <span class="button-text">Worth It</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                            <div class="button-item">
-                                <span class="button-emoji">❌</span>
-                                <span class="button-text">Not Now</span>
-                                <span class="button-type reply">REPLY</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 7 (168 hrs) - FINAL</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">125 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Last reminder on MYNUMBER. I won't message again. But you'll keep wondering "how much do I need?" until you just calculate it.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">🧮</span>
-                                <span class="button-text">Just Do It</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Follow-up: Clicked But Didn't Complete -->
-            <div class="branch-section">
-                <div class="branch-header">
-                    <span class="branch-icon">⚠️</span>
-                    <span class="branch-title">Follow-Up: Clicked But Didn't Complete Track</span>
-                    <span class="branch-subtitle">User clicked but abandoned app</span>
-                </div>
-
-                <div class="followup-grid">
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 1 (24 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">118 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">{{first_name}}, you started calculating your freedom number but stopped. You're one step away from total clarity. Finish it.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">✅</span>
-                                <span class="button-text">Finish</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 3 (72 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">104 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Your freedom number is almost ready. One more input and you'll know exactly what financial freedom costs.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">🧮</span>
-                                <span class="button-text">One More</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 7 (168 hrs) - FINAL</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">130 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Final reminder: your incomplete freedom calculation is waiting. The number exists whether you calculate it or not. Might as well know.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">🧮</span>
-                                <span class="button-text">Get My Number</span>
+                                <span class="button-text">See My Number</span>
                                 <span class="button-type url">URL</span>
                             </div>
                         </div>
@@ -1949,19 +1826,16 @@
             <div class="crosssell-section">
                 <div class="crosssell-header">
                     <span class="crosssell-icon">🔗</span>
-                    <span class="crosssell-title">Cross-Sell: After Completion</span>
-                    <span class="crosssell-trigger">TRIGGER: User completes Freedom Calc + Investment Simplifier | 24 hrs later</span>
+                    <span class="crosssell-title">Cross-Sell: After Completion → AUTOPILOT</span>
+                    <span class="crosssell-trigger">24 hrs after completion</span>
                 </div>
                 <div class="message-block" style="margin-bottom: 0;">
-                    <div class="message-label">
-                        💬 Message
-                        <span class="char-count">136 chars</span>
-                    </div>
+                    <div class="message-label">💬 Cross-Sell Message <span class="char-count">136 chars</span></div>
                     <button class="copy-btn" onclick="copyText(this)">Copy</button>
                     <div class="message-text">{{first_name}}, you know your number and what to invest in. Now automate the path there. Comment AUTOPILOT to install your wealth machine.</div>
                 </div>
                 <div class="button-block">
-                    <div class="button-item">
+                    <div class="button-item primary">
                         <span class="button-emoji">🔧</span>
                         <span class="button-text">Install</span>
                         <span class="button-type url">URL</span>
@@ -1971,7 +1845,7 @@
             </div>
         </section>
 
-        <!-- CHEAT SECTION -->
+        <!-- ==================== CHEAT SECTION ==================== -->
         <section class="flow-section" id="cheat">
             <div class="flow-header">
                 <div class="flow-icon cheat">🤖</div>
@@ -1991,193 +1865,66 @@
                 </div>
             </div>
 
-            <!-- Initial Sequence -->
             <div class="flow-stage cheat">
                 <div class="stage-header">
                     <div class="stage-number">1</div>
-                    <div class="stage-title">Initial Sequence</div>
+                    <div class="stage-title">Initial Sequence (Consolidated)</div>
                     <div class="stage-timing">TRIGGER: Comment "CHEAT"</div>
                 </div>
                 <div class="stage-content">
-                    <div class="message-block">
+                    <div class="message-block consolidated">
                         <div class="message-label">
-                            💬 Message 1: Hook
-                            <span class="char-count">144 chars</span>
+                            💬 Message 1: Hook + Value
+                            <span class="optimized-badge">CONSOLIDATED</span>
+                            <span class="char-count">381 chars</span>
                         </div>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                        <div class="message-text">{{first_name}}. CHEAT. You're not here to work harder. You're here to work smarter. I spent 200 hours building AI prompts so you don't have to.</div>
+                        <div class="message-text">{{first_name}}. CHEAT. You're not here to work harder. You're here to work smarter. I spent 200 hours building AI prompts so you don't have to.
+
+The Prompt Vault is my personal collection of AI cheat codes. Prompts for budgeting, investing analysis, side hustles, content creation, and automating boring tasks. These took me months to refine. You get them in 30 seconds. That's the whole point.</div>
                     </div>
 
                     <div class="message-block">
                         <div class="message-label">
-                            💬 Message 2: Value Setup (3 sec delay)
-                            <span class="char-count">237 chars</span>
-                        </div>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                        <div class="message-text">The Prompt Vault is my personal collection of AI cheat codes. Prompts for budgeting, investing analysis, side hustles, content creation, and automating boring tasks. These took me months to refine. You get them in 30 seconds. That's the whole point.</div>
-                    </div>
-
-                    <div class="message-block">
-                        <div class="message-label">
-                            💬 Message 3: CTA (2 sec delay)
+                            💬 Message 2: CTA
                             <span class="char-count">76 chars</span>
+                            <span style="margin-left: 8px; font-size: 10px; color: var(--text-muted);">3 sec delay</span>
                         </div>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
                         <div class="message-text">Tap below to unlock the vault. Copy my homework. Skip the learning curve.</div>
                     </div>
 
                     <div class="button-block">
-                        <div class="button-item">
+                        <div class="button-item primary">
                             <span class="button-emoji">🤖</span>
                             <span class="button-text">Open Vault</span>
                             <span class="button-type url">URL</span>
                         </div>
+                        <div class="button-item secondary">
+                            <span class="button-emoji">👀</span>
+                            <span class="button-text">Show Me One</span>
+                            <span class="button-type reply">REPLY</span>
+                        </div>
                     </div>
 
                     <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html</div>
-                </div>
-            </div>
 
-            <div class="arrow-down">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M19 12l-7 7-7-7"/>
-                </svg>
-            </div>
-
-            <!-- Follow-up: No Response -->
-            <div class="branch-section">
-                <div class="branch-header">
-                    <span class="branch-icon">🔕</span>
-                    <span class="branch-title">Follow-Up: No Response Track</span>
-                    <span class="branch-subtitle">User didn't click button</span>
-                </div>
-
-                <div class="followup-grid">
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 1 (24 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">123 chars</span>
-                            </div>
+                    <!-- Objection: Show Me One -->
+                    <div class="response-block objection">
+                        <div class="response-header objection">👀 If "Show Me One" Response</div>
+                        <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                            <div class="message-label">💬 Sample Prompt Script <span class="char-count">312 chars</span></div>
                             <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">{{first_name}}, you asked for the cheat codes but didn't grab them. Still doing things the hard way? The vault is unlocked.</div>
+                            <div class="message-text">Here's one I use weekly:
+
+"Analyze my spending in [category] for the past month. Identify the top 3 unnecessary expenses, estimate annual savings if eliminated, and suggest one automation to prevent future overspending."
+
+That's one of 50+ in the vault. Each one is built to get maximum output with minimum input. Want the rest?</div>
                         </div>
                         <div class="button-block">
-                            <div class="button-item">
+                            <div class="button-item primary">
                                 <span class="button-emoji">🤖</span>
-                                <span class="button-text">Open Vault</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 3 (72 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">119 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">The Prompt Vault is sitting here ready. Everyone else using AI properly is moving faster than you. Why not level up?</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">✅</span>
-                                <span class="button-text">Level Up</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                            <div class="button-item">
-                                <span class="button-emoji">❌</span>
-                                <span class="button-text">Not Now</span>
-                                <span class="button-type reply">REPLY</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 7 (168 hrs) - FINAL</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">118 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Last call on CHEAT. 200 hours of work, free for you. After today I'll stop reminding you. But the vault stays open.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">🤖</span>
-                                <span class="button-text">Last Chance</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Follow-up: Clicked But Didn't Complete -->
-            <div class="branch-section">
-                <div class="branch-header">
-                    <span class="branch-icon">⚠️</span>
-                    <span class="branch-title">Follow-Up: Clicked But Didn't Complete Track</span>
-                    <span class="branch-subtitle">User clicked but abandoned app</span>
-                </div>
-
-                <div class="followup-grid">
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 1 (24 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">113 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">{{first_name}}, you opened the Prompt Vault but didn't finish. The best prompts are at the end. Keep scrolling.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">📜</span>
-                                <span class="button-text">Keep Going</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 3 (72 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">106 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Your Prompt Vault access is incomplete. You're missing the money prompts. 5 more minutes and you're done.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">💰</span>
-                                <span class="button-text">Get Money</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 7 (168 hrs) - FINAL</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">121 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Final nudge: the Prompt Vault is right there. Finish exploring it and you'll never work harder than AI again. Tap below.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">🤖</span>
-                                <span class="button-text">Back to Vault</span>
+                                <span class="button-text">Get Full Vault</span>
                                 <span class="button-type url">URL</span>
                             </div>
                         </div>
@@ -2189,21 +1936,18 @@
             <div class="crosssell-section">
                 <div class="crosssell-header">
                     <span class="crosssell-icon">🔗</span>
-                    <span class="crosssell-title">Cross-Sell: After Completion</span>
-                    <span class="crosssell-trigger">TRIGGER: User completes Prompt Vault App | 24 hrs later</span>
+                    <span class="crosssell-title">Cross-Sell: After Completion → BUILD50</span>
+                    <span class="crosssell-trigger">24 hrs after completion</span>
                 </div>
                 <div class="message-block" style="margin-bottom: 0;">
-                    <div class="message-label">
-                        💬 Message
-                        <span class="char-count">137 chars</span>
-                    </div>
+                    <div class="message-label">💬 Cross-Sell Message <span class="char-count">137 chars</span></div>
                     <button class="copy-btn" onclick="copyText(this)">Copy</button>
                     <div class="message-text">{{first_name}}, you got the AI cheat codes. Now use them on real investments. Comment BUILD50 and I'll send you the exact ETFs to analyze.</div>
                 </div>
                 <div class="button-block">
-                    <div class="button-item">
+                    <div class="button-item primary">
                         <span class="button-emoji">📈</span>
-                        <span class="button-text">Build</span>
+                        <span class="button-text">Build Portfolio</span>
                         <span class="button-type url">URL</span>
                     </div>
                 </div>
@@ -2211,7 +1955,7 @@
             </div>
         </section>
 
-        <!-- BUILD50 SECTION -->
+        <!-- ==================== BUILD50 SECTION ==================== -->
         <section class="flow-section" id="build50">
             <div class="flow-header">
                 <div class="flow-icon build50">📈</div>
@@ -2231,193 +1975,64 @@
                 </div>
             </div>
 
-            <!-- Initial Sequence -->
             <div class="flow-stage build50">
                 <div class="stage-header">
                     <div class="stage-number">1</div>
-                    <div class="stage-title">Initial Sequence</div>
+                    <div class="stage-title">Initial Sequence (Consolidated)</div>
                     <div class="stage-timing">TRIGGER: Comment "BUILD50"</div>
                 </div>
                 <div class="stage-content">
-                    <div class="message-block">
+                    <div class="message-block consolidated">
                         <div class="message-label">
-                            💬 Message 1: Hook
-                            <span class="char-count">153 chars</span>
+                            💬 Message 1: Hook + Value
+                            <span class="optimized-badge">CONSOLIDATED</span>
+                            <span class="char-count">397 chars</span>
                         </div>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                        <div class="message-text">{{first_name}}. BUILD50. You don't need $10,000 to start investing. You need $50 and a list. I'm about to give you the list. No more "what should I buy?" paralysis.</div>
+                        <div class="message-text">{{first_name}}. BUILD50. You don't need $10,000 to start investing. You need $50 and a list. I'm about to give you the list. No more "what should I buy?" paralysis.
+
+The Investment Simplifier tells you exactly which ETFs to buy based on your budget. Not 10,000 options. Not "do your own research." The specific tickers, the percentages, and why. Enter your monthly amount and get a portfolio in 60 seconds flat.</div>
                     </div>
 
                     <div class="message-block">
                         <div class="message-label">
-                            💬 Message 2: Value Setup (3 sec delay)
-                            <span class="char-count">244 chars</span>
-                        </div>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                        <div class="message-text">The Investment Simplifier tells you exactly which ETFs to buy based on your budget. Not 10,000 options. Not "do your own research." The specific tickers, the percentages, and why. Enter your monthly amount and get a portfolio in 60 seconds flat.</div>
-                    </div>
-
-                    <div class="message-block">
-                        <div class="message-label">
-                            💬 Message 3: CTA (2 sec delay)
+                            💬 Message 2: CTA
                             <span class="char-count">74 chars</span>
+                            <span style="margin-left: 8px; font-size: 10px; color: var(--text-muted);">3 sec delay</span>
                         </div>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
                         <div class="message-text">Tap below to build your portfolio. Enter your budget. Get your list.</div>
                     </div>
 
                     <div class="button-block">
-                        <div class="button-item">
+                        <div class="button-item primary">
                             <span class="button-emoji">📈</span>
                             <span class="button-text">Build Portfolio</span>
                             <span class="button-type url">URL</span>
                         </div>
+                        <div class="button-item secondary">
+                            <span class="button-emoji">💵</span>
+                            <span class="button-text">I Have Less</span>
+                            <span class="button-type reply">REPLY</span>
+                        </div>
                     </div>
 
                     <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html</div>
-                </div>
-            </div>
 
-            <div class="arrow-down">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M19 12l-7 7-7-7"/>
-                </svg>
-            </div>
-
-            <!-- Follow-up: No Response -->
-            <div class="branch-section">
-                <div class="branch-header">
-                    <span class="branch-icon">🔕</span>
-                    <span class="branch-title">Follow-Up: No Response Track</span>
-                    <span class="branch-subtitle">User didn't click button</span>
-                </div>
-
-                <div class="followup-grid">
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 1 (24 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">126 chars</span>
-                            </div>
+                    <!-- Objection: I Have Less -->
+                    <div class="response-block objection">
+                        <div class="response-header objection">💵 If "I Have Less" Response</div>
+                        <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                            <div class="message-label">💬 Low Budget Script <span class="char-count">276 chars</span></div>
                             <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">{{first_name}}, you wanted to know what to invest in but didn't get your list. Still guessing? The Investment Simplifier is ready.</div>
+                            <div class="message-text">Good news: $50 is just the name. The tool works for any amount.
+
+Even $10/month compounds. The point isn't the amount, it's the habit. Most brokerages now have $0 minimums. The calculator will show you exactly how even small amounts grow over time. Plug in whatever you have.</div>
                         </div>
                         <div class="button-block">
-                            <div class="button-item">
+                            <div class="button-item primary">
                                 <span class="button-emoji">📈</span>
-                                <span class="button-text">Get List</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 3 (72 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">121 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Every day without a portfolio is a day of compound growth you're missing. Get your ETF list. Takes 60 seconds. Tap below.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">✅</span>
-                                <span class="button-text">60 Seconds</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                            <div class="button-item">
-                                <span class="button-emoji">❌</span>
-                                <span class="button-text">Not Now</span>
-                                <span class="button-type reply">REPLY</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 7 (168 hrs) - FINAL</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">129 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Last reminder on BUILD50. The portfolio builder is waiting. You can keep researching forever or just get the list now. Your call.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">📈</span>
-                                <span class="button-text">Get List</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Follow-up: Clicked But Didn't Complete -->
-            <div class="branch-section">
-                <div class="branch-header">
-                    <span class="branch-icon">⚠️</span>
-                    <span class="branch-title">Follow-Up: Clicked But Didn't Complete Track</span>
-                    <span class="branch-subtitle">User clicked but abandoned app</span>
-                </div>
-
-                <div class="followup-grid">
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 1 (24 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">118 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">{{first_name}}, you started building your portfolio but didn't finish. You're one step from knowing exactly what to buy.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">✅</span>
-                                <span class="button-text">Finish</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 3 (72 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">107 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Your portfolio is almost built. Enter your budget and the ETF list populates automatically. 30 seconds left.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">⏱️</span>
-                                <span class="button-text">30 Seconds</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 7 (168 hrs) - FINAL</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">123 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Final push: your Investment Simplifier is sitting incomplete. The ETFs aren't going to buy themselves. Finish and execute.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">📈</span>
-                                <span class="button-text">Finish Build</span>
+                                <span class="button-text">Try Any Amount</span>
                                 <span class="button-type url">URL</span>
                             </div>
                         </div>
@@ -2429,19 +2044,16 @@
             <div class="crosssell-section">
                 <div class="crosssell-header">
                     <span class="crosssell-icon">🔗</span>
-                    <span class="crosssell-title">Cross-Sell: After Completion</span>
-                    <span class="crosssell-trigger">TRIGGER: User completes Investment Simplifier | 24 hrs later</span>
+                    <span class="crosssell-title">Cross-Sell: After Completion → AUTOPILOT</span>
+                    <span class="crosssell-trigger">24 hrs after completion</span>
                 </div>
                 <div class="message-block" style="margin-bottom: 0;">
-                    <div class="message-label">
-                        💬 Message
-                        <span class="char-count">141 chars</span>
-                    </div>
+                    <div class="message-label">💬 Cross-Sell Message <span class="char-count">141 chars</span></div>
                     <button class="copy-btn" onclick="copyText(this)">Copy</button>
                     <div class="message-text">{{first_name}}, you got your ETF list. Now automate buying them every month without thinking about it. Comment AUTOPILOT to install the system.</div>
                 </div>
                 <div class="button-block">
-                    <div class="button-item">
+                    <div class="button-item primary">
                         <span class="button-emoji">🔧</span>
                         <span class="button-text">Install</span>
                         <span class="button-type url">URL</span>
@@ -2451,7 +2063,7 @@
             </div>
         </section>
 
-        <!-- PAYDAY SECTION -->
+        <!-- ==================== PAYDAY SECTION ==================== -->
         <section class="flow-section" id="payday">
             <div class="flow-header">
                 <div class="flow-icon payday">💰</div>
@@ -2471,193 +2083,66 @@
                 </div>
             </div>
 
-            <!-- Initial Sequence -->
             <div class="flow-stage payday">
                 <div class="stage-header">
                     <div class="stage-number">1</div>
-                    <div class="stage-title">Initial Sequence</div>
+                    <div class="stage-title">Initial Sequence (Consolidated)</div>
                     <div class="stage-timing">TRIGGER: Comment "PAYDAY"</div>
                 </div>
                 <div class="stage-content">
-                    <div class="message-block">
+                    <div class="message-block consolidated">
                         <div class="message-label">
-                            💬 Message 1: Hook
-                            <span class="char-count">156 chars</span>
+                            💬 Message 1: Hook + Value
+                            <span class="optimized-badge">CONSOLIDATED</span>
+                            <span class="char-count">395 chars</span>
                         </div>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                        <div class="message-text">{{first_name}}. PAYDAY. You've tried budgeting before. It didn't stick. That's because you were using someone else's system. Let's find the one built for YOU.</div>
+                        <div class="message-text">{{first_name}}. PAYDAY. You've tried budgeting before. It didn't stick. That's because you were using someone else's system. Let's find the one built for YOU.
+
+The Budget Calculator matches you with the right system based on your psychology, not some generic rule. 50/30/20 doesn't work for everyone. Neither does the envelope method. Answer a few questions and I'll tell you exactly which approach fits your brain.</div>
                     </div>
 
                     <div class="message-block">
                         <div class="message-label">
-                            💬 Message 2: Value Setup (3 sec delay)
-                            <span class="char-count">239 chars</span>
-                        </div>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                        <div class="message-text">The Budget Calculator matches you with the right system based on your psychology, not some generic rule. 50/30/20 doesn't work for everyone. Neither does the envelope method. Answer a few questions and I'll tell you exactly which approach fits your brain.</div>
-                    </div>
-
-                    <div class="message-block">
-                        <div class="message-label">
-                            💬 Message 3: CTA (2 sec delay)
+                            💬 Message 2: CTA
                             <span class="char-count">81 chars</span>
+                            <span style="margin-left: 8px; font-size: 10px; color: var(--text-muted);">3 sec delay</span>
                         </div>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
                         <div class="message-text">Tap below to find your budget match. 2 minutes and you'll know your money system.</div>
                     </div>
 
                     <div class="button-block">
-                        <div class="button-item">
+                        <div class="button-item primary">
                             <span class="button-emoji">💰</span>
                             <span class="button-text">Find My Budget</span>
                             <span class="button-type url">URL</span>
                         </div>
+                        <div class="button-item secondary">
+                            <span class="button-emoji">😔</span>
+                            <span class="button-text">I've Failed Before</span>
+                            <span class="button-type reply">REPLY</span>
+                        </div>
                     </div>
 
                     <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html</div>
-                </div>
-            </div>
 
-            <div class="arrow-down">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M19 12l-7 7-7-7"/>
-                </svg>
-            </div>
-
-            <!-- Follow-up: No Response -->
-            <div class="branch-section">
-                <div class="branch-header">
-                    <span class="branch-icon">🔕</span>
-                    <span class="branch-title">Follow-Up: No Response Track</span>
-                    <span class="branch-subtitle">User didn't click button</span>
-                </div>
-
-                <div class="followup-grid">
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 1 (24 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">124 chars</span>
-                            </div>
+                    <!-- Objection: I've Failed Before -->
+                    <div class="response-block objection">
+                        <div class="response-header objection">😔 If "I've Failed Before" Response</div>
+                        <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                            <div class="message-label">💬 Past Failure Validation Script <span class="char-count">298 chars</span></div>
                             <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">{{first_name}}, you wanted a budget that actually fits you but didn't start the quiz. Still winging it? Let's match you up.</div>
+                            <div class="message-text">That's exactly why this exists. Every budget failure isn't about you. It's about fit.
+
+Some people need tight categories. Others need freedom with guardrails. Some need to see every dollar. Others need "set it and forget it."
+
+The quiz diagnoses YOUR money brain, then matches you with a system built for how YOU think.</div>
                         </div>
                         <div class="button-block">
-                            <div class="button-item">
+                            <div class="button-item primary">
                                 <span class="button-emoji">💰</span>
-                                <span class="button-text">Match Me</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 3 (72 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">115 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">The budget quiz takes 2 minutes. After that, you'll know exactly how to split every paycheck. No more guessing.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">✅</span>
-                                <span class="button-text">2 Minutes</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                            <div class="button-item">
-                                <span class="button-emoji">❌</span>
-                                <span class="button-text">Not Now</span>
-                                <span class="button-type reply">REPLY</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 7 (168 hrs) - FINAL</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">126 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Last reminder on PAYDAY. Your perfect budget system is waiting to be discovered. One quiz and your money finally makes sense.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">💰</span>
-                                <span class="button-text">Take Quiz</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Follow-up: Clicked But Didn't Complete -->
-            <div class="branch-section">
-                <div class="branch-header">
-                    <span class="branch-icon">⚠️</span>
-                    <span class="branch-title">Follow-Up: Clicked But Didn't Complete Track</span>
-                    <span class="branch-subtitle">User clicked but abandoned app</span>
-                </div>
-
-                <div class="followup-grid">
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 1 (24 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">117 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">{{first_name}}, you started the budget quiz but didn't finish. You're halfway to finding the system that fits your brain.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">⚡</span>
-                                <span class="button-text">Finish</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 3 (72 hrs)</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">109 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Your budget match is almost ready. A few more questions and you'll know exactly how to handle every paycheck.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">💰</span>
-                                <span class="button-text">Few More</span>
-                                <span class="button-type url">URL</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="followup-card">
-                        <div class="followup-day">DAY 7 (168 hrs) - FINAL</div>
-                        <div class="message-block" style="margin-bottom: 0;">
-                            <div class="message-label">
-                                💬 Message
-                                <span class="char-count">120 chars</span>
-                            </div>
-                            <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                            <div class="message-text">Final nudge: your budget quiz is sitting incomplete. Finish it and you'll never wonder "where did my money go?" again.</div>
-                        </div>
-                        <div class="button-block">
-                            <div class="button-item">
-                                <span class="button-emoji">💰</span>
-                                <span class="button-text">Finish Quiz</span>
+                                <span class="button-text">Find My Match</span>
                                 <span class="button-type url">URL</span>
                             </div>
                         </div>
@@ -2669,25 +2154,45 @@
             <div class="crosssell-section">
                 <div class="crosssell-header">
                     <span class="crosssell-icon">🔗</span>
-                    <span class="crosssell-title">Cross-Sell: After Completion</span>
-                    <span class="crosssell-trigger">TRIGGER: User completes Budget Calculator | 24 hrs later</span>
+                    <span class="crosssell-title">Cross-Sell: After Completion → LEAK</span>
+                    <span class="crosssell-trigger">24 hrs after completion</span>
                 </div>
                 <div class="message-block" style="margin-bottom: 0;">
-                    <div class="message-label">
-                        💬 Message
-                        <span class="char-count">140 chars</span>
-                    </div>
+                    <div class="message-label">💬 Cross-Sell Message <span class="char-count">140 chars</span></div>
                     <button class="copy-btn" onclick="copyText(this)">Copy</button>
                     <div class="message-text">{{first_name}}, your budget is set. Now see what happens if you actually invest the surplus. Comment LEAK to see how fast your wealth could grow.</div>
                 </div>
                 <div class="button-block">
-                    <div class="button-item">
+                    <div class="button-item primary">
                         <span class="button-emoji">💸</span>
                         <span class="button-text">See Growth</span>
                         <span class="button-type url">URL</span>
                     </div>
+                    <div class="button-item secondary">
+                        <span class="button-emoji">🤔</span>
+                        <span class="button-text">What Surplus?</span>
+                        <span class="button-type reply">REPLY</span>
+                    </div>
                 </div>
                 <div class="link-ref">https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html</div>
+
+                <div class="response-block objection" style="margin-top: 16px;">
+                    <div class="response-header objection">🤔 If "What Surplus?"</div>
+                    <div class="message-block" style="margin-bottom: 0; background: var(--bg-message);">
+                        <div class="message-label">💬 Reframe Script <span class="char-count">234 chars</span></div>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                        <div class="message-text">Fair question. Here's the thing: the budget system you just got is designed to create surplus, even if it's $20/month.
+
+The leak calculator shows what that small amount becomes over time. Spoiler: it's more than you think. Want to see the math?</div>
+                    </div>
+                    <div class="button-block">
+                        <div class="button-item primary">
+                            <span class="button-emoji">💸</span>
+                            <span class="button-text">Show Me</span>
+                            <span class="button-type url">URL</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
@@ -2700,15 +2205,11 @@
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 const target = tab.dataset.tab;
-
                 tabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-
                 sections.forEach(section => {
                     section.classList.remove('active');
-                    if (section.id === target) {
-                        section.classList.add('active');
-                    }
+                    if (section.id === target) section.classList.add('active');
                 });
             });
         });
@@ -2722,14 +2223,11 @@
             navigator.clipboard.writeText(text).then(() => {
                 button.textContent = 'Copied!';
                 button.classList.add('copied');
-
                 setTimeout(() => {
                     button.textContent = 'Copy';
                     button.classList.remove('copied');
                 }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-            });
+            }).catch(err => console.error('Failed to copy: ', err));
         }
     </script>
 </body>
