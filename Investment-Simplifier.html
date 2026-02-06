@@ -420,12 +420,13 @@
             letter-spacing: 0.05em;
         }
         
-        .detected-risk-badge.risk-very-low { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-        .detected-risk-badge.risk-low-moderate { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
-        .detected-risk-badge.risk-moderate { background: rgba(251, 191, 36, 0.2); color: var(--gold); }
-        .detected-risk-badge.risk-moderate-plus { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
-        .detected-risk-badge.risk-high { background: rgba(249, 115, 22, 0.2); color: #f97316; }
-        .detected-risk-badge.risk-very-high { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        /* === PROFILE BADGES (Reframed from "risk levels") === */
+        .detected-risk-badge.profile-stability { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .detected-risk-badge.profile-steady { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .detected-risk-badge.profile-global { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+        .detected-risk-badge.profile-core { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .detected-risk-badge.profile-accelerated { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+        .detected-risk-badge.profile-specialist { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
 
         .detected-allocation-preview {
             background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
@@ -709,6 +710,14 @@
             font-weight: 700;
         }
         
+        /* Profile badge colors for banner */
+        .core-holding-risk.profile-stability { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .core-holding-risk.profile-steady { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .core-holding-risk.profile-global { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+        .core-holding-risk.profile-core { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .core-holding-risk.profile-accelerated { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+        .core-holding-risk.profile-specialist { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+        
         .core-holding-toggle {
             margin-left: auto;
             background: transparent;
@@ -790,15 +799,15 @@
             margin: 5px 3px;
         }
         
-        .why-box .risk-note {
+        .why-box .profile-note {
             display: block;
             margin-top: 12px;
             padding: 10px 12px;
-            background: rgba(251, 191, 36, 0.1);
-            border-left: 3px solid var(--gold);
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 3px solid var(--accent-primary);
             border-radius: 0 6px 6px 0;
             font-size: 0.82rem;
-            color: var(--gold);
+            color: var(--accent-primary);
         }
 
         .info-box {
@@ -1631,7 +1640,7 @@
                 <p class="detected-etf-label">Your Autopilot Core ETF</p>
                 <div class="detected-etf-ticker" id="gateTicker">VTI</div>
                 <div class="detected-etf-name" id="gateName">Vanguard Total Stock Market</div>
-                <span class="detected-risk-badge risk-moderate-plus" id="gateRiskBadge">Moderate+ Risk</span>
+                <span class="detected-risk-badge profile-core" id="gateRiskBadge">Core Growth</span>
             </div>
             
             <div class="detected-allocation-preview">
@@ -1699,7 +1708,7 @@
             <div class="core-holding-header">
                 <span class="core-holding-badge">From Autopilot</span>
                 <span class="core-holding-title">Core Holding Locked</span>
-                <span class="core-holding-risk" id="bannerRiskBadge">Moderate+</span>
+                <span class="core-holding-risk profile-core" id="bannerRiskBadge">Core Growth</span>
                 <button class="core-holding-toggle" onclick="chooseDifferentCore()">✕ Use Different</button>
             </div>
             <div class="core-holding-content">
@@ -2014,21 +2023,22 @@
             'QQQM': 'qqqm', 'VGT': 'vgt', 'VOO': 'voo'
         };
 
-        // === TIGHTENED CORE ALLOCATION MATRIX ===
+        // === SMART PROFILE ALLOCATION MATRIX ===
+        // Reframed: "Risk" → "Growth Profile" | No warnings, only smart optimization language
         const CORE_ALLOCATION_MATRIX = {
-            'BND': { growth: 20, balanced: 30, income: 45, riskLevel: 'Very Low', riskClass: 'risk-very-low', riskReason: 'Bonds are your stability anchor.' },
-            'SCHD': { growth: 35, balanced: 45, income: 60, riskLevel: 'Low-Moderate', riskClass: 'risk-low-moderate', riskReason: 'Dividend aristocrats give steady income plus moderate growth.' },
-            'VT': { growth: 50, balanced: 50, income: 40, riskLevel: 'Moderate', riskClass: 'risk-moderate', riskReason: 'Global diversification spreads risk across 9,000+ stocks worldwide.' },
-            'VTI': { growth: 60, balanced: 50, income: 40, riskLevel: 'Moderate+', riskClass: 'risk-moderate-plus', riskReason: 'The gold standard core holding.' },
-            'VOO': { growth: 60, balanced: 50, income: 40, riskLevel: 'Moderate+', riskClass: 'risk-moderate-plus', riskReason: 'S&P 500 = 500 battle-tested companies.' },
-            'QQQM': { growth: 45, balanced: 35, income: 20, riskLevel: 'High', riskClass: 'risk-high', riskReason: '⚠️ NASDAQ is volatile. CAPPED at 45% to prevent panic-selling.' },
-            'VGT': { growth: 40, balanced: 30, income: 15, riskLevel: 'Very High', riskClass: 'risk-very-high', riskReason: '⚠️ Pure tech sector = maximum volatility. FORCE diversification.' }
+            'BND':  { growth: 20, balanced: 30, income: 45, profile: 'Stability Engine',    profileClass: 'profile-stability',    profileNote: 'Your foundation. Bonds absorb market noise so your portfolio compounds without interruption.' },
+            'SCHD': { growth: 35, balanced: 45, income: 60, profile: 'Steady Compounder',   profileClass: 'profile-steady',       profileNote: 'Dividend aristocrats pay you while you sleep. Income + growth in one ticker.' },
+            'VT':   { growth: 50, balanced: 50, income: 40, profile: 'Global Diversifier',  profileClass: 'profile-global',       profileNote: '9,000+ stocks across every continent. One ticker, maximum geographic spread.' },
+            'VTI':  { growth: 60, balanced: 50, income: 40, profile: 'Core Growth',         profileClass: 'profile-core',         profileNote: 'The gold standard. Every public U.S. company in one ticker.' },
+            'VOO':  { growth: 60, balanced: 50, income: 40, profile: 'Core Growth',         profileClass: 'profile-core',         profileNote: '500 battle-tested companies. The benchmark everything else is measured against.' },
+            'QQQM': { growth: 45, balanced: 35, income: 20, profile: 'Accelerated Growth',  profileClass: 'profile-accelerated',  profileNote: 'Innovation-heavy. The system optimizes surrounding holdings to keep the full portfolio balanced.' },
+            'VGT':  { growth: 40, balanced: 30, income: 15, profile: 'Sector Specialist',   profileClass: 'profile-specialist',   profileNote: 'Pure tech conviction. We build wider diversification around it so the system stays balanced.' }
         };
 
         function getCoreAllocation(autopilotTicker, riskStyle) {
             const matrix = CORE_ALLOCATION_MATRIX[autopilotTicker];
-            if (!matrix) return { allocation: 50, riskLevel: 'Unknown', riskClass: 'risk-moderate', riskReason: 'Standard allocation applied.' };
-            return { allocation: matrix[riskStyle] || 50, riskLevel: matrix.riskLevel, riskClass: matrix.riskClass, riskReason: matrix.riskReason };
+            if (!matrix) return { allocation: 50, profile: 'Balanced', profileClass: 'profile-core', profileNote: 'Standard smart allocation applied.' };
+            return { allocation: matrix[riskStyle] || 50, profile: matrix.profile, profileClass: matrix.profileClass, profileNote: matrix.profileNote };
         }
 
         function getComplementaryETFs(coreId, riskStyle, remainingStock) {
@@ -2070,7 +2080,7 @@
         let portfolioId = null;
         let autopilotData = null;
         let useCoreFromAutopilot = false;
-        let portfolioUnlocked = false; // BLUR GATE STATE
+        let portfolioUnlocked = false;
 
         function generatePortfolioId() {
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -2092,7 +2102,6 @@
             }, 30);
         }
 
-        // === CHECK IF ALREADY UNLOCKED ===
         function checkUnlockStatus() {
             const unlocked = localStorage.getItem('investment_portfolio_unlocked') === 'true';
             const email = localStorage.getItem('investment_user_email');
@@ -2103,14 +2112,12 @@
             return false;
         }
 
-        // === UNLOCK PORTFOLIO (Email Gate) ===
         async function unlockPortfolio() {
             const emailInput = document.getElementById('unlockEmailInput');
             const errorEl = document.getElementById('unlockError');
             const btn = document.getElementById('unlockBtn');
             const email = emailInput.value.trim();
             
-            // Validate email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 errorEl.style.display = 'block';
@@ -2123,7 +2130,6 @@
             btn.disabled = true;
             btn.textContent = 'Unlocking...';
             
-            // === BEEHIIV INTEGRATION ===
             if (CONFIG.BEEHIIV_MOCK_MODE) {
                 await new Promise(resolve => setTimeout(resolve, 1000));
             } else {
@@ -2143,24 +2149,17 @@
                 }
             }
             
-            // Save unlock status
             localStorage.setItem('investment_portfolio_unlocked', 'true');
             localStorage.setItem('investment_user_email', email);
             portfolioUnlocked = true;
             
-            // Reveal portfolio
             revealPortfolio();
         }
 
         function revealPortfolio() {
-            // Hide overlay
             document.getElementById('unlockOverlay').classList.add('hidden');
-            
-            // Remove blur from ETF cards
             document.getElementById('etfCards').classList.remove('blur-gate');
             document.getElementById('etfCards').classList.add('unlocked');
-            
-            // Show share card section
             if (currentPortfolioData) {
                 document.getElementById('shareCardSection').style.display = 'block';
             }
@@ -2201,9 +2200,9 @@
             const coreData = getCoreAllocation(ticker, 'balanced');
             document.getElementById('gateTicker').textContent = ticker;
             document.getElementById('gateName').textContent = autopilotData.name;
-            const riskBadge = document.getElementById('gateRiskBadge');
-            riskBadge.textContent = coreData.riskLevel + ' Risk';
-            riskBadge.className = 'detected-risk-badge ' + coreData.riskClass;
+            const profileBadge = document.getElementById('gateRiskBadge');
+            profileBadge.textContent = coreData.profile;
+            profileBadge.className = 'detected-risk-badge ' + coreData.profileClass;
             document.getElementById('gateCoreAlloc').textContent = coreData.allocation;
             document.getElementById('gateOtherAlloc').textContent = 100 - coreData.allocation;
             document.getElementById('gateAllocationBar').style.width = coreData.allocation + '%';
@@ -2242,9 +2241,9 @@
             document.getElementById('bannerTicker').textContent = ticker;
             document.getElementById('bannerName').textContent = autopilotData.name;
             const coreData = getCoreAllocation(ticker, document.getElementById('riskStyle').value);
-            const riskBadge = document.getElementById('bannerRiskBadge');
-            riskBadge.textContent = coreData.riskLevel;
-            riskBadge.className = 'core-holding-risk ' + coreData.riskClass;
+            const profileBadge = document.getElementById('bannerRiskBadge');
+            profileBadge.textContent = coreData.profile;
+            profileBadge.className = 'core-holding-risk ' + coreData.profileClass;
             document.getElementById('bannerAllocation').textContent = coreData.allocation + '%';
             if (autopilotData.monthly) {
                 document.getElementById('monthlyInvestment').value = autopilotData.monthly;
@@ -2261,12 +2260,12 @@
             
             const steps = useCoreFromAutopilot ? [
                 { text: 'Loading Autopilot core...', step: `Building around ${autopilotData.ticker}...` },
-                { text: 'Applying risk brakes...', step: 'Calibrating for volatility...' },
-                { text: 'Calculating diversification...', step: 'Adding complementary assets...' },
+                { text: 'Optimizing allocation...', step: 'Calibrating for your strategy...' },
+                { text: 'Adding diversification layer...', step: 'Selecting complementary assets...' },
                 { text: 'Finalizing portfolio...', step: 'Locking in allocations...' }
             ] : [
                 { text: 'Analyzing your age profile...', step: 'Applying 110-Age rule...' },
-                { text: 'Matching risk tolerance...', step: 'Adjusting stock/bond split...' },
+                { text: 'Matching investment style...', step: 'Adjusting stock/bond split...' },
                 { text: 'Selecting optimal ETFs...', step: 'Filtering by expense ratio...' },
                 { text: 'Building your portfolio...', step: 'Finalizing allocations...' }
             ];
@@ -2291,7 +2290,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             portfolioId = generatePortfolioId();
             
-            // Check if already unlocked
             checkUnlockStatus();
             
             const hasAutopilot = checkForAutopilotData();
@@ -2313,9 +2311,9 @@
                     const ticker = autopilotData.ticker.toUpperCase();
                     const coreData = getCoreAllocation(ticker, e.target.value);
                     document.getElementById('bannerAllocation').textContent = coreData.allocation + '%';
-                    const riskBadge = document.getElementById('bannerRiskBadge');
-                    riskBadge.textContent = coreData.riskLevel;
-                    riskBadge.className = 'core-holding-risk ' + coreData.riskClass;
+                    const profileBadge = document.getElementById('bannerRiskBadge');
+                    profileBadge.textContent = coreData.profile;
+                    profileBadge.className = 'core-holding-risk ' + coreData.profileClass;
                 }
             });
             
@@ -2423,10 +2421,11 @@
         function updateWhyExplanationWithCore(coreTicker, coreAllocation, stockPct, bondPct, coreData, riskStyle) {
             const riskStyleNames = { growth: 'Growth', balanced: 'Balanced', income: 'Income' };
             const styleName = riskStyleNames[riskStyle] || 'Balanced';
-            let explanation = `<strong>Intelligent Allocation:</strong> Your <span class="formula">${coreTicker}</span> from Autopilot is a <strong>${coreData.riskLevel}</strong> risk asset. `;
-            explanation += `For your <strong>${styleName}</strong> strategy, we've set it at <span class="formula">${coreAllocation}%</span>. `;
-            explanation += `<br><br><span class="risk-note">${coreData.riskReason}</span>`;
-            explanation += `<br><br>Final split: <strong>${stockPct}% stocks</strong> / <strong>${bondPct}% bonds</strong>.`;
+            let explanation = `<strong>Smart Allocation:</strong> Your <span class="formula">${coreTicker}</span> from Autopilot is classified as <strong>${coreData.profile}</strong>. `;
+            explanation += `For your <strong>${styleName}</strong> strategy, it anchors your portfolio at <span class="formula">${coreAllocation}%</span>. `;
+            explanation += `The system selects complementary ETFs to maximize diversification around your core.`;
+            explanation += `<br><br><span class="profile-note">💡 ${coreData.profileNote}</span>`;
+            explanation += `<br><br>Final split: <strong>${stockPct}% stocks</strong> / <strong>${bondPct}% bonds</strong> — optimized around your core.`;
             document.getElementById('whyExplanation').innerHTML = explanation;
         }
 
@@ -2498,14 +2497,12 @@
             updateDollarValues();
             renderAllocationChart(allocationArray);
             
-            // Check if already unlocked - if so, reveal immediately
             if (portfolioUnlocked) {
                 revealPortfolio();
             }
         }
 
         function updateShareCard(stockPct, bondPct, alloc) {
-            // Only show if unlocked
             if (portfolioUnlocked) {
                 document.getElementById('shareCardSection').style.display = 'block';
             }
