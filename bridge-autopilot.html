@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Saved</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            color: #22c55e;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .msg {
+            animation: fadeIn 0.3s ease-out;
+        }
+        .check {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .text {
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="msg">
+        <div class="check">✅</div>
+        <div class="text">System Saved</div>
+    </div>
+    <script>
+        // BRIDGE: Notify the parent Autopilot app that email was captured
+        (function() {
+            try {
+                if (window.self !== window.top) {
+                    // Inside iframe - send message to parent
+                    window.parent.postMessage({ type: 'AUTOPILOT_EMAIL_CAPTURED', verified: true }, '*');
+                } else {
+                    // Not in iframe - user landed here directly, redirect to main app
+                    window.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html';
+                }
+            } catch(e) {
+                // Cross-origin error means we ARE in an iframe, send the message
+                window.parent.postMessage({ type: 'AUTOPILOT_EMAIL_CAPTURED', verified: true }, '*');
+            }
+        })();
+    </script>
+</body>
+</html>
