@@ -2175,6 +2175,23 @@
         document.addEventListener('DOMContentLoaded', () => {
             portfolioId = generatePortfolioId();
             
+            // === HYBRID APPROACH: Check if user returned from bridge page ===
+            const bridgeEmail = localStorage.getItem('investmentSimplifier_bridge_email');
+            if (bridgeEmail) {
+                console.log('[Investment Simplifier] User returned from bridge - auto-unlocking');
+                // Hide the unlock overlay
+                const overlay = document.getElementById('unlockOverlay');
+                if (overlay) overlay.style.display = 'none';
+                // Remove blur from ETF cards
+                const etfCards = document.getElementById('etfCards');
+                if (etfCards) etfCards.classList.add('unlocked');
+                // Show share card section
+                const shareSection = document.getElementById('shareCardSection');
+                if (shareSection) shareSection.style.display = 'block';
+                // Clean up the flag
+                localStorage.removeItem('investmentSimplifier_bridge_email');
+            }
+            
             const hasAutopilot = checkForAutopilotData();
             if (hasAutopilot) {
                 document.getElementById('welcomeGate').classList.add('hidden');
