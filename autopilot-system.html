@@ -344,7 +344,14 @@
 
         // --- MAIN APP ---
         function App() {
-            const [module, setModule] = useState(0);
+            // Restore module from localStorage. If email was captured, jump straight to certificate.
+            const getInitialModule = () => {
+                if (localStorage.getItem('autopilot_email_captured') === 'true') return 7;
+                const saved = localStorage.getItem('autopilot_current_module');
+                return saved ? parseInt(saved, 10) : 0;
+            };
+
+            const [module, setModule] = useState(getInitialModule);
             const [context, setContext] = useState(null);
             const [theme, setTheme] = useState(CONFIG.THEMES.DEFAULT);
             const [architectId, setArchitectId] = useState(null);
@@ -356,10 +363,14 @@
                 checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false }
             });
 
+            // Save module progress to localStorage whenever it changes
+            useEffect(() => {
+                localStorage.setItem('autopilot_current_module', module.toString());
+            }, [module]);
+
             useEffect(() => {
                 const existingId = localStorage.getItem('cashvault_architect_id');
-                const existingEmail = localStorage.getItem('architect_email');
-                if (existingId && existingEmail) setArchitectId(existingId);
+                if (existingId) setArchitectId(existingId);
             }, []);
 
             useEffect(() => {
