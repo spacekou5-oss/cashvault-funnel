@@ -126,71 +126,12 @@
             line-height: 1.5;
         }
         
-        .unlock-email-input {
-            width: 100%;
-            max-width: 280px;
-            padding: 14px 18px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 2px solid var(--success);
-            border-radius: 10px;
-            color: white;
-            font-size: 1rem;
-            text-align: center;
-            margin-bottom: 12px;
-            transition: all 0.3s;
-        }
-        
-        .unlock-email-input:focus {
-            outline: none;
-            border-color: var(--success-light);
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
-        }
-        
-        .unlock-email-input::placeholder {
-            color: var(--text-muted);
-        }
-        
-        .unlock-btn {
-            width: 100%;
-            max-width: 280px;
-            padding: 14px 24px;
-            background: var(--success);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
-        }
-        
-        .unlock-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
-        }
-        
-        .unlock-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
         .unlock-trust {
             display: flex;
             gap: 15px;
             margin-top: 15px;
             font-size: 0.7rem;
             color: var(--text-muted);
-        }
-        
-        .unlock-error {
-            color: #ef4444;
-            font-size: 0.8rem;
-            margin-top: 8px;
-            display: none;
         }
         
         .unlock-preview-hint {
@@ -1623,6 +1564,15 @@
             font-size: 0.8rem;
         }
 
+        /* BEEHIIV EMBED CONTAINER */
+        .beehiiv-embed-container {
+            width: 100%;
+            max-width: 320px;
+            margin: 15px auto;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
     </style>
 </head>
 <body>
@@ -1776,25 +1726,26 @@
                 </div>
             </div>
 
-            <!-- === THE BLUR GATE: ETF CARDS WITH EMAIL UNLOCK === -->
+            <!-- === THE BLUR GATE: ETF CARDS WITH BEEHIIV REDIRECT === -->
             <div class="portfolio-gate-container" id="portfolioGateContainer">
-                <!-- BLUR OVERLAY -->
+                <!-- BLUR OVERLAY WITH BEEHIIV -->
                 <div class="unlock-overlay" id="unlockOverlay">
                     <div class="unlock-icon">🔐</div>
-                    <h3 class="unlock-title">Unlock Your Buy Order</h3>
-                    <p class="unlock-subtitle">Get the exact Tickers and Allocation % sent directly to your inbox.</p>
+                    <h3 class="unlock-title">Your Buy List Expires.</h3>
+                    <p class="unlock-subtitle">The exact tickers and percentages are below. Close this tab and they're gone. One email locks them in.</p>
                     
-                    <input 
-                        type="email" 
-                        id="unlockEmailInput" 
-                        class="unlock-email-input" 
-                        placeholder="Enter your email..."
-                    >
-                    <p class="unlock-error" id="unlockError">Please enter a valid email address</p>
-                    
-                    <button class="unlock-btn" id="unlockBtn" onclick="unlockPortfolio()">
-                        Reveal My Portfolio
-                    </button>
+                    <!-- BEEHIIV EMBED - REPLACE WITH YOUR FORM ID -->
+                    <div class="beehiiv-embed-container">
+                        <iframe 
+                            src="https://subscribe-forms.beehiiv.com/f719b4fc-80fe-4c51-8dfd-38a57705dfcf"
+                            data-test-id="beehiiv-embed" 
+                            width="100%" 
+                            height="234" 
+                            frameborder="0" 
+                            scrolling="no"
+                            style="border-radius: 16px; background: transparent; max-width: 100%;"
+                        ></iframe>
+                    </div>
                     
                     <div class="unlock-trust">
                         <span>🔒 Secure</span>
@@ -1993,8 +1944,6 @@
         const CONFIG = {
             AUTOPILOT_URL: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html",
             COMMAND_CENTER_URL: "https://spacekou5-oss.github.io/cashvault-funnel/command-center.html",
-            BEEHIIV_MOCK_MODE: true,
-            BEEHIIV_FORM_URL: "https://embeds.beehiiv.com/YOUR_EMBED_ID",
             SOCIAL: {
                 INSTAGRAM: "@koutalksmoney",
                 TWITTER: "@koutalksmoney"
@@ -2024,7 +1973,6 @@
         };
 
         // === SMART PROFILE ALLOCATION MATRIX ===
-        // Reframed: "Risk" → "Growth Profile" | No warnings, only smart optimization language
         const CORE_ALLOCATION_MATRIX = {
             'BND':  { growth: 20, balanced: 30, income: 45, profile: 'Stability Engine',    profileClass: 'profile-stability',    profileNote: 'Your foundation. Bonds absorb market noise so your portfolio compounds without interruption.' },
             'SCHD': { growth: 35, balanced: 45, income: 60, profile: 'Steady Compounder',   profileClass: 'profile-steady',       profileNote: 'Dividend aristocrats pay you while you sleep. Income + growth in one ticker.' },
@@ -2100,69 +2048,6 @@
                 if (current >= target) { current = target; clearInterval(timer); }
                 counter.textContent = current.toLocaleString();
             }, 30);
-        }
-
-        function checkUnlockStatus() {
-            const unlocked = localStorage.getItem('investment_portfolio_unlocked') === 'true';
-            const email = localStorage.getItem('investment_user_email');
-            if (unlocked && email) {
-                portfolioUnlocked = true;
-                return true;
-            }
-            return false;
-        }
-
-        async function unlockPortfolio() {
-            const emailInput = document.getElementById('unlockEmailInput');
-            const errorEl = document.getElementById('unlockError');
-            const btn = document.getElementById('unlockBtn');
-            const email = emailInput.value.trim();
-            
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                errorEl.style.display = 'block';
-                emailInput.style.borderColor = '#ef4444';
-                return;
-            }
-            
-            errorEl.style.display = 'none';
-            emailInput.style.borderColor = 'var(--success)';
-            btn.disabled = true;
-            btn.textContent = 'Unlocking...';
-            
-            if (CONFIG.BEEHIIV_MOCK_MODE) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            } else {
-                try {
-                    await fetch(CONFIG.BEEHIIV_FORM_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            email: email,
-                            utm_source: 'investment_simplifier',
-                            utm_medium: 'blur_gate',
-                            referring_site: window.location.href
-                        })
-                    });
-                } catch (err) {
-                    console.error('Beehiiv error:', err);
-                }
-            }
-            
-            localStorage.setItem('investment_portfolio_unlocked', 'true');
-            localStorage.setItem('investment_user_email', email);
-            portfolioUnlocked = true;
-            
-            revealPortfolio();
-        }
-
-        function revealPortfolio() {
-            document.getElementById('unlockOverlay').classList.add('hidden');
-            document.getElementById('etfCards').classList.remove('blur-gate');
-            document.getElementById('etfCards').classList.add('unlocked');
-            if (currentPortfolioData) {
-                document.getElementById('shareCardSection').style.display = 'block';
-            }
         }
 
         function checkForAutopilotData() {
@@ -2290,8 +2175,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             portfolioId = generatePortfolioId();
             
-            checkUnlockStatus();
-            
             const hasAutopilot = checkForAutopilotData();
             if (hasAutopilot) {
                 document.getElementById('welcomeGate').classList.add('hidden');
@@ -2342,6 +2225,53 @@
             document.getElementById('userAge').value = age;
             document.getElementById('ageRange').value = age;
             document.getElementById('riskStyle').value = risk;
+        }
+
+        // === NEW: BRIDGE PAGE DATA SAVE ===
+        function saveForBridgePage(stockPct, bondPct, alloc) {
+            const age = parseInt(document.getElementById('userAge').value);
+            const style = document.getElementById('riskStyle').value;
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
+            const rate = 0.07;
+            
+            // Calculate 10/20/30 year projections
+            const calcProjection = (years) => {
+                return Math.round(monthly * ((Math.pow(1 + rate/12, 12*years) - 1) / (rate/12)));
+            };
+            
+            // Build ETF array in bridge format
+            const etfs = alloc.map(item => {
+                const data = etfData[item.id] || { ticker: item.id.toUpperCase(), name: 'ETF' };
+                let etfType = 'diversifier';
+                if (item.isCore) etfType = 'core';
+                else if (item.id === 'bnd' || item.id === 'sgov') etfType = 'bonds';
+                else if (item.id === 'schd' || item.id === 'vym' || item.id === 'dgro') etfType = 'stability';
+                
+                return {
+                    ticker: data.ticker,
+                    name: data.name,
+                    percent: item.pct,
+                    type: etfType
+                };
+            });
+            
+            const bridgeData = {
+                age: age,
+                style: style,
+                stockPercent: stockPct,
+                bondPercent: bondPct,
+                etfs: etfs,
+                monthlyInvestment: monthly,
+                projections: {
+                    year10: calcProjection(10),
+                    year20: calcProjection(20),
+                    year30: calcProjection(30)
+                },
+                portfolioId: portfolioId,
+                generatedAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem('investmentSimplifier_portfolio', JSON.stringify(bridgeData));
         }
 
         function calculatePortfolio() {
@@ -2416,6 +2346,7 @@
             updateComparison();
             showBridgeCta();
             savePortfolioData(stockPct, bondPct, alloc);
+            saveForBridgePage(stockPct, bondPct, alloc);
         }
 
         function updateWhyExplanationWithCore(coreTicker, coreAllocation, stockPct, bondPct, coreData, riskStyle) {
@@ -2496,16 +2427,10 @@
             
             updateDollarValues();
             renderAllocationChart(allocationArray);
-            
-            if (portfolioUnlocked) {
-                revealPortfolio();
-            }
         }
 
         function updateShareCard(stockPct, bondPct, alloc) {
-            if (portfolioUnlocked) {
-                document.getElementById('shareCardSection').style.display = 'block';
-            }
+            document.getElementById('shareCardSection').style.display = 'block';
             
             const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
             const years = 30;
