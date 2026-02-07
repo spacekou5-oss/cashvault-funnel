@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Unlocked | The Vault</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #111936;
+            --bg-card: #1a1f3a;
+            --bg-card-hover: #242b4d;
+            --accent-gold: #fbbf24;
+            --accent-gold-dim: #b45309;
+            --accent-gold-glow: rgba(251, 191, 36, 0.25);
+            --accent-amber: #f59e0b;
+            --accent-green: #10b981;
+            --accent-indigo: #6366f1;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-gold: rgba(251, 191, 36, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Animated Background */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(ellipse at 20% 20%, rgba(251, 191, 36, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(251, 191, 36, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Success Header */
+        .success-header {
+            text-align: center;
+            margin-bottom: 32px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .vault-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-amber));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 0 50px var(--accent-gold-glow);
+            animation: glow 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        .vault-icon::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-amber), var(--accent-gold));
+            border-radius: 18px;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        .vault-icon svg {
+            width: 40px;
+            height: 40px;
+            color: #000;
+        }
+
+        .success-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-amber));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .success-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Category Badge */
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid var(--border-gold);
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            margin-bottom: 24px;
+        }
+
+        .category-badge .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        /* Prompt Card */
+        .prompt-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-gold);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.6s ease-out 0.1s backwards;
+            box-shadow: 0 0 40px rgba(251, 191, 36, 0.1);
+        }
+
+        .prompt-header {
+            padding: 20px 24px;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), transparent);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .prompt-title-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .prompt-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .prompt-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .unlock-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--accent-green);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .prompt-body {
+            padding: 24px;
+        }
+
+        .prompt-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 20px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .prompt-text::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .prompt-text::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+            border-radius: 4px;
+        }
+
+        .prompt-text::-webkit-scrollbar-thumb {
+            background: var(--border-subtle);
+            border-radius: 4px;
+        }
+
+        .prompt-text::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Copy Button */
+        .copy-section {
+            padding: 16px 24px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .copy-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-amber));
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--accent-gold-glow);
+        }
+
+        .copy-btn.copied {
+            background: var(--accent-green);
+        }
+
+        /* Usage Tips */
+        .tips-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.6s ease-out 0.2s backwards;
+        }
+
+        .tips-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .tips-header h3 {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .tips-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .tip-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .tip-number {
+            width: 24px;
+            height: 24px;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid var(--border-gold);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            flex-shrink: 0;
+        }
+
+        .tip-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Actions */
+        .actions {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 32px;
+            animation: fadeInUp 0.6s ease-out 0.3s backwards;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-indigo), #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-gold);
+            background: var(--bg-card-hover);
+        }
+
+        /* More Prompts CTA */
+        .more-prompts {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+            border: 1px dashed var(--border-gold);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            animation: fadeInUp 0.6s ease-out 0.4s backwards;
+        }
+
+        .more-prompts h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--accent-gold);
+        }
+
+        .more-prompts p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .prompt-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(251, 191, 36, 0.1);
+            border-radius: 30px;
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            margin-bottom: 20px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .footer a {
+            color: var(--accent-gold);
+            text-decoration: none;
+        }
+
+        /* Error State */
+        .error-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .error-state h2 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        .error-state p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 40px var(--accent-gold-glow);
+            }
+            50% {
+                box-shadow: 0 0 60px var(--accent-gold-glow), 0 0 80px rgba(251, 191, 36, 0.15);
+            }
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Sparkle effect */
+        .sparkle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            animation: sparkle-fall 3s ease-out forwards;
+        }
+
+        @keyframes sparkle-fall {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100px) scale(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: 24px 16px;
+            }
+
+            .prompt-card {
+                border-radius: 12px;
+            }
+
+            .prompt-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .prompt-text {
+                font-size: 0.85rem;
+                padding: 16px;
+            }
+
+            .success-header h1 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="sparkle-container" id="sparkle-container"></div>
+    
+    <div class="container" id="main-content">
+        <!-- Success Header -->
+        <div class="success-header">
+            <div class="vault-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <h1>Vault Access Granted</h1>
+            <p>Your prompt has been decrypted and unlocked.</p>
+        </div>
+
+        <!-- Category Badge -->
+        <div style="text-align: center;">
+            <div class="category-badge">
+                <span class="dot"></span>
+                <span id="display-category">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Prompt Card -->
+        <div class="prompt-card">
+            <div class="prompt-header">
+                <div class="prompt-title-wrap">
+                    <span class="prompt-label">Prompt Title</span>
+                    <span class="prompt-title" id="display-title">Loading...</span>
+                </div>
+                <div class="unlock-badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    UNLOCKED
+                </div>
+            </div>
+            <div class="prompt-body">
+                <div class="prompt-text" id="display-prompt">Loading prompt...</div>
+            </div>
+            <div class="copy-section">
+                <button class="copy-btn" id="copy-btn" onclick="copyPrompt()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Copy Full Prompt
+                </button>
+            </div>
+        </div>
+
+        <!-- Usage Tips -->
+        <div class="tips-card">
+            <div class="tips-header">
+                <span>💡</span>
+                <h3>How to Use This Prompt</h3>
+            </div>
+            <div class="tips-list">
+                <div class="tip-item">
+                    <div class="tip-number">1</div>
+                    <div class="tip-text">Copy the prompt above using the gold button.</div>
+                </div>
+                <div class="tip-item">
+                    <div class="tip-number">2</div>
+                    <div class="tip-text">Open ChatGPT, Claude, or your preferred AI assistant.</div>
+                </div>
+                <div class="tip-item">
+                    <div class="tip-number">3</div>
+                    <div class="tip-text">Paste the prompt and customize the [BRACKETED] sections with your specific details.</div>
+                </div>
+                <div class="tip-item">
+                    <div class="tip-number">4</div>
+                    <div class="tip-text">Hit enter and let the AI do the heavy lifting.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <a href="https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" class="btn btn-primary">
+                <span>🔐</span> Explore Full Vault
+            </a>
+            <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" class="btn btn-secondary">
+                <span>📊</span> Build Your Portfolio
+            </a>
+        </div>
+
+        <!-- More Prompts CTA -->
+        <div class="more-prompts">
+            <div class="prompt-count">
+                <span>🔥</span> 20+ Premium Prompts Available
+            </div>
+            <h3>This is Just the Beginning</h3>
+            <p>The Vault contains AI prompts for budgeting, investing, credit building, side hustles, and more. All free. All battle-tested.</p>
+            <a href="https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" class="btn btn-secondary" style="display: inline-flex;">
+                Open The Vault
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Made by <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a><br>
+            Don't work hard. Copy my homework.
+        </div>
+    </div>
+
+    <!-- Error State (hidden by default) -->
+    <div class="container error-state" id="error-state" style="display: none;">
+        <h2>Prompt Not Found</h2>
+        <p>It looks like your prompt data expired or wasn't saved properly.</p>
+        <a href="https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" class="btn btn-primary">
+            Go to The Vault
+        </a>
+    </div>
+
+    <script>
+        // ========================================
+        // LOCALSTORAGE KEY: promptVault_unlocked
+        // ========================================
+        // Expected schema (set this in your main app BEFORE Beehiiv redirect):
+        // {
+        //   category: string (e.g., 'Budgeting', 'Investing', 'Credit', 'Side Hustles'),
+        //   title: string,
+        //   fullPrompt: string,
+        //   unlockedAt: string (ISO date)
+        // }
+
+        const STORAGE_KEY = 'promptVault_unlocked';
+
+        // Category icons
+        const categoryIcons = {
+            'budgeting': '💰',
+            'investing': '📈',
+            'credit': '💳',
+            'side hustles': '🚀',
+            'automation': '🤖',
+            'savings': '🏦',
+            'default': '⚡'
+        };
+
+        // Load prompt data
+        function loadPrompt() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            
+            if (!data) {
+                showError();
+                return;
+            }
+
+            try {
+                const prompt = JSON.parse(data);
+                renderPrompt(prompt);
+                triggerSparkles();
+            } catch (e) {
+                console.error('Failed to parse prompt data:', e);
+                showError();
+            }
+        }
+
+        // Render prompt
+        function renderPrompt(p) {
+            const categoryLower = p.category.toLowerCase();
+            const icon = categoryIcons[categoryLower] || categoryIcons['default'];
+            
+            document.getElementById('display-category').textContent = icon + ' ' + p.category;
+            document.getElementById('display-title').textContent = p.title;
+            document.getElementById('display-prompt').textContent = p.fullPrompt;
+        }
+
+        // Show error state
+        function showError() {
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('error-state').style.display = 'block';
+        }
+
+        // Copy prompt
+        function copyPrompt() {
+            const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            if (!data) return;
+
+            navigator.clipboard.writeText(data.fullPrompt).then(() => {
+                const btn = document.getElementById('copy-btn');
+                btn.classList.add('copied');
+                btn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Copied to Clipboard!
+                `;
+                
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Copy Full Prompt
+                    `;
+                }, 2500);
+            });
+        }
+
+        // Sparkle effect
+        function triggerSparkles() {
+            const container = document.getElementById('sparkle-container');
+            const colors = ['#fbbf24', '#f59e0b', '#fcd34d', '#fef3c7'];
+
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 50 + '%';
+                    sparkle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    sparkle.style.width = (Math.random() * 8 + 4) + 'px';
+                    sparkle.style.height = sparkle.style.width;
+                    container.appendChild(sparkle);
+
+                    setTimeout(() => sparkle.remove(), 3000);
+                }, i * 50);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadPrompt);
+    </script>
+</body>
+</html>
