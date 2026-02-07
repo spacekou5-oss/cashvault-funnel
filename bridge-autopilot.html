@@ -3,59 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Saved</title>
+    <title>Autopilot Elite | Your Certificate</title>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <!-- IFRAME BREAKOUT + GATE CHECK -->
+    <script>
+        (function() {
+            // If loaded inside Beehiiv iframe, break out to full page
+            try {
+                if (window.self !== window.top) {
+                    window.top.location.href = window.location.href;
+                    return;
+                }
+            } catch(e) {}
+
+            // Mark email as captured (they came from Beehiiv redirect)
+            localStorage.setItem('autopilot_email_captured', 'true');
+            localStorage.setItem('autopilot_completed', 'true');
+            localStorage.setItem('autopilot_current_module', '7');
+
+            // Generate architect ID if not already set
+            if (!localStorage.getItem('cashvault_architect_id')) {
+                var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                var fallback = 'architect_' + Date.now() + '@autopilot.system';
+                var n = fallback.toLowerCase().trim();
+                var h1 = 0, h2 = 5381;
+                for (var i = 0; i < n.length; i++) { var c = n.charCodeAt(i); h1 = ((h1 << 5) - h1) + c; h1 = h1 & h1; h2 = ((h2 << 5) + h2) + c; }
+                var combined = Math.abs(h1) + Math.abs(h2);
+                var id = 'KOU-'; var wh = combined;
+                for (var j = 0; j < 6; j++) { var ci = (wh + (n.charCodeAt(j % n.length) * (j + 1))) % chars.length; id += chars.charAt(Math.abs(ci)); wh = Math.floor(wh / 7) + ci; }
+                localStorage.setItem('cashvault_architect_id', id);
+                localStorage.setItem('command_center_architect_id', id);
+            }
+        })();
+    </script>
+    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #000;
-            color: #22c55e;
-            font-family: 'Courier New', monospace;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            text-align: center;
+        body { font-family: 'JetBrains Mono', monospace; background-color: #0a0a0a; color: #e5e5e5; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+
+        @keyframes shimmer { 0% { background-position: -250% 0; } 100% { background-position: 250% 0; } }
+        .premium-shimmer {
+            background: linear-gradient(105deg, rgba(255,255,255,0) 20%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 80%);
+            background-size: 200% 100%;
+            animation: shimmer 6s infinite linear;
         }
-        .msg {
-            animation: fadeIn 0.3s ease-out;
+        .embossed { text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+        .card-font { font-family: 'Share Tech Mono', monospace; }
+
+        @keyframes certificateReveal {
+            0% { opacity: 0; transform: scale(0.9) rotateX(10deg); box-shadow: 0 0 0 rgba(255,255,255,0); }
+            50% { box-shadow: 0 0 60px rgba(255,255,255,0.3), 0 0 120px rgba(34,197,94,0.2); }
+            100% { opacity: 1; transform: scale(1) rotateX(0deg); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); }
         }
-        .check {
-            font-size: 32px;
-            margin-bottom: 8px;
+        .certificate-reveal { animation: certificateReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+        @keyframes screenshotPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
         }
-        .text {
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        .screenshot-pulse { animation: screenshotPulse 2s infinite; }
+
+        .share-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 16px; border-radius: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; cursor: pointer; text-decoration: none; }
+        .share-btn:hover { transform: translateY(-2px); }
+        .share-btn-instagram { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; border: none; }
+        .share-btn-twitter { background: #000; color: white; border: 1px solid #333; }
+        .share-btn-twitter:hover { background: #111; border-color: #555; }
+        .share-btn-linkedin { background: #0077B5; color: white; border: none; }
+        .share-btn-copy { background: transparent; color: #888; border: 1px solid #333; }
+        .share-btn-copy:hover { border-color: #22c55e; color: #22c55e; }
+        .share-btn-copy.copied { background: #22c55e; border-color: #22c55e; color: #000; }
+
+        @keyframes timerPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .timer-pulse { animation: timerPulse 1s ease-in-out infinite; }
+
+        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <div class="msg">
-        <div class="check">✅</div>
-        <div class="text">System Saved</div>
-    </div>
-    <script>
-        // BRIDGE: Notify the parent Autopilot app that email was captured
-        (function() {
-            try {
-                if (window.self !== window.top) {
-                    // Inside iframe - send message to parent
-                    window.parent.postMessage({ type: 'AUTOPILOT_EMAIL_CAPTURED', verified: true }, '*');
-                } else {
-                    // Not in iframe - user landed here directly, redirect to main app
-                    window.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html';
-                }
-            } catch(e) {
-                // Cross-origin error means we ARE in an iframe, send the message
-                window.parent.postMessage({ type: 'AUTOPILOT_EMAIL_CAPTURED', verified: true }, '*');
+    <div id="root"></div>
+    <canvas id="confetti-canvas"></canvas>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // === MONEY CONFETTI ENGINE ===
+        const MoneyConfetti = {
+            canvas: null, ctx: null, particles: [], isRunning: false, MAX_PARTICLES: 40,
+            init() { this.canvas = document.getElementById('confetti-canvas'); if (!this.canvas) return; this.ctx = this.canvas.getContext('2d'); this.resize(); window.addEventListener('resize', () => this.resize()); },
+            resize() { if (!this.canvas) return; this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; },
+            createParticle() {
+                const roll = Math.random(); const type = roll < 0.85 ? '$' : (roll < 0.93 ? '💵' : '💰');
+                const colors = ['#22c55e', '#16a34a', '#fbbf24', '#4ade80'];
+                return { x: Math.random() * this.canvas.width, y: -30, type, color: colors[Math.floor(Math.random() * colors.length)], size: Math.random() * 16 + 14, speedY: Math.random() * 2.5 + 2, speedX: (Math.random() - 0.5) * 3, rotation: Math.random() * 360, rotationSpeed: (Math.random() - 0.5) * 8, opacity: 1, wobble: Math.random() * 10, wobbleSpeed: Math.random() * 0.08 + 0.04 };
+            },
+            launch(duration = 3000, intensity = 25) {
+                if (this.isRunning) return; this.isRunning = true; this.particles = [];
+                const startTime = Date.now();
+                const spawnInterval = setInterval(() => { if (Date.now() - startTime > duration * 0.6) { clearInterval(spawnInterval); return; } const toSpawn = Math.min(Math.ceil(intensity / 10), this.MAX_PARTICLES - this.particles.length); for (let i = 0; i < toSpawn; i++) this.particles.push(this.createParticle()); }, 150);
+                const animate = () => {
+                    if (!this.ctx) return; this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    this.particles = this.particles.filter(p => { p.y += p.speedY; p.x += p.speedX + Math.sin(p.wobble) * 0.5; p.rotation += p.rotationSpeed; p.wobble += p.wobbleSpeed; if (p.y > this.canvas.height - 100) p.opacity -= 0.04; if (p.opacity <= 0 || p.y > this.canvas.height + 50) return false; this.ctx.save(); this.ctx.translate(p.x, p.y); this.ctx.rotate(p.rotation * Math.PI / 180); this.ctx.globalAlpha = p.opacity; this.ctx.fillStyle = p.color; this.ctx.font = `${p.size}px Arial`; this.ctx.textAlign = 'center'; this.ctx.textBaseline = 'middle'; this.ctx.fillText(p.type, 0, 0); this.ctx.restore(); return true; });
+                    if (this.particles.length > 0 || Date.now() - startTime < duration) { requestAnimationFrame(animate); } else { this.isRunning = false; this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); }
+                };
+                animate();
             }
-        })();
+        };
+        window.addEventListener('load', () => MoneyConfetti.init());
+
+        // === CONFIG ===
+        const CONFIG = {
+            LINKS: { INSTAGRAM: "https://instagram.com/koutalksmoney" },
+            SHARE_TEMPLATES: {
+                INSTAGRAM: "I just installed the Autopilot Money System. My machine is now building wealth while I sleep. 🤖💰 @koutalksmoney",
+                TWITTER: "Just installed The Autopilot Money System.\n\nMy wealth is now on autopilot.\n\nGet yours: [LINK]\n\n@koutalksmoney",
+                LINKEDIN: "I just completed the Autopilot Money System certification. If you're still manually managing your finances, you're working too hard. Automation > Willpower. #PersonalFinance #WealthBuilding",
+                TIKTOK: "POV: You just installed the Autopilot Money System and your wealth is now building itself 🤖💰 @koutalksmoney"
+            }
+        };
+
+        // === PULL DATA FROM LOCALSTORAGE ===
+        function getStoredData() {
+            const savedData = localStorage.getItem('autopilot_system_data');
+            const parsed = savedData ? JSON.parse(savedData) : {};
+            const architectId = localStorage.getItem('cashvault_architect_id') || 'KOU-XXXXXX';
+            const monthlyInvest = parseFloat(localStorage.getItem('architect_monthly_invest')) || 0;
+            const etfChoice = localStorage.getItem('autopilot_etf_choice') ? JSON.parse(localStorage.getItem('autopilot_etf_choice')) : null;
+            const investAmt = monthlyInvest || (parsed.income ? Math.max(0, (parsed.income - (parsed.bills || 0))) * 0.20 : 0);
+            const projectedWealth = investAmt > 0 ? '$' + (investAmt * ((Math.pow(1.10/12, 30*12)-1)/(0.10/12))).toLocaleString(undefined, {maximumFractionDigits:0}) : '$0';
+            return {
+                userName: parsed.userName || 'AUTHORIZED USER',
+                architectId,
+                projectedWealth
+            };
+        }
+
+        // === CERTIFICATE PAGE ===
+        function CertificatePage() {
+            const [copiedPlatform, setCopiedPlatform] = useState(null);
+            const [revealed, setRevealed] = useState(false);
+            const [countdown, setCountdown] = useState(24 * 60 * 60);
+            const confettiLaunched = useRef(false);
+            const data = getStoredData();
+
+            useEffect(() => {
+                const timer = setTimeout(() => {
+                    setRevealed(true);
+                    if (!confettiLaunched.current) {
+                        confettiLaunched.current = true;
+                        setTimeout(() => MoneyConfetti.launch(3000, 25), 200);
+                    }
+                }, 100);
+                return () => clearTimeout(timer);
+            }, []);
+
+            useEffect(() => {
+                const timer = setInterval(() => setCountdown(prev => prev > 0 ? prev - 1 : 0), 1000);
+                return () => clearInterval(timer);
+            }, []);
+
+            const formatCountdown = (s) => {
+                const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+                return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+            };
+
+            const handleCopy = (platform) => {
+                navigator.clipboard.writeText(CONFIG.SHARE_TEMPLATES[platform]);
+                setCopiedPlatform(platform);
+                setTimeout(() => setCopiedPlatform(null), 2000);
+            };
+
+            const shareUrls = {
+                twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(CONFIG.SHARE_TEMPLATES.TWITTER)}`,
+                linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html')}`
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center p-4 sm:p-6">
+                    <div className="w-full max-w-md mx-auto animate-fade-in">
+                        <div className="text-center mb-4">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-green-500 text-green-500 text-xs font-bold uppercase tracking-widest screenshot-pulse">
+                                <span>📸</span> Screenshot This Card
+                            </div>
+                        </div>
+
+                        <div id="certificate-card" className={`relative h-72 w-full rounded-xl mb-6 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`}>
+                            <div className="absolute inset-0 bg-[#0a0a0a]"></div>
+                            <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-[#000] to-black opacity-90"></div>
+                            <div className="absolute inset-0 premium-shimmer opacity-20 pointer-events-none"></div>
+                            <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-full border-2 border-green-500 flex items-center justify-center"><div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div></div>
+                                        <span className="font-bold text-white tracking-widest text-sm">AUTOPILOT<span className="text-green-500">ELITE</span></span>
+                                    </div>
+                                    <span className="text-[10px] text-gray-500 font-mono border border-gray-700 px-2 py-1 rounded">WEALTH ARCHITECT</span>
+                                </div>
+                                <div>
+                                    <div className="mb-2"><p className="text-[8px] text-gray-500 uppercase tracking-widest mb-1">Architect ID</p><p className="text-green-500 font-mono text-lg font-bold tracking-widest">{data.architectId}</p></div>
+                                    <div className="w-12 h-9 bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-600 rounded-md mb-3 shadow-sm opacity-90"></div>
+                                    <div className="card-font text-gray-300 text-xl tracking-[0.15em] opacity-80 embossed">{data.projectedWealth}</div>
+                                    <div className="text-[8px] text-gray-500 uppercase tracking-widest mt-1">Projected Net Worth (30yr)</div>
+                                </div>
+                                <div className="flex justify-between items-end">
+                                    <div><p className="text-white font-bold uppercase tracking-widest text-sm embossed card-font">{data.userName}</p><p className="text-[8px] text-gray-500 mt-1">MEMBER SINCE {new Date().getFullYear()}</p></div>
+                                    <div className="text-right"><div className="text-green-500 text-xs font-bold">✓ VERIFIED</div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-gradient-to-r from-red-900/30 via-red-800/20 to-red-900/30 border border-red-500/30 p-4 rounded mb-6 text-center">
+                            <p className="text-red-400 text-xs font-bold uppercase tracking-widest mb-1">⏰ Bonus Access Expires In</p>
+                            <p className="text-white text-2xl font-mono font-bold timer-pulse">{formatCountdown(countdown)}</p>
+                        </div>
+
+                        <div className="text-center space-y-4 pb-12">
+                            <div className="bg-gray-900 border border-gray-800 p-6 rounded-sm shadow-xl relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-green-500"></div>
+                                <h3 className="text-white font-bold text-lg mb-1">SHARE & CLAIM BONUS</h3>
+                                <p className="text-gray-500 text-xs mb-6">Share your achievement to unlock the Prompt Vault Cheat Sheet.</p>
+                                <div className="text-left space-y-3 text-xs text-gray-300 font-mono mb-6 bg-black p-4 rounded border border-gray-800">
+                                    <p className="flex items-center gap-2"><span className="text-green-500">1.</span> Screenshot the certificate above 📸</p>
+                                    <p className="flex items-center gap-2"><span className="text-green-500">2.</span> Post to your story & tag <span className="text-white font-bold">@koutalksmoney</span></p>
+                                    <p className="flex items-center gap-2"><span className="text-green-500">3.</span> I'll DM your Prompt Vault access directly</p>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                    <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="share-btn share-btn-instagram col-span-2"><span>📸</span> Post to Instagram</a>
+                                    <a href={shareUrls.twitter} target="_blank" className="share-btn share-btn-twitter"><span>𝕏</span> Share on X</a>
+                                    <a href={shareUrls.linkedin} target="_blank" className="share-btn share-btn-linkedin"><span>in</span> LinkedIn</a>
+                                </div>
+                                <div className="border-t border-gray-800 pt-4 mt-4">
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Copy Pre-Written Captions</p>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {['INSTAGRAM', 'TWITTER', 'LINKEDIN', 'TIKTOK'].map(platform => (
+                                            <button key={platform} onClick={() => handleCopy(platform)} className={`share-btn share-btn-copy text-[10px] py-2 ${copiedPlatform === platform ? 'copied' : ''}`}>{copiedPlatform === platform ? '✓ Copied' : `${platform} Caption`}</button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="border-t border-gray-800 pt-4 mt-4">
+                                    <div className="bg-gradient-to-br from-gray-900 to-black border-2 border-green-500 p-5 rounded-lg">
+                                        <div className="flex items-center gap-3 mb-3"><span className="text-2xl">✅</span><div><p className="text-white font-bold text-sm">Verify Your Architect Status</p><p className="text-gray-400 text-xs">Share your ID. Let others verify you're legit.</p></div></div>
+                                        <a href={`https://spacekou5-oss.github.io/cashvault-funnel/verify.html?id=${data.architectId}`} target="_blank" className="block w-full py-3 bg-green-500 text-black font-bold text-sm rounded text-center transition-all hover:opacity-90">Open Verification Page →</a>
+                                        <p className="text-gray-500 text-[10px] mt-2 text-center">This links directly to your verified status</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p className="text-[10px] text-gray-600 max-w-xs mx-auto">Your Architect ID is permanent and can be verified by anyone at any time.</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<CertificatePage />);
     </script>
 </body>
 </html>
