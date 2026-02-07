@@ -12,6 +12,23 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
+    <!-- Beehiiv embed script -->
+    <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+    
+    <!-- POSTMESSAGE BRIDGE: If this page loads inside an iframe (Beehiiv redirect), notify parent -->
+    <script>
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var isInIframe = window.self !== window.top;
+            if (isInIframe && params.get('verified') === 'true') {
+                // We are inside the Beehiiv iframe after redirect. Tell the parent window.
+                window.parent.postMessage({ type: 'AUTOPILOT_EMAIL_CAPTURED', verified: true }, '*');
+                // Stop the page from fully rendering inside the tiny iframe
+                document.documentElement.style.display = 'none';
+            }
+        })();
+    </script>
+    
     <style>
         body { font-family: 'JetBrains Mono', monospace; background-color: #0a0a0a; color: #e5e5e5; }
         .terminal-box { border: 1px solid #333; background: #111; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); }
@@ -105,7 +122,6 @@
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #555; }
 
-        /* === PROFILE CARD STYLES === */
         .profile-card { 
             border: 2px solid #333; 
             background: #0a0a0a; 
@@ -131,9 +147,19 @@
         .profile-desc { font-size: 10px; color: #888; margin-top: 4px; line-height: 1.4; }
         .profile-pct { font-size: 11px; font-weight: 700; margin-top: 8px; }
 
-        /* === DEPLOYABLE CAPITAL VISUALIZATION === */
         .deploy-bar { height: 32px; background: #1a1a1a; border-radius: 4px; overflow: hidden; display: flex; position: relative; }
         .deploy-segment { display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; transition: width 0.5s ease; overflow: hidden; white-space: nowrap; }
+
+        /* Beehiiv iframe container */
+        .beehiiv-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .beehiiv-container iframe {
+            max-width: 100% !important;
+            border: none !important;
+        }
     </style>
 </head>
 <body>
@@ -167,26 +193,19 @@
         async function saveArchitectToShared(architectId, userData) {
             try {
                 if (!window.storage) return;
-                
-                // Save individual architect record
                 await window.storage.set(`architect-${architectId}`, JSON.stringify({
                     id: architectId,
                     completedAt: new Date().toISOString(),
                     etf: userData.etfChoice?.ticker || null
                 }), true);
-                
-                // Update the recent architects list
                 let recentList = [];
                 try {
                     const existing = await window.storage.get('architects-recent', true);
                     if (existing) recentList = JSON.parse(existing.value);
                 } catch(e) { recentList = []; }
-                
-                // Prevent duplicates
                 recentList = recentList.filter(a => a.id !== architectId);
                 recentList.unshift({ id: architectId, time: Date.now() });
                 if (recentList.length > 100) recentList = recentList.slice(0, 100);
-                
                 await window.storage.set('architects-recent', JSON.stringify(recentList), true);
             } catch(e) {
                 console.log('Failed to save architect to shared storage:', e);
@@ -210,7 +229,6 @@
                 this.canvas.height = window.innerHeight;
             },
             createParticle() {
-                // 85% cheap text $ signs, 15% single emoji for flavor
                 const roll = Math.random();
                 const type = roll < 0.85 ? '$' : (roll < 0.93 ? '💵' : '💰');
                 const colors = ['#22c55e', '#16a34a', '#fbbf24', '#4ade80'];
@@ -231,7 +249,6 @@
                 const startTime = Date.now();
                 const spawnInterval = setInterval(() => {
                     if (Date.now() - startTime > duration * 0.6) { clearInterval(spawnInterval); return; }
-                    // Only spawn if under cap
                     const toSpawn = Math.min(Math.ceil(intensity / 10), this.MAX_PARTICLES - this.particles.length);
                     for (let i = 0; i < toSpawn; i++) this.particles.push(this.createParticle());
                 }, 150);
@@ -269,7 +286,9 @@
 
         // --- CONFIG ---
         const CONFIG = {
-            BEEHIIV: { PUBLICATION_ID: "YOUR_PUBLICATION_ID", FORM_URL: "https://embeds.beehiiv.com/YOUR_EMBED_ID", MOCK_MODE: true },
+            BEEHIIV: { 
+                AUTOPILOT_IFRAME_SRC: "https://subscribe-forms.beehiiv.com/bb43aed8-5214-49d9-856a-7dd4bb7a416d"
+            },
             LINKS: { SOFI: "https://www.sofi.com/", FIDELITY: "https://www.fidelity.com/", INSTAGRAM: "https://instagram.com/koutalksmoney", TWITTER: "https://twitter.com/koutalksmoney", YOUTUBE: "https://youtube.com/@FinanceWithKou" },
             THEMES: {
                 DEFAULT: { id: 'default', color: 'text-green-500', bg: 'bg-green-500', border: 'border-green-500', accent: '#22c55e', title: 'SYSTEM ONLINE', hover: 'hover:bg-green-500' },
@@ -297,7 +316,6 @@
                 LINKEDIN: "I just completed the Autopilot Money System certification. If you're still manually managing your finances, you're working too hard. Automation > Willpower. #PersonalFinance #WealthBuilding",
                 TIKTOK: "POV: You just installed the Autopilot Money System and your wealth is now building itself 🤖💰 @koutalksmoney"
             },
-            // === FINANCIAL PROFILES ===
             PROFILES: {
                 home: { id: 'home', icon: '🏠', title: 'THE NEST', desc: 'Living at home. Phone, subscriptions, small contribution.', pct: 0.12, label: '~12% locked' },
                 renting: { id: 'renting', icon: '🏢', title: 'THE GRIND', desc: 'Rent, utilities, phone, insurance. Standard reality.', pct: 0.50, label: '~50% locked' },
@@ -307,14 +325,12 @@
         };
 
         // === DEPLOYABLE INCOME CALCULATOR ===
-        function getDeployable(userData) {
-            return Math.max(0, (userData.income || 0) - (userData.bills || 0));
-        }
+        function getDeployable(userData) { return Math.max(0, (userData.income || 0) - (userData.bills || 0)); }
         function getInvest(userData) { return getDeployable(userData) * 0.20; }
         function getSafety(userData) { return getDeployable(userData) * 0.10; }
         function getSpending(userData) { return getDeployable(userData) * 0.70; }
 
-        // === ID GENERATORS (unchanged) ===
+        // === ID GENERATORS ===
         function generateIdFromEmail(email) {
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             const n = email.toLowerCase().trim();
@@ -335,11 +351,8 @@
             
             const [userData, setUserData] = useState({
                 userName: "", userEmail: "",
-                income: 0,
-                bills: 0,
-                billsProfile: null, // 'home', 'renting', 'fullload', 'custom'
-                payFreq: "Bi-weekly",
-                etfChoice: null,
+                income: 0, bills: 0, billsProfile: null,
+                payFreq: "Bi-weekly", etfChoice: null,
                 checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false }
             });
 
@@ -375,7 +388,6 @@
             const updateData = (key, value) => setUserData(prev => ({ ...prev, [key]: value }));
             const toggleCheck = (key) => setUserData(prev => ({ ...prev, checklist: { ...prev.checklist, [key]: !prev.checklist[key] } }));
 
-            // === FIX: Progress starts at 0% ===
             const installationPercent = Math.round((module / 7) * 100);
 
             const renderModule = () => {
@@ -493,7 +505,7 @@
             );
         }
 
-        // === MODULE 1: CALIBRATOR — REDESIGNED WITH FINANCIAL PROFILES ===
+        // === MODULE 1: CALIBRATOR ===
         function ModuleCalibrator({ userData, updateData, theme, next }) {
             const [showCustom, setShowCustom] = useState(false);
             const profiles = CONFIG.PROFILES;
@@ -509,7 +521,6 @@
                 }
             };
 
-            // Recalculate bills when income changes (if profile is set and not custom)
             useEffect(() => {
                 if (userData.billsProfile && userData.billsProfile !== 'custom' && userData.income > 0) {
                     const profile = profiles[userData.billsProfile];
@@ -523,7 +534,6 @@
             const spending = getSpending(userData);
             const hasProfile = userData.billsProfile !== null;
             const isReady = userData.income > 0 && hasProfile && deployable > 0;
-
             const billsPct = userData.income > 0 ? Math.round((userData.bills / userData.income) * 100) : 0;
             const deployPct = 100 - billsPct;
 
@@ -531,126 +541,70 @@
                 <div className="terminal-box p-6 sm:p-8 rounded-sm animate-fade-in">
                     <h2 className="text-xl font-bold mb-2 text-white border-b border-gray-800 pb-2">CALIBRATE YOUR MACHINE</h2>
                     <p className="text-xs text-gray-500 mb-6">Two inputs. That's all we need to build your system.</p>
-
-                    {/* STEP 1: Income */}
                     <div className="mb-6">
                         <label className="block text-xs text-gray-500 mb-1 uppercase tracking-widest">① Monthly Income (After Taxes)</label>
                         <div className="flex items-center group">
                             <span className="text-xl mr-2 text-gray-400 group-focus-within:text-white">$</span>
-                            <input type="number" value={userData.income || ''} onChange={(e) => updateData('income', Number(e.target.value))}
-                                className={`terminal-input w-full p-3 text-lg font-bold`} placeholder="3000" />
+                            <input type="number" value={userData.income || ''} onChange={(e) => updateData('income', Number(e.target.value))} className={`terminal-input w-full p-3 text-lg font-bold`} placeholder="3000" />
                         </div>
                         <p className="text-[10px] text-gray-600 mt-1">What hits your bank account each month.</p>
                     </div>
-
-                    {/* STEP 2: Financial Profile Selector */}
                     {userData.income > 0 && (
                         <div className="mb-6 animate-fade-in">
                             <label className="block text-xs text-gray-500 mb-3 uppercase tracking-widest">② How Much Is Locked to Bills?</label>
                             <p className="text-[10px] text-gray-600 mb-3">Most people apply 70/20/10 to gross income. That's why it fails. We apply it to what you can ACTUALLY deploy.</p>
-                            
                             <div className="grid grid-cols-2 gap-3" style={{'--theme-accent': theme.accent}}>
                                 {Object.values(profiles).map(p => (
-                                    <div key={p.id} 
-                                        className={`profile-card rounded-sm ${userData.billsProfile === p.id ? 'selected' : ''}`}
-                                        onClick={() => selectProfile(p.id)}
-                                        style={userData.billsProfile === p.id ? {'--theme-accent': theme.accent, borderColor: theme.accent} : {}}
-                                    >
+                                    <div key={p.id} className={`profile-card rounded-sm ${userData.billsProfile === p.id ? 'selected' : ''}`} onClick={() => selectProfile(p.id)} style={userData.billsProfile === p.id ? {'--theme-accent': theme.accent, borderColor: theme.accent} : {}}>
                                         <span className="profile-icon">{p.icon}</span>
                                         <span className="profile-title">{p.title}</span>
                                         <span className="profile-desc">{p.desc}</span>
-                                        <span className="profile-pct" style={{color: theme.accent}}>
-                                            {p.id === 'custom' ? 'You decide' : p.label}
-                                        </span>
+                                        <span className="profile-pct" style={{color: theme.accent}}>{p.id === 'custom' ? 'You decide' : p.label}</span>
                                     </div>
                                 ))}
                             </div>
-
-                            {/* Custom bills input */}
                             {showCustom && (
                                 <div className="mt-4 animate-fade-in">
                                     <label className="block text-xs text-gray-500 mb-1">YOUR TOTAL MONTHLY BILLS</label>
                                     <div className="flex items-center">
                                         <span className="text-xl mr-2 text-gray-400">$</span>
-                                        <input type="number" value={userData.bills || ''} 
-                                            onChange={(e) => updateData('bills', Number(e.target.value))}
-                                            className="terminal-input w-full p-3 text-lg font-bold" 
-                                            placeholder="1500" />
+                                        <input type="number" value={userData.bills || ''} onChange={(e) => updateData('bills', Number(e.target.value))} className="terminal-input w-full p-3 text-lg font-bold" placeholder="1500" />
                                     </div>
                                     <p className="text-[10px] text-gray-600 mt-1">Rent + utilities + car + loans + insurance + subscriptions. Everything non-negotiable.</p>
                                 </div>
                             )}
                         </div>
                     )}
-
-                    {/* STEP 3: The REAL Split Visualization */}
                     {hasProfile && userData.income > 0 && (
                         <div className="bg-gray-900 p-4 rounded border border-gray-800 mb-6 animate-fade-in">
-                            {/* Income vs Bills Bar */}
                             <div className="mb-4">
                                 <div className="flex justify-between text-[10px] text-gray-500 mb-2 uppercase tracking-widest">
                                     <span>Your Real Operating Budget</span>
                                     <span className="text-white font-bold">${userData.income.toLocaleString()}/mo</span>
                                 </div>
                                 <div className="deploy-bar">
-                                    {billsPct > 0 && (
-                                        <div className="deploy-segment bg-red-900/80 text-red-300 border-r border-red-700" style={{width: `${billsPct}%`}}>
-                                            {billsPct >= 15 ? `BILLS $${userData.bills.toLocaleString()}` : ''}
-                                        </div>
-                                    )}
-                                    <div className="deploy-segment text-black font-bold" style={{width: `${deployPct}%`, background: theme.accent}}>
-                                        DEPLOY ${deployable.toLocaleString()}
-                                    </div>
+                                    {billsPct > 0 && (<div className="deploy-segment bg-red-900/80 text-red-300 border-r border-red-700" style={{width: `${billsPct}%`}}>{billsPct >= 15 ? `BILLS $${userData.bills.toLocaleString()}` : ''}</div>)}
+                                    <div className="deploy-segment text-black font-bold" style={{width: `${deployPct}%`, background: theme.accent}}>DEPLOY ${deployable.toLocaleString()}</div>
                                 </div>
                                 <div className="flex justify-between text-[10px] mt-1">
                                     <span className="text-red-400">{billsPct}% locked</span>
                                     <span style={{color: theme.accent}}>{deployPct}% deployable</span>
                                 </div>
                             </div>
-
-                            {/* Deployable Capital Split */}
                             {deployable > 0 && (
                                 <div className="border-t border-gray-800 pt-4 space-y-3">
                                     <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Deploying ${deployable.toLocaleString()}/mo →</p>
-                                    
-                                    <div>
-                                        <div className="flex justify-between text-sm mb-1">
-                                            <span className="text-gray-300">70% SPENDING</span>
-                                            <span className="text-gray-400">${spending.toFixed(0)}</span>
-                                        </div>
-                                        <div className="h-2 bg-gray-800 rounded overflow-hidden">
-                                            <div className="h-full bg-gray-500" style={{width: '70%'}}></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div className="flex justify-between text-sm mb-1">
-                                            <span className="text-white font-bold">20% INVESTING</span>
-                                            <span className="font-bold" style={{color: theme.accent}}>${invest.toFixed(0)}</span>
-                                        </div>
-                                        <div className="h-2 bg-gray-800 rounded overflow-hidden">
-                                            <div className={`h-full ${theme.bg}`} style={{width: '20%'}}></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div className="flex justify-between text-sm mb-1">
-                                            <span className="text-white">10% SAFETY</span>
-                                            <span className="text-blue-400">${safety.toFixed(0)}</span>
-                                        </div>
-                                        <div className="h-2 bg-gray-800 rounded overflow-hidden">
-                                            <div className="h-full bg-blue-500" style={{width: '10%'}}></div>
-                                        </div>
-                                    </div>
-
+                                    <div><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">70% SPENDING</span><span className="text-gray-400">${spending.toFixed(0)}</span></div><div className="h-2 bg-gray-800 rounded overflow-hidden"><div className="h-full bg-gray-500" style={{width: '70%'}}></div></div></div>
+                                    <div><div className="flex justify-between text-sm mb-1"><span className="text-white font-bold">20% INVESTING</span><span className="font-bold" style={{color: theme.accent}}>${invest.toFixed(0)}</span></div><div className="h-2 bg-gray-800 rounded overflow-hidden"><div className={`h-full ${theme.bg}`} style={{width: '20%'}}></div></div></div>
+                                    <div><div className="flex justify-between text-sm mb-1"><span className="text-white">10% SAFETY</span><span className="text-blue-400">${safety.toFixed(0)}</span></div><div className="h-2 bg-gray-800 rounded overflow-hidden"><div className="h-full bg-blue-500" style={{width: '10%'}}></div></div></div>
                                     <div className="bg-black/50 p-3 rounded border border-gray-700 mt-3">
                                         <p className="text-[10px] text-gray-400 text-center">
                                             Your machine invests <strong className="text-white">${invest.toFixed(0)}/mo</strong> automatically.
-                                            {invest >= 200 ? <span className="block mt-1" style={{color: theme.accent}}>That's ${(invest * 12).toLocaleString(undefined,{maximumFractionDigits:0})}/year on autopilot.</span> : 
-                                            <span className="block mt-1 text-yellow-400">Small start? Good. Consistency beats amount. Every time.</span>}
+                                            {invest >= 200 ? <span className="block mt-1" style={{color: theme.accent}}>That's ${(invest * 12).toLocaleString(undefined,{maximumFractionDigits:0})}/year on autopilot.</span> : <span className="block mt-1 text-yellow-400">Small start? Good. Consistency beats amount. Every time.</span>}
                                         </p>
                                     </div>
                                 </div>
                             )}
-                            
                             {deployable <= 0 && (
                                 <div className="border-t border-gray-800 pt-4 text-center">
                                     <p className="text-red-400 text-sm font-bold">⚠️ Your bills exceed your income.</p>
@@ -659,16 +613,12 @@
                             )}
                         </div>
                     )}
-
-                    <button onClick={next} disabled={!isReady}
-                        className={`w-full py-3 border ${theme.border} ${theme.color} hover:bg-gray-900 font-bold uppercase transition-colors disabled:opacity-30 disabled:cursor-not-allowed`}>
-                        [ Lock In These Numbers ]
-                    </button>
+                    <button onClick={next} disabled={!isReady} className={`w-full py-3 border ${theme.border} ${theme.color} hover:bg-gray-900 font-bold uppercase transition-colors disabled:opacity-30 disabled:cursor-not-allowed`}>[ Lock In These Numbers ]</button>
                 </div>
             );
         }
 
-        // --- MODULE 2: SETUP (updated amounts) ---
+        // --- MODULE 2: SETUP ---
         function ModuleSetup({ userData, toggleCheck, theme, next }) {
             const investAmount = getInvest(userData).toFixed(0);
             const safetyAmount = getSafety(userData).toFixed(0);
@@ -696,7 +646,7 @@
             );
         }
 
-        // --- MODULE 3: AUTOMATION (updated amounts) ---
+        // --- MODULE 3: AUTOMATION ---
         function ModuleAutomation({ userData, toggleCheck, theme, next }) {
             const [method, setMethod] = useState('split');
             const investAmount = getInvest(userData).toFixed(0);
@@ -728,7 +678,7 @@
             );
         }
 
-        // --- MODULE 4: ETF SELECTOR (unchanged logic) ---
+        // --- MODULE 4: ETF SELECTOR ---
         function ModuleSelector({ userData, updateData, toggleCheck, theme, next }) {
             const [step, setStep] = useState(0);
             const [risk, setRisk] = useState('');
@@ -800,7 +750,7 @@
             );
         }
 
-        // --- MODULE 5: PROJECTION (updated monthly calc) ---
+        // --- MODULE 5: PROJECTION ---
         function ModuleProjection({ userData, updateData, theme, next }) {
             const [isProcessing, setIsProcessing] = useState(false);
             const monthly = getInvest(userData);
@@ -825,106 +775,110 @@
             );
         }
 
-        // === MODULE 6: EMAIL GATE — WITH PERSISTENT STORAGE ===
+        // =====================================================
+        // === MODULE 6: EMAIL GATE — BEEHIIV IFRAME INTEGRATION
+        // =====================================================
         function ModuleEmailGate({ userData, updateData, theme, architectId, setArchitectId, next }) {
-            const [email, setEmail] = useState(userData.userEmail || '');
-            const [isSubmitting, setIsSubmitting] = useState(false);
-            const [error, setError] = useState('');
-            const [countdown, setCountdown] = useState(300);
+            const [saving, setSaving] = useState(false);
             
             const investAmount = getInvest(userData);
             const projectedWealth = (investAmount * ((Math.pow(1.10/12, 30*12)-1)/(0.10/12))).toLocaleString(undefined, {maximumFractionDigits:0});
 
+            // === POSTMESSAGE LISTENER ===
+            // When Beehiiv redirects the iframe to our URL with ?verified=true,
+            // that page detects it's in an iframe and sends postMessage here.
             useEffect(() => {
-                const timer = setInterval(() => setCountdown(prev => prev > 0 ? prev - 1 : 0), 1000);
-                return () => clearInterval(timer);
+                const handleMessage = async (event) => {
+                    if (event.data && event.data.type === 'AUTOPILOT_EMAIL_CAPTURED') {
+                        setSaving(true);
+
+                        const fallbackEmail = `architect_${Date.now()}@autopilot.system`;
+                        const generatedId = architectId || generateIdFromEmail(fallbackEmail);
+                        setArchitectId(generatedId);
+
+                        localStorage.setItem('autopilot_email_captured', 'true');
+                        localStorage.setItem('cashvault_architect_id', generatedId);
+                        localStorage.setItem('autopilot_completed', 'true');
+                        localStorage.setItem('command_center_architect_id', generatedId);
+                        if (userData.etfChoice) localStorage.setItem('autopilot_etf_choice', JSON.stringify(userData.etfChoice));
+                        localStorage.setItem('architect_monthly_invest', Math.round(investAmount).toString());
+
+                        await saveArchitectToShared(generatedId, userData);
+
+                        setTimeout(() => {
+                            next();
+                        }, 800);
+                    }
+                };
+
+                window.addEventListener('message', handleMessage);
+                return () => window.removeEventListener('message', handleMessage);
             }, []);
 
-            const formatCountdown = (s) => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
-            const validateEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
-
-            const handleSubmit = async () => {
-                if (!validateEmail(email)) { setError('Enter a valid email to save your configuration'); return; }
-                setIsSubmitting(true); setError('');
-
-                const generatedId = generateIdFromEmail(email);
-                setArchitectId(generatedId);
-
-                // Simulate or real submission
-                if (CONFIG.BEEHIIV.MOCK_MODE) {
-                    await new Promise(r => setTimeout(r, 1500));
-                } else {
-                    try {
-                        await fetch(CONFIG.BEEHIIV.FORM_URL, {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email, utm_source: 'autopilot_system', utm_medium: 'kill_switch', referring_site: window.location.href })
-                        });
-                    } catch(err) { console.error('Beehiiv error:', err); }
-                }
-
-                // Save to localStorage
-                updateData('userEmail', email);
-                localStorage.setItem('autopilot_email_captured', 'true');
-                localStorage.setItem('autopilot_user_email', email);
-                localStorage.setItem('architect_email', email.toLowerCase().trim());
-                localStorage.setItem('cashvault_architect_id', generatedId);
-                localStorage.setItem('autopilot_completed', 'true');
-                localStorage.setItem('command_center_architect_id', generatedId);
-                if (userData.etfChoice) localStorage.setItem('autopilot_etf_choice', JSON.stringify(userData.etfChoice));
-                localStorage.setItem('architect_monthly_invest', Math.round(investAmount).toString());
-
-                // === SAVE TO PERSISTENT SHARED STORAGE ===
-                await saveArchitectToShared(generatedId, userData);
-
-                next();
-            };
+            if (saving) {
+                return (
+                    <div className="terminal-box p-8 rounded-sm animate-fade-in flex flex-col items-center justify-center min-h-[400px]">
+                        <div className={`w-3 h-3 rounded-full ${theme.bg} animate-pulse mb-4`}></div>
+                        <p className="text-white font-bold text-lg mb-2">SYSTEM SAVED</p>
+                        <p className={`${theme.color} text-xs uppercase tracking-widest`}>Generating your Architect Certificate...</p>
+                    </div>
+                );
+            }
 
             return (
-                <div className="terminal-box p-8 rounded-sm animate-fade-in danger-glow" style={{ borderColor: '#ef4444', borderWidth: '2px' }}>
-                    <div className="text-center space-y-6">
-                        <div className="mb-4"><div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-900/30 border border-red-500 text-red-500 text-xs font-bold uppercase tracking-widest danger-pulse"><span>⚠️</span>SYSTEM CONFIGURATION NOT SAVED</div></div>
-                        <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-lg p-6 border border-red-500/50 relative overflow-hidden">
-                            <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">Session Status:</p>
-                            <div className="relative z-10">
-                                <p className="text-2xl font-bold font-mono text-white">TEMPORARY CACHE</p>
-                                <div className="mt-4 p-3 bg-red-900/20 border border-red-500/30 rounded">
-                                    <p className="text-red-400 text-sm font-bold mb-1">⚠️ DATA DESTRUCTION IMMINENT</p>
-                                    <p className="text-red-300 text-xs">Closing this tab will <span className="text-white font-bold underline">permanently delete</span> your financial roadmap.</p>
+                <div className="terminal-box p-6 sm:p-8 rounded-sm animate-fade-in">
+                    <div className="space-y-6">
+                        {/* Context: What they built */}
+                        <div className="text-center">
+                            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Configuration Summary</p>
+                            <div className="flex justify-center gap-4 text-center">
+                                <div className="bg-black border border-gray-800 p-3 rounded flex-1">
+                                    <p className="text-white font-bold text-lg">${investAmount.toFixed(0)}<span className="text-gray-500 text-xs">/mo</span></p>
+                                    <p className="text-[10px] text-gray-500">AUTO-INVEST</p>
+                                </div>
+                                <div className="bg-black border border-gray-800 p-3 rounded flex-1">
+                                    <p className="font-bold text-lg" style={{color: theme.accent}}>{userData.etfChoice?.ticker || 'ETF'}</p>
+                                    <p className="text-[10px] text-gray-500">TARGET FUND</p>
+                                </div>
+                                <div className="bg-black border border-gray-800 p-3 rounded flex-1">
+                                    <p className="text-white font-bold text-lg">${projectedWealth}</p>
+                                    <p className="text-[10px] text-gray-500">30-YR PROJECTION</p>
                                 </div>
                             </div>
-                            <div className="mt-4 text-center"><p className="text-gray-500 text-[10px] uppercase tracking-widest">Session expires in</p><p className="text-red-500 text-xl font-mono font-bold timer-pulse">{formatCountdown(countdown)}</p></div>
                         </div>
-                        <div className="bg-black border border-gray-800 p-4 rounded text-left">
-                            <p className="text-red-400 text-xs font-bold uppercase tracking-widest mb-3">🗑️ You will lose:</p>
-                            <ul className="space-y-2 text-sm text-gray-300">
-                                <li className="flex items-center gap-2"><span className="text-red-500">✗</span><span>Your <strong className="text-white">${investAmount.toFixed(0)}/mo</strong> automation setup</span></li>
-                                <li className="flex items-center gap-2"><span className="text-red-500">✗</span><span>Your <strong className="text-white">{userData.etfChoice?.ticker || 'ETF'}</strong> investment strategy</span></li>
-                                <li className="flex items-center gap-2"><span className="text-red-500">✗</span><span>Your <strong className="text-white">${projectedWealth}</strong> 30-year projection</span></li>
-                                <li className="flex items-center gap-2"><span className="text-red-500">✗</span><span>Your unique <strong className="text-white">Architect Certificate</strong></span></li>
-                            </ul>
+
+                        {/* Beehiiv Iframe Embed */}
+                        <div className="beehiiv-container">
+                            <iframe
+                                src={CONFIG.BEEHIIV.AUTOPILOT_IFRAME_SRC}
+                                className="beehiiv-embed"
+                                data-test-id="beehiiv-embed"
+                                frameBorder="0"
+                                scrolling="no"
+                                style={{
+                                    width: '100%',
+                                    maxWidth: '600px',
+                                    height: '260px',
+                                    margin: '0 auto',
+                                    borderRadius: '0px',
+                                    backgroundColor: 'transparent',
+                                    boxShadow: 'none',
+                                    border: 'none',
+                                    display: 'block'
+                                }}
+                            />
                         </div>
-                        <div className="space-y-4 pt-2">
-                            <div><h2 className="text-xl font-bold text-white mb-2">SAVE TO CLOUD</h2><p className="text-gray-400 text-sm">Enter email to <span className="text-green-500 font-semibold">permanently save</span> your configuration.</p></div>
-                            <div className="space-y-3">
-                                <div className="relative">
-                                    <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setError(''); }} placeholder="your@email.com" className={`w-full bg-black border ${error ? 'border-red-500' : 'border-gray-700'} text-white p-4 rounded text-center font-mono text-lg outline-none focus:border-green-500 transition-colors`} disabled={isSubmitting} />
-                                    {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
-                                </div>
-                                <button onClick={handleSubmit} disabled={!email || isSubmitting} className="w-full py-4 bg-green-500 hover:bg-green-400 text-black font-bold text-lg rounded transition-all uppercase shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                                    {isSubmitting ? (<><svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Saving Configuration...</span></>) : '[ 💾 SAVE MY SYSTEM ]'}
-                                </button>
-                            </div>
-                            <div className="flex items-center justify-center gap-4 text-[10px] text-gray-500 pt-2">
-                                <span className="flex items-center gap-1"><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>Secure</span><span>•</span><span>No spam, ever</span><span>•</span><span>Instant cloud save</span>
-                            </div>
-                        </div>
-                        <div className="border-t border-gray-800 pt-4 mt-4 text-left">
-                            <p className="text-xs text-green-500 uppercase tracking-widest mb-3">✅ After saving:</p>
-                            <ul className="space-y-2 text-sm text-gray-300">
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span><span><strong className="text-white">Permanent Cloud Backup</strong> — Never lose your config</span></li>
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span><span><strong className="text-white">Unique Architect ID</strong> — Your wealth-building identity</span></li>
-                                <li className="flex items-center gap-2"><span className="text-green-500">✓</span><span><strong className="text-white">Premium Certificate</strong> — Shareable proof of completion</span></li>
-                            </ul>
+
+                        {/* Trust signals */}
+                        <div className="flex items-center justify-center gap-4 text-[10px] text-gray-600">
+                            <span className="flex items-center gap-1">
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                Encrypted
+                            </span>
+                            <span>·</span>
+                            <span>No spam</span>
+                            <span>·</span>
+                            <span>Instant save</span>
                         </div>
                     </div>
                 </div>
