@@ -15,7 +15,6 @@
     <!-- IFRAME BREAKOUT + GATE CHECK -->
     <script>
         (function() {
-            // If loaded inside Beehiiv iframe, break out to full page
             try {
                 if (window.self !== window.top) {
                     window.top.location.href = window.location.href;
@@ -23,12 +22,10 @@
                 }
             } catch(e) {}
 
-            // Mark email as captured (they came from Beehiiv redirect)
             localStorage.setItem('autopilot_email_captured', 'true');
             localStorage.setItem('autopilot_completed', 'true');
             localStorage.setItem('autopilot_current_module', '7');
 
-            // Generate architect ID if not already set
             if (!localStorage.getItem('cashvault_architect_id')) {
                 var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
                 var fallback = 'architect_' + Date.now() + '@autopilot.system';
@@ -82,9 +79,6 @@
         .share-btn-copy:hover { border-color: #22c55e; color: #22c55e; }
         .share-btn-copy.copied { background: #22c55e; border-color: #22c55e; color: #000; }
 
-        @keyframes timerPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        .timer-pulse { animation: timerPulse 1s ease-in-out infinite; }
-
         #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
         
         ::-webkit-scrollbar { width: 8px; }
@@ -105,9 +99,8 @@
             init() { this.canvas = document.getElementById('confetti-canvas'); if (!this.canvas) return; this.ctx = this.canvas.getContext('2d'); this.resize(); window.addEventListener('resize', () => this.resize()); },
             resize() { if (!this.canvas) return; this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; },
             createParticle() {
-                const roll = Math.random(); const type = roll < 0.85 ? '$' : (roll < 0.93 ? '💵' : '💰');
                 const colors = ['#22c55e', '#16a34a', '#fbbf24', '#4ade80'];
-                return { x: Math.random() * this.canvas.width, y: -30, type, color: colors[Math.floor(Math.random() * colors.length)], size: Math.random() * 16 + 14, speedY: Math.random() * 2.5 + 2, speedX: (Math.random() - 0.5) * 3, rotation: Math.random() * 360, rotationSpeed: (Math.random() - 0.5) * 8, opacity: 1, wobble: Math.random() * 10, wobbleSpeed: Math.random() * 0.08 + 0.04 };
+                return { x: Math.random() * this.canvas.width, y: -30, type: '$', color: colors[Math.floor(Math.random() * colors.length)], size: Math.random() * 16 + 14, speedY: Math.random() * 2.5 + 2, speedX: (Math.random() - 0.5) * 3, rotation: Math.random() * 360, rotationSpeed: (Math.random() - 0.5) * 8, opacity: 1, wobble: Math.random() * 10, wobbleSpeed: Math.random() * 0.08 + 0.04 };
             },
             launch(duration = 3000, intensity = 25) {
                 if (this.isRunning) return; this.isRunning = true; this.particles = [];
@@ -123,16 +116,44 @@
         };
         window.addEventListener('load', () => MoneyConfetti.init());
 
+        // === THEME SYSTEM (mirrors autopilot-system.html) ===
+        const THEMES = {
+            DEFAULT: { id: 'default', color: 'text-green-500', bg: 'bg-green-500', border: 'border-green-500', accent: '#22c55e', title: 'SYSTEM ONLINE', hover: 'hover:bg-green-500' },
+            TICKER: { id: 'ticker', color: 'text-red-500', bg: 'bg-red-600', border: 'border-red-600', accent: '#DC2626', title: 'EMERGENCY PROTOCOL', hover: 'hover:bg-red-600' },
+            SCORE: { id: 'score', color: 'text-yellow-400', bg: 'bg-yellow-400', border: 'border-yellow-400', accent: '#FACC15', title: 'VIP ACCESS', hover: 'hover:bg-yellow-400' }
+        };
+
+        function resolveTheme() {
+            try {
+                const savedContext = localStorage.getItem('cashvault_context');
+                if (savedContext) {
+                    const parsed = JSON.parse(savedContext);
+                    if (parsed.source === 'ticker') return THEMES.TICKER;
+                    if (parsed.source === 'score') return THEMES.SCORE;
+                }
+            } catch(e) {}
+            return THEMES.DEFAULT;
+        }
+
         // === CONFIG ===
         const CONFIG = {
             LINKS: { INSTAGRAM: "https://instagram.com/koutalksmoney" },
             SHARE_TEMPLATES: {
-                INSTAGRAM: "I just installed the Autopilot Money System. My machine is now building wealth while I sleep. 🤖💰 @koutalksmoney",
+                INSTAGRAM: "I just installed the Autopilot Money System. My machine is now building wealth while I sleep. @koutalksmoney",
                 TWITTER: "Just installed The Autopilot Money System.\n\nMy wealth is now on autopilot.\n\nGet yours: [LINK]\n\n@koutalksmoney",
                 LINKEDIN: "I just completed the Autopilot Money System certification. If you're still manually managing your finances, you're working too hard. Automation > Willpower. #PersonalFinance #WealthBuilding",
-                TIKTOK: "POV: You just installed the Autopilot Money System and your wealth is now building itself 🤖💰 @koutalksmoney"
-            }
+                TIKTOK: "POV: You just installed the Autopilot Money System and your wealth is now building itself @koutalksmoney"
+            },
+            ANNUAL_RETURN: 0.10
         };
+
+        // === CORRECTED COMPOUND INTEREST FORMULA ===
+        // Future Value of Annuity: FV = PMT * (((1 + r/n)^(n*t) - 1) / (r/n))
+        function calcFutureValue(monthlyPayment, years) {
+            const r = CONFIG.ANNUAL_RETURN;
+            const n = 12;
+            return monthlyPayment * ((Math.pow(1 + r/n, n * years) - 1) / (r/n));
+        }
 
         // === PULL DATA FROM LOCALSTORAGE ===
         function getStoredData() {
@@ -140,13 +161,13 @@
             const parsed = savedData ? JSON.parse(savedData) : {};
             const architectId = localStorage.getItem('cashvault_architect_id') || 'KOU-XXXXXX';
             const monthlyInvest = parseFloat(localStorage.getItem('architect_monthly_invest')) || 0;
-            const etfChoice = localStorage.getItem('autopilot_etf_choice') ? JSON.parse(localStorage.getItem('autopilot_etf_choice')) : null;
             const investAmt = monthlyInvest || (parsed.income ? Math.max(0, (parsed.income - (parsed.bills || 0))) * 0.20 : 0);
-            const projectedWealth = investAmt > 0 ? '$' + (investAmt * ((Math.pow(1.10/12, 30*12)-1)/(0.10/12))).toLocaleString(undefined, {maximumFractionDigits:0}) : '$0';
+            const projectedWealth = investAmt > 0 ? calcFutureValue(investAmt, 30).toLocaleString(undefined, {maximumFractionDigits:0}) : '0';
             return {
                 userName: parsed.userName || 'AUTHORIZED USER',
                 architectId,
-                projectedWealth
+                projectedWealth,
+                monthlyInvest: investAmt
             };
         }
 
@@ -154,24 +175,40 @@
         function CertificatePage() {
             const [copiedPlatform, setCopiedPlatform] = useState(null);
             const [revealed, setRevealed] = useState(false);
-            const [countdown, setCountdown] = useState(24 * 60 * 60);
             const confettiLaunched = useRef(false);
+            const theme = resolveTheme();
             const data = getStoredData();
 
+            // Stagger animation sequence for mobile performance
+            // Phase 1 (0ms): Certificate card reveals
+            // Phase 2 (800ms): Confetti launches
             useEffect(() => {
                 const timer = setTimeout(() => {
                     setRevealed(true);
                     if (!confettiLaunched.current) {
                         confettiLaunched.current = true;
-                        setTimeout(() => MoneyConfetti.launch(3000, 25), 200);
+                        setTimeout(() => MoneyConfetti.launch(3000, 25), 800);
                     }
                 }, 100);
                 return () => clearTimeout(timer);
             }, []);
 
+            // Smooth countdown: 1-second updates using Date.now() delta (no drift)
+            // Delayed start until certificate + confetti settle
+            const countdownStartRef = useRef(null);
+            const [displayCountdown, setDisplayCountdown] = useState(24 * 60 * 60);
             useEffect(() => {
-                const timer = setInterval(() => setCountdown(prev => prev > 0 ? prev - 1 : 0), 1000);
-                return () => clearInterval(timer);
+                const startDelay = setTimeout(() => {
+                    countdownStartRef.current = Date.now();
+                    const timer = setInterval(() => {
+                        const elapsed = Math.floor((Date.now() - countdownStartRef.current) / 1000);
+                        const remaining = Math.max(0, 24 * 60 * 60 - elapsed);
+                        setDisplayCountdown(remaining);
+                        if (remaining <= 0) clearInterval(timer);
+                    }, 1000);
+                    return () => clearInterval(timer);
+                }, 2000);
+                return () => clearTimeout(startDelay);
             }, []);
 
             const formatCountdown = (s) => {
@@ -193,74 +230,149 @@
             return (
                 <div className="min-h-screen flex items-center justify-center p-4 sm:p-6">
                     <div className="w-full max-w-md mx-auto animate-fade-in">
+                        {/* SCREENSHOT PROMPT */}
                         <div className="text-center mb-4">
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-green-500 text-green-500 text-xs font-bold uppercase tracking-widest screenshot-pulse">
-                                <span>📸</span> Screenshot This Card
+                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${theme.border} ${theme.color} text-xs font-bold uppercase tracking-widest screenshot-pulse`}>
+                                <span>SCREENSHOT THIS CARD</span>
                             </div>
                         </div>
 
-                        <div id="certificate-card" className={`relative h-72 w-full rounded-xl mb-6 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`}>
+                        {/* CERTIFICATE CARD */}
+                        <div id="certificate-card" className={`relative w-full rounded-xl mb-6 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`} style={{willChange: 'transform'}}>
                             <div className="absolute inset-0 bg-[#0a0a0a]"></div>
                             <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-[#000] to-black opacity-90"></div>
                             <div className="absolute inset-0 premium-shimmer opacity-20 pointer-events-none"></div>
-                            <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
+                            <div className="relative p-6 flex flex-col justify-between z-10" style={{minHeight: '280px'}}>
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-full border-2 border-green-500 flex items-center justify-center"><div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div></div>
-                                        <span className="font-bold text-white tracking-widest text-sm">AUTOPILOT<span className="text-green-500">ELITE</span></span>
+                                        <div className={`w-8 h-8 rounded-full border-2 ${theme.border} flex items-center justify-center`}><div className={`w-4 h-4 ${theme.bg} rounded-full animate-pulse`}></div></div>
+                                        <span className="font-bold text-white tracking-widest text-sm">AUTOPILOT<span className={theme.color}>ELITE</span></span>
                                     </div>
                                     <span className="text-[10px] text-gray-500 font-mono border border-gray-700 px-2 py-1 rounded">WEALTH ARCHITECT</span>
                                 </div>
                                 <div>
-                                    <div className="mb-2"><p className="text-[8px] text-gray-500 uppercase tracking-widest mb-1">Architect ID</p><p className="text-green-500 font-mono text-lg font-bold tracking-widest">{data.architectId}</p></div>
+                                    <div className="mb-2"><p className="text-[8px] text-gray-500 uppercase tracking-widest mb-1">Architect ID</p><p className={`${theme.color} font-mono text-lg font-bold tracking-widest`}>{data.architectId}</p></div>
                                     <div className="w-12 h-9 bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-600 rounded-md mb-3 shadow-sm opacity-90"></div>
-                                    <div className="card-font text-gray-300 text-xl tracking-[0.15em] opacity-80 embossed">{data.projectedWealth}</div>
+                                    <div className="card-font text-gray-300 text-xl tracking-[0.15em] opacity-80 embossed">${data.projectedWealth}</div>
                                     <div className="text-[8px] text-gray-500 uppercase tracking-widest mt-1">Projected Net Worth (30yr)</div>
                                 </div>
                                 <div className="flex justify-between items-end">
                                     <div><p className="text-white font-bold uppercase tracking-widest text-sm embossed card-font">{data.userName}</p><p className="text-[8px] text-gray-500 mt-1">MEMBER SINCE {new Date().getFullYear()}</p></div>
-                                    <div className="text-right"><div className="text-green-500 text-xs font-bold">✓ VERIFIED</div></div>
+                                    <div className="text-right"><div className={`${theme.color} text-xs font-bold`}>{'\u2713'} VERIFIED</div></div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-gradient-to-r from-red-900/30 via-red-800/20 to-red-900/30 border border-red-500/30 p-4 rounded mb-6 text-center">
-                            <p className="text-red-400 text-xs font-bold uppercase tracking-widest mb-1">⏰ Bonus Access Expires In</p>
-                            <p className="text-white text-2xl font-mono font-bold timer-pulse">{formatCountdown(countdown)}</p>
+                        {/* VERIFY CTA: First thing after certificate, before offers */}
+                        <div className={`bg-gradient-to-br from-gray-900 to-black border-2 ${theme.border} p-4 rounded-lg mb-6 flex flex-col sm:flex-row items-center gap-4`}>
+                            <div className="flex-1 text-center sm:text-left">
+                                <p className="text-white font-bold text-sm">Your Verification Page is Live</p>
+                                <p className="text-gray-400 text-[11px] mt-0.5">Drop this link in your bio, resume, or DMs. Anyone can confirm your status.</p>
+                            </div>
+                            <div className="flex gap-2 w-full sm:w-auto">
+                                <a href={`https://spacekou5-oss.github.io/cashvault-funnel/verify.html?id=${data.architectId}`} target="_blank" className={`flex-1 sm:flex-none py-2.5 px-5 ${theme.bg} text-black font-bold text-xs rounded text-center transition-all hover:opacity-90 uppercase tracking-wider`}>View Page</a>
+                                <button onClick={() => { navigator.clipboard.writeText(`https://spacekou5-oss.github.io/cashvault-funnel/verify.html?id=${data.architectId}`); setCopiedPlatform('verify'); setTimeout(() => setCopiedPlatform(null), 2000); }} className={`flex-1 sm:flex-none py-2.5 px-5 border ${copiedPlatform === 'verify' ? `${theme.border} ${theme.color}` : 'border-gray-700 text-gray-400'} font-bold text-xs rounded text-center transition-all uppercase tracking-wider`}>{copiedPlatform === 'verify' ? '\u2713 Copied' : 'Copy Link'}</button>
+                            </div>
                         </div>
 
+                        {/* COUNTDOWN: Neutral styling, smooth 1s ticks */}
+                        <div className="bg-gray-900/60 border border-gray-700 p-4 rounded mb-6 text-center">
+                            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Bonus Access Window</p>
+                            <p className="text-white text-2xl font-mono font-bold">{formatCountdown(displayCountdown)}</p>
+                        </div>
+
+                        {/* CLAIM + SHARE SECTION */}
                         <div className="text-center space-y-4 pb-12">
                             <div className="bg-gray-900 border border-gray-800 p-6 rounded-sm shadow-xl relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-green-500"></div>
-                                <h3 className="text-white font-bold text-lg mb-1">SHARE & CLAIM BONUS</h3>
-                                <p className="text-gray-500 text-xs mb-6">Share your achievement to unlock the Prompt Vault Cheat Sheet.</p>
-                                <div className="text-left space-y-3 text-xs text-gray-300 font-mono mb-6 bg-black p-4 rounded border border-gray-800">
-                                    <p className="flex items-center gap-2"><span className="text-green-500">1.</span> Screenshot the certificate above 📸</p>
-                                    <p className="flex items-center gap-2"><span className="text-green-500">2.</span> Post to your story & tag <span className="text-white font-bold">@koutalksmoney</span></p>
-                                    <p className="flex items-center gap-2"><span className="text-green-500">3.</span> I'll DM your Prompt Vault access directly</p>
+                                <div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div>
+                                
+                                {/* TWO-TIER CLAIM STRUCTURE */}
+                                <h3 className="text-white font-bold text-lg mb-1">UNLOCK THE PROMPT VAULT</h3>
+                                <p className="text-gray-500 text-xs mb-6">Choose your path. One gets you the vault. The other gets you everything.</p>
+
+                                <div className="text-left mb-6 space-y-3">
+                                    {/* TIER 1: DM Only (Floor) */}
+                                    <div className="bg-black rounded border border-gray-800 overflow-hidden">
+                                        <div className="px-4 py-3 border-b border-gray-800 bg-gray-900/50 flex justify-between items-center">
+                                            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Path A: Quick Claim</p>
+                                            <span className="text-[10px] text-gray-600 border border-gray-700 px-2 py-0.5 rounded">1 REWARD</span>
+                                        </div>
+                                        <div className="p-4">
+                                            <div className="flex gap-3 items-start">
+                                                <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black bg-gray-500">1</div>
+                                                <div>
+                                                    <p className="text-white text-sm font-bold">DM "ARCHITECT" to <span style={{color: theme.accent}}>@koutalksmoney</span></p>
+                                                    <p className="text-gray-500 text-[11px] mt-1">I'll reply with your Prompt Vault access link.</p>
+                                                </div>
+                                            </div>
+                                            <div className="mt-3 ml-10 flex items-center gap-2">
+                                                <span className="text-[10px] text-gray-500">You get:</span>
+                                                <span className="text-[10px] text-white font-bold bg-gray-800 px-2 py-0.5 rounded">Prompt Vault Cheat Sheet</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* TIER 2: Post + Tag + DM (Ceiling) */}
+                                    <div className="rounded border-2 overflow-hidden relative" style={{borderColor: theme.accent}}>
+                                        <div className="absolute top-0 right-0 px-2 py-0.5 text-[9px] font-bold text-black uppercase tracking-widest" style={{background: theme.accent}}>Recommended</div>
+                                        <div className="px-4 py-3 border-b border-gray-800 bg-gray-900/50 flex justify-between items-center">
+                                            <p className="text-[10px] uppercase tracking-widest font-bold" style={{color: theme.accent}}>Path B: Full Unlock</p>
+                                            <span className="text-[10px] border px-2 py-0.5 rounded font-bold" style={{color: theme.accent, borderColor: theme.accent}}>2 REWARDS</span>
+                                        </div>
+                                        <div className="p-4 space-y-3">
+                                            <div className="flex gap-3 items-start">
+                                                <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black" style={{background: theme.accent}}>1</div>
+                                                <div>
+                                                    <p className="text-white text-sm font-bold">Screenshot the certificate above</p>
+                                                    <p className="text-gray-500 text-[11px]">Long-press or use your phone's screenshot shortcut.</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-3 items-start">
+                                                <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black" style={{background: theme.accent}}>2</div>
+                                                <div>
+                                                    <p className="text-white text-sm font-bold">Post it to your story and tag <span style={{color: theme.accent}}>@koutalksmoney</span></p>
+                                                    <p className="text-gray-500 text-[11px]">Instagram, X, LinkedIn, or TikTok. Any platform works.</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-3 items-start">
+                                                <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black" style={{background: theme.accent}}>3</div>
+                                                <div>
+                                                    <p className="text-white text-sm font-bold">DM "ARCHITECT" to <span style={{color: theme.accent}}>@koutalksmoney</span></p>
+                                                    <p className="text-gray-500 text-[11px]">Mention you posted so I can verify and send both rewards.</p>
+                                                </div>
+                                            </div>
+                                            <div className="mt-2 ml-10 flex flex-wrap items-center gap-2">
+                                                <span className="text-[10px] text-gray-500">You get:</span>
+                                                <span className="text-[10px] text-white font-bold bg-gray-800 px-2 py-0.5 rounded">Prompt Vault Cheat Sheet</span>
+                                                <span className="text-[10px] text-gray-600">+</span>
+                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{color: theme.accent, background: `${theme.accent}15`, border: `1px solid ${theme.accent}40`}}>Budget Calculator Secret Code</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-3 mb-4">
-                                    <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="share-btn share-btn-instagram col-span-2"><span>📸</span> Post to Instagram</a>
-                                    <a href={shareUrls.twitter} target="_blank" className="share-btn share-btn-twitter"><span>𝕏</span> Share on X</a>
-                                    <a href={shareUrls.linkedin} target="_blank" className="share-btn share-btn-linkedin"><span>in</span> LinkedIn</a>
+
+                                {/* SHARE TOOLS (convenience, not triggers) */}
+                                <div className="border-t border-gray-800 pt-4">
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Quick Share Links</p>
+                                    <p className="text-[10px] text-gray-600 mb-3">These open the app for you. You still need to post + tag to claim.</p>
+                                    <div className="grid grid-cols-2 gap-3 mb-4">
+                                        <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="share-btn share-btn-instagram col-span-2">Open Instagram</a>
+                                        <a href={shareUrls.twitter} target="_blank" className="share-btn share-btn-twitter">Open X</a>
+                                        <a href={shareUrls.linkedin} target="_blank" className="share-btn share-btn-linkedin">Open LinkedIn</a>
+                                    </div>
                                 </div>
+
+                                {/* PRE-WRITTEN CAPTIONS */}
                                 <div className="border-t border-gray-800 pt-4 mt-4">
                                     <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Copy Pre-Written Captions</p>
                                     <div className="grid grid-cols-2 gap-2">
                                         {['INSTAGRAM', 'TWITTER', 'LINKEDIN', 'TIKTOK'].map(platform => (
-                                            <button key={platform} onClick={() => handleCopy(platform)} className={`share-btn share-btn-copy text-[10px] py-2 ${copiedPlatform === platform ? 'copied' : ''}`}>{copiedPlatform === platform ? '✓ Copied' : `${platform} Caption`}</button>
+                                            <button key={platform} onClick={() => handleCopy(platform)} className={`share-btn share-btn-copy text-[10px] py-2 ${copiedPlatform === platform ? 'copied' : ''}`}>{copiedPlatform === platform ? '\u2713 Copied' : `${platform} Caption`}</button>
                                         ))}
                                     </div>
                                 </div>
-                                <div className="border-t border-gray-800 pt-4 mt-4">
-                                    <div className="bg-gradient-to-br from-gray-900 to-black border-2 border-green-500 p-5 rounded-lg">
-                                        <div className="flex items-center gap-3 mb-3"><span className="text-2xl">✅</span><div><p className="text-white font-bold text-sm">Verify Your Architect Status</p><p className="text-gray-400 text-xs">Share your ID. Let others verify you're legit.</p></div></div>
-                                        <a href={`https://spacekou5-oss.github.io/cashvault-funnel/verify.html?id=${data.architectId}`} target="_blank" className="block w-full py-3 bg-green-500 text-black font-bold text-sm rounded text-center transition-all hover:opacity-90">Open Verification Page →</a>
-                                        <p className="text-gray-500 text-[10px] mt-2 text-center">This links directly to your verified status</p>
-                                    </div>
-                                </div>
                             </div>
-                            <p className="text-[10px] text-gray-600 max-w-xs mx-auto">Your Architect ID is permanent and can be verified by anyone at any time.</p>
+                            <p className="text-[10px] text-gray-600 max-w-xs mx-auto">Your Architect ID is permanent. Share it anywhere to prove you built the machine.</p>
                         </div>
                     </div>
                 </div>
