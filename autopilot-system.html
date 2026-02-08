@@ -21,9 +21,7 @@
             var params = new URLSearchParams(window.location.search);
             var isInIframe = window.self !== window.top;
             if (isInIframe && params.get('verified') === 'true') {
-                // We are inside the Beehiiv iframe after redirect. Tell the parent window.
                 window.parent.postMessage({ type: 'AUTOPILOT_EMAIL_CAPTURED', verified: true }, '*');
-                // Stop the page from fully rendering inside the tiny iframe
                 document.documentElement.style.display = 'none';
             }
         })();
@@ -77,17 +75,6 @@
         }
         .screenshot-pulse { animation: screenshotPulse 2s infinite; }
 
-        @keyframes dangerGlow {
-            0%, 100% { box-shadow: 0 0 20px rgba(239,68,68,0.3), inset 0 0 30px rgba(239,68,68,0.05); }
-            50% { box-shadow: 0 0 40px rgba(239,68,68,0.5), inset 0 0 50px rgba(239,68,68,0.1); }
-        }
-        .danger-glow { animation: dangerGlow 1.5s ease-in-out infinite; }
-
-        @keyframes dangerPulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.02); }
-        }
-        .danger-pulse { animation: dangerPulse 1s ease-in-out infinite; }
         .animate-shimmer { animation: shimmer 2s infinite; }
 
         .transparency-panel { background: rgba(0,0,0,0.8); border: 1px solid #333; border-radius: 4px; margin-top: 16px; overflow: hidden; transition: all 0.3s ease; }
@@ -112,8 +99,6 @@
         .share-btn-copy:hover { border-color: #22c55e; color: #22c55e; }
         .share-btn-copy.copied { background: #22c55e; border-color: #22c55e; color: #000; }
 
-        @keyframes timerPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        .timer-pulse { animation: timerPulse 1s ease-in-out infinite; }
 
         #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
         
@@ -134,7 +119,7 @@
         .profile-card:hover { border-color: #555; background: #111; }
         .profile-card.selected { border-color: var(--theme-accent, #22c55e); background: rgba(34,197,94,0.05); }
         .profile-card.selected::before {
-            content: '✓';
+            content: '\2713';
             position: absolute;
             top: 8px;
             right: 10px;
@@ -142,7 +127,8 @@
             font-weight: 900;
             color: var(--theme-accent, #22c55e);
         }
-        .profile-icon { font-size: 24px; margin-bottom: 8px; display: block; }
+        .profile-icon { font-size: 12px; margin-bottom: 8px; display: flex; width: 28px; height: 28px; align-items: center; justify-content: center; border: 1px solid #555; border-radius: 4px; font-weight: 900; color: #888; background: #1a1a1a; }
+        .profile-card.selected .profile-icon { border-color: var(--theme-accent, #22c55e); color: var(--theme-accent, #22c55e); background: rgba(34,197,94,0.08); }
         .profile-title { font-size: 13px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; }
         .profile-desc { font-size: 10px; color: #888; margin-top: 4px; line-height: 1.4; }
         .profile-pct { font-size: 11px; font-weight: 700; margin-top: 8px; }
@@ -150,7 +136,6 @@
         .deploy-bar { height: 32px; background: #1a1a1a; border-radius: 4px; overflow: hidden; display: flex; position: relative; }
         .deploy-segment { display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; transition: width 0.5s ease; overflow: hidden; white-space: nowrap; }
 
-        /* Beehiiv iframe container */
         .beehiiv-container {
             width: 100%;
             display: flex;
@@ -160,6 +145,47 @@
             max-width: 100% !important;
             border: none !important;
         }
+
+        /* === P0 FIX: INSTAGRAM BROWSER BANNER === */
+        .ig-banner {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+            color: #000;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            padding: 10px 16px;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .ig-banner-btn {
+            background: #000;
+            color: #fbbf24;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .ig-banner-close {
+            background: none;
+            border: none;
+            color: rgba(0,0,0,0.5);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 4px;
+            font-family: inherit;
+        }
+        .ig-banner-active { padding-top: 44px; }
     </style>
 </head>
 <body>
@@ -167,7 +193,7 @@
     <canvas id="confetti-canvas"></canvas>
 
     <script type="text/babel">
-        const { useState, useEffect, useMemo, useRef } = React;
+        const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
         // === PERSISTENT STORAGE HELPERS ===
         async function saveToSharedStorage(key, value) {
@@ -215,7 +241,7 @@
         // === MONEY CONFETTI ENGINE ===
         const MoneyConfetti = {
             canvas: null, ctx: null, particles: [], isRunning: false,
-            MAX_PARTICLES: 40,
+            MAX_PARTICLES: 20, /* P1 FIX: Reduced from 40 for mobile performance */
             init() {
                 this.canvas = document.getElementById('confetti-canvas');
                 if (!this.canvas) return;
@@ -230,7 +256,7 @@
             },
             createParticle() {
                 const roll = Math.random();
-                const type = roll < 0.85 ? '$' : (roll < 0.93 ? '💵' : '💰');
+                const type = roll < 0.85 ? '$' : (roll < 0.93 ? '\uD83D\uDCB5' : '\uD83D\uDCB0');
                 const colors = ['#22c55e', '#16a34a', '#fbbf24', '#4ade80'];
                 return {
                     x: Math.random() * this.canvas.width, y: -30,
@@ -311,17 +337,19 @@
                 { id: 8, text: "Finalizing system installation...", duration: 700 }
             ],
             SHARE_TEMPLATES: {
-                INSTAGRAM: "I just installed the Autopilot Money System. My machine is now building wealth while I sleep. 🤖💰 @koutalksmoney",
+                INSTAGRAM: "I just installed the Autopilot Money System. My machine is now building wealth while I sleep. @koutalksmoney",
                 TWITTER: "Just installed The Autopilot Money System.\n\nMy wealth is now on autopilot.\n\nGet yours: [LINK]\n\n@koutalksmoney",
                 LINKEDIN: "I just completed the Autopilot Money System certification. If you're still manually managing your finances, you're working too hard. Automation > Willpower. #PersonalFinance #WealthBuilding",
-                TIKTOK: "POV: You just installed the Autopilot Money System and your wealth is now building itself 🤖💰 @koutalksmoney"
+                TIKTOK: "POV: You just installed the Autopilot Money System and your wealth is now building itself @koutalksmoney"
             },
             PROFILES: {
-                home: { id: 'home', icon: '🏠', title: 'THE NEST', desc: 'Living at home. Phone, subscriptions, small contribution.', pct: 0.12, label: '~12% locked' },
-                renting: { id: 'renting', icon: '🏢', title: 'THE GRIND', desc: 'Rent, utilities, phone, insurance. Standard reality.', pct: 0.50, label: '~50% locked' },
-                fullload: { id: 'fullload', icon: '💳', title: 'THE GAUNTLET', desc: 'Rent, car, loans, utilities, insurance.', pct: 0.70, label: '~70% locked' },
-                custom: { id: 'custom', icon: '✏️', title: 'I KNOW MY NUMBERS', desc: 'Enter your exact monthly bills.', pct: 0, label: 'Custom' }
-            }
+                home: { id: 'home', icon: 'A', title: 'THE NEST', desc: 'Living at home. Phone, subscriptions, small contribution.', pct: 0.12, label: '~12% locked' },
+                renting: { id: 'renting', icon: 'B', title: 'THE GRIND', desc: 'Rent, utilities, phone, insurance. Standard reality.', pct: 0.50, label: '~50% locked' },
+                fullload: { id: 'fullload', icon: 'C', title: 'THE GAUNTLET', desc: 'Rent, car, loans, utilities, insurance.', pct: 0.70, label: '~70% locked' },
+                custom: { id: 'custom', icon: 'D', title: 'I KNOW MY NUMBERS', desc: 'Enter your exact monthly bills.', pct: 0, label: 'Custom' }
+            },
+            /* P0 FIX: Annual return rate used in compound interest calculations */
+            ANNUAL_RETURN: 0.10
         };
 
         // === DEPLOYABLE INCOME CALCULATOR ===
@@ -329,6 +357,16 @@
         function getInvest(userData) { return getDeployable(userData) * 0.20; }
         function getSafety(userData) { return getDeployable(userData) * 0.10; }
         function getSpending(userData) { return getDeployable(userData) * 0.70; }
+
+        // === P0 FIX: CORRECT COMPOUND INTEREST FORMULA ===
+        // Future Value of Annuity: FV = PMT * (((1 + r/n)^(n*t) - 1) / (r/n))
+        // BROKEN was: Math.pow(1.10/12, y*12) which = 0.0917^n = near zero
+        // FIXED is:   Math.pow(1 + 0.10/12, y*12) which = 1.00833^n = actual compounding
+        function calcFutureValue(monthlyPayment, years) {
+            const r = CONFIG.ANNUAL_RETURN;
+            const n = 12;
+            return monthlyPayment * ((Math.pow(1 + r/n, n * years) - 1) / (r/n));
+        }
 
         // === ID GENERATORS ===
         function generateIdFromEmail(email) {
@@ -342,35 +380,191 @@
             return id;
         }
 
-        // --- MAIN APP ---
-        function App() {
-            // Restore module from localStorage. If email was captured, jump straight to certificate.
-            const getInitialModule = () => {
-                if (localStorage.getItem('autopilot_email_captured') === 'true') return 7;
-                const saved = localStorage.getItem('autopilot_current_module');
-                return saved ? parseInt(saved, 10) : 0;
+        // =============================================================
+        // === P0 FIX: URL STATE PERSISTENCE (Instagram Browser Fix) ===
+        // =============================================================
+        // Instagram's in-app browser wipes localStorage on close.
+        // This encodes critical app state into the URL hash so progress
+        // survives browser close/reopen. The URL itself IS the save file.
+
+        function resolveEtfFromTicker(ticker) {
+            if (!ticker) return null;
+            for (const riskLevel of Object.values(CONFIG.ETF_DATA)) {
+                for (const option of Object.values(riskLevel)) {
+                    if (option.ticker === ticker) return option;
+                }
+            }
+            return null;
+        }
+
+        const URLState = {
+            encode(moduleNum, userData, architectId) {
+                const params = new URLSearchParams();
+                if (moduleNum > 0) params.set('m', String(moduleNum));
+                if (userData.income) params.set('i', String(userData.income));
+                if (userData.bills) params.set('b', String(userData.bills));
+                if (userData.billsProfile) params.set('bp', userData.billsProfile);
+                if (userData.userName) params.set('n', userData.userName);
+                if (userData.etfChoice) params.set('etf', userData.etfChoice.ticker);
+                if (architectId) params.set('aid', architectId);
+                // Encode checklist as 5-bit string
+                const cl = userData.checklist || {};
+                const bits = [cl.sofiCheck, cl.sofiSave, cl.roth, cl.split, cl.autoInvest]
+                    .map(v => v ? '1' : '0').join('');
+                if (bits !== '00000') params.set('cl', bits);
+                // Track email captured state
+                if (localStorage.getItem('autopilot_email_captured') === 'true') params.set('ec', '1');
+                return params.toString();
+            },
+
+            decode() {
+                const hash = window.location.hash.slice(1);
+                if (!hash) return null;
+                try {
+                    const params = new URLSearchParams(hash);
+                    if (!params.has('m') && !params.has('ec')) return null;
+                    
+                    const result = {
+                        module: parseInt(params.get('m')) || 0,
+                        architectId: params.get('aid') || null,
+                        emailCaptured: params.get('ec') === '1',
+                        userData: {
+                            income: params.has('i') ? Number(params.get('i')) : 0,
+                            bills: params.has('b') ? Number(params.get('b')) : 0,
+                            billsProfile: params.get('bp') || null,
+                            userName: params.get('n') ? decodeURIComponent(params.get('n')) : "",
+                            userEmail: "",
+                            payFreq: "Bi-weekly",
+                            etfChoice: resolveEtfFromTicker(params.get('etf')),
+                            checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false }
+                        }
+                    };
+
+                    // Decode checklist bitmask
+                    if (params.has('cl')) {
+                        const bits = params.get('cl');
+                        if (bits.length === 5) {
+                            result.userData.checklist = {
+                                sofiCheck: bits[0] === '1',
+                                sofiSave: bits[1] === '1',
+                                roth: bits[2] === '1',
+                                split: bits[3] === '1',
+                                autoInvest: bits[4] === '1'
+                            };
+                        }
+                    }
+
+                    // If email was captured, jump to certificate
+                    if (result.emailCaptured) result.module = 7;
+
+                    return result;
+                } catch(e) {
+                    console.log('URL state decode error:', e);
+                    return null;
+                }
+            },
+
+            update(moduleNum, userData, architectId) {
+                try {
+                    const encoded = this.encode(moduleNum, userData, architectId);
+                    if (encoded) {
+                        window.history.replaceState(null, '', '#' + encoded);
+                    }
+                } catch(e) { /* silent */ }
+            },
+
+            clear() {
+                window.history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+        };
+
+        function isInstagramBrowser() {
+            const ua = (navigator.userAgent || navigator.vendor || '').toLowerCase();
+            return ua.indexOf('instagram') > -1;
+        }
+
+        // === INSTAGRAM BROWSER BANNER COMPONENT ===
+        function InstagramBanner({ isVisible }) {
+            const [show, setShow] = useState(isVisible);
+            if (!show) return null;
+
+            const openInBrowser = () => {
+                // Construct the full URL with current hash state
+                const url = window.location.href;
+                // On iOS, window.open in Instagram opens Safari
+                window.open(url, '_blank');
             };
 
-            const [module, setModule] = useState(getInitialModule);
+            return (
+                <div className="ig-banner">
+                    <span>For the best experience</span>
+                    <button className="ig-banner-btn" onClick={openInBrowser}>Open in Browser</button>
+                    <button className="ig-banner-close" onClick={() => setShow(false)}>{'\u2715'}</button>
+                </div>
+            );
+        }
+
+        // --- MAIN APP ---
+        function App() {
+            // === P0 FIX: Initialize from URL hash first, then localStorage ===
+            const getInitialState = () => {
+                // PRIORITY 1: URL hash (survives Instagram browser wipe)
+                const urlState = URLState.decode();
+                if (urlState) {
+                    return {
+                        module: urlState.module,
+                        userData: urlState.userData,
+                        architectId: urlState.architectId
+                    };
+                }
+
+                // PRIORITY 2: localStorage (normal browsers)
+                let module = 0;
+                if (localStorage.getItem('autopilot_email_captured') === 'true') {
+                    module = 7;
+                } else {
+                    const saved = localStorage.getItem('autopilot_current_module');
+                    module = saved ? parseInt(saved, 10) : 0;
+                }
+
+                return { module, userData: null, architectId: null };
+            };
+
+            const initialState = getInitialState();
+            const [module, setModule] = useState(initialState.module);
             const [context, setContext] = useState(null);
             const [theme, setTheme] = useState(CONFIG.THEMES.DEFAULT);
-            const [architectId, setArchitectId] = useState(null);
+            const [architectId, setArchitectId] = useState(initialState.architectId);
+            const [showIGBanner, setShowIGBanner] = useState(isInstagramBrowser());
             
-            const [userData, setUserData] = useState({
+            const defaultUserData = {
                 userName: "", userEmail: "",
                 income: 0, bills: 0, billsProfile: null,
                 payFreq: "Bi-weekly", etfChoice: null,
                 checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false }
-            });
+            };
+
+            const [userData, setUserData] = useState(
+                initialState.userData 
+                    ? { ...defaultUserData, ...initialState.userData }
+                    : defaultUserData
+            );
 
             // Save module progress to localStorage whenever it changes
             useEffect(() => {
                 localStorage.setItem('autopilot_current_module', module.toString());
             }, [module]);
 
+            // === P0 FIX: Sync state to URL hash on every change ===
             useEffect(() => {
-                const existingId = localStorage.getItem('cashvault_architect_id');
-                if (existingId) setArchitectId(existingId);
+                URLState.update(module, userData, architectId);
+            }, [module, userData, architectId]);
+
+            useEffect(() => {
+                if (!initialState.architectId) {
+                    const existingId = localStorage.getItem('cashvault_architect_id');
+                    if (existingId) setArchitectId(existingId);
+                }
             }, []);
 
             useEffect(() => {
@@ -388,8 +582,11 @@
                         if (parsed.monthly) setUserData(prev => ({...prev, income: parsed.monthly * 5, portfolioId: parsed.portfolio_id, coreEtf: parsed.core_etf}));
                     }
                 }
-                const savedData = localStorage.getItem("autopilot_system_data");
-                if (savedData) setUserData(prev => ({...JSON.parse(savedData), ...prev}));
+                // Only load from localStorage if URL state didn't already provide data
+                if (!initialState.userData) {
+                    const savedData = localStorage.getItem("autopilot_system_data");
+                    if (savedData) setUserData(prev => ({...JSON.parse(savedData), ...prev}));
+                }
             }, []);
 
             useEffect(() => {
@@ -416,7 +613,10 @@
             };
 
             return (
-                <div className={`min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors duration-1000`}>
+                <div className={`min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors duration-1000 ${showIGBanner ? 'ig-banner-active' : ''}`}>
+                    {/* P0 FIX: Instagram browser detection banner */}
+                    <InstagramBanner isVisible={showIGBanner} />
+                    
                     {module < 7 && (
                         <div className="w-full max-w-2xl mb-8 border-b border-gray-800 pb-4">
                             <div className="flex justify-between items-end mb-3">
@@ -442,7 +642,7 @@
                     <div className="w-full max-w-2xl min-h-[500px] transition-all duration-300 relative">{renderModule()}</div>
                     {module < 7 && (
                         <div className="w-full max-w-2xl mt-8 flex justify-between text-xs text-gray-600">
-                            <button onClick={() => setModule(m => Math.max(0, m - 1))} className={`hover:text-white ${module === 0 ? 'invisible' : ''}`}>[ ← BACK ]</button>
+                            <button onClick={() => setModule(m => Math.max(0, m - 1))} className={`hover:text-white ${module === 0 ? 'invisible' : ''}`}>[ \u2190 BACK ]</button>
                             <span>SECURE CONNECTION</span>
                         </div>
                     )}
@@ -553,7 +753,7 @@
                     <h2 className="text-xl font-bold mb-2 text-white border-b border-gray-800 pb-2">CALIBRATE YOUR MACHINE</h2>
                     <p className="text-xs text-gray-500 mb-6">Two inputs. That's all we need to build your system.</p>
                     <div className="mb-6">
-                        <label className="block text-xs text-gray-500 mb-1 uppercase tracking-widest">① Monthly Income (After Taxes)</label>
+                        <label className="block text-xs text-gray-500 mb-1 uppercase tracking-widest">{'\u2460'} Monthly Income (After Taxes)</label>
                         <div className="flex items-center group">
                             <span className="text-xl mr-2 text-gray-400 group-focus-within:text-white">$</span>
                             <input type="number" value={userData.income || ''} onChange={(e) => updateData('income', Number(e.target.value))} className={`terminal-input w-full p-3 text-lg font-bold`} placeholder="3000" />
@@ -562,7 +762,7 @@
                     </div>
                     {userData.income > 0 && (
                         <div className="mb-6 animate-fade-in">
-                            <label className="block text-xs text-gray-500 mb-3 uppercase tracking-widest">② How Much Is Locked to Bills?</label>
+                            <label className="block text-xs text-gray-500 mb-3 uppercase tracking-widest">{'\u2461'} How Much Is Locked to Bills?</label>
                             <p className="text-[10px] text-gray-600 mb-3">Most people apply 70/20/10 to gross income. That's why it fails. We apply it to what you can ACTUALLY deploy.</p>
                             <div className="grid grid-cols-2 gap-3" style={{'--theme-accent': theme.accent}}>
                                 {Object.values(profiles).map(p => (
@@ -604,7 +804,7 @@
                             </div>
                             {deployable > 0 && (
                                 <div className="border-t border-gray-800 pt-4 space-y-3">
-                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Deploying ${deployable.toLocaleString()}/mo →</p>
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Deploying ${deployable.toLocaleString()}/mo {'\u2192'}</p>
                                     <div><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">70% SPENDING</span><span className="text-gray-400">${spending.toFixed(0)}</span></div><div className="h-2 bg-gray-800 rounded overflow-hidden"><div className="h-full bg-gray-500" style={{width: '70%'}}></div></div></div>
                                     <div><div className="flex justify-between text-sm mb-1"><span className="text-white font-bold">20% INVESTING</span><span className="font-bold" style={{color: theme.accent}}>${invest.toFixed(0)}</span></div><div className="h-2 bg-gray-800 rounded overflow-hidden"><div className={`h-full ${theme.bg}`} style={{width: '20%'}}></div></div></div>
                                     <div><div className="flex justify-between text-sm mb-1"><span className="text-white">10% SAFETY</span><span className="text-blue-400">${safety.toFixed(0)}</span></div><div className="h-2 bg-gray-800 rounded overflow-hidden"><div className="h-full bg-blue-500" style={{width: '10%'}}></div></div></div>
@@ -618,7 +818,7 @@
                             )}
                             {deployable <= 0 && (
                                 <div className="border-t border-gray-800 pt-4 text-center">
-                                    <p className="text-red-400 text-sm font-bold">⚠️ Your bills exceed your income.</p>
+                                    <p className="text-red-400 text-sm font-bold">[!] Your bills exceed your income.</p>
                                     <p className="text-gray-500 text-xs mt-1">Reduce bills or increase income before building the machine.</p>
                                 </div>
                             )}
@@ -643,7 +843,7 @@
                                 <div>
                                     <h3 className="font-bold text-white text-sm sm:text-base">{i===0?'1. SoFi Checking':i===1?'2. SoFi Savings':'3. Fidelity Roth IRA'}</h3>
                                     <p className="text-xs text-gray-400 mt-1">{i===0?'The Hub (Income enters here)':i===1?`The Safety Net ($${safetyAmount}/mo)`:`The Engine ($${investAmount}/mo)`}</p>
-                                    <a href={i===2 ? CONFIG.LINKS.FIDELITY : CONFIG.LINKS.SOFI} target="_blank" className={`text-[10px] ${theme.color} underline mt-2 inline-block hover:brightness-125`}>[ OPEN ACCOUNT → ]</a>
+                                    <a href={i===2 ? CONFIG.LINKS.FIDELITY : CONFIG.LINKS.SOFI} target="_blank" className={`text-[10px] ${theme.color} underline mt-2 inline-block hover:brightness-125`}>[ OPEN ACCOUNT {'\u2192'} ]</a>
                                 </div>
                                 <input type="checkbox" checked={userData.checklist[id]} onChange={() => toggleCheck(id)} className="w-5 h-5 cursor-pointer rounded-none" />
                             </div>
@@ -651,7 +851,7 @@
                     ))}
                     <div className="mt-6 flex justify-between items-center">
                         <span className="text-xs text-gray-500">COMPLETED: {['sofiCheck', 'sofiSave', 'roth'].filter(k => userData.checklist[k]).length}/3</span>
-                        <button onClick={next} className="px-6 py-2 bg-white text-black font-bold text-sm hover:bg-gray-200">NEXT STEP →</button>
+                        <button onClick={next} className="px-6 py-2 bg-white text-black font-bold text-sm hover:bg-gray-200">NEXT STEP {'\u2192'}</button>
                     </div>
                 </div>
             );
@@ -707,7 +907,7 @@
                     <h2 className="text-xl font-bold mb-2 text-white">TARGET ACQUIRED</h2>
                     <p className="text-sm text-gray-400 mb-6">Based on your profile, your money should buy:</p>
                     <div className={`border ${theme.border} bg-gray-900 p-6 mb-6 text-center relative overflow-hidden`}><div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div><h3 className="text-4xl font-bold text-white mb-2 tracking-tighter">{userData.etfChoice.ticker}</h3><p className={`${theme.color} font-bold mb-4 uppercase text-xs tracking-widest`}>{userData.etfChoice.name}</p><p className="text-sm text-gray-300">{userData.etfChoice.desc}</p><div className="mt-4 text-xs text-gray-500 border-t border-gray-800 pt-2">Avg Return: {userData.etfChoice.return}</div></div>
-                    <div className="bg-black p-4 border border-gray-800 mb-6"><p className="text-xs text-white font-bold mb-2">FINAL ACTION:</p><p className="text-xs text-gray-400 mb-3">Log into Fidelity -> Enable "Automatic Investments" -> Buy <strong>{userData.etfChoice.ticker}</strong> with the cash that transfers in.</p><div className="flex items-center space-x-3"><input type="checkbox" checked={userData.checklist.autoInvest} onChange={() => toggleCheck('autoInvest')} className="w-5 h-5" /><label className="text-sm text-gray-300">I have set the auto-buy.</label></div></div>
+                    <div className="bg-black p-4 border border-gray-800 mb-6"><p className="text-xs text-white font-bold mb-2">FINAL ACTION:</p><p className="text-xs text-gray-400 mb-3">Log into Fidelity {'\u2192'} Enable "Automatic Investments" {'\u2192'} Buy <strong>{userData.etfChoice.ticker}</strong> with the cash that transfers in.</p><div className="flex items-center space-x-3"><input type="checkbox" checked={userData.checklist.autoInvest} onChange={() => toggleCheck('autoInvest')} className="w-5 h-5" /><label className="text-sm text-gray-300">I have set the auto-buy.</label></div></div>
                     <button onClick={next} disabled={!userData.checklist.autoInvest} className={`w-full py-3 font-bold uppercase transition-all ${userData.checklist.autoInvest ? `${theme.bg} text-black hover:brightness-110` : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>[ Activate {userData.etfChoice.ticker} Auto-Buy ]</button>
                 </div>
             );
@@ -718,13 +918,13 @@
             return (
                 <div className="transparency-panel">
                     <div className="transparency-header" onClick={onToggle}>
-                        <span className={`text-xs uppercase tracking-widest ${theme.color} font-bold flex items-center gap-2`}><span>🔍</span> See What's Happening</span>
-                        <span className={`text-gray-500 text-xs transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+                        <span className={`text-xs uppercase tracking-widest ${theme.color} font-bold flex items-center gap-2`}><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> See What's Happening</span>
+                        <span className={`text-gray-500 text-xs transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>{'\u25BC'}</span>
                     </div>
                     <div className={`transparency-content ${isOpen ? 'open' : ''}`}>
                         {steps.map((step, index) => (
                             <div key={step.id} className={`transparency-step ${isProcessing && currentStep === index ? 'active' : currentStep > index ? 'complete' : ''}`} style={{ color: theme.accent }}>
-                                <div className="step-indicator">{currentStep > index ? '✓' : step.id}</div>
+                                <div className="step-indicator">{currentStep > index ? '\u2713' : step.id}</div>
                                 <span className="text-xs text-gray-400">{step.text}</span>
                             </div>
                         ))}
@@ -761,20 +961,34 @@
             );
         }
 
-        // --- MODULE 5: PROJECTION ---
+        // --- MODULE 5: PROJECTION (P0 FIX: Corrected compound interest formula) ---
         function ModuleProjection({ userData, updateData, theme, next }) {
             const [isProcessing, setIsProcessing] = useState(false);
             const monthly = getInvest(userData);
-            const calc = (y) => monthly * ((Math.pow(1.10/12, y*12)-1)/(0.10/12));
+
+            // P0 FIX: Using centralized calcFutureValue with CORRECT formula
+            // OLD BROKEN: monthly * ((Math.pow(1.10/12, y*12)-1)/(0.10/12))
+            // NEW FIXED:  monthly * ((Math.pow(1 + 0.10/12, y*12)-1)/(0.10/12))
+            const projections = useMemo(() => ({
+                yr10: calcFutureValue(monthly, 10),
+                yr20: calcFutureValue(monthly, 20),
+                yr30: calcFutureValue(monthly, 30)
+            }), [monthly]);
+
+            const maxVal = projections.yr30 || 1;
+
             const handleNext = () => { if (!userData.userName) return; setIsProcessing(true); };
             if (isProcessing) return <ProcessingOverlay theme={theme} userName={userData.userName} onComplete={next} />;
             return (
                 <div className="terminal-box p-8 rounded-sm animate-fade-in relative">
                     <div className="text-center mb-6"><h2 className="text-2xl font-bold text-white mb-1">SYSTEM ONLINE</h2><p className={`${theme.color} text-sm animate-pulse flex justify-center items-center gap-2`}><span className={`w-2 h-2 rounded-full ${theme.bg}`}></span> WEALTH GENERATION ACTIVE</p></div>
                     <div className="space-y-6 mb-8 border-t border-b border-gray-800 py-6">
-                        {[10, 20, 30].map(y => (
-                            <div key={y}><div className="flex justify-between text-xs text-gray-400 mb-1"><span>YEAR {y}</span><span className="text-white font-mono">${calc(y).toLocaleString(undefined, {maximumFractionDigits:0})}</span></div><div className="h-2 bg-gray-800 w-full rounded overflow-hidden"><div className={`h-full ${theme.bg} transition-all duration-1000 ease-out`} style={{width: y===10?'20%':y===20?'50%':'100%'}}></div></div></div>
+                        {[{y:10, val: projections.yr10}, {y:20, val: projections.yr20}, {y:30, val: projections.yr30}].map(({y, val}) => (
+                            <div key={y}><div className="flex justify-between text-xs text-gray-400 mb-1"><span>YEAR {y}</span><span className="text-white font-mono font-bold">${val.toLocaleString(undefined, {maximumFractionDigits:0})}</span></div><div className="h-2 bg-gray-800 w-full rounded overflow-hidden"><div className={`h-full ${theme.bg} transition-all duration-1000 ease-out`} style={{width: `${Math.max(5, (val / maxVal) * 100)}%`}}></div></div></div>
                         ))}
+                        <div className="text-center">
+                            <p className="text-[10px] text-gray-500">Based on ${monthly.toFixed(0)}/mo at ~10% avg annual return (S&P 500 historical avg)</p>
+                        </div>
                     </div>
                     <div className="bg-black border border-gray-800 p-4 mb-6 transition-all focus-within:border-white">
                         <p className="text-gray-400 text-xs mb-2 uppercase tracking-widest">Identity Protocol</p>
@@ -787,17 +1001,16 @@
         }
 
         // =====================================================
-        // === MODULE 6: EMAIL GATE — BEEHIIV IFRAME INTEGRATION
+        // === MODULE 6: EMAIL GATE (P0 FIX: Formula corrected)
         // =====================================================
         function ModuleEmailGate({ userData, updateData, theme, architectId, setArchitectId, next }) {
             const [saving, setSaving] = useState(false);
             
             const investAmount = getInvest(userData);
-            const projectedWealth = (investAmount * ((Math.pow(1.10/12, 30*12)-1)/(0.10/12))).toLocaleString(undefined, {maximumFractionDigits:0});
+            // P0 FIX: Using centralized calcFutureValue with CORRECT formula
+            const projectedWealth = calcFutureValue(investAmount, 30).toLocaleString(undefined, {maximumFractionDigits:0});
 
             // === POSTMESSAGE LISTENER ===
-            // When Beehiiv redirects the iframe to our URL with ?verified=true,
-            // that page detects it's in an iframe and sends postMessage here.
             useEffect(() => {
                 const handleMessage = async (event) => {
                     if (event.data && event.data.type === 'AUTOPILOT_EMAIL_CAPTURED') {
@@ -815,6 +1028,9 @@
                         localStorage.setItem('architect_monthly_invest', Math.round(investAmount).toString());
 
                         await saveArchitectToShared(generatedId, userData);
+
+                        // P0 FIX: Also update URL state immediately so it persists
+                        URLState.update(7, userData, generatedId);
 
                         setTimeout(() => {
                             next();
@@ -839,21 +1055,47 @@
             return (
                 <div className="terminal-box p-6 sm:p-8 rounded-sm animate-fade-in">
                     <div className="space-y-6">
-                        {/* Context: What they built */}
+                        {/* P1 FIX: "SAVE YOUR SYSTEM" framing instead of bare form */}
                         <div className="text-center">
-                            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Configuration Summary</p>
-                            <div className="flex justify-center gap-4 text-center">
-                                <div className="bg-black border border-gray-800 p-3 rounded flex-1">
-                                    <p className="text-white font-bold text-lg">${investAmount.toFixed(0)}<span className="text-gray-500 text-xs">/mo</span></p>
-                                    <p className="text-[10px] text-gray-500">AUTO-INVEST</p>
+                            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded border ${theme.border} mb-4`}>
+                                <div className={`w-2 h-2 rounded-full ${theme.bg} animate-pulse`}></div>
+                                <span className={`${theme.color} text-[10px] font-bold uppercase tracking-widest`}>System Built Successfully</span>
+                            </div>
+                            <h2 className="text-xl font-bold text-white mb-1">SAVE YOUR CONFIGURATION</h2>
+                            <p className="text-sm text-gray-400 max-w-sm mx-auto">You just built a wealth machine. Enter your email to lock in your settings and receive your Architect Certificate.</p>
+                        </div>
+
+                        {/* What they built: visual proof of work */}
+                        <div className="flex justify-center gap-4 text-center">
+                            <div className="bg-black border border-gray-800 p-3 rounded flex-1">
+                                <p className="text-white font-bold text-lg">${investAmount.toFixed(0)}<span className="text-gray-500 text-xs">/mo</span></p>
+                                <p className="text-[10px] text-gray-500">AUTO-INVEST</p>
+                            </div>
+                            <div className="bg-black border border-gray-800 p-3 rounded flex-1">
+                                <p className="font-bold text-lg" style={{color: theme.accent}}>{userData.etfChoice?.ticker || 'ETF'}</p>
+                                <p className="text-[10px] text-gray-500">TARGET FUND</p>
+                            </div>
+                            <div className="bg-black border border-gray-800 p-3 rounded flex-1">
+                                <p className="text-white font-bold text-lg">${projectedWealth}</p>
+                                <p className="text-[10px] text-gray-500">30-YR PROJECTION</p>
+                            </div>
+                        </div>
+
+                        {/* What they get for saving */}
+                        <div className="bg-gray-900/50 border border-gray-800 rounded p-4">
+                            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">What you receive instantly:</p>
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-3 text-xs">
+                                    <span className={`${theme.color} font-bold`}>{'\u2713'}</span>
+                                    <span className="text-gray-300">Your <strong className="text-white">Architect Certificate</strong> with permanent ID</span>
                                 </div>
-                                <div className="bg-black border border-gray-800 p-3 rounded flex-1">
-                                    <p className="font-bold text-lg" style={{color: theme.accent}}>{userData.etfChoice?.ticker || 'ETF'}</p>
-                                    <p className="text-[10px] text-gray-500">TARGET FUND</p>
+                                <div className="flex items-center gap-3 text-xs">
+                                    <span className={`${theme.color} font-bold`}>{'\u2713'}</span>
+                                    <span className="text-gray-300">Saved system config (income, ETF, allocation)</span>
                                 </div>
-                                <div className="bg-black border border-gray-800 p-3 rounded flex-1">
-                                    <p className="text-white font-bold text-lg">${projectedWealth}</p>
-                                    <p className="text-[10px] text-gray-500">30-YR PROJECTION</p>
+                                <div className="flex items-center gap-3 text-xs">
+                                    <span className={`${theme.color} font-bold`}>{'\u2713'}</span>
+                                    <span className="text-gray-300">Access to the <strong className="text-white">Command Center</strong> dashboard</span>
                                 </div>
                             </div>
                         </div>
@@ -886,40 +1128,55 @@
                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                                 Encrypted
                             </span>
-                            <span>·</span>
-                            <span>No spam</span>
-                            <span>·</span>
-                            <span>Instant save</span>
+                            <span>{'\u00B7'}</span>
+                            <span>No spam, ever</span>
+                            <span>{'\u00B7'}</span>
+                            <span>Unsubscribe anytime</span>
                         </div>
                     </div>
                 </div>
             );
         }
 
-        // === MODULE 7: CERTIFICATE ===
+        // === MODULE 7: CERTIFICATE (P0 FIX: Formula corrected) ===
         function ModuleCertificate({ userData, theme, architectId }) {
             const [copiedPlatform, setCopiedPlatform] = useState(null);
             const [revealed, setRevealed] = useState(false);
-            const [countdown, setCountdown] = useState(24 * 60 * 60);
             const confettiLaunched = useRef(false);
             
             const monthlyInvest = getInvest(userData);
-            const projectedWealth = (monthlyInvest * ((Math.pow(1.10/12, 30*12)-1)/(0.10/12))).toLocaleString(undefined, {maximumFractionDigits:0});
+            // P0 FIX: Using centralized calcFutureValue with CORRECT formula
+            const projectedWealth = calcFutureValue(monthlyInvest, 30).toLocaleString(undefined, {maximumFractionDigits:0});
 
+            // P1 FIX: Stagger animation sequence for mobile performance
+            // Phase 1 (0ms): Certificate card reveals
+            // Phase 2 (800ms): Confetti launches
+            // Phase 3 (2000ms): Countdown timer starts ticking
             useEffect(() => {
                 const timer = setTimeout(() => {
                     setRevealed(true);
                     if (!confettiLaunched.current) {
                         confettiLaunched.current = true;
-                        setTimeout(() => MoneyConfetti.launch(3000, 25), 200);
+                        setTimeout(() => MoneyConfetti.launch(3000, 25), 800);
                     }
                 }, 100);
                 return () => clearTimeout(timer);
             }, []);
 
+            // P1 FIX: Countdown updates every 15 seconds instead of every 1 second.
+            // Eliminates 86,400 re-renders/day. Timer display shows HH:MM format.
+            const countdownRef = useRef(24 * 60 * 60);
+            const [displayCountdown, setDisplayCountdown] = useState(24 * 60 * 60);
             useEffect(() => {
-                const timer = setInterval(() => setCountdown(prev => prev > 0 ? prev - 1 : 0), 1000);
-                return () => clearInterval(timer);
+                // Delay countdown start until animations settle
+                const startDelay = setTimeout(() => {
+                    const timer = setInterval(() => {
+                        countdownRef.current = Math.max(0, countdownRef.current - 15);
+                        setDisplayCountdown(countdownRef.current);
+                    }, 15000);
+                    return () => clearInterval(timer);
+                }, 2000);
+                return () => clearTimeout(startDelay);
             }, []);
 
             const formatCountdown = (s) => {
@@ -940,8 +1197,8 @@
 
             return (
                 <div className="w-full max-w-md mx-auto animate-fade-in">
-                    <div className="text-center mb-4"><div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${theme.border} ${theme.color} text-xs font-bold uppercase tracking-widest screenshot-pulse`}><span>📸</span> Screenshot This Card</div></div>
-                    <div id="certificate-card" className={`relative h-72 w-full rounded-xl mb-6 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`}>
+                    <div className="text-center mb-4"><div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${theme.border} ${theme.color} text-xs font-bold uppercase tracking-widest screenshot-pulse`}><span>SCREENSHOT THIS CARD</span></div></div>
+                    <div id="certificate-card" className={`relative h-72 w-full rounded-xl mb-6 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`} style={{willChange: 'transform'}}>
                         <div className="absolute inset-0 bg-[#0a0a0a]"></div>
                         <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-[#000] to-black opacity-90"></div>
                         <div className="absolute inset-0 premium-shimmer opacity-20 pointer-events-none"></div>
@@ -958,43 +1215,43 @@
                             </div>
                             <div className="flex justify-between items-end">
                                 <div><p className="text-white font-bold uppercase tracking-widest text-sm embossed card-font">{userData.userName || "AUTHORIZED USER"}</p><p className="text-[8px] text-gray-500 mt-1">MEMBER SINCE {new Date().getFullYear()}</p></div>
-                                <div className="text-right"><div className={`${theme.color} text-xs font-bold`}>✓ VERIFIED</div></div>
+                                <div className="text-right"><div className={`${theme.color} text-xs font-bold`}>{'\u2713'} VERIFIED</div></div>
                             </div>
                         </div>
                     </div>
-                    <div className="bg-gradient-to-r from-red-900/30 via-red-800/20 to-red-900/30 border border-red-500/30 p-4 rounded mb-6 text-center"><p className="text-red-400 text-xs font-bold uppercase tracking-widest mb-1">⏰ Bonus Access Expires In</p><p className="text-white text-2xl font-mono font-bold timer-pulse">{formatCountdown(countdown)}</p></div>
+                    <div className="bg-gray-900/60 border border-gray-700 p-4 rounded mb-6 text-center"><p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Bonus Access Window</p><p className="text-white text-2xl font-mono font-bold">{formatCountdown(displayCountdown)}</p></div>
                     <div className="text-center space-y-4 pb-12">
                         <div className="bg-gray-900 border border-gray-800 p-6 rounded-sm shadow-xl relative overflow-hidden">
                             <div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div>
                             <h3 className="text-white font-bold text-lg mb-1">SHARE & CLAIM BONUS</h3>
                             <p className="text-gray-500 text-xs mb-6">Share your achievement to unlock the Prompt Vault Cheat Sheet.</p>
                             <div className="text-left space-y-3 text-xs text-gray-300 font-mono mb-6 bg-black p-4 rounded border border-gray-800">
-                                <p className="flex items-center gap-2"><span className="text-green-500">1.</span> Screenshot the certificate above 📸</p>
+                                <p className="flex items-center gap-2"><span className="text-green-500">1.</span> Screenshot the certificate above</p>
                                 <p className="flex items-center gap-2"><span className="text-green-500">2.</span> Post to your story & tag <span className="text-white font-bold">@koutalksmoney</span></p>
                                 <p className="flex items-center gap-2"><span className="text-green-500">3.</span> I'll DM your Prompt Vault access directly</p>
                             </div>
                             <div className="grid grid-cols-2 gap-3 mb-4">
-                                <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="share-btn share-btn-instagram col-span-2"><span>📸</span> Post to Instagram</a>
-                                <a href={shareUrls.twitter} target="_blank" className="share-btn share-btn-twitter"><span>𝕏</span> Share on X</a>
-                                <a href={shareUrls.linkedin} target="_blank" className="share-btn share-btn-linkedin"><span>in</span> LinkedIn</a>
+                                <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="share-btn share-btn-instagram col-span-2">Post to Instagram</a>
+                                <a href={shareUrls.twitter} target="_blank" className="share-btn share-btn-twitter">Share on X</a>
+                                <a href={shareUrls.linkedin} target="_blank" className="share-btn share-btn-linkedin">LinkedIn</a>
                             </div>
                             <div className="border-t border-gray-800 pt-4 mt-4">
                                 <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Copy Pre-Written Captions</p>
                                 <div className="grid grid-cols-2 gap-2">
                                     {['INSTAGRAM', 'TWITTER', 'LINKEDIN', 'TIKTOK'].map(platform => (
-                                        <button key={platform} onClick={() => handleCopy(platform)} className={`share-btn share-btn-copy text-[10px] py-2 ${copiedPlatform === platform ? 'copied' : ''}`}>{copiedPlatform === platform ? '✓ Copied' : `${platform} Caption`}</button>
+                                        <button key={platform} onClick={() => handleCopy(platform)} className={`share-btn share-btn-copy text-[10px] py-2 ${copiedPlatform === platform ? 'copied' : ''}`}>{copiedPlatform === platform ? '\u2713 Copied' : `${platform} Caption`}</button>
                                     ))}
                                 </div>
                             </div>
                             <div className="border-t border-gray-800 pt-4 mt-4">
                                 <div className={`bg-gradient-to-br from-gray-900 to-black border-2 ${theme.border} p-5 rounded-lg`}>
-                                    <div className="flex items-center gap-3 mb-3"><span className="text-2xl">✅</span><div><p className="text-white font-bold text-sm">Verify Your Architect Status</p><p className="text-gray-400 text-xs">Share your ID. Let others verify you're legit.</p></div></div>
-                                    <a href={`https://spacekou5-oss.github.io/cashvault-funnel/verify.html?id=${architectId}`} target="_blank" className={`block w-full py-3 ${theme.bg} text-black font-bold text-sm rounded text-center transition-all hover:opacity-90`}>Open Verification Page →</a>
-                                    <p className="text-gray-500 text-[10px] mt-2 text-center">This links directly to your verified status</p>
+                                    <div className="flex items-center gap-3 mb-3"><div><p className="text-white font-bold text-sm">Verify Your Architect Status</p><p className="text-gray-400 text-xs">Share your ID. Let others verify you're legit.</p></div></div>
+                                    <a href={`https://spacekou5-oss.github.io/cashvault-funnel/verify.html?id=${architectId}`} target="_blank" className={`block w-full py-3 ${theme.bg} text-black font-bold text-sm rounded text-center transition-all hover:opacity-90`}>Open Verification Page {'\u2192'}</a>
+                                    <p className="text-gray-500 text-[10px] mt-2 text-center">Drop this link in your bio or DMs as proof</p>
                                 </div>
                             </div>
                         </div>
-                        <p className="text-[10px] text-gray-600 max-w-xs mx-auto">Your Architect ID is permanent and can be verified by anyone at any time.</p>
+                        <p className="text-[10px] text-gray-600 max-w-xs mx-auto">Your Architect ID is permanent. Share it anywhere to prove you built the machine.</p>
                     </div>
                 </div>
             );
