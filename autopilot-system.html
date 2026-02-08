@@ -833,6 +833,7 @@
         function ModuleSetup({ userData, toggleCheck, theme, next }) {
             const investAmount = getInvest(userData).toFixed(0);
             const safetyAmount = getSafety(userData).toFixed(0);
+            const [whyOpen, setWhyOpen] = useState(false);
             return (
                 <div className="terminal-box p-8 rounded-sm animate-fade-in">
                     <h2 className="text-xl font-bold mb-2 text-white">INFRASTRUCTURE</h2>
@@ -849,6 +850,35 @@
                             </div>
                         </div>
                     ))}
+
+                    {/* P2 FIX #6: Expandable brokerage education panel */}
+                    <div className="border border-gray-800 rounded overflow-hidden mb-6 transition-all">
+                        <button onClick={() => setWhyOpen(!whyOpen)} className="w-full flex justify-between items-center px-4 py-3 bg-black/50 hover:bg-gray-900/50 transition-colors text-left">
+                            <span className="text-xs text-gray-400 uppercase tracking-widest font-bold">Why these accounts?</span>
+                            <span className={`text-gray-500 text-xs transition-transform duration-300 ${whyOpen ? 'rotate-180' : ''}`}>{'\u25BC'}</span>
+                        </button>
+                        {whyOpen && (
+                            <div className="px-4 pb-4 pt-2 space-y-4 animate-fade-in text-xs">
+                                <div className="space-y-3">
+                                    <div className="border-l-2 pl-3 py-1" style={{borderColor: theme.accent}}>
+                                        <p className="text-white font-bold mb-1">SoFi Checking + Savings</p>
+                                        <p className="text-gray-400 leading-relaxed">No account fees. No minimums. 4.5% APY on savings (most banks pay 0.01%). Instant internal transfers between checking and savings. One app, two accounts, zero friction.</p>
+                                        <p className="text-gray-500 mt-2"><strong className="text-gray-300">vs. alternatives:</strong> Chase/BofA charge maintenance fees and pay near-zero interest. Other high-yield options (Marcus, Ally) work too, but SoFi combines checking + savings in one place.</p>
+                                    </div>
+                                    <div className="border-l-2 pl-3 py-1" style={{borderColor: theme.accent}}>
+                                        <p className="text-white font-bold mb-1">Fidelity Roth IRA</p>
+                                        <p className="text-gray-400 leading-relaxed">No account minimums. Fractional shares (invest any dollar amount). No commissions on ETFs. Best-in-class for beginners who want to start small and automate.</p>
+                                        <p className="text-gray-500 mt-2"><strong className="text-gray-300">vs. alternatives:</strong> Schwab requires $1 minimum per trade. Vanguard's interface is dated and some funds have $3K minimums. Fidelity has the lowest barrier to entry.</p>
+                                    </div>
+                                </div>
+                                <div className="bg-gray-900/50 border border-gray-700 rounded p-3">
+                                    <p className="text-gray-300 font-bold mb-1">Already have accounts elsewhere?</p>
+                                    <p className="text-gray-500 leading-relaxed">These are recommendations, not requirements. If you already have a high-yield savings account and a brokerage with auto-invest, use those. The system works with any accounts. The key is the structure: one checking hub, one savings buffer, one investment engine.</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
                     <div className="mt-6 flex justify-between items-center">
                         <span className="text-xs text-gray-500">COMPLETED: {['sofiCheck', 'sofiSave', 'roth'].filter(k => userData.checklist[k]).length}/3</span>
                         <button onClick={next} className="px-6 py-2 bg-white text-black font-bold text-sm hover:bg-gray-200">NEXT STEP {'\u2192'}</button>
@@ -866,9 +896,25 @@
                 <div className="terminal-box p-8 rounded-sm animate-fade-in">
                     <h2 className="text-xl font-bold mb-4 text-white">THE WIRING</h2>
                     <p className="text-sm text-gray-400 mb-6">How does money move? (Choose one)</p>
-                    <div className="flex gap-4 mb-6">
+                    <div className="flex gap-4 mb-3">
                         <button onClick={() => setMethod('split')} className={`flex-1 p-3 border transition-colors ${method==='split'?theme.border + ' ' + theme.color: 'border-gray-700 text-gray-500 hover:border-gray-500'}`}><span className="block font-bold">OPTION A</span><span className="text-xs">Paycheck Split</span></button>
                         <button onClick={() => setMethod('manual')} className={`flex-1 p-3 border transition-colors ${method==='manual'?theme.border + ' ' + theme.color: 'border-gray-700 text-gray-500 hover:border-gray-500'}`}><span className="block font-bold">OPTION B</span><span className="text-xs">Bank Transfer</span></button>
+                    </div>
+                    {/* P2 FIX #7: Strategic explanation of each method */}
+                    <div className="mb-6 p-3 bg-black/50 border border-gray-800 rounded text-[11px]">
+                        {method === 'split' ? (
+                            <div className="space-y-1">
+                                <p className="font-bold text-white">BEST OPTION. Set once, never touch again.</p>
+                                <p className="text-gray-400">Your paycheck arrives pre-sorted into each account. Zero willpower required. Zero manual transfers. Money is deployed before you can spend it.</p>
+                                <p className="text-gray-600 mt-2">Requires: Employer supports split direct deposit (most do).</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-1">
+                                <p className="font-bold text-white">BACKUP OPTION. Still automated, one extra setup step.</p>
+                                <p className="text-gray-400">If your employer only allows one direct deposit, all income hits your checking account first, then recurring auto-transfers move money to savings and investments the day after payday.</p>
+                                <p className="text-gray-600 mt-2">Same result. Just uses bank scheduling instead of payroll splitting.</p>
+                            </div>
+                        )}
                     </div>
                     <div className="bg-gray-900 p-4 border-l-2 text-sm space-y-3 mb-6 transition-all duration-300" style={{borderColor: theme.accent}}>
                         <p className="font-bold text-white uppercase">Execution Protocol:</p>
@@ -1163,17 +1209,20 @@
                 return () => clearTimeout(timer);
             }, []);
 
-            // P1 FIX: Countdown updates every 15 seconds instead of every 1 second.
-            // Eliminates 86,400 re-renders/day. Timer display shows HH:MM format.
-            const countdownRef = useRef(24 * 60 * 60);
+            // Smooth countdown: 1-second updates, delayed start after animations settle
+            // Uses ref-based start time so the timer is always accurate (no drift)
+            const countdownStartRef = useRef(null);
             const [displayCountdown, setDisplayCountdown] = useState(24 * 60 * 60);
             useEffect(() => {
-                // Delay countdown start until animations settle
+                // Delay countdown start until certificate + confetti are done
                 const startDelay = setTimeout(() => {
+                    countdownStartRef.current = Date.now();
                     const timer = setInterval(() => {
-                        countdownRef.current = Math.max(0, countdownRef.current - 15);
-                        setDisplayCountdown(countdownRef.current);
-                    }, 15000);
+                        const elapsed = Math.floor((Date.now() - countdownStartRef.current) / 1000);
+                        const remaining = Math.max(0, 24 * 60 * 60 - elapsed);
+                        setDisplayCountdown(remaining);
+                        if (remaining <= 0) clearInterval(timer);
+                    }, 1000);
                     return () => clearInterval(timer);
                 }, 2000);
                 return () => clearTimeout(startDelay);
@@ -1198,11 +1247,11 @@
             return (
                 <div className="w-full max-w-md mx-auto animate-fade-in">
                     <div className="text-center mb-4"><div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${theme.border} ${theme.color} text-xs font-bold uppercase tracking-widest screenshot-pulse`}><span>SCREENSHOT THIS CARD</span></div></div>
-                    <div id="certificate-card" className={`relative h-72 w-full rounded-xl mb-6 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`} style={{willChange: 'transform'}}>
+                    <div id="certificate-card" className={`relative w-full rounded-xl mb-6 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`} style={{willChange: 'transform'}}>
                         <div className="absolute inset-0 bg-[#0a0a0a]"></div>
                         <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-[#000] to-black opacity-90"></div>
                         <div className="absolute inset-0 premium-shimmer opacity-20 pointer-events-none"></div>
-                        <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
+                        <div className="relative p-6 flex flex-col justify-between z-10" style={{minHeight: '280px'}}>
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-2"><div className={`w-8 h-8 rounded-full border-2 ${theme.border} flex items-center justify-center`}><div className={`w-4 h-4 ${theme.bg} rounded-full animate-pulse`}></div></div><span className="font-bold text-white tracking-widest text-sm">AUTOPILOT<span className={theme.color}>ELITE</span></span></div>
                                 <span className="text-[10px] text-gray-500 font-mono border border-gray-700 px-2 py-1 rounded">WEALTH ARCHITECT</span>
@@ -1219,35 +1268,107 @@
                             </div>
                         </div>
                     </div>
+                    {/* VERIFY CTA: First thing after certificate, before offers */}
+                    <div className={`bg-gradient-to-br from-gray-900 to-black border-2 ${theme.border} p-4 rounded-lg mb-6 flex flex-col sm:flex-row items-center gap-4`}>
+                        <div className="flex-1 text-center sm:text-left">
+                            <p className="text-white font-bold text-sm">Your Verification Page is Live</p>
+                            <p className="text-gray-400 text-[11px] mt-0.5">Drop this link in your bio, resume, or DMs. Anyone can confirm your status.</p>
+                        </div>
+                        <div className="flex gap-2 w-full sm:w-auto">
+                            <a href={`https://spacekou5-oss.github.io/cashvault-funnel/verify.html?id=${architectId}`} target="_blank" className={`flex-1 sm:flex-none py-2.5 px-5 ${theme.bg} text-black font-bold text-xs rounded text-center transition-all hover:opacity-90 uppercase tracking-wider`}>View Page</a>
+                            <button onClick={() => { navigator.clipboard.writeText(`https://spacekou5-oss.github.io/cashvault-funnel/verify.html?id=${architectId}`); setCopiedPlatform('verify'); setTimeout(() => setCopiedPlatform(null), 2000); }} className={`flex-1 sm:flex-none py-2.5 px-5 border ${copiedPlatform === 'verify' ? `${theme.border} ${theme.color}` : 'border-gray-700 text-gray-400'} font-bold text-xs rounded text-center transition-all uppercase tracking-wider`}>{copiedPlatform === 'verify' ? '\u2713 Copied' : 'Copy Link'}</button>
+                        </div>
+                    </div>
+
                     <div className="bg-gray-900/60 border border-gray-700 p-4 rounded mb-6 text-center"><p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Bonus Access Window</p><p className="text-white text-2xl font-mono font-bold">{formatCountdown(displayCountdown)}</p></div>
                     <div className="text-center space-y-4 pb-12">
                         <div className="bg-gray-900 border border-gray-800 p-6 rounded-sm shadow-xl relative overflow-hidden">
                             <div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div>
-                            <h3 className="text-white font-bold text-lg mb-1">SHARE & CLAIM BONUS</h3>
-                            <p className="text-gray-500 text-xs mb-6">Share your achievement to unlock the Prompt Vault Cheat Sheet.</p>
-                            <div className="text-left space-y-3 text-xs text-gray-300 font-mono mb-6 bg-black p-4 rounded border border-gray-800">
-                                <p className="flex items-center gap-2"><span className="text-green-500">1.</span> Screenshot the certificate above</p>
-                                <p className="flex items-center gap-2"><span className="text-green-500">2.</span> Post to your story & tag <span className="text-white font-bold">@koutalksmoney</span></p>
-                                <p className="flex items-center gap-2"><span className="text-green-500">3.</span> I'll DM your Prompt Vault access directly</p>
+                            
+                            {/* P2 FIX #8: Two-tier claim structure */}
+                            <h3 className="text-white font-bold text-lg mb-1">UNLOCK THE PROMPT VAULT</h3>
+                            <p className="text-gray-500 text-xs mb-6">Choose your path. One gets you the vault. The other gets you everything.</p>
+
+                            {/* TWO-TIER CLAIM FLOW */}
+                            <div className="text-left mb-6 space-y-3">
+                                {/* TIER 1: DM Only (Floor) */}
+                                <div className="bg-black rounded border border-gray-800 overflow-hidden">
+                                    <div className="px-4 py-3 border-b border-gray-800 bg-gray-900/50 flex justify-between items-center">
+                                        <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Path A: Quick Claim</p>
+                                        <span className="text-[10px] text-gray-600 border border-gray-700 px-2 py-0.5 rounded">1 REWARD</span>
+                                    </div>
+                                    <div className="p-4">
+                                        <div className="flex gap-3 items-start">
+                                            <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black bg-gray-500">1</div>
+                                            <div>
+                                                <p className="text-white text-sm font-bold">DM "ARCHITECT" to <span style={{color: theme.accent}}>@koutalksmoney</span></p>
+                                                <p className="text-gray-500 text-[11px] mt-1">I'll reply with your Prompt Vault access link.</p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-3 ml-10 flex items-center gap-2">
+                                            <span className="text-[10px] text-gray-500">You get:</span>
+                                            <span className="text-[10px] text-white font-bold bg-gray-800 px-2 py-0.5 rounded">Prompt Vault Cheat Sheet</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* TIER 2: Post + Tag + DM (Ceiling) */}
+                                <div className="rounded border-2 overflow-hidden relative" style={{borderColor: theme.accent}}>
+                                    <div className="absolute top-0 right-0 px-2 py-0.5 text-[9px] font-bold text-black uppercase tracking-widest" style={{background: theme.accent}}>Recommended</div>
+                                    <div className="px-4 py-3 border-b border-gray-800 bg-gray-900/50 flex justify-between items-center">
+                                        <p className="text-[10px] uppercase tracking-widest font-bold" style={{color: theme.accent}}>Path B: Full Unlock</p>
+                                        <span className="text-[10px] border px-2 py-0.5 rounded font-bold" style={{color: theme.accent, borderColor: theme.accent}}>2 REWARDS</span>
+                                    </div>
+                                    <div className="p-4 space-y-3">
+                                        <div className="flex gap-3 items-start">
+                                            <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black" style={{background: theme.accent}}>1</div>
+                                            <div>
+                                                <p className="text-white text-sm font-bold">Screenshot the certificate above</p>
+                                                <p className="text-gray-500 text-[11px]">Long-press or use your phone's screenshot shortcut.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-3 items-start">
+                                            <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black" style={{background: theme.accent}}>2</div>
+                                            <div>
+                                                <p className="text-white text-sm font-bold">Post it to your story and tag <span style={{color: theme.accent}}>@koutalksmoney</span></p>
+                                                <p className="text-gray-500 text-[11px]">Instagram, X, LinkedIn, or TikTok. Any platform works.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-3 items-start">
+                                            <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black" style={{background: theme.accent}}>3</div>
+                                            <div>
+                                                <p className="text-white text-sm font-bold">DM "ARCHITECT" to <span style={{color: theme.accent}}>@koutalksmoney</span></p>
+                                                <p className="text-gray-500 text-[11px]">Mention you posted so I can verify and send both rewards.</p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-2 ml-10 flex flex-wrap items-center gap-2">
+                                            <span className="text-[10px] text-gray-500">You get:</span>
+                                            <span className="text-[10px] text-white font-bold bg-gray-800 px-2 py-0.5 rounded">Prompt Vault Cheat Sheet</span>
+                                            <span className="text-[10px] text-gray-600">+</span>
+                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{color: theme.accent, background: `${theme.accent}15`, border: `1px solid ${theme.accent}40`}}>Budget Calculator Secret Code</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-3 mb-4">
-                                <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="share-btn share-btn-instagram col-span-2">Post to Instagram</a>
-                                <a href={shareUrls.twitter} target="_blank" className="share-btn share-btn-twitter">Share on X</a>
-                                <a href={shareUrls.linkedin} target="_blank" className="share-btn share-btn-linkedin">LinkedIn</a>
+
+                            {/* SHARE TOOLS (labeled as convenience, not triggers) */}
+                            <div className="border-t border-gray-800 pt-4">
+                                <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Quick Share Links</p>
+                                <p className="text-[10px] text-gray-600 mb-3">These open the app for you. You still need to post + tag to claim.</p>
+                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                    <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="share-btn share-btn-instagram col-span-2">Open Instagram</a>
+                                    <a href={shareUrls.twitter} target="_blank" className="share-btn share-btn-twitter">Open X</a>
+                                    <a href={shareUrls.linkedin} target="_blank" className="share-btn share-btn-linkedin">Open LinkedIn</a>
+                                </div>
                             </div>
+
+                            {/* PRE-WRITTEN CAPTIONS */}
                             <div className="border-t border-gray-800 pt-4 mt-4">
                                 <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Copy Pre-Written Captions</p>
                                 <div className="grid grid-cols-2 gap-2">
                                     {['INSTAGRAM', 'TWITTER', 'LINKEDIN', 'TIKTOK'].map(platform => (
                                         <button key={platform} onClick={() => handleCopy(platform)} className={`share-btn share-btn-copy text-[10px] py-2 ${copiedPlatform === platform ? 'copied' : ''}`}>{copiedPlatform === platform ? '\u2713 Copied' : `${platform} Caption`}</button>
                                     ))}
-                                </div>
-                            </div>
-                            <div className="border-t border-gray-800 pt-4 mt-4">
-                                <div className={`bg-gradient-to-br from-gray-900 to-black border-2 ${theme.border} p-5 rounded-lg`}>
-                                    <div className="flex items-center gap-3 mb-3"><div><p className="text-white font-bold text-sm">Verify Your Architect Status</p><p className="text-gray-400 text-xs">Share your ID. Let others verify you're legit.</p></div></div>
-                                    <a href={`https://spacekou5-oss.github.io/cashvault-funnel/verify.html?id=${architectId}`} target="_blank" className={`block w-full py-3 ${theme.bg} text-black font-bold text-sm rounded text-center transition-all hover:opacity-90`}>Open Verification Page {'\u2192'}</a>
-                                    <p className="text-gray-500 text-[10px] mt-2 text-center">Drop this link in your bio or DMs as proof</p>
                                 </div>
                             </div>
                         </div>
