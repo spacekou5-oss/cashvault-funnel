@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Vault | Executive Access</title>
-    
+    <title>The Vault | AI Command Console</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"> 
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-primary: #0a0e27;
@@ -36,17 +34,11 @@
                         radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
             z-index: -1; animation: floatGradient 20s ease infinite;
         }
-        @keyframes floatGradient {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-20px, -10px); }
-        }
+        @keyframes floatGradient { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-20px, -10px); } }
         .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
         @media (max-width: 768px) { .container { padding: 20px 16px; } }
         h1, h2, h3 { margin: 0; }
-        .gradient-text {
-            background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
+        .gradient-text { background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .glass-card {
             background: linear-gradient(135deg, rgba(26, 31, 58, 0.9) 0%, rgba(21, 25, 51, 0.9) 100%);
             backdrop-filter: blur(10px); border: 1px solid var(--border);
@@ -55,78 +47,52 @@
         }
         @media (max-width: 768px) { .glass-card { padding: 20px 16px; border-radius: 16px; } }
         .input-group { margin-bottom: 0; }
-        .input-group label {
-            display: block; color: var(--text-secondary); font-size: 0.8rem;
-            font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;
-        }
+        .input-group label { display: block; color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
         .premium-input, .premium-textarea {
             width: 100%; background: rgba(10, 14, 39, 0.6); border: 1px solid var(--border);
             border-radius: 12px; padding: 14px; color: white; font-family: 'Inter', sans-serif;
             font-size: 0.95rem; transition: all 0.3s;
         }
-        .premium-input:focus, .premium-textarea:focus {
-            outline: none; border-color: var(--accent-primary);
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
-        }
+        .premium-input:focus, .premium-textarea:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
         .btn-primary {
             background: var(--accent-gradient); color: white; border: none; padding: 16px;
             border-radius: 12px; font-weight: 700; text-transform: uppercase;
             letter-spacing: 0.05em; cursor: pointer; transition: all 0.3s; width: 100%;
             box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); font-size: 0.9rem;
         }
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
-        }
-        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         .nav-pill {
             background: transparent; border: 1px solid var(--border); color: var(--text-secondary);
             padding: 10px 20px; border-radius: 50px; cursor: pointer; transition: all 0.3s;
             font-size: 0.85rem; font-weight: 600; white-space: nowrap;
         }
-        .nav-pill.active {
-            background: var(--accent-gradient); color: white; border-color: transparent;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
+        .nav-pill.active { background: var(--accent-gradient); color: white; border-color: transparent; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
         @media (max-width: 768px) { .nav-pill { padding: 8px 14px; font-size: 0.75rem; } }
-        .sidebar-link {
-            display: block; width: 100%; text-align: center; padding: 14px;
-            border-radius: 12px; border: 1px solid var(--border); color: #cbd5e1;
-            font-size: 0.9rem; font-weight: 600; transition: all 0.3s;
-            text-decoration: none; background: rgba(255, 255, 255, 0.02);
-        }
-        .sidebar-link:hover {
-            border-color: var(--accent-primary); color: white;
-            background: rgba(99, 102, 241, 0.1);
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); transform: translateY(-2px);
-        }
 
-        /* === GOAL-GRADIENT PROGRESS BAR === */
-        .progress-container {
-            background: rgba(10, 14, 39, 0.6); border-radius: 8px;
-            padding: 12px 16px; margin-bottom: 20px; border: 1px solid var(--border);
+        /* Sub-prompt tabs */
+        .sub-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .sub-tab {
+            background: rgba(10, 14, 39, 0.6); border: 1px solid var(--border); color: var(--text-secondary);
+            padding: 6px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s;
+            font-size: 0.75rem; font-weight: 600; white-space: nowrap;
         }
+        .sub-tab.active { background: rgba(99, 102, 241, 0.15); border-color: var(--accent-primary); color: var(--accent-primary); }
+        .sub-tab:hover:not(.active) { border-color: var(--text-muted); color: var(--text-primary); }
+
+        /* Progress bar */
+        .progress-container { background: rgba(10, 14, 39, 0.6); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; border: 1px solid var(--border); }
         .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .progress-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); font-weight: 600; }
         .progress-percent { font-size: 0.8rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; transition: color 0.3s; }
         .progress-bar-track { height: 6px; background: rgba(99, 102, 241, 0.15); border-radius: 3px; overflow: hidden; }
-        .progress-bar-fill {
-            height: 100%; border-radius: 3px;
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s; position: relative;
-        }
-        .progress-bar-fill::after {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
+        .progress-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s; position: relative; }
+        .progress-bar-fill::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); animation: shimmer 2s infinite; }
         @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
-        /* === OPERATIONAL TRANSPARENCY PANEL === */
+        /* Transparency panel */
         .transparency-panel { background: rgba(10, 14, 39, 0.8); border: 1px solid var(--border); border-radius: 12px; margin-top: 16px; overflow: hidden; }
-        .transparency-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 16px; cursor: pointer; background: rgba(99, 102, 241, 0.05);
-            border-bottom: 1px solid var(--border);
-        }
+        .transparency-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; cursor: pointer; background: rgba(99, 102, 241, 0.05); border-bottom: 1px solid var(--border); }
         .transparency-header:hover { background: rgba(99, 102, 241, 0.1); }
         .transparency-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-primary); font-weight: 600; display: flex; align-items: center; gap: 8px; }
         .transparency-toggle { color: var(--text-secondary); font-size: 0.7rem; transition: transform 0.3s; }
@@ -136,20 +102,16 @@
         .transparency-step { display: flex; align-items: center; gap: 12px; padding: 8px 0; opacity: 0.4; transition: all 0.3s; }
         .transparency-step.active { opacity: 1; }
         .transparency-step.complete { opacity: 0.7; }
-        .step-indicator {
-            width: 24px; height: 24px; border-radius: 50%; background: var(--border);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.65rem; font-weight: 700; color: var(--text-secondary); flex-shrink: 0; transition: all 0.3s;
-        }
+        .step-indicator { width: 24px; height: 24px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--text-secondary); flex-shrink: 0; transition: all 0.3s; }
         .transparency-step.active .step-indicator { background: var(--accent-gradient); color: white; box-shadow: 0 0 15px rgba(99, 102, 241, 0.5); }
         .transparency-step.complete .step-indicator { background: var(--success); color: white; }
         .step-text { font-size: 0.8rem; color: var(--text-secondary); }
         .transparency-step.active .step-text { color: var(--text-primary); }
 
-        /* === BLUR GATE OVERLAY === */
+        /* Blur gate */
         .blur-gate-container { position: relative; margin-top: 20px; }
         .blur-gate-preview { background: #0f1221; border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; min-height: 350px; }
-        .blur-gate-visible { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #e2e8f0; white-space: pre-wrap; line-height: 1.6; word-break: break-word; margin-bottom: 12px; }
+        .blur-gate-visible { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #e2e8f0; white-space: pre-wrap; line-height: 1.6; word-break: break-word; margin-bottom: 4px; }
         .blur-gate-blurred { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #e2e8f0; white-space: pre-wrap; line-height: 1.6; word-break: break-word; filter: blur(8px); user-select: none; pointer-events: none; }
         .blur-gate-overlay {
             position: absolute; bottom: 0; left: 0; right: 0;
@@ -160,48 +122,38 @@
         .blur-gate-title { color: var(--gold); font-size: 1rem; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
         .blur-gate-subtitle { color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 16px; max-width: 320px; }
         .blur-gate-trust { display: flex; justify-content: center; gap: 12px; margin-top: 12px; font-size: 0.65rem; color: var(--text-muted); }
+        .beehiiv-gate-container { width: 100%; max-width: 400px; margin: 0 auto; }
 
-        /* === BEEHIIV EMBED CONTAINER === */
-        .beehiiv-gate-container {
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        /* === UNLOCKED OUTPUT === */
-        .output-box {
-            background: #0f1221; border: 1px solid var(--success); border-radius: 12px;
-            padding: 20px; margin-top: 20px; position: relative; animation: peakGlow 0.6s ease-out;
-        }
-        @keyframes peakGlow {
-            0% { box-shadow: 0 0 0 rgba(16, 185, 129, 0); transform: scale(0.98); opacity: 0; }
-            50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.4), 0 0 80px rgba(99, 102, 241, 0.2); }
-            100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); transform: scale(1); opacity: 1; }
-        }
-        .output-box::before {
-            content: ''; position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px;
-            background: linear-gradient(135deg, var(--success), var(--accent-primary));
-            border-radius: 13px; z-index: -1; opacity: 0; animation: borderPulse 2s ease-in-out infinite;
-        }
-        @keyframes borderPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.6; } }
+        /* Unlocked output */
+        .output-box { background: #0f1221; border: 1px solid var(--success); border-radius: 12px; padding: 20px; margin-top: 20px; position: relative; animation: peakGlow 0.6s ease-out; }
+        @keyframes peakGlow { 0% { box-shadow: 0 0 0 rgba(16, 185, 129, 0); transform: scale(0.98); opacity: 0; } 50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.4), 0 0 80px rgba(99, 102, 241, 0.2); } 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); transform: scale(1); opacity: 1; } }
         .output-code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #e2e8f0; white-space: pre-wrap; line-height: 1.6; word-break: break-word; }
+        .output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+        .output-status { color: var(--success); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 6px; }
+        .output-status::before { content: ''; width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .output-scroll { max-height: 280px; overflow-y: auto; }
+        .output-scroll::-webkit-scrollbar { width: 6px; }
+        .output-scroll::-webkit-scrollbar-track { background: var(--border); border-radius: 3px; }
+        .output-scroll::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 3px; }
+        .copy-btn { font-size: 0.75rem; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; font-weight: 600; }
+        .copy-btn:hover { border-color: var(--accent-primary); color: white; }
+        .copy-btn.copied { background: var(--success); border-color: var(--success); color: white; }
+        .save-btn { font-size: 0.75rem; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--gold); background: rgba(251, 191, 36, 0.1); color: var(--gold); cursor: pointer; font-weight: 600; margin-left: 8px; transition: all 0.15s; }
+        .save-btn:hover { background: var(--gold); color: #000; }
+        .save-btn.saved-flash { background: var(--success); border-color: var(--success); color: white; animation: saveFlash 0.3s ease-out forwards; }
+        @keyframes saveFlash { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        /* === LOADING STATE === */
+        /* Loading state */
         .loading-container { text-align: center; padding: 30px 20px; }
-        .loading-spinner {
-            width: 48px; height: 48px; border: 3px solid var(--border); border-top-color: var(--accent-primary);
-            border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;
-        }
+        .loading-spinner { width: 48px; height: 48px; border: 3px solid var(--border); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { font-size: 0.85rem; color: var(--accent-primary); font-weight: 600; margin-bottom: 4px; }
         .loading-subtext { font-size: 0.75rem; color: var(--text-secondary); }
 
-        /* === THE VAULT (PRIMARY) === */
-        .vault-container { margin-bottom: 25px; transition: all 0.3s ease; }
-        .vault-card {
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(245, 158, 11, 0.04) 100%);
-            border: 2px solid rgba(251, 191, 36, 0.3); border-radius: 20px; overflow: hidden; transition: all 0.3s;
-        }
+        /* Vault panel */
+        .vault-container { margin-bottom: 25px; }
+        .vault-card { background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(245, 158, 11, 0.04) 100%); border: 2px solid rgba(251, 191, 36, 0.3); border-radius: 20px; overflow: hidden; transition: all 0.3s; }
         .vault-card.expanded { border-color: rgba(251, 191, 36, 0.5); box-shadow: 0 0 40px rgba(251, 191, 36, 0.15); }
         .vault-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; cursor: pointer; transition: background 0.3s; }
         .vault-header:hover { background: rgba(251, 191, 36, 0.05); }
@@ -219,8 +171,6 @@
         .vault-empty-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5; }
         .vault-empty-text { font-size: 0.9rem; margin-bottom: 8px; }
         .vault-empty-hint { font-size: 0.75rem; }
-
-        /* === VAULT PROMPT CARDS === */
         .vault-prompt-card { background: rgba(10, 14, 39, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; transition: all 0.2s; }
         .vault-prompt-card:hover { border-color: rgba(251, 191, 36, 0.3); }
         .vault-prompt-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
@@ -232,16 +182,11 @@
         .vault-prompt-btn:hover { border-color: var(--accent-primary); color: white; }
         .vault-prompt-btn.copied { background: var(--success); border-color: var(--success); color: white; }
         .vault-prompt-btn.delete:hover { border-color: #ef4444; color: #ef4444; }
-        .vault-prompt-preview { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-secondary); white-space: pre-wrap; word-break: break-word; line-height: 1.5; cursor: pointer; transition: max-height 0.3s; }
+        .vault-prompt-preview { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-secondary); white-space: pre-wrap; word-break: break-word; line-height: 1.5; cursor: pointer; }
         .vault-prompt-expand { font-size: 0.7rem; color: var(--accent-primary); font-weight: 600; margin-top: 8px; cursor: pointer; }
 
-        /* === VAULT POINTER NOTIFICATION === */
-        .vault-pointer {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
-            border: 2px solid var(--success); border-radius: 12px; padding: 16px 20px;
-            margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
-            animation: pointerPulse 2s ease-in-out infinite, fadeSlideIn 0.5s ease;
-        }
+        /* Vault pointer */
+        .vault-pointer { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%); border: 2px solid var(--success); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; animation: pointerPulse 2s ease-in-out infinite, fadeSlideIn 0.5s ease; }
         @keyframes pointerPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 50% { box-shadow: 0 0 20px 4px rgba(16, 185, 129, 0.2); } }
         @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         .vault-pointer-icon { font-size: 1.5rem; }
@@ -249,66 +194,46 @@
         .vault-pointer-title { color: var(--success); font-size: 0.9rem; font-weight: 700; margin-bottom: 2px; }
         .vault-pointer-subtitle { color: var(--text-secondary); font-size: 0.75rem; }
         .vault-pointer-dismiss { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; padding: 4px; line-height: 1; }
-        .vault-pointer-dismiss:hover { color: white; }
 
-        /* === WELCOME BACK BANNER === */
-        .welcome-back-banner {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%);
-            border: 2px solid var(--success); border-radius: 16px; padding: 20px 24px;
-            margin-bottom: 25px; display: flex; align-items: center; gap: 16px;
-            animation: fadeSlideIn 0.5s ease;
-        }
+        /* Welcome back banner */
+        .welcome-back-banner { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%); border: 2px solid var(--success); border-radius: 16px; padding: 20px 24px; margin-bottom: 25px; display: flex; align-items: center; gap: 16px; animation: fadeSlideIn 0.5s ease; }
         .welcome-back-icon { font-size: 2rem; }
         .welcome-back-content { flex: 1; }
         .welcome-back-title { color: var(--success); font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
         .welcome-back-subtitle { color: var(--text-secondary); font-size: 0.85rem; }
         .welcome-back-dismiss { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.5rem; padding: 4px; line-height: 1; }
-        .welcome-back-dismiss:hover { color: white; }
 
-        /* === ACHIEVEMENT/CERTIFICATE === */
-        .achievement-banner {
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(251, 191, 36, 0.05) 100%);
-            border: 2px solid rgba(251, 191, 36, 0.4); border-radius: 16px; padding: 25px;
-            margin-bottom: 25px; text-align: center; animation: achievementReveal 0.6s ease; display: none;
-        }
-        .achievement-banner.show { display: block; }
-        @keyframes achievementReveal { 0% { opacity: 0; transform: scale(0.9); } 50% { transform: scale(1.02); } 100% { opacity: 1; transform: scale(1); } }
-        .achievement-icon { font-size: 2.5rem; margin-bottom: 15px; }
-        .achievement-title { color: var(--gold); font-size: 1.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-        .achievement-subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px; }
-        .achievement-card { background: linear-gradient(135deg, #0a0e27 0%, #151933 100%); border: 2px solid var(--gold); border-radius: 12px; padding: 20px; max-width: 350px; margin: 0 auto 20px; position: relative; }
-        .achievement-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold), #f59e0b, var(--gold)); }
-        .achievement-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .achievement-card-logo { font-size: 0.75rem; font-weight: 700; color: var(--text-primary); }
-        .achievement-card-badge { font-size: 0.6rem; padding: 4px 10px; background: rgba(251, 191, 36, 0.2); border-radius: 20px; color: var(--gold); font-weight: 700; text-transform: uppercase; }
-        .achievement-card-title { font-size: 1.1rem; font-weight: 800; color: var(--gold); margin-bottom: 5px; }
-        .achievement-card-name { font-size: 0.85rem; color: var(--text-primary); font-weight: 600; margin-bottom: 15px; }
-        .achievement-card-stats { display: flex; justify-content: space-around; padding-top: 15px; border-top: 1px solid var(--border); }
-        .achievement-stat { text-align: center; }
-        .achievement-stat-value { font-size: 1.2rem; font-weight: 800; color: var(--success); }
-        .achievement-stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; }
-        .achievement-share-btns { display: flex; gap: 10px; justify-content: center; }
-        .achievement-share-btn { padding: 10px 20px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; border: none; }
-        .achievement-share-btn:hover { transform: translateY(-2px); }
-        .achievement-share-btn.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; }
-        .achievement-share-btn.copy { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
-        .achievement-share-btn.copy.copied { background: var(--success); border-color: var(--success); }
+        /* Cross-app bridge */
+        .cross-bridge { background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 12px; padding: 16px 20px; margin-top: 16px; display: flex; align-items: center; gap: 14px; animation: fadeSlideIn 0.4s ease; }
+        .cross-bridge-icon { font-size: 1.5rem; }
+        .cross-bridge-content { flex: 1; }
+        .cross-bridge-text { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px; }
+        .cross-bridge-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; color: var(--accent-primary); text-decoration: none; transition: color 0.2s; }
+        .cross-bridge-link:hover { color: #8b5cf6; }
 
-        /* === INLINE VAULT GUIDE === */
-        .vault-guide-inline {
-            display: flex; align-items: flex-start; gap: 12px;
-            margin-top: 14px; padding: 14px 16px;
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(251, 191, 36, 0.03) 100%);
-            border: 1px solid rgba(251, 191, 36, 0.25); border-radius: 10px;
-            animation: fadeSlideIn 0.4s ease;
+        /* Mobile progress bar */
+        .mobile-progress { display: none; }
+        @media (max-width: 1024px) {
+            .mobile-progress { display: flex; justify-content: space-around; padding: 10px 16px; background: rgba(26, 31, 58, 0.9); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 16px; font-size: 0.7rem; }
+            .mobile-progress-item { text-align: center; }
+            .mobile-progress-value { font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+            .mobile-progress-label { color: var(--text-muted); font-size: 0.6rem; text-transform: uppercase; }
+            .sidebar-desktop { display: none; }
         }
-        .vault-guide-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+
+        /* Inline vault guide */
+        .vault-guide-inline { display: flex; align-items: flex-start; gap: 12px; margin-top: 14px; padding: 14px 16px; background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(251, 191, 36, 0.03) 100%); border: 1px solid rgba(251, 191, 36, 0.25); border-radius: 10px; animation: fadeSlideIn 0.4s ease; }
+        .vault-guide-icon { font-size: 1.2rem; flex-shrink: 0; }
         .vault-guide-content { flex: 1; }
         .vault-guide-title { font-size: 0.8rem; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
         .vault-guide-text { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.55; }
         .vault-guide-text strong { color: var(--text-primary); font-weight: 600; }
 
-        /* === GRID LAYOUTS === */
+        /* Sidebar */
+        .sidebar-link { display: block; width: 100%; text-align: center; padding: 14px; border-radius: 12px; border: 1px solid var(--border); color: #cbd5e1; font-size: 0.9rem; font-weight: 600; transition: all 0.3s; text-decoration: none; background: rgba(255, 255, 255, 0.02); }
+        .sidebar-link:hover { border-color: var(--accent-primary); color: white; background: rgba(99, 102, 241, 0.1); box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); transform: translateY(-2px); }
+
+        /* Grid */
         .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
         @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; gap: 12px; } }
         .main-grid { display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
@@ -319,179 +244,415 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.5s ease forwards; }
         .nav-container { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .nav-descriptor { text-align: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+        .nav-descriptor-text { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+        .nav-descriptor-sub { font-size: 0.7rem; color: var(--text-muted); }
         .module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 12px; }
         .module-title { font-size: 1.15rem; font-weight: 700; color: white; }
-        .module-tabs { display: flex; gap: 12px; font-size: 0.75rem; }
-        .module-tab { background: none; border: none; cursor: pointer; color: var(--text-secondary); font-weight: 600; padding: 0; transition: color 0.2s; }
-        .module-tab.active { color: var(--accent-primary); }
-        .module-tab-divider { color: var(--border); }
-        .copy-btn { font-size: 0.75rem; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; font-weight: 600; }
-        .copy-btn:hover { border-color: var(--accent-primary); color: white; }
-        .copy-btn.copied { background: var(--success); border-color: var(--success); color: white; }
-
-        /* === SAVE BUTTON === */
-        .save-btn {
-            font-size: 0.75rem; padding: 6px 12px; border-radius: 6px;
-            border: 1px solid var(--gold); background: rgba(251, 191, 36, 0.1);
-            color: var(--gold); cursor: pointer; font-weight: 600; margin-left: 8px;
-            position: relative; overflow: hidden;
-            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
-        }
-        .save-btn:hover { background: var(--gold); color: #000; }
-        .save-btn.saved-flash {
-            background: var(--success); border-color: var(--success); color: white;
-            animation: saveFlash 0.3s ease-out forwards;
-        }
-        @keyframes saveFlash {
-            0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            50%  { transform: scale(1.1);  box-shadow: 0 0 18px 4px rgba(16, 185, 129, 0.45); }
-            100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-
-        .output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
-        .output-status { color: var(--success); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 6px; }
-        .output-status::before { content: ''; width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .output-scroll { max-height: 280px; overflow-y: auto; }
-        .output-scroll::-webkit-scrollbar { width: 6px; }
-        .output-scroll::-webkit-scrollbar-track { background: var(--border); border-radius: 3px; }
-        .output-scroll::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 3px; }
+        .section-divider { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
         .footer { text-align: center; color: var(--text-secondary); font-size: 0.7rem; margin-top: 40px; opacity: 0.6; }
+        .footer a { color: var(--gold); text-decoration: none; }
         .tip-card { background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); border-color: rgba(99, 102, 241, 0.3); }
         .tip-label { color: var(--accent-primary); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.1em; }
         .tip-text { color: #cbd5e1; font-size: 0.85rem; line-height: 1.5; min-height: 50px; }
         .assets-label { color: var(--text-secondary); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.15em; }
-        .section-divider { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
     </style>
 </head>
 <body>
     <div id="root"></div>
-
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, useRef, useMemo } = React;
 
         const CONFIG = {
             BEEHIIV_EMBED_URL: "https://subscribe-forms.beehiiv.com/0eaa449a-fbba-4cff-96e5-88b3f0b82849",
             BRIDGE_PAGE_URL: "https://spacekou5-oss.github.io/cashvault-funnel/bridge-promptvault.html",
             LINKS: {
                 INSTAGRAM: "https://instagram.com/koutalksmoney",
-                CHATGPT: "https://chat.openai.com"
+                CHATGPT: "https://chat.openai.com",
+                AUTOPILOT: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html",
+                INVESTMENT: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html",
+                FREEDOM: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html",
+                CLUB800: "https://spacekou5-oss.github.io/cashvault-funnel/800-club.html",
+                BUDGET: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html"
             }
         };
 
-        const PROMPTS = {
-            RESUME: `You are an executive resume writer who has placed candidates at Fortune 500 companies.
-I'm applying for a {role} position at {company}. Here is my current resume:
-{resume}
-
-Your task:
-1. Rewrite every bullet point using the "Action Verb + Metric + Impact" formula
-2. Remove weak words like "responsible for," "helped with," "assisted"
-3. Add quantifiable results wherever possible (even if I have to estimate)
-4. Optimize for ATS (Applicant Tracking Systems) by including keywords from this job description:
-{jobDesc}
-
-Output the new resume in a clean, copyable format.`,
-
-            COLD_EMAIL: `You are a copywriter who specializes in persuasive cold emails that get responses.
-I'm applying for {role} at {company}. I don't have connections there, so I need a cover letter that makes them want to meet me.
-
-Here's what you need to know:
-- The job description: {jobDesc}
-- My top 3 relevant skills/achievements: {skills}
-- Why I actually want this job: {reason}
-
-Write a 3-paragraph cover letter that:
-1. Opens with a hook (not "I'm excited to apply...")
-2. Proves I can solve their problem with a specific example
-3. Ends with a confident ask for an interview
-Keep it under 200 words. Make it sound like a human, not a robot.`,
-
-            SIDE_HUSTLE: `You are a business strategist who helps people turn their existing skills into income streams.
-I want to start a side hustle, but I don't know what I'm good at. Let's reverse-engineer it.
-
-Here are my answers to your audit questions:
-1. Friends ask me for help with: {friendsAsk}
-2. Tasks easy for me but hard for others: {easyTask}
-3. Free time interests: {interests}
-4. Recent problem solved: {problemSolved}
-
-Give me 3 side hustle ideas based on my responses. For each idea:
-- Name the service
-- Define the target customer
-- Estimate how much I could charge
-- Outline the 3-step plan to get my first client in 30 days.`,
-
-            FIRE_CALC: `You are a financial independence advisor who helps people calculate their freedom number.
-Here's my info:
-- Current age: {age}
-- Desired retirement age: {retireAge}
-- Annual expenses (estimate): \${expenses}
-- Current invested assets: \${invested}
-- Monthly investment amount: \${monthlyInvest}
-- Expected return rate: 8%
-
-Calculate:
-1. My FIRE number (total needed to live off 4% withdrawal)
-2. How long until I hit that number at my current savings rate
-3. If I want to retire by {retireAge}, how much do I need to invest monthly?
-4. What happens if I increase my income by 20% and invest it all?
-Show me the math in simple terms. Give me hope, but be realistic.`
+        /* ========================================
+           PROMPT TEMPLATES: 21 TOTAL (7 PER CAT)
+           ======================================== */
+        const PROMPT_DB = {
+            CAREER: [
+                { id: 'RESUME', name: 'Resume Rewriter', icon: '\u{1F4C4}',
+                  fields: [
+                      { key: 'role', label: 'Target Role', type: 'input', placeholder: 'e.g. Product Manager', required: true, grid: true },
+                      { key: 'company', label: 'Target Company', type: 'input', placeholder: 'e.g. Google', required: true, grid: true },
+                      { key: 'resume', label: 'Paste Your Current Resume', type: 'textarea', placeholder: 'Paste your full resume text here...', required: true },
+                      { key: 'jobDesc', label: 'Job Description', type: 'textarea', placeholder: 'Paste the job posting requirements...', required: true }
+                  ],
+                  template: `You are an executive resume writer who has placed candidates at Fortune 500 companies.\nI'm applying for a {role} position at {company}. Here is my current resume:\n{resume}\n\nYour task:\n1. Rewrite every bullet point using the "Action Verb + Metric + Impact" formula\n2. Remove weak words like "responsible for," "helped with," "assisted"\n3. Add quantifiable results wherever possible (even estimated)\n4. Optimize for ATS by including keywords from this job description:\n{jobDesc}\n\nOutput the new resume in a clean, copyable format.`,
+                  conditions: [
+                      { check: d => d.resume && d.resume.length < 200, inject: 'IMPORTANT: The resume provided is very short. Expand each bullet point with 2-3 estimated metrics and quantifiable outcomes. Prioritize showing impact over listing responsibilities.' },
+                      { check: d => d.jobDesc && /leader|manage|direct|team/i.test(d.jobDesc), inject: 'NOTE: This job description emphasizes leadership. Highlight team management, stakeholder communication, and cross-functional collaboration in every relevant section.' }
+                  ],
+                  bridge: { icon: '\u{1F4CA}', text: 'Building wealth starts with income. See what your paycheck could become over 30 years.', cta: 'Open Investment Simplifier \u2192', link: CONFIG.LINKS.INVESTMENT }
+                },
+                { id: 'COLD_EMAIL', name: 'Cold Email / Cover Letter', icon: '\u2709\uFE0F',
+                  fields: [
+                      { key: 'role', label: 'Target Role', type: 'input', placeholder: 'e.g. Marketing Analyst', required: true, grid: true },
+                      { key: 'company', label: 'Target Company', type: 'input', placeholder: 'e.g. Nike', required: true, grid: true },
+                      { key: 'jobDesc', label: 'Job Description', type: 'textarea', placeholder: 'Key requirements from the listing...', required: true },
+                      { key: 'skills', label: 'Top 3 Skills / Achievements', type: 'input', placeholder: 'e.g. SQL, led $2M campaign, 40% conversion lift', required: true },
+                      { key: 'reason', label: 'Why This Job (Real Talk)', type: 'input', placeholder: 'Your authentic, non-generic reason', required: true }
+                  ],
+                  template: `You are a copywriter who specializes in persuasive cold outreach that gets responses.\nI'm applying for {role} at {company}. I need a cover letter that makes them want to meet me.\n\nJob description: {jobDesc}\nMy top 3 relevant skills/achievements: {skills}\nWhy I actually want this job: {reason}\n\nWrite a 3-paragraph cover letter that:\n1. Opens with a hook (not "I'm excited to apply...")\n2. Proves I can solve their problem with a specific example\n3. Ends with a confident ask for an interview\nKeep it under 200 words. Make it sound human, not robotic.`,
+                  conditions: [
+                      { check: d => d.skills && d.skills.split(',').length < 3, inject: 'NOTE: Fewer than 3 skills were provided. Ask the user to identify additional transferable skills from their experience that align with the job requirements.' }
+                  ],
+                  bridge: { icon: '\u{1F4CA}', text: 'Building wealth starts with income. See what your paycheck becomes over 30 years.', cta: 'Open Investment Simplifier \u2192', link: CONFIG.LINKS.INVESTMENT }
+                },
+                { id: 'LINKEDIN', name: 'LinkedIn Optimizer', icon: '\u{1F310}',
+                  fields: [
+                      { key: 'currentHeadline', label: 'Current LinkedIn Headline', type: 'input', placeholder: 'e.g. "Student at State University"', required: true },
+                      { key: 'targetRole', label: 'Target Role / Industry', type: 'input', placeholder: 'e.g. Product Management in SaaS', required: true },
+                      { key: 'topSkills', label: 'Top 5 Skills', type: 'input', placeholder: 'e.g. Python, data analysis, Figma, copywriting, sales', required: true },
+                      { key: 'experienceSummary', label: 'Brief Experience Summary', type: 'textarea', placeholder: 'Projects, internships, freelance work, relevant coursework...', required: true }
+                  ],
+                  template: `You are a LinkedIn optimization expert who helps professionals get found by recruiters.\n\nCurrent headline: {currentHeadline}\nTarget role/industry: {targetRole}\nTop skills: {topSkills}\nExperience summary: {experienceSummary}\n\nRewrite my LinkedIn profile:\n1. Create 3 headline options (keyword-rich, under 120 characters)\n2. Write an "About" section (300 words max) using the formula: Hook + Story + Proof + CTA\n3. Suggest 10 LinkedIn skills to add (ordered by recruiter search volume for my target role)\n4. Rewrite my experience bullets using "Result + How + Scale" format\n5. Give me 3 connection request templates for reaching hiring managers\n\nMake the tone confident but approachable. No buzzwords like "passionate" or "results-driven."`,
+                  conditions: [
+                      { check: d => d.experienceSummary && d.experienceSummary.length < 100, inject: 'NOTE: Experience summary is brief. This person is likely early-career. Focus on potential, side projects, coursework, and transferable skills rather than years of experience. Frame everything around capability, not tenure.' }
+                  ],
+                  bridge: { icon: '\u2709\uFE0F', text: 'Profile optimized? Now write the outreach email that gets responses.', cta: 'Generate Cold Email Prompt \u2192', link: null, internal: 'COLD_EMAIL' }
+                },
+                { id: 'INTERVIEW', name: 'Interview Prep (STAR)', icon: '\u{1F3AF}',
+                  fields: [
+                      { key: 'role', label: 'Role You\'re Interviewing For', type: 'input', placeholder: 'e.g. Data Analyst at Spotify', required: true },
+                      { key: 'company', label: 'Company Name', type: 'input', placeholder: 'e.g. Spotify', required: true },
+                      { key: 'topAchievements', label: 'Your Top 3 Achievements', type: 'textarea', placeholder: 'Describe 3 things you accomplished that you\'re proud of...', required: true },
+                      { key: 'biggestChallenge', label: 'Biggest Professional Challenge', type: 'input', placeholder: 'A time you overcame something difficult', required: true }
+                  ],
+                  template: `You are an interview coach who has prepped candidates for top companies.\n\nI'm interviewing for {role} at {company}.\n\nMy top 3 achievements:\n{topAchievements}\n\nMy biggest professional challenge:\n{biggestChallenge}\n\nPrepare me for the interview:\n1. Generate the 7 most likely behavioral questions for this role\n2. For each question, write a STAR-format answer (Situation, Task, Action, Result) using my actual experience above\n3. Include 3 smart questions I should ask THEM (specific to {company}, not generic)\n4. Give me a 60-second "elevator pitch" that summarizes why I'm the right hire\n\nMake the answers sound natural, not rehearsed. Include specific numbers where possible.`,
+                  conditions: [
+                      { check: d => d.role && /manager|lead|director|vp/i.test(d.role), inject: 'NOTE: This is a leadership-level role. Add 3 additional leadership-specific behavioral questions: conflict resolution, team motivation, and strategic decision-making. Frame STAR answers to emphasize people management and business impact.' },
+                      { check: d => d.topAchievements && d.topAchievements.length < 150, inject: 'NOTE: Achievements section is brief. Ask the user to expand each achievement with: what they did, the measurable result, and what they learned. Sparse input leads to generic STAR answers.' }
+                  ],
+                  bridge: { icon: '\u{1F4C4}', text: 'Use these STAR stories to strengthen your resume bullets too.', cta: 'Generate Resume Prompt \u2192', link: null, internal: 'RESUME' }
+                },
+                { id: 'SALARY', name: 'Salary Negotiation Script', icon: '\u{1F4B0}',
+                  fields: [
+                      { key: 'offeredSalary', label: 'Offered Salary ($)', type: 'input', placeholder: 'e.g. 75000', required: true, grid: true },
+                      { key: 'targetSalary', label: 'Target Salary ($)', type: 'input', placeholder: 'e.g. 90000', required: true, grid: true },
+                      { key: 'role', label: 'Role Title', type: 'input', placeholder: 'e.g. Software Engineer', required: true },
+                      { key: 'company', label: 'Company', type: 'input', placeholder: 'e.g. Stripe', required: true },
+                      { key: 'leverage', label: 'Your Leverage (competing offers, unique skills)', type: 'textarea', placeholder: 'e.g. "I have a competing offer from Company X at $85K" or "I\'m the only candidate with Python + SQL + Tableau"', required: true }
+                  ],
+                  template: `You are a salary negotiation expert who has coached 500+ professionals to earn more.\n\nOffer details:\n- Role: {role} at {company}\n- Offered: ${'{offeredSalary}'}/year\n- My target: ${'{targetSalary}'}/year\n- My leverage: {leverage}\n\nGenerate a complete negotiation playbook:\n1. A word-for-word script for the salary conversation (what to say when they give the number)\n2. 3 counter-offer email templates (grateful but firm, evidence-based, competing offer leverage)\n3. A list of non-salary items to negotiate if they can't move on base (signing bonus, equity, PTO, remote days, title)\n4. The exact phrases to AVOID (and what to say instead)\n5. A "walk-away" framework: at what number should I decline?\n\nTone: confident, professional, zero desperation.`,
+                  conditions: [
+                      { check: d => d.offeredSalary && d.targetSalary && (parseInt(d.targetSalary) / parseInt(d.offeredSalary) > 1.3), inject: 'REALITY CHECK: Your target is 30%+ above the offer. This is a large ask. The script will include a tiered approach: lead with total compensation (base + bonus + equity), not just base salary. Include market data justification and be prepared for a middle-ground counter.' },
+                      { check: d => d.leverage && /offer|competing/i.test(d.leverage), inject: 'LEVERAGE DETECTED: Competing offer mentioned. The script will use the "I want to work here, but I need to be fair to myself" framework. Never bluff. Only reference real competing offers.' }
+                  ],
+                  bridge: { icon: '\u{1F4CA}', text: 'You just negotiated more money. See what that extra income becomes over 30 years of compounding.', cta: 'Open Investment Simplifier \u2192', link: CONFIG.LINKS.INVESTMENT }
+                },
+                { id: 'JOB_SEARCH', name: '30-Day Job Search Plan', icon: '\u{1F5D3}\uFE0F',
+                  fields: [
+                      { key: 'currentStatus', label: 'Current Status', type: 'input', placeholder: 'employed, unemployed, or student', required: true, grid: true },
+                      { key: 'targetRole', label: 'Target Role', type: 'input', placeholder: 'e.g. UX Designer', required: true, grid: true },
+                      { key: 'targetIndustry', label: 'Target Industry', type: 'input', placeholder: 'e.g. FinTech, Healthcare, E-commerce', required: true },
+                      { key: 'hoursPerWeek', label: 'Hours/Week for Job Search', type: 'input', placeholder: 'e.g. 10', required: true }
+                  ],
+                  template: `You are a career strategist who helps people land jobs in 30 days or less.\n\nMy situation:\n- Current status: {currentStatus}\n- Target role: {targetRole}\n- Target industry: {targetIndustry}\n- Hours per week I can dedicate: {hoursPerWeek}\n\nCreate a detailed 30-day job search plan:\n\nWeek 1 (Foundation): LinkedIn optimization, resume tailoring, target company list\nWeek 2 (Outreach): Networking strategy, cold emails, informational interviews\nWeek 3 (Applications): Strategic applications (quality over quantity), follow-up sequences\nWeek 4 (Interviews): Prep, practice, and closing\n\nFor each week, give me:\n- Daily tasks (broken into my {hoursPerWeek} hours/week)\n- Specific scripts and templates I can copy-paste\n- Metrics to track (applications sent, responses received, interviews scheduled)\n\nNo generic advice. Every action item should be specific enough to execute immediately.`,
+                  conditions: [
+                      { check: d => d.currentStatus && /unemploy/i.test(d.currentStatus), inject: 'URGENCY MODE: You are currently unemployed. The plan will frontload high-impact activities in Week 1. Daily task load increases. Add a financial buffer strategy: estimate how many weeks of runway you have, and set a decision deadline for accepting offers vs. holding out.' },
+                      { check: d => d.currentStatus && /student/i.test(d.currentStatus), inject: 'STUDENT MODE: You are a student. The plan will focus on internship-to-hire pipelines, campus recruiting timelines, portfolio building, and leveraging professors/alumni networks. Applications should target companies with structured new-grad programs.' }
+                  ],
+                  bridge: { icon: '\u{1F680}', text: 'While you search, start generating income on the side.', cta: 'Generate Side Hustle Prompt \u2192', link: null, internalTab: 'VENTURE' }
+                },
+                { id: 'PERFORMANCE', name: 'Performance Review Self-Assessment', icon: '\u{1F4CB}',
+                  fields: [
+                      { key: 'role', label: 'Your Current Role', type: 'input', placeholder: 'e.g. Marketing Coordinator', required: true },
+                      { key: 'keyProjects', label: 'Key Projects This Period', type: 'textarea', placeholder: 'List your top 3-5 projects and what you contributed...', required: true },
+                      { key: 'metrics', label: 'Measurable Results', type: 'textarea', placeholder: 'Any numbers: revenue, users, time saved, % improvements...', required: true },
+                      { key: 'goalForNextYear', label: 'Goal for Next Review Period', type: 'input', placeholder: 'e.g. Get promoted to Senior, lead a cross-functional team', required: true }
+                  ],
+                  template: `You are a career coach who helps professionals write self-assessments that lead to promotions.\n\nMy details:\n- Current role: {role}\n- Key projects: {keyProjects}\n- Measurable results: {metrics}\n- Goal for next period: {goalForNextYear}\n\nWrite my performance review self-assessment:\n1. Executive Summary (3 sentences max, framing my overall impact)\n2. Key Accomplishments (rewrite each project using "Challenge, Action, Result" format with specific metrics)\n3. Areas of Growth (frame 1-2 development areas as strengths-in-progress, not weaknesses)\n4. Forward-Looking Goals (align my {goalForNextYear} with company objectives)\n5. The "Ask" (a subtle but clear case for promotion/raise based on evidence above)\n\nTone: factual, evidence-heavy, confident without arrogance. No filler words.`,
+                  conditions: [
+                      { check: d => d.metrics && d.metrics.length < 80, inject: 'NOTE: Metrics section is sparse. Estimate impact where exact numbers are unavailable. Use ranges: "saved approximately 10-15 hours/week" or "contributed to a ~20% improvement in team velocity." Estimated metrics beat no metrics.' },
+                      { check: d => d.goalForNextYear && /promot|senior|lead|manag/i.test(d.goalForNextYear), inject: 'PROMOTION TRACK: Your goal signals a move to the next level. Frame every accomplishment as evidence of already operating at that level. Use phrases like "took ownership of," "drove cross-functional alignment," and "mentored junior team members."' }
+                  ],
+                  bridge: { icon: '\u{1F4B0}', text: 'Now use this evidence in your raise conversation.', cta: 'Generate Salary Negotiation Script \u2192', link: null, internal: 'SALARY' }
+                }
+            ],
+            VENTURE: [
+                { id: 'SIDE_HUSTLE', name: 'Side Hustle Finder', icon: '\u{1F680}',
+                  fields: [
+                      { key: 'friendsAsk', label: 'What do friends ask you for help with?', type: 'input', placeholder: 'e.g. Travel planning, Excel help, outfit advice', required: true },
+                      { key: 'easyTask', label: 'What is easy for you but hard for others?', type: 'input', placeholder: 'e.g. Organizing files, public speaking, cooking', required: true },
+                      { key: 'interests', label: 'Free time interests?', type: 'input', placeholder: 'e.g. Fitness, crypto, video editing', required: true },
+                      { key: 'problemSolved', label: 'Recent problem you solved creatively?', type: 'input', placeholder: 'e.g. Automated my budgeting with a spreadsheet', required: true }
+                  ],
+                  template: `You are a business strategist who helps people turn existing skills into income.\n\nMy skill audit:\n1. Friends ask me for help with: {friendsAsk}\n2. Tasks easy for me but hard for others: {easyTask}\n3. Free time interests: {interests}\n4. Recent problem I solved: {problemSolved}\n\nGive me 3 side hustle ideas based on my answers. For each:\n- Name the service\n- Define the ideal customer\n- Estimate pricing ($)\n- Outline a 3-step plan to land the first paying client in 30 days\n- Estimate monthly income potential at 5 clients vs. 20 clients\n\nBe specific. No "start a blog" or "become a freelancer" generics.`,
+                  conditions: [],
+                  bridge: { icon: '\u{1F4B0}', text: 'Ready to automate your new income? Install the money machine.', cta: 'Open Autopilot System \u2192', link: CONFIG.LINKS.AUTOPILOT }
+                },
+                { id: 'CLIENT_OUTREACH', name: 'Client Outreach Script', icon: '\u{1F4E9}',
+                  fields: [
+                      { key: 'service', label: 'Your Service', type: 'input', placeholder: 'e.g. Social media management for restaurants', required: true },
+                      { key: 'targetClient', label: 'Ideal Client', type: 'input', placeholder: 'e.g. Local restaurant owners with <1000 Instagram followers', required: true },
+                      { key: 'uniqueValue', label: 'What Makes You Different', type: 'input', placeholder: 'e.g. I guarantee 3x engagement in 30 days or money back', required: true },
+                      { key: 'pricing', label: 'Your Price Point', type: 'input', placeholder: 'e.g. $500/month', required: true }
+                  ],
+                  template: `You are a sales copywriter who helps freelancers land their first clients.\n\nMy service: {service}\nIdeal client: {targetClient}\nWhat makes me different: {uniqueValue}\nPrice: {pricing}\n\nGenerate a complete client acquisition kit:\n1. Cold DM script for Instagram (under 80 words, feels personal not salesy)\n2. Cold email template (3 paragraphs: hook, proof, ask)\n3. Follow-up sequence (Day 3, Day 7, Day 14) for non-responders\n4. "Discovery call" script: 5 questions that uncover pain points and lead to a close\n5. Objection handling: responses to "too expensive," "I'll think about it," and "I already have someone"\n\nMake every word earn its place. No fluff.`,
+                  conditions: [
+                      { check: d => d.pricing && parseInt(d.pricing.replace(/[^0-9]/g, '')) < 50, inject: 'PRICING ALERT: Your price point is very low. Consider value-based pricing. The outreach script will include a "price anchor" technique: mention the cost of NOT solving their problem before revealing your price.' }
+                  ],
+                  bridge: { icon: '\u{1F4B5}', text: 'New income coming in? See how it changes your budget.', cta: 'Open Budget Calculator \u2192', link: CONFIG.LINKS.BUDGET }
+                },
+                { id: 'LANDING_PAGE', name: 'Landing Page Copy', icon: '\u{1F4BB}',
+                  fields: [
+                      { key: 'service', label: 'Service / Product', type: 'input', placeholder: 'e.g. Logo design for startups', required: true },
+                      { key: 'targetAudience', label: 'Target Audience', type: 'input', placeholder: 'e.g. Pre-seed startup founders who need branding fast', required: true },
+                      { key: 'mainBenefit', label: 'Main Benefit (1 sentence)', type: 'input', placeholder: 'e.g. A professional brand identity in 48 hours, not 4 weeks', required: true },
+                      { key: 'pricing', label: 'Pricing', type: 'input', placeholder: 'e.g. $299 flat rate', required: true }
+                  ],
+                  template: `You are a conversion copywriter who writes landing pages that sell.\n\nService: {service}\nTarget audience: {targetAudience}\nMain benefit: {mainBenefit}\nPricing: {pricing}\n\nWrite the complete copy for a single-page website:\n1. Hero section: Headline (10 words max) + Subheadline + CTA button text\n2. Problem section: 3 pain points my audience feels (use their language)\n3. Solution section: How my service solves each pain point\n4. Social proof section: A testimonial template I can fill in + 3 trust signals\n5. Pricing section: Present the price with an anchor (show what they'd pay elsewhere)\n6. FAQ section: 5 objections disguised as questions, with confident answers\n7. Final CTA: urgency-driven close\n\nWrite like a human, not a marketing textbook. Short sentences. No jargon.`,
+                  conditions: [],
+                  bridge: { icon: '\u{1F4E9}', text: 'Page is ready. Now write the outreach to drive traffic to it.', cta: 'Generate Client Outreach Script \u2192', link: null, internal: 'CLIENT_OUTREACH' }
+                },
+                { id: 'PRICING', name: 'Pricing Strategy', icon: '\u{1F3F7}\uFE0F',
+                  fields: [
+                      { key: 'service', label: 'Your Service', type: 'input', placeholder: 'e.g. Website design for local businesses', required: true },
+                      { key: 'hoursPerClient', label: 'Hours Per Client', type: 'input', placeholder: 'e.g. 15', required: true, grid: true },
+                      { key: 'targetMonthlyIncome', label: 'Target Monthly Income ($)', type: 'input', placeholder: 'e.g. 3000', required: true, grid: true },
+                      { key: 'competitorPrices', label: 'Competitor Prices (if known)', type: 'input', placeholder: 'e.g. "Most charge $500-$2000 per site"', required: false }
+                  ],
+                  template: `You are a pricing strategist for freelancers and solopreneurs.\n\nMy service: {service}\nHours per client: {hoursPerClient}\nTarget monthly income: ${'{targetMonthlyIncome}'}\nCompetitor pricing: {competitorPrices}\n\nBuild my pricing strategy:\n1. Calculate my minimum viable rate (target income / available hours)\n2. Compare against competitors. Am I underpricing or overpricing?\n3. Create 3 pricing tiers (Basic, Pro, Premium) with clear scope differences\n4. Write the value justification for each tier (why it's worth the price)\n5. Design an upsell path: how to move clients from Basic to Premium over time\n6. Give me the exact words to say when a client asks "Why so expensive?"\n\nShow me the math. I want to see the numbers, not just feel good.`,
+                  conditions: [
+                      { check: d => d.hoursPerClient && d.targetMonthlyIncome && (parseInt(d.targetMonthlyIncome) / (parseInt(d.hoursPerClient) * 4) < 25), inject: 'WARNING: At your current hours and target income, your effective hourly rate is under $25. The strategy will include a "scope reduction" plan to increase your rate without losing clients. Underpricing kills side hustles.' }
+                  ],
+                  bridge: { icon: '\u{1F522}', text: 'At this price, how fast do you hit financial freedom?', cta: 'Open Freedom Calculator \u2192', link: CONFIG.LINKS.FREEDOM }
+                },
+                { id: 'CONTENT_CAL', name: 'Content Calendar (30 Days)', icon: '\u{1F4C5}',
+                  fields: [
+                      { key: 'platform', label: 'Primary Platform', type: 'input', placeholder: 'Instagram, TikTok, LinkedIn, or Twitter', required: true, grid: true },
+                      { key: 'niche', label: 'Your Niche', type: 'input', placeholder: 'e.g. Personal finance for Gen Z', required: true, grid: true },
+                      { key: 'targetAudience', label: 'Target Audience', type: 'input', placeholder: 'e.g. College students with their first job', required: true },
+                      { key: 'postFrequency', label: 'Posts Per Week', type: 'input', placeholder: 'e.g. 5', required: true }
+                  ],
+                  template: `You are a content strategist who builds viral content calendars.\n\nPlatform: {platform}\nNiche: {niche}\nTarget audience: {targetAudience}\nPosting frequency: {postFrequency} posts/week\n\nCreate a 30-day content calendar:\n\nFor each post, provide:\n- Day and post type (carousel, reel, story, text post)\n- Hook (first line that stops the scroll)\n- Content outline (3-5 bullet points)\n- CTA (what you want them to do after)\n- Hashtag set (5-7 targeted hashtags)\n\nInclude a mix of:\n- 40% value posts (teach something)\n- 30% story posts (personal narrative)\n- 20% engagement posts (questions, polls, hot takes)\n- 10% promotional posts (your service/product)\n\nEvery hook must pass the "would I stop scrolling for this?" test.`,
+                  conditions: [
+                      { check: d => d.platform && /tiktok/i.test(d.platform), inject: 'TIKTOK MODE: Every post should be a short-form video concept. Include: opening hook (first 2 seconds), visual structure, trending sound suggestions, and text overlay copy. Prioritize "hook-first" scripts where the payoff is in the last 3 seconds.' },
+                      { check: d => d.platform && /linkedin/i.test(d.platform), inject: 'LINKEDIN MODE: Prioritize text posts with strong opening lines. Use the "curiosity gap" format: bold claim in line 1, story in the middle, lesson at the end. Include 2-3 carousel post concepts for complex topics. Avoid hashtags over 5 (LinkedIn penalizes hashtag stuffing).' }
+                  ],
+                  bridge: { icon: '\u2699\uFE0F', text: 'Content brings audience. Now automate the income it generates.', cta: 'Open Autopilot System \u2192', link: CONFIG.LINKS.AUTOPILOT }
+                },
+                { id: 'PROPOSAL', name: 'Freelance Proposal Template', icon: '\u{1F4DD}',
+                  fields: [
+                      { key: 'clientName', label: 'Client / Company Name', type: 'input', placeholder: 'e.g. Bloom Coffee Co.', required: true },
+                      { key: 'projectScope', label: 'Project Scope (what they need)', type: 'textarea', placeholder: 'e.g. Redesign their website, create a brand guide, and set up email marketing', required: true },
+                      { key: 'timeline', label: 'Estimated Timeline', type: 'input', placeholder: 'e.g. 3 weeks', required: true, grid: true },
+                      { key: 'pricing', label: 'Your Quote ($)', type: 'input', placeholder: 'e.g. 2500', required: true, grid: true }
+                  ],
+                  template: `You are a business consultant who writes proposals that close deals.\n\nClient: {clientName}\nProject scope: {projectScope}\nTimeline: {timeline}\nQuote: ${'{pricing}'}\n\nWrite a professional proposal:\n1. Executive Summary (2-3 sentences: their problem, your solution, the outcome)\n2. Scope of Work (break the project into numbered deliverables with descriptions)\n3. Timeline with milestones (visual-friendly format)\n4. Investment breakdown (frame price as investment, not cost. Show per-deliverable value)\n5. Why me (3 reasons to choose me over alternatives, specific to their project)\n6. Terms (payment schedule, revision policy, what's included vs. add-ons)\n7. Next Steps (exactly what they need to do to get started)\n\nTone: professional, specific, zero fluff. The proposal should make saying "yes" feel obvious.`,
+                  conditions: [
+                      { check: d => d.timeline && parseInt(d.timeline) <= 2, inject: 'SPRINT PROJECT: Short timeline detected. Structure the proposal as a "rapid sprint" with daily check-ins and a single revision round. Include a rush fee justification if applicable.' }
+                  ],
+                  bridge: { icon: '\u{1F4B5}', text: 'Project income incoming. See how it fits your financial plan.', cta: 'Open Budget Calculator \u2192', link: CONFIG.LINKS.BUDGET }
+                },
+                { id: 'VALIDATE', name: 'Business Idea Validator', icon: '\u{1F9EA}',
+                  fields: [
+                      { key: 'idea', label: 'Your Business Idea (1-2 sentences)', type: 'input', placeholder: 'e.g. A subscription box of healthy snacks for office workers', required: true },
+                      { key: 'targetCustomer', label: 'Who Would Buy This?', type: 'input', placeholder: 'e.g. Remote workers aged 25-35 who want healthy options', required: true },
+                      { key: 'budget', label: 'Starting Budget ($)', type: 'input', placeholder: 'e.g. 500', required: true, grid: true },
+                      { key: 'timeCommit', label: 'Hours/Week Available', type: 'input', placeholder: 'e.g. 10', required: true, grid: true }
+                  ],
+                  template: `You are a startup advisor who has evaluated 1,000+ business ideas.\n\nMy idea: {idea}\nTarget customer: {targetCustomer}\nStarting budget: ${'{budget}'}\nTime available: {timeCommit} hours/week\n\nEvaluate this idea ruthlessly:\n1. Market Viability Score (1-10) with reasoning\n2. 3 biggest risks that could kill this idea\n3. 3 unfair advantages I might have (based on my constraints)\n4. Minimum Viable Test: how to validate demand in 7 days with under $50\n5. Revenue model: how this makes money, with realistic month 1 and month 6 projections\n6. Competitive landscape: who already does this, and what's my angle\n7. Go/No-Go recommendation with specific conditions\n\nBe brutally honest. I'd rather hear "this won't work because..." now than lose 6 months discovering it myself.`,
+                  conditions: [
+                      { check: d => d.budget && parseInt(d.budget.replace(/[^0-9]/g, '')) < 200, inject: 'BOOTSTRAP MODE: Very limited budget. Focus the validation test on zero-cost methods: social media polls, DM outreach to potential customers, waitlist landing page (free tools only). Every dollar must be justified.' }
+                  ],
+                  bridge: { icon: '\u{1F680}', text: 'Idea validated? Now find clients for it.', cta: 'Generate Client Outreach Script \u2192', link: null, internal: 'CLIENT_OUTREACH' }
+                }
+            ],
+            WEALTH: [
+                { id: 'FIRE_CALC', name: 'FIRE Calculator Prompt', icon: '\u{1F525}',
+                  fields: [
+                      { key: 'age', label: 'Current Age', type: 'input', placeholder: '25', required: true, grid: true },
+                      { key: 'retireAge', label: 'Target Retirement Age', type: 'input', placeholder: '40', required: true, grid: true },
+                      { key: 'expenses', label: 'Annual Expenses ($)', type: 'input', placeholder: '50000', required: true },
+                      { key: 'invested', label: 'Current Invested Assets ($)', type: 'input', placeholder: '10000', required: true, grid: true },
+                      { key: 'monthlyInvest', label: 'Monthly Investment ($)', type: 'input', placeholder: '500', required: true, grid: true }
+                  ],
+                  template: `You are a financial independence advisor.\n\nMy info:\n- Current age: {age}\n- Target retirement age: {retireAge}\n- Annual expenses: ${'{expenses}'}\n- Current invested assets: ${'{invested}'}\n- Monthly investment: ${'{monthlyInvest}'}\n- Expected return: 8%\n\nCalculate:\n1. My FIRE number (total needed to live off 4% withdrawal)\n2. Years until I hit that number at current savings rate\n3. If I want to retire by {retireAge}, how much must I invest monthly?\n4. What happens if I increase income by 20% and invest it all?\n\nShow the math in simple terms. Give me hope, but be realistic.`,
+                  conditions: [],
+                  bridge: { icon: '\u{1F522}', text: 'Compute your exact Freedom Number with real math.', cta: 'Open Freedom Calculator \u2192', link: CONFIG.LINKS.FREEDOM }
+                },
+                { id: 'DEBT_PAYOFF', name: 'Debt Payoff Strategy', icon: '\u{1F4C9}',
+                  fields: [
+                      { key: 'debts', label: 'List Your Debts (name, balance, interest rate, minimum payment)', type: 'textarea', placeholder: 'e.g.\nStudent Loan: $25,000, 6.5%, $280/mo\nCredit Card: $3,200, 22%, $90/mo\nCar Loan: $12,000, 4.5%, $350/mo', required: true },
+                      { key: 'extraMonthly', label: 'Extra Monthly Amount Above Minimums ($)', type: 'input', placeholder: 'e.g. 200', required: true }
+                  ],
+                  template: `You are a debt strategist who helps people become debt-free.\n\nMy debts:\n{debts}\n\nExtra I can put toward debt each month (above minimums): ${'{extraMonthly}'}\n\nCreate my payoff plan:\n1. Avalanche Method (highest interest first): show the order, monthly payments, and total interest saved\n2. Snowball Method (smallest balance first): show the order, monthly payments, and psychological wins timeline\n3. Compare both: which saves more money vs. which keeps me motivated\n4. Give me the EXACT payoff date for each debt under your recommended method\n5. Calculate total interest paid under each strategy\n6. "Quick wins": any debts I can eliminate in the next 90 days?\n\nShow me a month-by-month table for the first 6 months. I need to SEE the progress.`,
+                  conditions: [
+                      { check: d => d.debts && /2[0-9]%|3[0-9]%/i.test(d.debts), inject: 'HIGH INTEREST ALERT: You have debt over 20% APR. This is a financial emergency. The plan will prioritize this debt aggressively. Consider balance transfer options (0% APR cards) before paying down principal. Every month at 20%+ costs you real money.' },
+                      { check: d => d.debts && d.debts.split('\n').filter(l => l.trim()).length <= 2, inject: 'LIGHT DEBT LOAD: With only 1-2 debts, the strategy simplifies. Focus all extra payments on the highest-rate debt. You could be debt-free faster than you think.' }
+                  ],
+                  bridge: { icon: '\u{1F4B3}', text: 'As debt drops, your credit score climbs. Track your path to 800.', cta: 'Open 800-Club Checklist \u2192', link: CONFIG.LINKS.CLUB800 }
+                },
+                { id: 'EMERGENCY', name: 'Emergency Fund Plan', icon: '\u{1F6E1}\uFE0F',
+                  fields: [
+                      { key: 'monthlyExpenses', label: 'Monthly Expenses ($)', type: 'input', placeholder: 'e.g. 2500', required: true, grid: true },
+                      { key: 'currentSavings', label: 'Current Emergency Savings ($)', type: 'input', placeholder: 'e.g. 800', required: true, grid: true },
+                      { key: 'incomeStability', label: 'Income Type', type: 'input', placeholder: 'stable salary, variable (commission), or freelance', required: true },
+                      { key: 'dependents', label: 'Number of Dependents', type: 'input', placeholder: '0', required: true }
+                  ],
+                  template: `You are a financial planner specializing in emergency preparedness.\n\nMy situation:\n- Monthly expenses: ${'{monthlyExpenses}'}\n- Current emergency savings: ${'{currentSavings}'}\n- Income type: {incomeStability}\n- Dependents: {dependents}\n\nBuild my emergency fund plan:\n1. Calculate my target emergency fund (based on income stability and dependents)\n2. Gap analysis: how much more do I need?\n3. Monthly savings target to reach the goal in 6 months vs. 12 months\n4. Where to keep the fund (HYSA recommendations with current APY ranges)\n5. "Save $1,000 in 30 days" challenge: specific daily/weekly micro-actions\n6. What counts as a real emergency vs. what doesn't (decision framework)\n\nMake it actionable. I want exact dollar amounts and a timeline I can follow.`,
+                  conditions: [
+                      { check: d => d.incomeStability && /freelance|variable|commission/i.test(d.incomeStability), inject: 'VARIABLE INCOME: Your income fluctuates. Target 6 months of expenses (not 3). Include a "feast month" strategy: when income exceeds average, auto-transfer the surplus to your emergency fund.' },
+                      { check: d => d.dependents && parseInt(d.dependents) > 0, inject: 'DEPENDENTS: You have people counting on you. Add a "family emergency tier" above the standard fund: medical deductibles, childcare disruption buffer, and 1 month of mortgage/rent as a separate category.' }
+                  ],
+                  bridge: { icon: '\u{1F4B5}', text: 'See exactly where to cut spending to fund your safety net.', cta: 'Open Budget Calculator \u2192', link: CONFIG.LINKS.BUDGET }
+                },
+                { id: 'PORTFOLIO', name: 'Investment Portfolio Builder', icon: '\u{1F4CA}',
+                  fields: [
+                      { key: 'age', label: 'Current Age', type: 'input', placeholder: '22', required: true, grid: true },
+                      { key: 'riskTolerance', label: 'Risk Tolerance', type: 'input', placeholder: 'conservative, moderate, or aggressive', required: true, grid: true },
+                      { key: 'monthlyInvestment', label: 'Monthly Investment ($)', type: 'input', placeholder: '300', required: true },
+                      { key: 'existingInvestments', label: 'Current Holdings (if any)', type: 'input', placeholder: 'e.g. $5K in VOO, $2K in savings', required: false },
+                      { key: 'goals', label: 'Investment Goals', type: 'input', placeholder: 'e.g. Retire by 45, buy a house in 5 years, passive income', required: true }
+                  ],
+                  template: `You are an investment advisor who builds portfolios for beginners.\n\nMy profile:\n- Age: {age}\n- Risk tolerance: {riskTolerance}\n- Monthly investment: ${'{monthlyInvestment}'}\n- Current holdings: {existingInvestments}\n- Goals: {goals}\n\nBuild my portfolio:\n1. Asset allocation (stocks vs. bonds vs. alternatives) with percentages and reasoning\n2. Specific ETF/index fund recommendations with ticker symbols\n3. Dollar amounts: exactly how much goes into each fund monthly\n4. 10-year and 30-year projected growth (at 7% and 10% returns)\n5. Rebalancing schedule: when and how to adjust\n6. "Hands-off" setup instructions: which brokerage, how to automate purchases\n7. What NOT to do (3 common mistakes for my risk profile)\n\nPlain English only. No financial jargon without an explanation.`,
+                  conditions: [
+                      { check: d => d.age && parseInt(d.age) < 25 && d.riskTolerance && /conservative/i.test(d.riskTolerance), inject: 'AGE-RISK MISMATCH: You are under 25 with a conservative risk tolerance. Your biggest asset is TIME. The portfolio will include an explanation of why young investors can afford more stock exposure, along with the conservative allocation you requested. You decide.' }
+                  ],
+                  bridge: { icon: '\u{1F4CA}', text: 'Now build this exact portfolio with our visual tool. See the 30-year projection.', cta: 'Open Investment Simplifier \u2192', link: CONFIG.LINKS.INVESTMENT }
+                },
+                { id: 'CREDIT', name: 'Credit Score Repair Plan', icon: '\u{1F4B3}',
+                  fields: [
+                      { key: 'currentScore', label: 'Current Credit Score', type: 'input', placeholder: 'e.g. 620', required: true, grid: true },
+                      { key: 'negativeItems', label: 'Negative Items on Report', type: 'textarea', placeholder: 'e.g. 2 late payments (2023), 1 collection ($450), high utilization on Chase card', required: true },
+                      { key: 'creditAge', label: 'Oldest Account Age', type: 'input', placeholder: 'e.g. 3 years', required: true, grid: true },
+                      { key: 'creditUtilization', label: 'Current Utilization %', type: 'input', placeholder: 'e.g. 45%', required: true, grid: true }
+                  ],
+                  template: `You are a credit repair specialist who helps people reach 800+ scores.\n\nMy credit profile:\n- Current score: {currentScore}\n- Negative items: {negativeItems}\n- Oldest account: {creditAge}\n- Current utilization: {creditUtilization}\n\nBuild my credit repair plan:\n1. Score analysis: what's hurting me most (rank by impact)\n2. 30-day quick wins: actions I can take THIS MONTH to boost my score\n3. Dispute strategy: which negative items to dispute first, with letter templates\n4. Utilization optimization: exact dollar amounts to pay down for maximum impact\n5. Account strategy: should I open new accounts, become an authorized user, or wait?\n6. 6-month roadmap with monthly milestones (target score at each checkpoint)\n7. The "800 Club" habits: daily/weekly/monthly routines to maintain a high score\n\nBe specific. "Pay down debt" is not a plan. "Pay Chase card from $2,100 to $630 by March 15" is a plan.`,
+                  conditions: [
+                      { check: d => d.currentScore && parseInt(d.currentScore) < 580, inject: 'REBUILD MODE: Score is below 580. This requires a "rebuild from scratch" approach. Focus on secured credit cards, becoming an authorized user on a family member\'s old account, and disputing ALL negative items (some will fall off). Timeline: 12-18 months to 700+.' },
+                      { check: d => d.currentScore && parseInt(d.currentScore) >= 700, inject: '800-CLUB ACCELERATION: Your score is already good. The plan will focus on optimization: perfect payment timing, strategic credit limit increases, and ideal utilization ratios. You are 6-12 months from 800+ with the right moves.' }
+                  ],
+                  bridge: { icon: '\u2705', text: 'Track every step of this plan with our interactive checklist.', cta: 'Open 800-Club Checklist \u2192', link: CONFIG.LINKS.CLUB800 }
+                },
+                { id: 'AUTOPILOT_SETUP', name: 'Autopilot Money Setup', icon: '\u2699\uFE0F',
+                  fields: [
+                      { key: 'monthlyIncome', label: 'Monthly Take-Home Pay ($)', type: 'input', placeholder: 'e.g. 3500', required: true },
+                      { key: 'bankName', label: 'Primary Bank', type: 'input', placeholder: 'e.g. Chase, Capital One, Ally', required: true, grid: true },
+                      { key: 'numAccounts', label: 'Number of Bank Accounts', type: 'input', placeholder: 'e.g. 2', required: true, grid: true },
+                      { key: 'bills', label: 'List Your Monthly Bills', type: 'textarea', placeholder: 'e.g.\nRent: $1200\nCar payment: $350\nPhone: $85\nSubscriptions: $45', required: true },
+                      { key: 'savingsGoal', label: 'Monthly Savings Goal ($)', type: 'input', placeholder: 'e.g. 500', required: true }
+                  ],
+                  template: `You are a personal finance automation expert.\n\nMy setup:\n- Monthly income: ${'{monthlyIncome}'}\n- Bank: {bankName}\n- Number of accounts: {numAccounts}\n- Monthly bills:\n{bills}\n- Savings goal: ${'{savingsGoal}'}/month\n\nBuild my autopilot money system:\n1. Account structure: which accounts I need and what each one does (Checking, Bills, Savings, Investment)\n2. Automation schedule: exact dates for each transfer (aligned with my pay dates)\n3. Bill pay setup: which bills to auto-pay vs. manual pay (and why)\n4. The "pay yourself first" transfer: amount and timing\n5. Investment automation: how to set up recurring buys (brokerage recommendation)\n6. The "fun money" allocation: guilt-free spending amount after all systems are running\n7. Monthly 5-minute check: what to review and when\n\nMake it so simple that I set it up once and never think about it again.`,
+                  conditions: [
+                      { check: d => d.numAccounts && parseInt(d.numAccounts) === 1, inject: 'SINGLE ACCOUNT: You only have 1 bank account. The plan will include a sub-account strategy: open 2-3 additional accounts (most online banks are free) to create a visual separation between spending, bills, and savings. This is the foundation of automation.' }
+                  ],
+                  bridge: { icon: '\u2699\uFE0F', text: 'Now install this exact automation with our visual builder.', cta: 'Open Autopilot System \u2192', link: CONFIG.LINKS.AUTOPILOT }
+                },
+                { id: 'TAX_OPTIMIZE', name: 'Tax Optimization Checklist', icon: '\u{1F4C8}',
+                  fields: [
+                      { key: 'income', label: 'Annual Income ($)', type: 'input', placeholder: 'e.g. 55000', required: true, grid: true },
+                      { key: 'filingStatus', label: 'Filing Status', type: 'input', placeholder: 'single, married, head of household', required: true, grid: true },
+                      { key: 'incomeType', label: 'Income Type(s)', type: 'input', placeholder: 'e.g. W-2 salary, freelance 1099, side hustle cash', required: true },
+                      { key: 'currentDeductions', label: 'Current Tax Moves', type: 'input', placeholder: 'e.g. 401k contribution, standard deduction, nothing', required: true }
+                  ],
+                  template: `You are a tax strategist for young professionals and side hustlers.\n\nMy tax profile:\n- Annual income: ${'{income}'}\n- Filing status: {filingStatus}\n- Income types: {incomeType}\n- Current tax moves: {currentDeductions}\n\nBuild my tax optimization checklist:\n1. Estimated tax bracket and effective tax rate\n2. "Free money" moves: deductions and credits I'm probably missing\n3. Retirement account strategy: Traditional vs. Roth, and exactly how much to contribute\n4. Side hustle tax guide: quarterly estimated payments, deductible expenses, home office\n5. Investment tax efficiency: which accounts to hold which assets in\n6. Year-end checklist: actions to take before December 31\n7. Estimated savings: how much less I'd pay with all optimizations applied\n\nNote: This is education, not tax advice. I should confirm with a CPA. But give me the playbook so I know what to ask.`,
+                  conditions: [
+                      { check: d => d.incomeType && /1099|freelance|side/i.test(d.incomeType), inject: 'SELF-EMPLOYMENT INCOME: You have 1099/freelance income. This unlocks additional deductions: home office, equipment, software, mileage, health insurance premiums. The checklist will include a quarterly estimated tax payment schedule so you avoid the April surprise.' }
+                  ],
+                  bridge: { icon: '\u{1F4B5}', text: 'Tax savings = more to invest. See what those extra dollars become.', cta: 'Open Investment Simplifier \u2192', link: CONFIG.LINKS.INVESTMENT }
+                }
+            ]
         };
-
-        const TIPS = [
-            "\u{1F4A1} Pro Tip: Be specific. Vague input = Vague output.",
-            "\u{1F4A1} Pro Tip: Treat AI like an intern. Give it examples.",
-            "\u{1F4A1} Pro Tip: Chain prompts. Use Output A as Input for Prompt B.",
-            "\u{1F4A1} Pro Tip: Use the 'Regenerate' button in ChatGPT if the first draft is weak."
-        ];
-
-        const PROCESSING_STEPS = [
-            { id: 1, text: "Analyzing your input data..." },
-            { id: 2, text: "Matching to optimal prompt structure..." },
-            { id: 3, text: "Injecting personalized variables..." },
-            { id: 4, text: "Formatting output for ChatGPT..." },
-            { id: 5, text: "Finalizing your custom prompt..." }
-        ];
 
         const CATEGORY_LABELS = { 'CAREER': '\u{1F4BC} Career', 'VENTURE': '\u{1F680} Venture', 'WEALTH': '\u{1F4B0} Wealth' };
 
-        // === BRIDGE PAGE DATA SAVER ===
-        function saveForBridgePage(category, prompt) {
-            const CATEGORY_MAP = {
-                'CAREER': { label: 'Career', title: 'Career Architect Prompt' },
-                'VENTURE': { label: 'Venture', title: 'Side Hustle Generator Prompt' },
-                'WEALTH': { label: 'Wealth', title: 'FIRE Calculator Prompt' }
-            };
-            const mapped = CATEGORY_MAP[category] || { label: category, title: 'Custom Prompt' };
-            const data = {
-                category: mapped.label,
-                title: mapped.title,
-                fullPrompt: prompt,
-                unlockedAt: new Date().toISOString()
-            };
-            localStorage.setItem('promptVault_unlocked', JSON.stringify(data));
-            console.log('[Prompt Vault] Saved for bridge page:', data);
+        /* Category-specific tips (FIX 10) */
+        const TIPS = {
+            CAREER: [
+                "\u{1F4A1} After ChatGPT rewrites your resume, ask: 'Now make every bullet start with a stronger action verb.'",
+                "\u{1F4A1} Paste the job description AND your resume together. The AI finds gaps you can't see.",
+                "\u{1F4A1} Ask for 3 versions: conservative, balanced, and aggressive. Pick the one that sounds like you on a good day."
+            ],
+            VENTURE: [
+                "\u{1F4A1} After getting side hustle ideas, ask: 'Which one can generate $500 in the first 30 days?'",
+                "\u{1F4A1} Ask ChatGPT to role-play as your ideal customer and critique each idea.",
+                "\u{1F4A1} Follow up with: 'Write me a DM script to land my first client this week.'"
+            ],
+            WEALTH: [
+                "\u{1F4A1} If the FIRE number feels impossible, ask: 'What if I increase my income by 20% and invest it all?'",
+                "\u{1F4A1} Run the prompt twice with different return rates (7% and 10%) to see the range of outcomes.",
+                "\u{1F4A1} After getting your number, ask: 'Give me the 3 highest-impact moves to get there faster.'"
+            ]
+        };
+
+        /* Truthful processing steps (FIX 4) */
+        function getDynamicSteps(data) {
+            const filledCount = Object.values(data).filter(v => v && v.trim()).length;
+            return [
+                { id: 1, text: `Reading your ${filledCount} input field${filledCount !== 1 ? 's' : ''}...` },
+                { id: 2, text: "Injecting your data into prompt template..." },
+                { id: 3, text: "Applying conditional logic for your profile..." },
+                { id: 4, text: "Formatting for ChatGPT paste-ready output..." },
+                { id: 5, text: "Ready. Prompt built from your data." }
+            ];
         }
 
-        function getTimeAgo(timestamp) {
-            const seconds = Math.floor((Date.now() - timestamp) / 1000);
-            if (seconds < 60) return 'Just now';
-            const minutes = Math.floor(seconds / 60);
-            if (minutes < 60) return `${minutes}m ago`;
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return `${hours}h ago`;
-            return `${Math.floor(hours / 24)}d ago`;
+        /* Build prompt with conditional logic (FIX 9) */
+        function buildPrompt(promptConfig, data) {
+            let result = promptConfig.template;
+            Object.keys(data).forEach(key => {
+                result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), data[key] || `[INSERT ${key.toUpperCase()}]`);
+            });
+            if (promptConfig.conditions) {
+                promptConfig.conditions.forEach(({ check, inject }) => {
+                    if (check(data)) result += '\n\n' + inject;
+                });
+            }
+            return result;
         }
+
+        /* Save for bridge page */
+        function saveForBridgePage(category, promptName, prompt) {
+            const data = { category, title: promptName, fullPrompt: prompt, unlockedAt: new Date().toISOString() };
+            localStorage.setItem('promptVault_unlocked', JSON.stringify(data));
+        }
+
+        /* Blur gate: INVERTED preview (FIX 3) */
+        function getVisiblePortion(text) {
+            if (!text) return { blurredStart: '', visible: '', blurredEnd: '' };
+            const len = text.length;
+            const visibleSize = Math.floor(len * 0.20);
+            const startAt = Math.floor(len * 0.30);
+            return {
+                blurredStart: text.substring(0, startAt),
+                visible: text.substring(startAt, startAt + visibleSize),
+                blurredEnd: text.substring(startAt + visibleSize)
+            };
+        }
+
+        function getTimeAgo(ts) {
+            const s = Math.floor((Date.now() - ts) / 1000);
+            if (s < 60) return 'Just now';
+            const m = Math.floor(s / 60);
+            if (m < 60) return `${m}m ago`;
+            const h = Math.floor(m / 60);
+            if (h < 24) return `${h}h ago`;
+            return `${Math.floor(h / 24)}d ago`;
+        }
+
+        /* ==================
+           COMPONENTS
+           ================== */
 
         function Gatekeeper({ onUnlock }) {
             const [progress, setProgress] = useState(0);
             useEffect(() => {
                 const timer = setInterval(() => {
-                    setProgress(prev => {
-                        if (prev >= 100) { clearInterval(timer); setTimeout(onUnlock, 400); return 100; }
-                        return prev + 3;
-                    });
+                    setProgress(prev => { if (prev >= 100) { clearInterval(timer); setTimeout(onUnlock, 400); return 100; } return prev + 3; });
                 }, 25);
                 return () => clearInterval(timer);
             }, []);
@@ -519,7 +680,7 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                                 <span className="vault-icon">{"\u{1F5C4}\uFE0F"}</span>
                                 <div>
                                     <h2 className="vault-title">MY VAULT</h2>
-                                    <p className="vault-subtitle">{isEmpty ? 'Generate prompts below to fill your vault' : `${savedPrompts.length} prompt${savedPrompts.length !== 1 ? 's' : ''} saved`}</p>
+                                    <p className="vault-subtitle">{isEmpty ? 'Generate prompts below to fill your vault' : `${savedPrompts.length} prompt${savedPrompts.length !== 1 ? 's' : ''} saved on this device`}</p>
                                 </div>
                             </div>
                             <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
@@ -535,9 +696,30 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                                         <p className="vault-empty-text">Your vault is empty</p>
                                         <p className="vault-empty-hint">Generate a prompt below and unlock it with your email to save it here</p>
                                     </div>
-                                ) : savedPrompts.map((item, index) => (
-                                    <VaultPromptCard key={index} item={item} onCopy={() => onCopy(item.prompt)} onDelete={() => onDelete(index)} />
-                                ))}
+                                ) : savedPrompts.map((item, index) => {
+                                    const [copied, setCopied] = useState(false);
+                                    const [expanded, setExpanded] = useState(false);
+                                    const handleCopy = (e) => { e.stopPropagation(); navigator.clipboard.writeText(item.prompt); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+                                    const preview = item.prompt.substring(0, 120) + (item.prompt.length > 120 ? '...' : '');
+                                    return (
+                                        <div key={index} className="vault-prompt-card">
+                                            <div className="vault-prompt-header">
+                                                <div className="vault-prompt-meta">
+                                                    <span className="vault-prompt-category">{CATEGORY_LABELS[item.category] || item.category}</span>
+                                                    <span className="vault-prompt-time">{getTimeAgo(item.timestamp)}</span>
+                                                </div>
+                                                <div className="vault-prompt-actions">
+                                                    <button onClick={handleCopy} className={`vault-prompt-btn ${copied ? 'copied' : ''}`}>{copied ? '\u2713' : '\u{1F4CB} Copy'}</button>
+                                                    <button onClick={(e) => { e.stopPropagation(); onDelete(index); }} className="vault-prompt-btn delete">{"\u{1F5D1}\uFE0F"}</button>
+                                                </div>
+                                            </div>
+                                            <div onClick={() => setExpanded(!expanded)}>
+                                                <pre className="vault-prompt-preview" style={{maxHeight: expanded ? 'none' : '80px', overflow:'hidden'}}>{expanded ? item.prompt : preview}</pre>
+                                                {item.prompt.length > 120 && <span className="vault-prompt-expand">{expanded ? '\u25B2 Collapse' : '\u25BC Expand full prompt'}</span>}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
@@ -545,95 +727,28 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             );
         }
 
-        function VaultPromptCard({ item, onCopy, onDelete }) {
-            const [copied, setCopied] = useState(false);
-            const [expanded, setExpanded] = useState(false);
-            const handleCopy = (e) => { e.stopPropagation(); navigator.clipboard.writeText(item.prompt); setCopied(true); setTimeout(() => setCopied(false), 2000); };
-            const preview = item.prompt.substring(0, 120) + (item.prompt.length > 120 ? '...' : '');
-            return (
-                <div className="vault-prompt-card">
-                    <div className="vault-prompt-header">
-                        <div className="vault-prompt-meta">
-                            <span className="vault-prompt-category">{CATEGORY_LABELS[item.category] || item.category}</span>
-                            <span className="vault-prompt-time">{getTimeAgo(item.timestamp)}</span>
-                        </div>
-                        <div className="vault-prompt-actions">
-                            <button onClick={handleCopy} className={`vault-prompt-btn ${copied ? 'copied' : ''}`}>{copied ? '\u2713' : '\u{1F4CB} Copy'}</button>
-                            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="vault-prompt-btn delete">{"\u{1F5D1}\uFE0F"}</button>
-                        </div>
-                    </div>
-                    <div onClick={() => setExpanded(!expanded)}>
-                        <pre className="vault-prompt-preview" style={{maxHeight: expanded ? 'none' : '80px', overflow:'hidden'}}>{expanded ? item.prompt : preview}</pre>
-                        {item.prompt.length > 120 && <span className="vault-prompt-expand">{expanded ? '\u25B2 Collapse' : '\u25BC Expand full prompt'}</span>}
-                    </div>
-                </div>
-            );
-        }
-
-        function VaultPointer({ isVisible, onDismiss }) {
-            if (!isVisible) return null;
-            return (
-                <div className="vault-pointer">
-                    <span className="vault-pointer-icon">{"\u261D\uFE0F"}</span>
-                    <div className="vault-pointer-text">
-                        <p className="vault-pointer-title">Prompt Saved to Your Vault!</p>
-                        <p className="vault-pointer-subtitle">All your prompts are stored above. Click "MY VAULT" to access them anytime.</p>
-                    </div>
-                    <button className="vault-pointer-dismiss" onClick={onDismiss}>{"\u00D7"}</button>
-                </div>
-            );
-        }
-
-        function WelcomeBackBanner({ isVisible, onDismiss, email }) {
-            if (!isVisible) return null;
-            return (
-                <div className="welcome-back-banner">
-                    <span className="welcome-back-icon">{"\u{1F389}"}</span>
-                    <div className="welcome-back-content">
-                        <p className="welcome-back-title">Welcome Back, {email ? email.split('@')[0] : 'Elite Operator'}!</p>
-                        <p className="welcome-back-subtitle">Your Vault is now fully unlocked. Generate unlimited prompts and save them forever.</p>
-                    </div>
-                    <button className="welcome-back-dismiss" onClick={onDismiss}>{"\u00D7"}</button>
-                </div>
-            );
-        }
-
-        function InlineVaultGuide({ isVisible }) {
-            if (!isVisible) return null;
-            return (
-                <div className="vault-guide-inline">
-                    <span className="vault-guide-icon">{"\u{1F5C4}\uFE0F"}</span>
-                    <div className="vault-guide-content">
-                        <p className="vault-guide-title">Your Vault is active.</p>
-                        <p className="vault-guide-text">
-                            Hit <strong>{"\u{1F4BE}"} Save to Vault</strong> on any prompt to store it permanently.
-                            Your collection lives in the <strong>gold MY VAULT panel</strong> at the top of this page.
-                        </p>
-                    </div>
-                </div>
-            );
-        }
-
-        function GoalGradientBar({ fields, requiredFields }) {
-            const filledCount = requiredFields.filter(f => fields[f] && fields[f].trim() !== '').length;
-            const progress = (filledCount / requiredFields.length) * 100;
-            const isComplete = progress === 100;
-            const progressColor = isComplete ? 'var(--success)' : progress > 0 ? 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)' : 'var(--accent-gradient)';
-            const percentColor = isComplete ? 'var(--success)' : progress > 0 ? '#10b981' : 'var(--accent-primary)';
+        function GoalGradientBar({ data, requiredFields }) {
+            const filledCount = requiredFields.filter(f => data[f] && data[f].trim() !== '').length;
+            const progress = Math.round((filledCount / requiredFields.length) * 100);
+            const isComplete = filledCount === requiredFields.length;
+            const remaining = requiredFields.length - filledCount;
+            const progressColor = isComplete ? 'var(--success)' : 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)';
+            const percentColor = isComplete ? 'var(--success)' : progress === 0 ? 'var(--text-muted)' : '#10b981';
+            const label = isComplete ? 'Ready to Generate' : remaining === requiredFields.length ? 'Fill all fields to generate' : `${remaining} field${remaining !== 1 ? 's' : ''} remaining`;
             return (
                 <div className="progress-container">
                     <div className="progress-header">
-                        <span className="progress-label">Prompt Readiness</span>
-                        <span className="progress-percent" style={{color:percentColor}}>{Math.round(progress)}%</span>
+                        <span className="progress-label">{label}</span>
+                        <span className="progress-percent" style={{color:percentColor}}>{progress}%</span>
                     </div>
                     <div className="progress-bar-track">
-                        <div className="progress-bar-fill" style={{width:`${Math.max(progress,5)}%`,background:progressColor}}></div>
+                        <div className="progress-bar-fill" style={{width:`${progress}%`,background:progressColor}}></div>
                     </div>
                 </div>
             );
         }
 
-        function TransparencyPanel({ isProcessing, currentStep, isOpen, onToggle }) {
+        function TransparencyPanel({ steps, isProcessing, currentStep, isOpen, onToggle }) {
             return (
                 <div className="transparency-panel">
                     <div className="transparency-header" onClick={onToggle}>
@@ -641,9 +756,9 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                         <span className={`transparency-toggle ${isOpen ? 'open' : ''}`}>{"\u25BC"}</span>
                     </div>
                     <div className={`transparency-content ${isOpen ? 'open' : ''}`}>
-                        {PROCESSING_STEPS.map((step, index) => (
-                            <div key={step.id} className={`transparency-step ${isProcessing && currentStep === index ? 'active' : isProcessing && currentStep > index ? 'complete' : !isProcessing && currentStep >= PROCESSING_STEPS.length ? 'complete' : ''}`}>
-                                <div className="step-indicator">{(!isProcessing && currentStep >= PROCESSING_STEPS.length) || (isProcessing && currentStep > index) ? '\u2713' : step.id}</div>
+                        {steps.map((step, index) => (
+                            <div key={step.id} className={`transparency-step ${isProcessing && currentStep === index ? 'active' : isProcessing && currentStep > index ? 'complete' : !isProcessing && currentStep >= steps.length ? 'complete' : ''}`}>
+                                <div className="step-indicator">{(!isProcessing && currentStep >= steps.length) || (isProcessing && currentStep > index) ? '\u2713' : step.id}</div>
                                 <span className="step-text">{step.text}</span>
                             </div>
                         ))}
@@ -652,143 +767,299 @@ Show me the math in simple terms. Give me hope, but be realistic.`
             );
         }
 
-        function AchievementBanner({ isVisible, promptsGenerated, userName }) {
-            const [copied, setCopied] = useState(false);
-            const handleCopy = () => { navigator.clipboard.writeText(`I just earned AI Commander status in The Vault!\n\nGenerated ${promptsGenerated} custom prompts.\n\nGet yours: @koutalksmoney`); setCopied(true); setTimeout(() => setCopied(false), 2000); };
-            if (!isVisible) return null;
+        function CrossAppBridge({ bridge }) {
+            if (!bridge || !bridge.link) return null;
             return (
-                <div className="achievement-banner show">
-                    <div className="achievement-icon">{"\u{1F3C6}"}</div>
-                    <h3 className="achievement-title">Achievement Unlocked!</h3>
-                    <p className="achievement-subtitle">You've earned AI Commander status by mastering all 3 categories</p>
-                    <div className="achievement-card">
-                        <div className="achievement-card-header">
-                            <span className="achievement-card-logo">THE<span style={{color:'var(--gold)'}}>VAULT</span></span>
-                            <span className="achievement-card-badge">AI Commander</span>
-                        </div>
-                        <div className="achievement-card-title">AI COMMANDER</div>
-                        <div className="achievement-card-name">{userName || 'Elite Operator'}</div>
-                        <div className="achievement-card-stats">
-                            <div className="achievement-stat"><div className="achievement-stat-value">{promptsGenerated}</div><div className="achievement-stat-label">Prompts</div></div>
-                            <div className="achievement-stat"><div className="achievement-stat-value">3/3</div><div className="achievement-stat-label">Categories</div></div>
-                            <div className="achievement-stat"><div className="achievement-stat-value">{"\u2713"}</div><div className="achievement-stat-label">Elite</div></div>
-                        </div>
-                    </div>
-                    <div className="achievement-share-btns">
-                        <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="achievement-share-btn instagram">{"\u{1F4F8}"} Share on Instagram</a>
-                        <button className={`achievement-share-btn copy ${copied ? 'copied' : ''}`} onClick={handleCopy}>{copied ? '\u2713 Copied!' : '\u{1F4CB} Copy Caption'}</button>
+                <div className="cross-bridge">
+                    <span className="cross-bridge-icon">{bridge.icon}</span>
+                    <div className="cross-bridge-content">
+                        <p className="cross-bridge-text">{bridge.text}</p>
+                        <a href={bridge.link} target="_blank" className="cross-bridge-link">{bridge.cta}</a>
                     </div>
                 </div>
             );
         }
 
+        /* === GENERIC PROMPT MODULE === */
+        function PromptModule({ category, promptList, onGenerated, onSave, userEmail, isUnlocked }) {
+            const [activePrompt, setActivePrompt] = useState(promptList[0].id);
+            const [inputs, setInputs] = useState({});
+            const [generated, setGenerated] = useState(null);
+            const [isProcessing, setIsProcessing] = useState(false);
+            const [currentStep, setCurrentStep] = useState(0);
+            const [panelOpen, setPanelOpen] = useState(true);
+            const [copied, setCopied] = useState(false);
+            const [saved, setSaved] = useState(false);
+
+            const currentConfig = promptList.find(p => p.id === activePrompt);
+            const requiredFields = currentConfig.fields.filter(f => f.required).map(f => f.key);
+            const allFilled = requiredFields.every(f => inputs[f] && inputs[f].trim() !== '');
+            const steps = useMemo(() => getDynamicSteps(inputs), [inputs]);
+
+            const handleTabChange = (id) => { setActivePrompt(id); setInputs({}); setGenerated(null); setCopied(false); setSaved(false); };
+            const updateInput = (key, value) => setInputs(prev => ({...prev, [key]: value}));
+
+            const handleGenerate = () => {
+                setIsProcessing(true); setGenerated(null); setCurrentStep(0); setPanelOpen(true); setSaved(false);
+                steps.forEach((_, i) => { setTimeout(() => setCurrentStep(i + 1), 600 * (i + 1)); });
+                setTimeout(() => {
+                    const text = buildPrompt(currentConfig, inputs);
+                    setGenerated(text); setIsProcessing(false); setCopied(false); onGenerated(category);
+                    if (!isUnlocked) { saveForBridgePage(category, currentConfig.name, text); }
+                }, 3000);
+            };
+
+            const handleCopy = () => { navigator.clipboard.writeText(generated); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+            const handleSave = () => { onSave(generated, category); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+            const portions = generated ? getVisiblePortion(generated) : null;
+
+            return (
+                <div>
+                    <div className="module-header">
+                        <h2 className="module-title">{CATEGORY_LABELS[category]}</h2>
+                    </div>
+
+                    {/* Sub-prompt tabs */}
+                    <div className="sub-tabs">
+                        {promptList.map(p => (
+                            <button key={p.id} onClick={() => handleTabChange(p.id)} className={`sub-tab ${activePrompt === p.id ? 'active' : ''}`}>
+                                {p.icon} {p.name}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Goal gradient bar (FIX 2: enforced) */}
+                    <GoalGradientBar data={inputs} requiredFields={requiredFields} />
+
+                    {/* Dynamic form fields */}
+                    <div className="space-y-5">
+                        {(() => {
+                            const fields = currentConfig.fields;
+                            const result = [];
+                            let i = 0;
+                            while (i < fields.length) {
+                                if (fields[i].grid && i + 1 < fields.length && fields[i + 1].grid) {
+                                    result.push(
+                                        <div key={`grid-${i}`} className="grid-2">
+                                            {renderField(fields[i], inputs, updateInput)}
+                                            {renderField(fields[i + 1], inputs, updateInput)}
+                                        </div>
+                                    );
+                                    i += 2;
+                                } else {
+                                    result.push(<div key={`field-${i}`}>{renderField(fields[i], inputs, updateInput)}</div>);
+                                    i++;
+                                }
+                            }
+                            return result;
+                        })()}
+                    </div>
+
+                    {/* Generate section */}
+                    <div className="section-divider">
+                        {/* FIX 2: Disabled until all required fields filled */}
+                        <button onClick={handleGenerate} className="btn-primary" disabled={isProcessing || !allFilled}>
+                            {isProcessing ? 'Processing...' : !allFilled ? `Fill ${requiredFields.length - requiredFields.filter(f => inputs[f] && inputs[f].trim()).length} more field${requiredFields.filter(f => !inputs[f] || !inputs[f].trim()).length !== 1 ? 's' : ''} to generate` : `Generate ${currentConfig.name} Prompt`}
+                        </button>
+
+                        {(isProcessing || generated) && <TransparencyPanel steps={steps} isProcessing={isProcessing} currentStep={currentStep} isOpen={panelOpen} onToggle={() => setPanelOpen(!panelOpen)} />}
+
+                        {isProcessing && (
+                            <div className="loading-container">
+                                <div className="loading-spinner"></div>
+                                <div className="loading-text">{steps[Math.min(currentStep, steps.length - 1)]?.text || 'Initializing...'}</div>
+                                <div className="loading-subtext">Building your custom prompt</div>
+                            </div>
+                        )}
+
+                        {/* BLUR GATE: Inverted preview (FIX 3) */}
+                        {generated && !isProcessing && !isUnlocked && portions && (
+                            <div className="blur-gate-container animate-fade-in">
+                                <div className="blur-gate-preview">
+                                    <pre className="blur-gate-blurred">{portions.blurredStart}</pre>
+                                    <pre className="blur-gate-visible">{portions.visible}</pre>
+                                    <pre className="blur-gate-blurred">{portions.blurredEnd}</pre>
+                                    <div className="blur-gate-overlay">
+                                        <div className="blur-gate-lock">{"\u{1F512}"}</div>
+                                        <h3 className="blur-gate-title">The Rest is Blurred.</h3>
+                                        <p className="blur-gate-subtitle">One email unlocks the full prompt and saves it to your Vault on this device.</p>
+                                        <div className="beehiiv-gate-container">
+                                            <iframe src={CONFIG.BEEHIIV_EMBED_URL} data-test-id="beehiiv-embed" width="100%" height="262" frameBorder="0" scrolling="no" style={{borderRadius:'16px',background:'transparent',maxWidth:'100%'}}></iframe>
+                                        </div>
+                                        <div className="blur-gate-trust"><span>{"\u{1F512}"} Secure</span><span>{"\u2022"}</span><span>No spam</span><span>{"\u2022"}</span><span>Instant access</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* UNLOCKED OUTPUT */}
+                        {generated && !isProcessing && isUnlocked && (
+                            <>
+                                <div className="output-box animate-fade-in">
+                                    <div className="output-header">
+                                        <span className="output-status">Prompt Unlocked</span>
+                                        <div>
+                                            <button onClick={handleCopy} className={`copy-btn ${copied ? 'copied' : ''}`}>{copied ? "\u2713 Copied" : "Copy to Clipboard"}</button>
+                                            <button onClick={handleSave} className={`save-btn ${saved ? 'saved-flash' : ''}`}>{saved ? "\u2713 Vaulted" : "\u{1F4BE} Save to Vault"}</button>
+                                        </div>
+                                    </div>
+                                    <div className="output-scroll"><pre className="output-code">{generated}</pre></div>
+                                </div>
+                                <CrossAppBridge bridge={currentConfig.bridge} />
+                            </>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        function renderField(field, inputs, updateInput) {
+            if (field.type === 'textarea') {
+                return (
+                    <div className="input-group">
+                        <label>{field.label}{!field.required && ' (optional)'}</label>
+                        <textarea value={inputs[field.key] || ''} onChange={e => updateInput(field.key, e.target.value)} placeholder={field.placeholder} rows={4} className="premium-textarea" />
+                    </div>
+                );
+            }
+            return (
+                <div className="input-group">
+                    <label>{field.label}{!field.required && ' (optional)'}</label>
+                    <input type="text" value={inputs[field.key] || ''} onChange={e => updateInput(field.key, e.target.value)} placeholder={field.placeholder} className="premium-input" />
+                </div>
+            );
+        }
+
+        /* === MAIN APP === */
         function App() {
-            const [locked, setLocked] = useState(true);
+            /* FIX 5: Skip gatekeeper for returning users */
+            const [locked, setLocked] = useState(() => {
+                const hasEmail = localStorage.getItem('vault_email_captured');
+                const hasSaved = localStorage.getItem('vault_saved_prompts');
+                const hasVisited = localStorage.getItem('vault_first_visit_complete');
+                return !(hasEmail || hasSaved || hasVisited);
+            });
             const [activeTab, setActiveTab] = useState('CAREER');
             const [currentTip, setCurrentTip] = useState(0);
             const [savedPrompts, setSavedPrompts] = useState([]);
             const [promptsGenerated, setPromptsGenerated] = useState({ CAREER: 0, VENTURE: 0, WEALTH: 0 });
-            const [showAchievement, setShowAchievement] = useState(false);
             const [userEmail, setUserEmail] = useState('');
+            const [isUnlocked, setIsUnlocked] = useState(false);
             const [vaultOpen, setVaultOpen] = useState(false);
             const [showVaultPointer, setShowVaultPointer] = useState(false);
             const [showWelcomeBack, setShowWelcomeBack] = useState(false);
-            const [justReturned, setJustReturned] = useState(false);
 
-            // Tip rotation
-            useEffect(() => { const i = setInterval(() => setCurrentTip(p => (p+1) % TIPS.length), 6000); return () => clearInterval(i); }, []);
-            
-            // Load saved data AND check for bridge page return
+            const tips = TIPS[activeTab] || TIPS.CAREER;
+
+            // Tip rotation (category-specific)
+            useEffect(() => { setCurrentTip(0); const i = setInterval(() => setCurrentTip(p => (p + 1) % 3), 6000); return () => clearInterval(i); }, [activeTab]);
+
+            // Load saved data + check bridge return (FIX 1)
             useEffect(() => {
-                // Load existing user data
-                const e = localStorage.getItem('vault_user_email'); 
-                if (e) setUserEmail(e);
-                const p = localStorage.getItem('vault_saved_prompts'); 
-                if (p) setSavedPrompts(JSON.parse(p));
+                const e = localStorage.getItem('vault_user_email');
+                if (e) { setUserEmail(e); setIsUnlocked(true); }
+                const emailCaptured = localStorage.getItem('vault_email_captured');
+                if (emailCaptured === 'true') { setIsUnlocked(true); }
+                const p = localStorage.getItem('vault_saved_prompts');
+                if (p) { try { setSavedPrompts(JSON.parse(p)); } catch(err) {} }
 
-                // === HYBRID APPROACH: Check if user returned from bridge page ===
+                // Check bridge return
                 const bridgeEmail = localStorage.getItem('promptVault_bridge_email');
                 const bridgeData = localStorage.getItem('promptVault_unlocked');
-                
-                if (bridgeEmail && !e) {
-                    // User just returned from bridge page with new email
+                if (bridgeEmail) {
                     setUserEmail(bridgeEmail);
                     localStorage.setItem('vault_user_email', bridgeEmail);
                     localStorage.setItem('vault_email_captured', 'true');
+                    setIsUnlocked(true);
                     setShowWelcomeBack(true);
                     setVaultOpen(true);
-                    setJustReturned(true);
-                    
-                    // If there's unlocked prompt data, auto-save it to vault
                     if (bridgeData) {
                         try {
                             const parsed = JSON.parse(bridgeData);
-                            const existing = localStorage.getItem('vault_saved_prompts');
-                            const existingPrompts = existing ? JSON.parse(existing) : [];
-                            const newPrompt = {
-                                prompt: parsed.fullPrompt,
-                                category: parsed.category.toUpperCase(),
-                                timestamp: Date.now()
-                            };
-                            const newSaved = [...existingPrompts, newPrompt];
-                            setSavedPrompts(newSaved);
-                            localStorage.setItem('vault_saved_prompts', JSON.stringify(newSaved));
-                        } catch (err) {
-                            console.error('[Vault] Error parsing bridge data:', err);
-                        }
+                            const existing = JSON.parse(localStorage.getItem('vault_saved_prompts') || '[]');
+                            const newPrompt = { prompt: parsed.fullPrompt, category: parsed.category.toUpperCase(), timestamp: Date.now() };
+                            if (!existing.some(ep => ep.prompt === newPrompt.prompt)) {
+                                const newSaved = [...existing, newPrompt];
+                                setSavedPrompts(newSaved);
+                                localStorage.setItem('vault_saved_prompts', JSON.stringify(newSaved));
+                            }
+                        } catch(err) {}
                     }
-                    
-                    // Clean up bridge data
                     localStorage.removeItem('promptVault_bridge_email');
                     localStorage.removeItem('promptVault_unlocked');
-                    
-                    // Hide welcome after 8 seconds
                     setTimeout(() => setShowWelcomeBack(false), 8000);
                 }
+
+                // FIX 1: Cross-tab storage listener
+                const handleStorage = (ev) => {
+                    if (ev.key === 'vault_email_captured' && ev.newValue === 'true') {
+                        setIsUnlocked(true);
+                        setUserEmail('verified');
+                        setShowWelcomeBack(true);
+                        setVaultOpen(true);
+                        setTimeout(() => setShowWelcomeBack(false), 8000);
+                    }
+                };
+                window.addEventListener('storage', handleStorage);
+                return () => window.removeEventListener('storage', handleStorage);
             }, []);
 
-            // Achievement check
-            useEffect(() => {
-                if (Object.values(promptsGenerated).filter(c => c > 0).length >= 3 && !localStorage.getItem('vault_achievement_shown')) {
-                    setShowAchievement(true); localStorage.setItem('vault_achievement_shown', 'true');
-                }
-            }, [promptsGenerated]);
-
-            const handlePromptGenerated = (cat) => setPromptsGenerated(p => ({...p, [cat]: p[cat] + 1}));
-            
+            const handleGenerated = (cat) => setPromptsGenerated(p => ({...p, [cat]: p[cat] + 1}));
             const handleSavePrompt = (prompt, category) => {
                 const newSaved = [...savedPrompts, { prompt, category, timestamp: Date.now() }];
                 setSavedPrompts(newSaved);
                 localStorage.setItem('vault_saved_prompts', JSON.stringify(newSaved));
-                setShowVaultPointer(true);
-                setVaultOpen(true);
+                setShowVaultPointer(true); setVaultOpen(true);
                 setTimeout(() => setShowVaultPointer(false), 5000);
             };
-            
             const handleDeletePrompt = (index) => {
                 const newSaved = savedPrompts.filter((_, i) => i !== index);
                 setSavedPrompts(newSaved);
                 localStorage.setItem('vault_saved_prompts', JSON.stringify(newSaved));
             };
-            
-            const handleCopyPrompt = (prompt) => navigator.clipboard.writeText(prompt);
 
-            if (locked) return <Gatekeeper onUnlock={() => setLocked(false)} />;
+            if (locked) return <Gatekeeper onUnlock={() => { setLocked(false); localStorage.setItem('vault_first_visit_complete', 'true'); }} />;
             const totalGenerated = Object.values(promptsGenerated).reduce((a, b) => a + b, 0);
 
             return (
                 <div className="container">
-                    <AchievementBanner isVisible={showAchievement} promptsGenerated={totalGenerated} userName={userEmail?.split('@')[0]} />
-                    <WelcomeBackBanner isVisible={showWelcomeBack} onDismiss={() => setShowWelcomeBack(false)} email={userEmail} />
-                    
+                    {showWelcomeBack && (
+                        <div className="welcome-back-banner">
+                            <span className="welcome-back-icon">{"\u{1F389}"}</span>
+                            <div className="welcome-back-content">
+                                <p className="welcome-back-title">Welcome Back, Elite Operator!</p>
+                                <p className="welcome-back-subtitle">Your Vault is fully unlocked. Generate unlimited prompts and save them to your collection.</p>
+                            </div>
+                            <button className="welcome-back-dismiss" onClick={() => setShowWelcomeBack(false)}>{"\u00D7"}</button>
+                        </div>
+                    )}
+
                     <div className="animate-fade-in" style={{textAlign:'center',marginBottom:'32px'}}>
                         <h1 className="gradient-text" style={{fontSize:'2.25rem',fontWeight:800,marginBottom:'8px'}}>The Vault</h1>
                         <p style={{color:'#94a3b8',fontSize:'0.95rem'}}>AI Command Console for High Performers</p>
                     </div>
-                    
-                    <VaultPointer isVisible={showVaultPointer} onDismiss={() => setShowVaultPointer(false)} />
-                    <TheVault savedPrompts={savedPrompts} isOpen={vaultOpen} onToggle={() => setVaultOpen(!vaultOpen)} onDelete={handleDeletePrompt} onCopy={handleCopyPrompt} />
-                    
+
+                    {showVaultPointer && (
+                        <div className="vault-pointer">
+                            <span className="vault-pointer-icon">{"\u261D\uFE0F"}</span>
+                            <div className="vault-pointer-text">
+                                <p className="vault-pointer-title">Prompt Saved to Your Vault!</p>
+                                <p className="vault-pointer-subtitle">All your prompts are stored above. Click "MY VAULT" to access them anytime.</p>
+                            </div>
+                            <button className="vault-pointer-dismiss" onClick={() => setShowVaultPointer(false)}>{"\u00D7"}</button>
+                        </div>
+                    )}
+
+                    <TheVault savedPrompts={savedPrompts} isOpen={vaultOpen} onToggle={() => setVaultOpen(!vaultOpen)} onDelete={handleDeletePrompt} onCopy={(p) => navigator.clipboard.writeText(p)} />
+
+                    {/* FIX 8: Mobile progress bar */}
+                    <div className="mobile-progress">
+                        <div className="mobile-progress-item"><div className="mobile-progress-value" style={{color:'var(--success)'}}>{totalGenerated}</div><div className="mobile-progress-label">Generated</div></div>
+                        <div className="mobile-progress-item"><div className="mobile-progress-value" style={{color:'var(--accent-primary)'}}>{Object.values(promptsGenerated).filter(c => c > 0).length}/3</div><div className="mobile-progress-label">Categories</div></div>
+                        <div className="mobile-progress-item"><div className="mobile-progress-value" style={{color:'var(--gold)'}}>{savedPrompts.length}</div><div className="mobile-progress-label">Saved</div></div>
+                        <div className="mobile-progress-item"><div className="mobile-progress-value" style={{color: isUnlocked ? 'var(--success)' : 'var(--text-muted)'}}>{isUnlocked ? '\u{1F513}' : '\u{1F512}'}</div><div className="mobile-progress-label">Status</div></div>
+                    </div>
+
                     <div className="main-grid">
                         <div className="space-y-6">
                             <div className="glass-card">
@@ -799,17 +1070,37 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                                         </button>
                                     ))}
                                 </div>
+                                <div className="nav-descriptor">
+                                    {activeTab === 'CAREER' && <>
+                                        <p className="nav-descriptor-text">Get hired. Get paid more. Get promoted.</p>
+                                        <p className="nav-descriptor-sub">Resumes, interviews, salary negotiation, LinkedIn, performance reviews</p>
+                                    </>}
+                                    {activeTab === 'VENTURE' && <>
+                                        <p className="nav-descriptor-text">Find your skill. Monetize it. Land clients.</p>
+                                        <p className="nav-descriptor-sub">Side hustles, pricing, outreach scripts, proposals, content strategy</p>
+                                    </>}
+                                    {activeTab === 'WEALTH' && <>
+                                        <p className="nav-descriptor-text">Build the machine that makes money while you sleep.</p>
+                                        <p className="nav-descriptor-sub">Investing, debt payoff, credit repair, automation, tax optimization</p>
+                                    </>}
+                                </div>
                             </div>
                             <div className="glass-card animate-fade-in">
-                                {activeTab === 'CAREER' && <CareerModule onGenerated={() => handlePromptGenerated('CAREER')} onSave={handleSavePrompt} userEmail={userEmail} justReturned={justReturned} />}
-                                {activeTab === 'VENTURE' && <VentureModule onGenerated={() => handlePromptGenerated('VENTURE')} onSave={handleSavePrompt} userEmail={userEmail} justReturned={justReturned} />}
-                                {activeTab === 'WEALTH' && <WealthModule onGenerated={() => handlePromptGenerated('WEALTH')} onSave={handleSavePrompt} userEmail={userEmail} justReturned={justReturned} />}
+                                <PromptModule
+                                    key={activeTab}
+                                    category={activeTab}
+                                    promptList={PROMPT_DB[activeTab]}
+                                    onGenerated={handleGenerated}
+                                    onSave={handleSavePrompt}
+                                    userEmail={userEmail}
+                                    isUnlocked={isUnlocked}
+                                />
                             </div>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-6 sidebar-desktop">
                             <div className="glass-card tip-card">
                                 <h3 className="tip-label">Intelligence Feed</h3>
-                                <p className="tip-text">{TIPS[currentTip]}</p>
+                                <p className="tip-text">{tips[currentTip]}</p>
                             </div>
                             <div className="glass-card">
                                 <h3 className="assets-label">External Assets</h3>
@@ -824,207 +1115,22 @@ Show me the math in simple terms. Give me hope, but be realistic.`
                                     <div style={{display:'flex',justifyContent:'space-between',marginBottom:'8px'}}><span>Prompts Generated:</span><span style={{color:'var(--success)',fontWeight:700}}>{totalGenerated}</span></div>
                                     <div style={{display:'flex',justifyContent:'space-between',marginBottom:'8px'}}><span>Categories Used:</span><span style={{color:'var(--accent-primary)',fontWeight:700}}>{Object.values(promptsGenerated).filter(c => c > 0).length}/3</span></div>
                                     <div style={{display:'flex',justifyContent:'space-between',marginBottom:'8px'}}><span>Prompts Saved:</span><span style={{color:'var(--gold)',fontWeight:700}}>{savedPrompts.length}</span></div>
-                                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:'8px'}}><span>Status:</span><span style={{color: userEmail ? 'var(--success)' : 'var(--text-muted)', fontWeight:700}}>{userEmail ? '\u{1F513} Unlocked' : '\u{1F512} Locked'}</span></div>
-                                    <div style={{display:'flex',justifyContent:'space-between'}}><span>Achievement:</span><span style={{color: showAchievement ? 'var(--gold)' : 'var(--text-muted)', fontWeight:700}}>{showAchievement ? '\u{1F3C6} Unlocked!' : '\u{1F512} Use 3 categories'}</span></div>
+                                    <div style={{display:'flex',justifyContent:'space-between'}}><span>Status:</span><span style={{color: isUnlocked ? 'var(--success)' : 'var(--text-muted)', fontWeight:700}}>{isUnlocked ? '\u{1F513} Unlocked' : '\u{1F512} Locked'}</span></div>
+                                </div>
+                            </div>
+                            <div className="glass-card">
+                                <h3 className="assets-label">Ecosystem</h3>
+                                <div className="space-y-4">
+                                    <a href={CONFIG.LINKS.INVESTMENT} target="_blank" className="sidebar-link">{"\u{1F4CA}"} Investment Simplifier</a>
+                                    <a href={CONFIG.LINKS.AUTOPILOT} target="_blank" className="sidebar-link">{"\u2699\uFE0F"} Autopilot System</a>
+                                    <a href={CONFIG.LINKS.CLUB800} target="_blank" className="sidebar-link">{"\u{1F4B3}"} 800-Club</a>
+                                    <a href={CONFIG.LINKS.FREEDOM} target="_blank" className="sidebar-link">{"\u{1F522}"} Freedom Calculator</a>
+                                    <a href={CONFIG.LINKS.BUDGET} target="_blank" className="sidebar-link">{"\u{1F4B5}"} Budget Calculator</a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="footer">Architecture by Kou</div>
-                </div>
-            );
-        }
-
-        function CareerModule({ onGenerated, onSave, userEmail, justReturned }) {
-            const [mode, setMode] = useState('RESUME');
-            const [inputs, setInputs] = useState({ role: '', company: '', resume: '', jobDesc: '', skills: '', reason: '' });
-            const requiredFields = mode === 'RESUME' ? ['role','company','resume','jobDesc'] : ['role','company','jobDesc','skills','reason'];
-            return (
-                <div>
-                    <div className="module-header">
-                        <h2 className="module-title">Career Architect</h2>
-                        <div className="module-tabs">
-                            <button onClick={() => setMode('RESUME')} className={`module-tab ${mode === 'RESUME' ? 'active' : ''}`}>RESUME</button>
-                            <span className="module-tab-divider">|</span>
-                            <button onClick={() => setMode('EMAIL')} className={`module-tab ${mode === 'EMAIL' ? 'active' : ''}`}>COLD EMAIL</button>
-                        </div>
-                    </div>
-                    <GoalGradientBar fields={inputs} requiredFields={requiredFields} />
-                    <div className="space-y-5">
-                        <div className="grid-2">
-                            <Input label="Target Role" value={inputs.role} onChange={v => setInputs({...inputs, role: v})} placeholder="e.g. Product Manager" />
-                            <Input label="Target Company" value={inputs.company} onChange={v => setInputs({...inputs, company: v})} placeholder="e.g. Google" />
-                        </div>
-                        {mode === 'RESUME' ? (<>
-                            <TextArea label="Paste Old Resume" value={inputs.resume} onChange={v => setInputs({...inputs, resume: v})} placeholder="Paste content here..." />
-                            <TextArea label="Job Description" value={inputs.jobDesc} onChange={v => setInputs({...inputs, jobDesc: v})} placeholder="Requirements..." />
-                            <Generator template={PROMPTS.RESUME} data={inputs} btnText="Generate Resume Prompt" onGenerated={onGenerated} onSave={onSave} userEmail={userEmail} category="CAREER" justReturned={justReturned} />
-                        </>) : (<>
-                            <TextArea label="Job Description" value={inputs.jobDesc} onChange={v => setInputs({...inputs, jobDesc: v})} placeholder="Requirements..." />
-                            <Input label="Top 3 Skills" value={inputs.skills} onChange={v => setInputs({...inputs, skills: v})} placeholder="e.g. SQL, Leadership, Sales" />
-                            <Input label="Why This Job?" value={inputs.reason} onChange={v => setInputs({...inputs, reason: v})} placeholder="Authentic reason..." />
-                            <Generator template={PROMPTS.COLD_EMAIL} data={inputs} btnText="Generate Email Prompt" onGenerated={onGenerated} onSave={onSave} userEmail={userEmail} category="CAREER" justReturned={justReturned} />
-                        </>)}
-                    </div>
-                </div>
-            );
-        }
-
-        function VentureModule({ onGenerated, onSave, userEmail, justReturned }) {
-            const [inputs, setInputs] = useState({ friendsAsk: '', easyTask: '', interests: '', problemSolved: '' });
-            return (
-                <div>
-                    <div className="module-header"><h2 className="module-title">Side Hustle Generator</h2></div>
-                    <GoalGradientBar fields={inputs} requiredFields={['friendsAsk','easyTask','interests','problemSolved']} />
-                    <div className="space-y-5">
-                        <Input label="What do friends ask you for?" value={inputs.friendsAsk} onChange={v => setInputs({...inputs, friendsAsk: v})} placeholder="e.g. Travel advice, Excel help" />
-                        <Input label="What is easy for you?" value={inputs.easyTask} onChange={v => setInputs({...inputs, easyTask: v})} placeholder="e.g. Organizing files" />
-                        <Input label="Free time interests?" value={inputs.interests} onChange={v => setInputs({...inputs, interests: v})} placeholder="e.g. Fitness, Crypto" />
-                        <Input label="Recent problem solved?" value={inputs.problemSolved} onChange={v => setInputs({...inputs, problemSolved: v})} placeholder="e.g. Fixed my wifi" />
-                        <Generator template={PROMPTS.SIDE_HUSTLE} data={inputs} btnText="Analyze My Market Value" onGenerated={onGenerated} onSave={onSave} userEmail={userEmail} category="VENTURE" justReturned={justReturned} />
-                    </div>
-                </div>
-            );
-        }
-
-        function WealthModule({ onGenerated, onSave, userEmail, justReturned }) {
-            const [inputs, setInputs] = useState({ age: '', retireAge: '40', expenses: '', invested: '0', monthlyInvest: '' });
-            return (
-                <div>
-                    <div className="module-header"><h2 className="module-title">Freedom Calculator (FIRE)</h2></div>
-                    <GoalGradientBar fields={inputs} requiredFields={['age','retireAge','expenses','monthlyInvest']} />
-                    <div className="space-y-5">
-                        <div className="grid-2">
-                            <Input label="Current Age" value={inputs.age} onChange={v => setInputs({...inputs, age: v})} placeholder="25" />
-                            <Input label="Target Retire Age" value={inputs.retireAge} onChange={v => setInputs({...inputs, retireAge: v})} placeholder="40" />
-                        </div>
-                        <Input label="Annual Expenses ($)" value={inputs.expenses} onChange={v => setInputs({...inputs, expenses: v})} placeholder="50000" />
-                        <div className="grid-2">
-                            <Input label="Invested Assets ($)" value={inputs.invested} onChange={v => setInputs({...inputs, invested: v})} placeholder="10000" />
-                            <Input label="Monthly Contrib ($)" value={inputs.monthlyInvest} onChange={v => setInputs({...inputs, monthlyInvest: v})} placeholder="500" />
-                        </div>
-                        <Generator template={PROMPTS.FIRE_CALC} data={inputs} btnText="Calculate My Freedom Date" onGenerated={onGenerated} onSave={onSave} userEmail={userEmail} category="WEALTH" justReturned={justReturned} />
-                    </div>
-                </div>
-            );
-        }
-
-        function Input({ label, value, onChange, placeholder }) {
-            return (<div className="input-group"><label>{label}</label><input type="text" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className="premium-input" /></div>);
-        }
-        function TextArea({ label, value, onChange, placeholder }) {
-            return (<div className="input-group"><label>{label}</label><textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={4} className="premium-textarea" /></div>);
-        }
-
-        /* === GENERATOR WITH BEEHIIV BLUR GATE === */
-        function Generator({ template, data, btnText, onGenerated, onSave, userEmail, category, justReturned }) {
-            const [generated, setGenerated] = useState(null);
-            const [isUnlocked, setIsUnlocked] = useState(false);
-            const [copied, setCopied] = useState(false);
-            const [saved, setSaved] = useState(false);
-            const [isProcessing, setIsProcessing] = useState(false);
-            const [currentStep, setCurrentStep] = useState(0);
-            const [panelOpen, setPanelOpen] = useState(true);
-            const [showInlineGuide, setShowInlineGuide] = useState(false);
-
-            // If user has email, they're unlocked
-            useEffect(() => { if (userEmail) setIsUnlocked(true); }, [userEmail]);
-            
-            // Show inline guide when user just returned from bridge
-            useEffect(() => { if (justReturned && isUnlocked) setShowInlineGuide(true); }, [justReturned, isUnlocked]);
-
-            const handleGenerate = () => {
-                setIsProcessing(true); setGenerated(null); setCurrentStep(0);
-                setPanelOpen(true); setSaved(false); setShowInlineGuide(false);
-                
-                PROCESSING_STEPS.forEach((_, i) => { setTimeout(() => setCurrentStep(i + 1), 600 * (i + 1)); });
-                
-                setTimeout(() => {
-                    let text = template;
-                    Object.keys(data).forEach(key => { 
-                        text = text.replace(new RegExp(`\\{${key}\\}`, 'g'), data[key] || `[INSERT ${key.toUpperCase()}]`); 
-                    });
-                    setGenerated(text); 
-                    setIsProcessing(false); 
-                    setCopied(false); 
-                    onGenerated();
-                    
-                    // === SAVE DATA FOR BRIDGE PAGE BEFORE SHOWING GATE ===
-                    if (!userEmail) {
-                        saveForBridgePage(category, text);
-                    }
-                }, 3000);
-            };
-
-            const handleCopy = () => { navigator.clipboard.writeText(generated); setCopied(true); setTimeout(() => setCopied(false), 2000); };
-            const handleSave = () => { onSave(generated, category); setSaved(true); setTimeout(() => setSaved(false), 2000); };
-
-            const getVisiblePortion = (text) => {
-                if (!text) return { visible: '', blurred: '' };
-                const cutoff = Math.floor(text.length * 0.18);
-                return { visible: text.substring(0, cutoff), blurred: text.substring(cutoff) };
-            };
-            const portions = generated ? getVisiblePortion(generated) : { visible: '', blurred: '' };
-
-            return (
-                <div className="section-divider">
-                    <button onClick={handleGenerate} className="btn-primary" disabled={isProcessing}>{isProcessing ? 'Processing...' : btnText}</button>
-                    {(isProcessing || generated) && <TransparencyPanel isProcessing={isProcessing} currentStep={currentStep} isOpen={panelOpen} onToggle={() => setPanelOpen(!panelOpen)} />}
-                    
-                    {isProcessing && (
-                        <div className="loading-container">
-                            <div className="loading-spinner"></div>
-                            <div className="loading-text">{PROCESSING_STEPS[Math.min(currentStep, PROCESSING_STEPS.length - 1)]?.text || 'Initializing...'}</div>
-                            <div className="loading-subtext">This takes a moment to ensure quality</div>
-                        </div>
-                    )}
-
-                    {/* === BLUR GATE WITH BEEHIIV (Locked) === */}
-                    {generated && !isProcessing && !isUnlocked && (
-                        <div className="blur-gate-container animate-fade-in">
-                            <div className="blur-gate-preview">
-                                <pre className="blur-gate-visible">{portions.visible}</pre>
-                                <pre className="blur-gate-blurred">{portions.blurred}</pre>
-                                <div className="blur-gate-overlay">
-                                    <div className="blur-gate-lock">{"\u{1F512}"}</div>
-                                    <h3 className="blur-gate-title">The Rest is Blurred.</h3>
-                                    <p className="blur-gate-subtitle">One email unlocks the full prompt and saves it to your Vault forever.</p>
-                                    
-                                    {/* BEEHIIV IFRAME */}
-                                    <div className="beehiiv-gate-container">
-                                        <iframe 
-                                            src={CONFIG.BEEHIIV_EMBED_URL}
-                                            data-test-id="beehiiv-embed" 
-                                            width="100%" 
-                                            height="262" 
-                                            frameBorder="0" 
-                                            scrolling="no"
-                                            style={{borderRadius: '16px', background: 'transparent', maxWidth: '100%'}}
-                                        ></iframe>
-                                    </div>
-                                    
-                                    <div className="blur-gate-trust"><span>{"\u{1F512}"} Secure</span><span>{"\u2022"}</span><span>No spam</span><span>{"\u2022"}</span><span>Instant access</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* === UNLOCKED OUTPUT === */}
-                    {generated && !isProcessing && isUnlocked && (
-                        <>
-                            <div className="output-box animate-fade-in">
-                                <div className="output-header">
-                                    <span className="output-status">Prompt Unlocked</span>
-                                    <div>
-                                        <button onClick={handleCopy} className={`copy-btn ${copied ? 'copied' : ''}`}>{copied ? "\u2713 Copied" : "Copy to Clipboard"}</button>
-                                        <button onClick={handleSave} className={`save-btn ${saved ? 'saved-flash' : ''}`}>{saved ? "\u2713 Vaulted" : "\u{1F4BE} Save to Vault"}</button>
-                                    </div>
-                                </div>
-                                <div className="output-scroll"><pre className="output-code">{generated}</pre></div>
-                            </div>
-                            <InlineVaultGuide isVisible={showInlineGuide} />
-                        </>
-                    )}
+                    <div className="footer">Made by <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a>. Don't work hard. Copy my homework.</div>
                 </div>
             );
         }
