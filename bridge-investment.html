@@ -7,12 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <!-- html2canvas for real screenshot export (Optimization #8) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --bg-primary: #0a0e27;
@@ -20,656 +18,197 @@
             --bg-card: #1a1f3a;
             --bg-card-hover: #242b4d;
             --accent-indigo: #6366f1;
-            --accent-indigo-glow: rgba(99, 102, 241, 0.3);
+            --accent-indigo-glow: rgba(99,102,241,0.3);
             --accent-purple: #8b5cf6;
             --accent-green: #10b981;
-            --accent-green-glow: rgba(16, 185, 129, 0.2);
+            --accent-green-glow: rgba(16,185,129,0.2);
             --accent-amber: #f59e0b;
             --accent-red: #ef4444;
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
             --text-muted: #64748b;
-            --border-subtle: rgba(255, 255, 255, 0.08);
-            --border-accent: rgba(99, 102, 241, 0.3);
+            --border-subtle: rgba(255,255,255,0.08);
+            --border-accent: rgba(99,102,241,0.3);
         }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            line-height: 1.6;
-        }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; line-height: 1.6; }
 
-        /* Animated Background */
         .bg-grid {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            pointer-events: none;
-            z-index: 0;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+            background-size: 50px 50px; pointer-events: none; z-index: 0;
         }
 
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
+        .container { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; padding: 40px 20px; }
 
         /* Success Header */
-        .success-header {
-            text-align: center;
-            margin-bottom: 40px;
-            animation: fadeInUp 0.6s ease-out;
-        }
-
+        .success-header { text-align: center; margin-bottom: 40px; animation: fadeInUp 0.6s ease-out; }
         .success-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--accent-green), #059669);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 24px;
-            box-shadow: 0 0 40px var(--accent-green-glow);
-            animation: pulse 2s ease-in-out infinite;
+            width: 80px; height: 80px; background: linear-gradient(135deg, var(--accent-green), #059669);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 24px; box-shadow: 0 0 40px var(--accent-green-glow); animation: pulse 2s ease-in-out infinite;
         }
+        .success-icon svg { width: 40px; height: 40px; color: white; }
+        .success-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; background: linear-gradient(135deg, var(--text-primary), var(--accent-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .success-header p { color: var(--text-secondary); font-size: 1.1rem; }
 
-        .success-icon svg {
-            width: 40px;
-            height: 40px;
-            color: white;
+        /* Post-Decision Reinforcement (Optimization #3) */
+        .reinforcement {
+            text-align: center; margin-top: 16px; padding: 12px 20px;
+            background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 10px; animation: fadeInUp 0.8s ease-out 0.3s backwards;
         }
-
-        .success-header h1 {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, var(--text-primary), var(--accent-green));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .success-header p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-        }
+        .reinforcement p { font-size: 0.9rem; color: var(--accent-green); font-weight: 600; }
+        .reinforcement .subtext { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; margin-top: 4px; }
 
         /* Portfolio Card */
-        .portfolio-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 16px;
-            padding: 32px;
-            margin-bottom: 24px;
-            animation: fadeInUp 0.6s ease-out 0.1s backwards;
-        }
-
-        .portfolio-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .portfolio-meta {
-            display: flex;
-            gap: 16px;
-            align-items: center;
-        }
-
-        .meta-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .meta-badge.style {
-            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
-            color: white;
-            font-weight: 600;
-        }
-
-        .portfolio-id {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
+        .portfolio-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 32px; margin-bottom: 24px; animation: fadeInUp 0.6s ease-out 0.1s backwards; }
+        .portfolio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-subtle); }
+        .portfolio-meta { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+        .meta-badge { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-secondary); border-radius: 8px; font-size: 0.85rem; color: var(--text-secondary); }
+        .meta-badge.style { background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple)); color: white; font-weight: 600; }
+        .portfolio-id { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-muted); }
 
         /* Allocation Display */
-        .allocation-display {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .allocation-box {
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            border: 1px solid var(--border-subtle);
-        }
-
-        .allocation-box.stocks {
-            border-color: var(--accent-green);
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
-        }
-
-        .allocation-box.bonds {
-            border-color: var(--accent-indigo);
-            box-shadow: 0 0 20px var(--accent-indigo-glow);
-        }
-
-        .allocation-label {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .allocation-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-        }
-
-        .allocation-box.stocks .allocation-value {
-            color: var(--accent-green);
-        }
-
-        .allocation-box.bonds .allocation-value {
-            color: var(--accent-indigo);
-        }
+        .allocation-display { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        .allocation-box { background: var(--bg-secondary); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid var(--border-subtle); }
+        .allocation-box.stocks { border-color: var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.1); }
+        .allocation-box.bonds { border-color: var(--accent-indigo); box-shadow: 0 0 20px var(--accent-indigo-glow); }
+        .allocation-label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .allocation-value { font-size: 2.5rem; font-weight: 800; }
+        .allocation-box.stocks .allocation-value { color: var(--accent-green); }
+        .allocation-box.bonds .allocation-value { color: var(--accent-indigo); }
 
         /* ETF Grid */
-        .etf-section {
-            margin-bottom: 24px;
-        }
+        .etf-section { margin-bottom: 24px; }
+        .section-title { font-size: 1rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .section-title::before { content: ''; width: 4px; height: 16px; background: var(--accent-indigo); border-radius: 2px; }
+        .etf-grid { display: grid; gap: 12px; }
+        .etf-card { background: var(--bg-secondary); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; }
+        .etf-card:hover { border-color: var(--accent-indigo); transform: translateX(4px); }
+        .etf-card.core { border-left: 3px solid var(--accent-green); }
+        .etf-card.diversifier { border-left: 3px solid var(--accent-purple); }
+        .etf-card.bonds { border-left: 3px solid var(--accent-indigo); }
+        .etf-card.stability { border-left: 3px solid var(--accent-amber); }
+        .etf-info { display: flex; flex-direction: column; }
+        .etf-ticker { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
+        .etf-name { font-size: 0.85rem; color: var(--text-muted); }
+        /* ETF Description (Optimization #5) */
+        .etf-desc { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; font-style: italic; }
+        .etf-percent { font-size: 1.5rem; font-weight: 800; color: var(--accent-green); text-align: right; }
+        .etf-dollars { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; text-align: right; }
 
-        .section-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        /* Projections (Optimization #6: emotional contrast) */
+        .projections-card { background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary)); border: 1px solid var(--border-accent); border-radius: 16px; padding: 32px; margin-bottom: 24px; animation: fadeInUp 0.6s ease-out 0.2s backwards; }
+        .projections-header { text-align: center; margin-bottom: 24px; }
+        .projections-header h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+        .projections-header p { color: var(--text-muted); font-size: 0.9rem; }
+        .projections-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .projection-box { background: var(--bg-primary); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid var(--border-subtle); position: relative; overflow: hidden; }
+        .projection-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .projection-box.year10::before { background: var(--accent-amber); }
+        .projection-box.year20::before { background: var(--accent-purple); }
+        .projection-box.year30::before { background: var(--accent-green); }
+        .projection-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .projection-value { font-size: 1.4rem; font-weight: 800; }
+        .projection-box.year10 .projection-value { color: var(--accent-amber); }
+        .projection-box.year20 .projection-value { color: var(--accent-purple); }
+        .projection-box.year30 .projection-value { color: var(--accent-green); }
+        .projection-subtext { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
 
-        .section-title::before {
-            content: '';
-            width: 4px;
-            height: 16px;
-            background: var(--accent-indigo);
-            border-radius: 2px;
+        /* Comparison (Optimization #6: emotional contrast) */
+        .comparison-banner {
+            margin-top: 20px; padding: 16px; text-align: center;
+            background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.25); border-radius: 12px;
         }
+        .comparison-banner p { font-size: 0.9rem; color: var(--text-secondary); }
+        .comparison-banner .highlight { color: var(--accent-green); font-weight: 700; }
+        .comparison-banner .avg { color: var(--text-muted); }
+        .comparison-banner .multiplier { color: var(--accent-amber); font-size: 1.3rem; font-weight: 800; display: block; margin-top: 6px; }
 
-        .etf-grid {
-            display: grid;
-            gap: 12px;
+        /* Cost of Waiting Ticker (Optimization: L1 Leverage) */
+        .cost-of-waiting {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            margin-top: 16px; padding: 10px 16px;
+            background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 10px;
+            font-size: 0.85rem; color: var(--accent-red);
         }
-
-        .etf-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-subtle);
-            border-radius: 12px;
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s ease;
-        }
-
-        .etf-card:hover {
-            border-color: var(--accent-indigo);
-            transform: translateX(4px);
-        }
-
-        .etf-card.core {
-            border-left: 3px solid var(--accent-green);
-        }
-
-        .etf-card.diversifier {
-            border-left: 3px solid var(--accent-purple);
-        }
-
-        .etf-card.bonds {
-            border-left: 3px solid var(--accent-indigo);
-        }
-
-        .etf-card.stability {
-            border-left: 3px solid var(--accent-amber);
-        }
-
-        .etf-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .etf-ticker {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .etf-name {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .etf-percent {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--accent-green);
-        }
-
-        /* Projections */
-        .projections-card {
-            background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
-            border: 1px solid var(--border-accent);
-            border-radius: 16px;
-            padding: 32px;
-            margin-bottom: 24px;
-            animation: fadeInUp 0.6s ease-out 0.2s backwards;
-        }
-
-        .projections-header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        .projections-header h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .projections-header p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .projections-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-        }
-
-        .projection-box {
-            background: var(--bg-primary);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            border: 1px solid var(--border-subtle);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .projection-box::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-        }
-
-        .projection-box.year10::before {
-            background: var(--accent-amber);
-        }
-
-        .projection-box.year20::before {
-            background: var(--accent-purple);
-        }
-
-        .projection-box.year30::before {
-            background: var(--accent-green);
-        }
-
-        .projection-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-
-        .projection-value {
-            font-size: 1.4rem;
-            font-weight: 800;
-        }
-
-        .projection-box.year10 .projection-value {
-            color: var(--accent-amber);
-        }
-
-        .projection-box.year20 .projection-value {
-            color: var(--accent-purple);
-        }
-
-        .projection-box.year30 .projection-value {
-            color: var(--accent-green);
-        }
-
-        .projection-subtext {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
+        .cost-of-waiting .tick-value { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 0.95rem; }
 
         /* Share Card */
-        .share-card {
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            border: 1px solid var(--border-subtle);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-            animation: fadeInUp 0.6s ease-out 0.3s backwards;
-        }
-
-        .share-card-inner {
-            background: linear-gradient(145deg, #1a1f3a, #0f1629);
-            border-radius: 12px;
-            padding: 24px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .share-card-inner::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--accent-indigo), var(--accent-purple), var(--accent-green));
-        }
-
-        .share-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            background: rgba(99, 102, 241, 0.2);
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--accent-indigo);
-            margin-bottom: 16px;
-        }
-
-        .share-title {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-
-        .share-value {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--accent-green);
-            margin-bottom: 8px;
-        }
-
-        .share-allocation {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-
-        .share-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-subtle);
-        }
-
-        .share-id {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .share-handle {
-            font-size: 0.85rem;
-            color: var(--accent-indigo);
-            font-weight: 600;
-        }
+        .share-card { background: linear-gradient(135deg, #0f172a, #1e293b); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 24px; margin-bottom: 24px; animation: fadeInUp 0.6s ease-out 0.3s backwards; }
+        .share-card-inner { background: linear-gradient(145deg, #1a1f3a, #0f1629); border-radius: 12px; padding: 24px; position: relative; overflow: hidden; }
+        .share-card-inner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent-indigo), var(--accent-purple), var(--accent-green)); }
+        .share-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(99,102,241,0.2); border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: var(--accent-indigo); margin-bottom: 16px; }
+        .share-title { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px; }
+        .share-value { font-size: 2rem; font-weight: 800; color: var(--accent-green); margin-bottom: 4px; }
+        .share-comparison { font-size: 0.8rem; color: var(--accent-amber); font-weight: 600; margin-bottom: 12px; }
+        .share-allocation { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px; }
+        .share-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--border-subtle); }
+        .share-id { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+        .share-handle { font-size: 0.85rem; color: var(--accent-indigo); font-weight: 600; }
 
         /* Action Buttons */
-        .actions {
-            display: grid;
-            gap: 12px;
-            margin-bottom: 32px;
-            animation: fadeInUp 0.6s ease-out 0.4s backwards;
-        }
+        .actions { display: grid; gap: 12px; margin-bottom: 32px; animation: fadeInUp 0.6s ease-out 0.4s backwards; }
+        .btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 24px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s ease; text-decoration: none; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple)); color: white; box-shadow: 0 4px 20px var(--accent-indigo-glow); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-indigo-glow); }
+        .btn-autopilot { background: linear-gradient(135deg, var(--accent-green), #059669); color: white; box-shadow: 0 4px 20px var(--accent-green-glow); }
+        .btn-autopilot:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-green-glow); }
+        .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-subtle); }
+        .btn-secondary:hover { border-color: var(--accent-indigo); background: var(--bg-card-hover); }
+        .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px dashed var(--border-subtle); }
+        .btn-ghost:hover { color: var(--text-primary); border-color: var(--text-muted); }
 
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 16px 24px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s ease;
-            text-decoration: none;
+        /* Autopilot CTA Context (Optimization #4) */
+        .autopilot-context {
+            background: var(--bg-card); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px;
+            padding: 16px; margin-bottom: 12px; animation: fadeInUp 0.6s ease-out 0.35s backwards;
         }
+        .autopilot-context p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+        .autopilot-context .what-how { color: var(--accent-green); font-weight: 700; }
+        .autopilot-micro-preview { margin-top: 10px; padding: 8px 12px; background: var(--bg-secondary); border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
-            color: white;
-            box-shadow: 0 4px 20px var(--accent-indigo-glow);
+        /* Next Steps (Optimization #10: personalized) */
+        .next-steps { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 24px; animation: fadeInUp 0.6s ease-out 0.5s backwards; }
+        .next-steps h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .steps-list { display: grid; gap: 12px; }
+        .step-item { display: flex; gap: 12px; align-items: flex-start; }
+        .step-number { width: 28px; height: 28px; background: var(--bg-secondary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: var(--accent-indigo); flex-shrink: 0; }
+        .step-content h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; }
+        .step-content p { font-size: 0.85rem; color: var(--text-muted); }
+        .step-etf-detail { font-family: 'JetBrains Mono', monospace; color: var(--accent-green); font-weight: 600; }
+
+        /* Bookmark/Return (Optimization #9) */
+        .bookmark-reminder {
+            text-align: center; margin-top: 20px; padding: 12px;
+            background: rgba(99,102,241,0.05); border: 1px dashed rgba(99,102,241,0.2); border-radius: 10px;
+            font-size: 0.8rem; color: var(--text-muted);
         }
+        .bookmark-reminder a { color: var(--accent-indigo); text-decoration: none; font-weight: 600; }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px var(--accent-indigo-glow);
-        }
+        .footer { text-align: center; padding: 32px 0; color: var(--text-muted); font-size: 0.85rem; }
+        .footer a { color: var(--accent-indigo); text-decoration: none; }
 
-        .btn-secondary {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border: 1px solid var(--border-subtle);
-        }
+        .error-state { text-align: center; padding: 60px 20px; }
+        .error-state h2 { font-size: 1.5rem; margin-bottom: 12px; }
+        .error-state p { color: var(--text-secondary); margin-bottom: 24px; }
 
-        .btn-secondary:hover {
-            border-color: var(--accent-indigo);
-            background: var(--bg-card-hover);
-        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 40px var(--accent-green-glow); } 50% { box-shadow: 0 0 60px var(--accent-green-glow); } }
 
-        .btn-ghost {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px dashed var(--border-subtle);
-        }
+        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; }
 
-        .btn-ghost:hover {
-            color: var(--text-primary);
-            border-color: var(--text-muted);
-        }
-
-        /* Next Steps */
-        .next-steps {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 16px;
-            padding: 24px;
-            animation: fadeInUp 0.6s ease-out 0.5s backwards;
-        }
-
-        .next-steps h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .steps-list {
-            display: grid;
-            gap: 12px;
-        }
-
-        .step-item {
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-        }
-
-        .step-number {
-            width: 28px;
-            height: 28px;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--accent-indigo);
-            flex-shrink: 0;
-        }
-
-        .step-content h4 {
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .step-content p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 32px 0;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        .footer a {
-            color: var(--accent-indigo);
-            text-decoration: none;
-        }
-
-        /* Error State */
-        .error-state {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .error-state h2 {
-            font-size: 1.5rem;
-            margin-bottom: 12px;
-        }
-
-        .error-state p {
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                box-shadow: 0 0 40px var(--accent-green-glow);
-            }
-            50% {
-                box-shadow: 0 0 60px var(--accent-green-glow);
-            }
-        }
-
-        /* Confetti Canvas */
-        #confetti-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        /* Responsive */
         @media (max-width: 600px) {
-            .container {
-                padding: 24px 16px;
-            }
-
-            .portfolio-card, .projections-card, .share-card {
-                padding: 20px;
-            }
-
-            .allocation-display {
-                grid-template-columns: 1fr;
-            }
-
-            .projections-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .projection-box {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                text-align: left;
-            }
-
-            .projection-label {
-                margin-bottom: 0;
-            }
-
-            .projection-subtext {
-                display: none;
-            }
-
-            .portfolio-header {
-                flex-direction: column;
-                gap: 12px;
-                align-items: flex-start;
-            }
-
-            .success-header h1 {
-                font-size: 1.6rem;
-            }
+            .container { padding: 24px 16px; }
+            .portfolio-card, .projections-card, .share-card { padding: 20px; }
+            .allocation-display { grid-template-columns: 1fr; }
+            .projections-grid { grid-template-columns: 1fr; }
+            .projection-box { display: flex; justify-content: space-between; align-items: center; text-align: left; }
+            .projection-label { margin-bottom: 0; }
+            .projection-subtext { display: none; }
+            .portfolio-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+            .success-header h1 { font-size: 1.6rem; }
         }
     </style>
 </head>
@@ -677,90 +216,70 @@
     <div class="bg-grid"></div>
     <canvas id="confetti-canvas"></canvas>
     
-    <div class="container">
-        <!-- Success Header -->
+    <div class="container" id="main-content">
         <div class="success-header">
             <div class="success-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
             </div>
             <h1>Portfolio Unlocked</h1>
             <p>Your personalized ETF allocation is ready.</p>
+            <!-- Post-Decision Reinforcement (Optimization #3) -->
+            <div class="reinforcement">
+                <p id="reinforcement-text">You just did what 90% of people never do: built an actual plan.</p>
+                <p class="subtext" id="reinforcement-sub"></p>
+            </div>
         </div>
 
-        <!-- Portfolio Card -->
         <div class="portfolio-card" id="portfolio-card">
             <div class="portfolio-header">
                 <div class="portfolio-meta">
-                    <div class="meta-badge">
-                        <span>🎂</span>
-                        <span id="display-age">--</span> years old
-                    </div>
-                    <div class="meta-badge style" id="display-style">
-                        --
-                    </div>
+                    <div class="meta-badge"><span>&#x1F382;</span><span id="display-age">--</span> years old</div>
+                    <div class="meta-badge style" id="display-style">--</div>
                 </div>
                 <div class="portfolio-id" id="display-id">ID: ---</div>
             </div>
-
-            <!-- Allocation -->
             <div class="allocation-display">
-                <div class="allocation-box stocks">
-                    <div class="allocation-label">📈 Stocks</div>
-                    <div class="allocation-value" id="display-stocks">--%</div>
-                </div>
-                <div class="allocation-box bonds">
-                    <div class="allocation-label">🏦 Bonds</div>
-                    <div class="allocation-value" id="display-bonds">--%</div>
-                </div>
+                <div class="allocation-box stocks"><div class="allocation-label">&#x1F4C8; Stocks</div><div class="allocation-value" id="display-stocks">--%</div></div>
+                <div class="allocation-box bonds"><div class="allocation-label">&#x1F3E6; Bonds</div><div class="allocation-value" id="display-bonds">--%</div></div>
             </div>
-
-            <!-- ETF List -->
             <div class="etf-section">
                 <div class="section-title">Your Buy List</div>
-                <div class="etf-grid" id="etf-grid">
-                    <!-- ETFs populated by JS -->
-                </div>
+                <div class="etf-grid" id="etf-grid"></div>
             </div>
         </div>
 
-        <!-- Projections -->
         <div class="projections-card">
             <div class="projections-header">
-                <h3>🚀 Growth Projections</h3>
+                <h3>&#x1F680; Growth Projections</h3>
                 <p>Based on $<span id="display-monthly">--</span>/month investment</p>
             </div>
             <div class="projections-grid">
-                <div class="projection-box year10">
-                    <div class="projection-label">10 Years</div>
-                    <div class="projection-value" id="proj-10">$--</div>
-                    <div class="projection-subtext">Foundation</div>
-                </div>
-                <div class="projection-box year20">
-                    <div class="projection-label">20 Years</div>
-                    <div class="projection-value" id="proj-20">$--</div>
-                    <div class="projection-subtext">Acceleration</div>
-                </div>
-                <div class="projection-box year30">
-                    <div class="projection-label">30 Years</div>
-                    <div class="projection-value" id="proj-30">$--</div>
-                    <div class="projection-subtext">Freedom</div>
-                </div>
+                <div class="projection-box year10"><div class="projection-label">10 Years</div><div class="projection-value" id="proj-10">$--</div><div class="projection-subtext">Foundation</div></div>
+                <div class="projection-box year20"><div class="projection-label">20 Years</div><div class="projection-value" id="proj-20">$--</div><div class="projection-subtext">Acceleration</div></div>
+                <div class="projection-box year30"><div class="projection-label">30 Years</div><div class="projection-value" id="proj-30">$--</div><div class="projection-subtext">Freedom</div></div>
+            </div>
+            <!-- Emotional Contrast Comparison (Optimization #6) -->
+            <div class="comparison-banner">
+                <p>The average American retires with <span class="avg">$87,000</span>. You're projected at <span class="highlight" id="comp-you">$0</span>.</p>
+                <span class="multiplier" id="comp-multiplier">0x ahead of the pack</span>
+            </div>
+            <!-- Cost of Waiting Ticker (L1 Leverage) -->
+            <div class="cost-of-waiting">
+                <span>&#x23F3;</span>
+                <span>Not starting costs you </span>
+                <span class="tick-value" id="costTickerValue">$0.00</span>
+                <span> and counting...</span>
             </div>
         </div>
 
-        <!-- Share Card -->
+        <!-- Share Card (with comparison inside) -->
         <div class="share-card">
-            <div class="share-card-inner">
-                <div class="share-badge">
-                    <span>✓</span> INVESTMENT ARCHITECT
-                </div>
+            <div class="share-card-inner" id="share-card-inner">
+                <div class="share-badge"><span>&#x2713;</span> INVESTMENT ARCHITECT</div>
                 <div class="share-title">30-Year Projection</div>
                 <div class="share-value" id="share-value">$--</div>
-                <div class="share-allocation">
-                    <span id="share-stocks">--%</span> Stocks / <span id="share-bonds">--%</span> Bonds
-                </div>
+                <div class="share-comparison" id="share-comparison">0x ahead of the average American</div>
+                <div class="share-allocation"><span id="share-stocks">--%</span> Stocks / <span id="share-bonds">--%</span> Bonds</div>
                 <div class="share-footer">
                     <div class="share-id" id="share-id">ID: ---</div>
                     <div class="share-handle">@koutalksmoney</div>
@@ -770,123 +289,107 @@
 
         <!-- Actions -->
         <div class="actions">
-            <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="btn btn-primary">
-                <span>🤖</span> Install The Autopilot System
-            </a>
-            <button class="btn btn-secondary" onclick="copyCaption()">
-                <span>📋</span> Copy Share Caption
-            </button>
-            <button class="btn btn-ghost" onclick="downloadCard()">
-                <span>📸</span> Screenshot This Card
-            </button>
+            <!-- Autopilot CTA Context (Optimization #4) -->
+            <div class="autopilot-context" id="autopilot-context">
+                <p>You have the <span class="what-how">WHAT</span> (your portfolio). Now install the <span class="what-how">HOW</span>. The Autopilot System sets up automatic monthly purchases of these exact ETFs, so you never have to remember.</p>
+                <div class="autopilot-micro-preview" id="autopilot-preview"></div>
+            </div>
+            <a href="#" id="autopilot-btn" class="btn btn-autopilot"><span>&#x1F916;</span> Install The Autopilot System</a>
+            <button class="btn btn-secondary" onclick="copyCaption()"><span>&#x1F4CB;</span> Copy Share Caption</button>
+            <button class="btn btn-ghost" onclick="downloadCard()"><span>&#x1F4F8;</span> Download Share Card</button>
         </div>
 
-        <!-- Next Steps -->
+        <!-- Personalized Next Steps (Optimization #10) -->
         <div class="next-steps">
-            <h3>🎯 Your Next 3 Steps</h3>
-            <div class="steps-list">
-                <div class="step-item">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h4>Open a Brokerage</h4>
-                        <p>Fidelity, Schwab, or Vanguard. All free. Takes 10 minutes.</p>
-                    </div>
-                </div>
-                <div class="step-item">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h4>Buy Your ETFs</h4>
-                        <p>Use the allocations above. Search ticker, enter amount, buy.</p>
-                    </div>
-                </div>
-                <div class="step-item">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h4>Automate Monthly</h4>
-                        <p>Set up recurring investments. Then forget it and let it grow.</p>
-                    </div>
-                </div>
+            <h3>&#x1F3AF; Your Exact Next 3 Steps</h3>
+            <div class="steps-list" id="steps-list">
+                <div class="step-item"><div class="step-number">1</div><div class="step-content"><h4>Open a Brokerage</h4><p>Fidelity, Schwab, or Vanguard. All free. Takes 10 minutes.</p></div></div>
+                <div class="step-item"><div class="step-number">2</div><div class="step-content"><h4>Buy Your ETFs</h4><p>Use the allocations above.</p></div></div>
+                <div class="step-item"><div class="step-number">3</div><div class="step-content"><h4>Automate Monthly</h4><p>Set up recurring investments.</p></div></div>
             </div>
         </div>
 
-        <!-- Footer -->
+        <!-- Bookmark/Return (Optimization #9) -->
+        <div class="bookmark-reminder" id="bookmark-reminder">
+            &#x1F516; <a href="#" id="bookmark-link">Bookmark this page</a> to come back to your portfolio anytime.
+        </div>
+
         <div class="footer">
             Made by <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a><br>
             Not financial advice. Research before investing.
         </div>
     </div>
 
-    <!-- Error State (hidden by default) -->
+    <!-- Error State -->
     <div class="container error-state" id="error-state" style="display: none;">
         <h2>Portfolio Not Found</h2>
         <p>It looks like your portfolio data expired or wasn't saved properly.</p>
-        <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" class="btn btn-primary">
-            Build New Portfolio
-        </a>
+        <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" class="btn btn-primary">Build New Portfolio</a>
     </div>
 
     <script>
-        // ========================================
-        // LOCALSTORAGE KEY: investmentSimplifier_portfolio
-        // ========================================
-        // Expected schema (set this in your main app BEFORE Beehiiv redirect):
-        // {
-        //   age: number,
-        //   style: 'growth' | 'balanced' | 'income',
-        //   stockPercent: number,
-        //   bondPercent: number,
-        //   etfs: [
-        //     { ticker: string, name: string, percent: number, type: 'core'|'diversifier'|'bonds'|'stability' }
-        //   ],
-        //   monthlyInvestment: number,
-        //   projections: {
-        //     year10: number,
-        //     year20: number,
-        //     year30: number
-        //   },
-        //   portfolioId: string,
-        //   generatedAt: string (ISO date)
-        // }
-
         const STORAGE_KEY = 'investmentSimplifier_portfolio';
+        const styleLabels = { growth: '\u{1F680} Growth', balanced: '\u2696\uFE0F Balanced', income: '\u{1F6E1}\uFE0F Income' };
 
-        // Style labels
-        const styleLabels = {
-            growth: '🚀 Growth',
-            balanced: '⚖️ Balanced',
-            income: '🛡️ Income'
-        };
-
-        // Format currency
         function formatCurrency(num) {
-            if (num >= 1000000) {
-                return '$' + (num / 1000000).toFixed(2) + 'M';
-            } else if (num >= 1000) {
-                return '$' + (num / 1000).toFixed(0) + 'K';
-            }
+            if (num >= 1000000) return '$' + (num / 1000000).toFixed(2) + 'M';
+            if (num >= 1000) return '$' + Math.round(num).toLocaleString();
             return '$' + num.toLocaleString();
         }
 
-        // Load portfolio data
-        function loadPortfolio() {
-            const data = localStorage.getItem(STORAGE_KEY);
-            
-            if (!data) {
-                showError();
-                return;
+        // === DATA HYDRATION (Optimization #1: URL params > cookie > localStorage) ===
+        function loadPortfolioData() {
+            // Priority 1: URL parameters
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('data')) {
+                try {
+                    const decoded = JSON.parse(decodeURIComponent(params.get('data')));
+                    if (decoded && decoded.etfs) return decoded;
+                } catch(e) { console.warn('URL param parse failed'); }
             }
 
+            // Priority 2: Cookie
             try {
-                const portfolio = JSON.parse(data);
-                renderPortfolio(portfolio);
-                triggerConfetti();
-            } catch (e) {
-                console.error('Failed to parse portfolio data:', e);
-                showError();
+                const cookies = document.cookie.split(';');
+                for (const cookie of cookies) {
+                    const [name, value] = cookie.trim().split('=');
+                    if (name === 'isPortfolio') {
+                        const decoded = JSON.parse(decodeURIComponent(value));
+                        if (decoded && decoded.etfs) return decoded;
+                    }
+                }
+            } catch(e) { console.warn('Cookie parse failed'); }
+
+            // Priority 3: localStorage
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (parsed && parsed.etfs) return parsed;
+                } catch(e) { console.warn('localStorage parse failed'); }
             }
+
+            return null;
         }
 
-        // Render portfolio
+        function loadPortfolio() {
+            const portfolio = loadPortfolioData();
+            
+            if (!portfolio) { showError(); return; }
+
+            // Flag that user completed bridge (for main app auto-unlock)
+            localStorage.setItem('investmentSimplifier_bridge_email', 'true');
+
+            renderPortfolio(portfolio);
+            generateBookmarkURL(portfolio);
+
+            // Delayed confetti synced to projection count-up (Optimization #2)
+            setTimeout(() => {
+                animateCountUp('proj-30', portfolio.projections.year30);
+                setTimeout(() => triggerConfetti(), 1500); // fire AFTER count-up completes
+            }, 800);
+        }
+
         function renderPortfolio(p) {
             // Basic info
             document.getElementById('display-age').textContent = p.age;
@@ -899,66 +402,194 @@
             // Projections
             document.getElementById('proj-10').textContent = formatCurrency(p.projections.year10);
             document.getElementById('proj-20').textContent = formatCurrency(p.projections.year20);
-            document.getElementById('proj-30').textContent = formatCurrency(p.projections.year30);
+            // proj-30 is animated via animateCountUp
+
+            // Comparison (Optimization #6)
+            const multiplier = (p.projections.year30 / 87000).toFixed(1);
+            document.getElementById('comp-you').textContent = formatCurrency(p.projections.year30);
+            document.getElementById('comp-multiplier').textContent = multiplier + 'x ahead of the pack';
+
+            // Post-Decision Reinforcement (Optimization #3)
+            const reinforcementSub = document.getElementById('reinforcement-sub');
+            if (p.age && p.age < 30) {
+                reinforcementSub.textContent = `The average American has $0 invested at ${p.age}. You're now ahead of 80% of your generation.`;
+            } else {
+                reinforcementSub.textContent = `Most people never build a portfolio. You just did it in 60 seconds.`;
+            }
 
             // Share card
             document.getElementById('share-value').textContent = formatCurrency(p.projections.year30);
+            document.getElementById('share-comparison').textContent = multiplier + 'x ahead of the average American';
             document.getElementById('share-stocks').textContent = p.stockPercent + '%';
             document.getElementById('share-bonds').textContent = p.bondPercent + '%';
             document.getElementById('share-id').textContent = 'ID: ' + p.portfolioId;
 
-            // ETF Grid
+            // ETF Grid with descriptions (Optimization #5)
             const etfGrid = document.getElementById('etf-grid');
             etfGrid.innerHTML = '';
-
+            const lumpSum = 1000; // default for dollar display
             p.etfs.forEach(etf => {
+                const dollarAmount = Math.round(lumpSum * etf.percent / 100);
                 const card = document.createElement('div');
                 card.className = `etf-card ${etf.type}`;
                 card.innerHTML = `
                     <div class="etf-info">
                         <span class="etf-ticker">${etf.ticker}</span>
                         <span class="etf-name">${etf.name}</span>
+                        ${etf.description ? `<span class="etf-desc">${etf.description}</span>` : ''}
                     </div>
-                    <span class="etf-percent">${etf.percent}%</span>
-                `;
+                    <div>
+                        <span class="etf-percent">${etf.percent}%</span>
+                    </div>`;
                 etfGrid.appendChild(card);
+            });
+
+            // Autopilot CTA context (Optimization #4)
+            const coreEtf = p.etfs.find(e => e.type === 'core') || p.etfs[0];
+            const monthly = p.monthlyInvestment || 500;
+            const previewEl = document.getElementById('autopilot-preview');
+            if (coreEtf) {
+                const coreMonthly = Math.round(monthly * coreEtf.percent / 100);
+                previewEl.textContent = `${coreEtf.ticker} at ${coreEtf.percent}% = $${coreMonthly}/month on autopilot`;
+            }
+            document.getElementById('autopilot-btn').href = `https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html?source=bridge&monthly=${monthly}&suggested_etf=${coreEtf?.ticker || 'VTI'}`;
+
+            // Personalized Next Steps (Optimization #10)
+            renderPersonalizedSteps(p);
+
+            // Start Cost of Waiting ticker
+            startCostTicker(p.projections.year30);
+        }
+
+        // Personalized Next Steps (Optimization #10)
+        function renderPersonalizedSteps(p) {
+            const stepsList = document.getElementById('steps-list');
+            const lumpSum = 5000; // assumed starting amount for step instructions
+            
+            let step2Html = '';
+            p.etfs.forEach((etf, i) => {
+                const amount = Math.round(lumpSum * etf.percent / 100);
+                step2Html += `<span class="step-etf-detail">${etf.ticker}</span> \u2192 Buy $${amount.toLocaleString()} (${etf.percent}%)`;
+                if (i < p.etfs.length - 1) step2Html += '<br>';
+            });
+
+            stepsList.innerHTML = `
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Open a Brokerage</h4>
+                        <p>Fidelity, Schwab, or Vanguard. All free. Takes 10 minutes.</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Buy Your ETFs</h4>
+                        <p>${step2Html}</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Automate $${(p.monthlyInvestment || 500).toLocaleString()}/Month</h4>
+                        <p>Set up recurring purchases for each ticker. Then forget it and let compound interest work.</p>
+                    </div>
+                </div>`;
+        }
+
+        // Bookmark URL (Optimization #9)
+        function generateBookmarkURL(p) {
+            const encoded = encodeURIComponent(JSON.stringify(p));
+            const bookmarkUrl = window.location.origin + window.location.pathname + '?data=' + encoded;
+            const bookmarkLink = document.getElementById('bookmark-link');
+            bookmarkLink.href = bookmarkUrl;
+            bookmarkLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigator.clipboard.writeText(bookmarkUrl).then(() => {
+                    bookmarkLink.textContent = 'Link copied! Paste it anywhere.';
+                    setTimeout(() => { bookmarkLink.textContent = 'Bookmark this page'; }, 3000);
+                }).catch(() => {
+                    // Fallback: open prompt
+                    prompt('Copy this link to save your portfolio:', bookmarkUrl);
+                });
             });
         }
 
-        // Show error state
+        // Animated count-up (Optimization #2)
+        function animateCountUp(elementId, target) {
+            const el = document.getElementById(elementId);
+            const duration = 1500;
+            const start = performance.now();
+            function update(now) {
+                const elapsed = now - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = formatCurrency(Math.round(target * eased));
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+
+        // Cost of Waiting Ticker
+        function startCostTicker(projectedValue) {
+            const dailyCost = projectedValue / (30 * 365);
+            const costPerSecond = dailyCost / 86400;
+            let accumulated = 0;
+            const el = document.getElementById('costTickerValue');
+            setInterval(() => {
+                accumulated += costPerSecond;
+                el.textContent = '$' + accumulated.toFixed(2);
+            }, 1000);
+        }
+
         function showError() {
-            document.querySelector('.container:not(.error-state)').style.display = 'none';
+            document.getElementById('main-content').style.display = 'none';
             document.getElementById('error-state').style.display = 'block';
         }
 
-        // Copy caption
+        // Copy caption (Optimization #7: personality-driven + better hashtags)
         function copyCaption() {
-            const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            const data = loadPortfolioData();
             if (!data) return;
-
-            const caption = `Just built my personalized ETF portfolio 📊
-
-${data.stockPercent}% Stocks / ${data.bondPercent}% Bonds
-30-Year Projection: ${formatCurrency(data.projections.year30)}
-
-Built with the free Investment Simplifier by @koutalksmoney
-
-#investing #etf #portfolio #wealth`;
+            const multiplier = (data.projections.year30 / 87000).toFixed(1);
+            const caption = `I just found out I could be ${multiplier}x richer than the average American by retirement.\n\nBuilt my portfolio in 60 seconds. What's your number?\n\n${data.stockPercent}% Stocks / ${data.bondPercent}% Bonds\n30-Year Projection: ${formatCurrency(data.projections.year30)}\n\nBuild yours free \u2193\n@koutalksmoney\n\n#moneytok #investingforbeginners #etfportfolio #buildwealth #financialliteracy`;
 
             navigator.clipboard.writeText(caption).then(() => {
                 const btn = event.target.closest('.btn');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<span>✓</span> Copied!';
-                setTimeout(() => btn.innerHTML = originalText, 2000);
+                const original = btn.innerHTML;
+                btn.innerHTML = '<span>\u2713</span> Copied!';
+                setTimeout(() => btn.innerHTML = original, 2000);
             });
         }
 
-        // Download card (placeholder - would need html2canvas)
+        // Real screenshot download (Optimization #8: html2canvas)
         function downloadCard() {
-            alert('Screenshot the share card above and post to Instagram!');
+            const shareCard = document.getElementById('share-card-inner');
+            if (!shareCard) return;
+            
+            const btn = event.target.closest('.btn');
+            const original = btn.innerHTML;
+            btn.innerHTML = '<span>\u23F3</span> Generating...';
+            
+            html2canvas(shareCard, {
+                backgroundColor: '#0f1629',
+                scale: 2,
+                useCORS: true,
+                logging: false
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'my-portfolio-koutalksmoney.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                btn.innerHTML = '<span>\u2713</span> Downloaded!';
+                setTimeout(() => btn.innerHTML = original, 2000);
+            }).catch(() => {
+                btn.innerHTML = original;
+                alert('Long-press the share card above to screenshot, then post to your story and tag @koutalksmoney');
+            });
         }
 
-        // Confetti effect
+        // Confetti (delayed per Optimization #2)
         function triggerConfetti() {
             const canvas = document.getElementById('confetti-canvas');
             const ctx = canvas.getContext('2d');
@@ -983,32 +614,24 @@ Built with the free Investment Simplifier by @koutalksmoney
             let frame = 0;
             function animate() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-
                 particles.forEach(p => {
                     p.y += p.speed;
                     p.x += Math.sin(p.angle) * 0.5;
                     p.angle += p.spin;
-
                     ctx.save();
                     ctx.translate(p.x, p.y);
                     ctx.rotate(p.angle);
                     ctx.fillStyle = p.color;
-                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
                     ctx.restore();
                 });
-
                 frame++;
-                if (frame < 180) {
-                    requestAnimationFrame(animate);
-                } else {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                }
+                if (frame < 180) requestAnimationFrame(animate);
+                else ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
-
             animate();
         }
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', loadPortfolio);
     </script>
 </body>
