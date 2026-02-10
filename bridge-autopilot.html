@@ -4,383 +4,407 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autopilot Elite | Your Certificate</title>
-    
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
-    <!-- IFRAME BREAKOUT + GATE CHECK -->
+    <!-- IFRAME BREAKOUT + GUARDED STATE SET (OPT Bridge #7) -->
     <script>
         (function() {
-            try {
-                if (window.self !== window.top) {
-                    window.top.location.href = window.location.href;
-                    return;
-                }
-            } catch(e) {}
-
-            localStorage.setItem('autopilot_email_captured', 'true');
-            localStorage.setItem('autopilot_completed', 'true');
-            localStorage.setItem('autopilot_current_module', '7');
-
+            try { if (window.self !== window.top) { window.top.location.href = window.location.href; return; } } catch(e) {}
+            // GUARD: Only set completion flags if user actually went through the funnel
+            var hasData = localStorage.getItem('autopilot_system_data');
+            var urlHasData = window.location.search.indexOf('aid=') > -1;
+            if (hasData || urlHasData) {
+                localStorage.setItem('autopilot_email_captured', 'true');
+                localStorage.setItem('autopilot_completed', 'true');
+                localStorage.setItem('autopilot_current_module', '6');
+            }
             if (!localStorage.getItem('cashvault_architect_id')) {
-                var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-                var fallback = 'architect_' + Date.now() + '@autopilot.system';
-                var n = fallback.toLowerCase().trim();
-                var h1 = 0, h2 = 5381;
-                for (var i = 0; i < n.length; i++) { var c = n.charCodeAt(i); h1 = ((h1 << 5) - h1) + c; h1 = h1 & h1; h2 = ((h2 << 5) + h2) + c; }
-                var combined = Math.abs(h1) + Math.abs(h2);
-                var id = 'KOU-'; var wh = combined;
-                for (var j = 0; j < 6; j++) { var ci = (wh + (n.charCodeAt(j % n.length) * (j + 1))) % chars.length; id += chars.charAt(Math.abs(ci)); wh = Math.floor(wh / 7) + ci; }
-                localStorage.setItem('cashvault_architect_id', id);
-                localStorage.setItem('command_center_architect_id', id);
+                var p = new URLSearchParams(window.location.search);
+                if (p.get('aid')) {
+                    localStorage.setItem('cashvault_architect_id', p.get('aid'));
+                    localStorage.setItem('command_center_architect_id', p.get('aid'));
+                }
             }
         })();
     </script>
     
     <style>
-        body { font-family: 'JetBrains Mono', monospace; background-color: #0a0a0a; color: #e5e5e5; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
-
-        @keyframes shimmer { 0% { background-position: -250% 0; } 100% { background-position: 250% 0; } }
-        .premium-shimmer {
-            background: linear-gradient(105deg, rgba(255,255,255,0) 20%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 80%);
-            background-size: 200% 100%;
-            animation: shimmer 6s infinite linear;
-        }
-        .embossed { text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
-        .card-font { font-family: 'Share Tech Mono', monospace; }
-
-        @keyframes certificateReveal {
-            0% { opacity: 0; transform: scale(0.9) rotateX(10deg); box-shadow: 0 0 0 rgba(255,255,255,0); }
-            50% { box-shadow: 0 0 60px rgba(255,255,255,0.3), 0 0 120px rgba(34,197,94,0.2); }
-            100% { opacity: 1; transform: scale(1) rotateX(0deg); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); }
-        }
-        .certificate-reveal { animation: certificateReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-
-        @keyframes screenshotPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
-            50% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
-        }
-        .screenshot-pulse { animation: screenshotPulse 2s infinite; }
-
-        .share-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 16px; border-radius: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; cursor: pointer; text-decoration: none; }
-        .share-btn:hover { transform: translateY(-2px); }
-        .share-btn-instagram { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; border: none; }
-        .share-btn-twitter { background: #000; color: white; border: 1px solid #333; }
-        .share-btn-twitter:hover { background: #111; border-color: #555; }
-        .share-btn-linkedin { background: #0077B5; color: white; border: none; }
-        .share-btn-copy { background: transparent; color: #888; border: 1px solid #333; }
-        .share-btn-copy:hover { border-color: #22c55e; color: #22c55e; }
-        .share-btn-copy.copied { background: #22c55e; border-color: #22c55e; color: #000; }
-
-        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'JetBrains Mono',monospace;background:#0a0a0a;color:#e5e5e5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+        .card-font{font-family:'Share Tech Mono',monospace}
+        .wrap{width:100%;max-width:420px;margin:0 auto}
         
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #111; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        /* Animations */
+        @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes certReveal{0%{opacity:0;transform:scale(.9) rotateX(10deg)}50%{box-shadow:0 0 60px rgba(255,255,255,.3),0 0 120px rgba(34,197,94,.2)}100%{opacity:1;transform:scale(1) rotateX(0);box-shadow:0 25px 50px -12px rgba(0,0,0,.8)}}
+        @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 8px rgba(34,197,94,0)}}
+        @keyframes shimmer{0%{background-position:-250% 0}100%{background-position:250% 0}}
+        
+        .fade-in{animation:fadeIn .5s ease-out both}
+        .cert-reveal{animation:certReveal .8s cubic-bezier(.34,1.56,.64,1) both}
+        .pulse-ring{animation:pulse 2s infinite}
+        
+        /* Certificate */
+        .cert{position:relative;border-radius:12px;overflow:hidden;border:1px solid #333;margin-bottom:24px}
+        .cert-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1a,#000,#111);z-index:0}
+        .cert-shimmer{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(105deg,transparent 20%,rgba(255,255,255,.08) 50%,transparent 80%);background-size:200% 100%;animation:shimmer 6s infinite linear}
+        .cert-inner{position:relative;z-index:2;padding:24px;display:flex;flex-direction:column;justify-content:space-between;min-height:280px}
+        .cert-header{display:flex;justify-content:space-between;align-items:flex-start}
+        .cert-logo{display:flex;align-items:center;gap:8px}
+        .cert-dot-wrap{width:32px;height:32px;border-radius:50%;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center}
+        .cert-dot{width:16px;height:16px;border-radius:50%;background:var(--accent)}
+        .cert-badge{font-size:10px;color:#666;border:1px solid #444;padding:4px 8px;border-radius:4px}
+        .cert-chip{width:48px;height:36px;background:linear-gradient(135deg,#fde68a,#f59e0b,#d97706);border-radius:6px;margin-bottom:12px;opacity:.9}
+        .cert-wealth{font-family:'Share Tech Mono',monospace;font-size:20px;color:#d4d4d4;letter-spacing:.15em;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+        .cert-label{font-size:8px;color:#666;text-transform:uppercase;letter-spacing:.15em;margin-top:4px}
+        .cert-footer{display:flex;justify-content:space-between;align-items:flex-end}
+        .cert-name{font-family:'Share Tech Mono',monospace;color:#fff;font-weight:700;text-transform:uppercase;letter-spacing:.15em;font-size:14px;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+        .cert-since{font-size:8px;color:#666;margin-top:4px}
+        .cert-verified{font-size:12px;font-weight:700;color:var(--accent)}
+
+        /* Buttons */
+        .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border-radius:6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;text-decoration:none;border:none;font-family:inherit;transition:all .2s}
+        .btn:hover{transform:translateY(-2px)}
+        .btn-primary{background:var(--accent);color:#000}
+        .btn-outline{background:transparent;color:#888;border:1px solid #333}
+        .btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+        .btn-outline.copied{background:var(--accent);color:#000;border-color:var(--accent)}
+        .btn-ig{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff}
+        .btn-x{background:#000;color:#fff;border:1px solid #333}
+        .btn-li{background:#0077B5;color:#fff}
+        .btn-download{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+
+        /* Layout helpers */
+        .card{background:#111;border:1px solid #333;border-radius:6px;padding:16px;margin-bottom:16px}
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .text-center{text-align:center}
+        .text-xs{font-size:10px}
+        .text-sm{font-size:12px}
+        .text-gray{color:#666}
+        .text-white{color:#fff}
+        .mt-2{margin-top:8px}
+        .mt-4{margin-top:16px}
+        .mb-2{margin-bottom:8px}
+        .mb-4{margin-bottom:16px}
+        .mb-6{margin-bottom:24px}
+        .fw-bold{font-weight:700}
+        .tracking{letter-spacing:.15em;text-transform:uppercase}
+        .hidden{display:none}
+        .border-accent{border:2px solid var(--accent)}
+
+        /* Verify CTA */
+        .verify-bar{background:linear-gradient(135deg,#111,#0a0a0a);border:2px solid var(--accent);border-radius:8px;padding:16px;margin-bottom:24px;display:flex;flex-direction:column;gap:12px;align-items:center}
+        @media(min-width:480px){.verify-bar{flex-direction:row}}
+        .verify-btns{display:flex;gap:8px;width:100%}
+        @media(min-width:480px){.verify-btns{width:auto}}
+        .verify-btns .btn{flex:1;padding:10px 20px;font-size:11px}
+
+        /* Social proof */
+        .proof-box{background:rgba(17,17,17,.6);border:1px solid #444;border-radius:6px;padding:16px;text-align:center;margin-bottom:24px}
+        .proof-num{font-size:24px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace}
+
+        /* Next step cards */
+        .next-card{display:block;background:#111;border:1px solid #333;padding:16px;border-radius:6px;text-decoration:none;transition:all .2s;margin-bottom:12px}
+        .next-card:hover{border-color:#555}
+        .next-card-inner{display:flex;justify-content:space-between;align-items:center}
+        .next-card h4{color:#fff;font-size:13px;font-weight:700}
+        .next-card p{color:#666;font-size:10px;margin-top:2px}
+        .next-card .arrow{color:#555;font-size:16px}
+
+        /* Confetti canvas */
+        #confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999}
+        
+        /* Recovery screen */
+        .recovery{text-align:center;padding:40px 20px}
+        .recovery input{background:#000;border:1px solid #333;color:#fff;padding:12px;width:100%;max-width:300px;font-family:inherit;font-size:14px;text-align:center;margin:16px 0;outline:none}
+        .recovery input:focus{border-color:var(--accent)}
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    <canvas id="confetti-canvas"></canvas>
+    <div class="wrap" id="app"></div>
+    <canvas id="confetti"></canvas>
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+    <script>
+        // === CONFIG ===
+        var ACCENT = '#22c55e';
+        var LINKS = {
+            INSTAGRAM: 'https://instagram.com/koutalksmoney',
+            COMMAND_CENTER: 'https://spacekou5-oss.github.io/cashvault-funnel/command-center.html',
+            INVESTMENT_SIMPLIFIER: 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html',
+            VERIFY_BASE: 'https://spacekou5-oss.github.io/cashvault-funnel/verify.html',
+            BUDGET_CALC: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html"
+        };
 
-        // === MONEY CONFETTI ENGINE ===
-        const MoneyConfetti = {
-            canvas: null, ctx: null, particles: [], isRunning: false, MAX_PARTICLES: 40,
-            init() { this.canvas = document.getElementById('confetti-canvas'); if (!this.canvas) return; this.ctx = this.canvas.getContext('2d'); this.resize(); window.addEventListener('resize', () => this.resize()); },
-            resize() { if (!this.canvas) return; this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; },
-            createParticle() {
-                const colors = ['#22c55e', '#16a34a', '#fbbf24', '#4ade80'];
-                return { x: Math.random() * this.canvas.width, y: -30, type: '$', color: colors[Math.floor(Math.random() * colors.length)], size: Math.random() * 16 + 14, speedY: Math.random() * 2.5 + 2, speedX: (Math.random() - 0.5) * 3, rotation: Math.random() * 360, rotationSpeed: (Math.random() - 0.5) * 8, opacity: 1, wobble: Math.random() * 10, wobbleSpeed: Math.random() * 0.08 + 0.04 };
-            },
-            launch(duration = 3000, intensity = 25) {
-                if (this.isRunning) return; this.isRunning = true; this.particles = [];
-                const startTime = Date.now();
-                const spawnInterval = setInterval(() => { if (Date.now() - startTime > duration * 0.6) { clearInterval(spawnInterval); return; } const toSpawn = Math.min(Math.ceil(intensity / 10), this.MAX_PARTICLES - this.particles.length); for (let i = 0; i < toSpawn; i++) this.particles.push(this.createParticle()); }, 150);
-                const animate = () => {
-                    if (!this.ctx) return; this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                    this.particles = this.particles.filter(p => { p.y += p.speedY; p.x += p.speedX + Math.sin(p.wobble) * 0.5; p.rotation += p.rotationSpeed; p.wobble += p.wobbleSpeed; if (p.y > this.canvas.height - 100) p.opacity -= 0.04; if (p.opacity <= 0 || p.y > this.canvas.height + 50) return false; this.ctx.save(); this.ctx.translate(p.x, p.y); this.ctx.rotate(p.rotation * Math.PI / 180); this.ctx.globalAlpha = p.opacity; this.ctx.fillStyle = p.color; this.ctx.font = `${p.size}px Arial`; this.ctx.textAlign = 'center'; this.ctx.textBaseline = 'middle'; this.ctx.fillText(p.type, 0, 0); this.ctx.restore(); return true; });
-                    if (this.particles.length > 0 || Date.now() - startTime < duration) { requestAnimationFrame(animate); } else { this.isRunning = false; this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); }
+        // Resolve theme from context
+        (function() {
+            try {
+                var ctx = JSON.parse(localStorage.getItem('cashvault_context') || '{}');
+                if (ctx.source === 'ticker') ACCENT = '#DC2626';
+                else if (ctx.source === 'score') ACCENT = '#FACC15';
+            } catch(e) {}
+            document.documentElement.style.setProperty('--accent', ACCENT);
+        })();
+
+        // === COMPOUND INTEREST ===
+        function calcFV(monthly, years) {
+            var r = 0.10, n = 12;
+            return monthly * ((Math.pow(1 + r/n, n * years) - 1) / (r/n));
+        }
+
+        // === DATA HYDRATION: URL first, localStorage second (OPT Bridge #2) ===
+        function getData() {
+            var p = new URLSearchParams(window.location.search);
+            var result = { userName: 'AUTHORIZED USER', architectId: null, monthlyInvest: 0, etfTicker: '', projectedWealth: 0 };
+
+            // PRIORITY 1: URL params
+            if (p.get('aid')) {
+                result.architectId = p.get('aid');
+                result.userName = p.get('n') ? decodeURIComponent(p.get('n')) : result.userName;
+                result.monthlyInvest = parseFloat(p.get('inv')) || 0;
+                result.etfTicker = p.get('etf') || '';
+                result.projectedWealth = parseFloat(p.get('w')) || (result.monthlyInvest > 0 ? calcFV(result.monthlyInvest, 30) : 0);
+            }
+
+            // PRIORITY 2: localStorage
+            if (!result.architectId) result.architectId = localStorage.getItem('cashvault_architect_id');
+            if (!result.architectId) return null; // No data at all
+
+            if (result.monthlyInvest === 0) {
+                var mi = parseFloat(localStorage.getItem('architect_monthly_invest'));
+                if (mi > 0) result.monthlyInvest = mi;
+            }
+            if (!result.etfTicker) {
+                try { var etf = JSON.parse(localStorage.getItem('autopilot_etf_choice') || '{}'); result.etfTicker = etf.ticker || ''; } catch(e) {}
+            }
+            if (result.userName === 'AUTHORIZED USER') {
+                try { var sd = JSON.parse(localStorage.getItem('autopilot_system_data') || '{}'); if (sd.userName) result.userName = sd.userName; } catch(e) {}
+            }
+            if (result.monthlyInvest === 0) {
+                try {
+                    var sd2 = JSON.parse(localStorage.getItem('autopilot_system_data') || '{}');
+                    var deploy = Math.max(0, (sd2.income || 0) - (sd2.bills || 0));
+                    result.monthlyInvest = deploy * 0.20;
+                } catch(e) {}
+            }
+            result.projectedWealth = result.projectedWealth || (result.monthlyInvest > 0 ? calcFV(result.monthlyInvest, 30) : 0);
+            return result;
+        }
+
+        // === CONFETTI (lightweight vanilla) ===
+        var confetti = {
+            canvas: null, ctx: null, particles: [], running: false,
+            init: function() { this.canvas = document.getElementById('confetti'); this.ctx = this.canvas.getContext('2d'); this.resize(); window.addEventListener('resize', this.resize.bind(this)); },
+            resize: function() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; },
+            launch: function() {
+                if (this.running) return; this.running = true; this.particles = [];
+                var self = this, start = Date.now(), colors = ['#22c55e','#16a34a','#fbbf24','#4ade80'];
+                var si = setInterval(function() {
+                    if (Date.now() - start > 1800) { clearInterval(si); return; }
+                    for (var i = 0; i < 3 && self.particles.length < 25; i++) {
+                        self.particles.push({ x: Math.random()*self.canvas.width, y: -20, c: colors[Math.floor(Math.random()*4)], s: Math.random()*14+12, vy: Math.random()*2.5+2, vx: (Math.random()-.5)*3, r: Math.random()*360, rs: (Math.random()-.5)*8, o: 1, w: Math.random()*10, ws: Math.random()*.08+.04 });
+                    }
+                }, 150);
+                var animate = function() {
+                    self.ctx.clearRect(0,0,self.canvas.width,self.canvas.height);
+                    self.particles = self.particles.filter(function(p) {
+                        p.y+=p.vy; p.x+=p.vx+Math.sin(p.w)*.5; p.r+=p.rs; p.w+=p.ws;
+                        if(p.y>self.canvas.height-100) p.o-=.04;
+                        if(p.o<=0) return false;
+                        self.ctx.save(); self.ctx.translate(p.x,p.y); self.ctx.rotate(p.r*Math.PI/180); self.ctx.globalAlpha=p.o; self.ctx.fillStyle=p.c; self.ctx.font=p.s+'px Arial'; self.ctx.textAlign='center'; self.ctx.fillText('$',0,0); self.ctx.restore();
+                        return true;
+                    });
+                    if(self.particles.length>0||Date.now()-start<3000) requestAnimationFrame(animate);
+                    else { self.running=false; self.ctx.clearRect(0,0,self.canvas.width,self.canvas.height); }
                 };
                 animate();
             }
         };
-        window.addEventListener('load', () => MoneyConfetti.init());
 
-        // === THEME SYSTEM (mirrors autopilot-system.html) ===
-        const THEMES = {
-            DEFAULT: { id: 'default', color: 'text-green-500', bg: 'bg-green-500', border: 'border-green-500', accent: '#22c55e', title: 'SYSTEM ONLINE', hover: 'hover:bg-green-500' },
-            TICKER: { id: 'ticker', color: 'text-red-500', bg: 'bg-red-600', border: 'border-red-600', accent: '#DC2626', title: 'EMERGENCY PROTOCOL', hover: 'hover:bg-red-600' },
-            SCORE: { id: 'score', color: 'text-yellow-400', bg: 'bg-yellow-400', border: 'border-yellow-400', accent: '#FACC15', title: 'VIP ACCESS', hover: 'hover:bg-yellow-400' }
-        };
+        // === RENDER ===
+        function render() {
+            var data = getData();
+            var app = document.getElementById('app');
 
-        function resolveTheme() {
+            // RECOVERY SCREEN if no data
+            if (!data) {
+                app.innerHTML = '<div class="recovery fade-in"><h2 class="text-white fw-bold" style="font-size:18px;margin-bottom:8px">Certificate Not Found</h2><p class="text-gray mb-4" style="font-size:12px">We couldn\'t load your data. If you completed the Autopilot System, enter your Architect ID below.</p><input id="recovery-id" placeholder="KOU-XXXXXX" maxlength="10"><br><button class="btn btn-primary" style="max-width:300px;margin:0 auto" onclick="recoverById()">Load Certificate</button><p class="text-gray mt-4" style="font-size:11px">Don\'t have an ID? <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" style="color:'+ACCENT+'">Build your system first</a></p></div>';
+                return;
+            }
+
+            var wealthStr = Math.round(data.projectedWealth).toLocaleString();
+            var verifyUrl = LINKS.VERIFY_BASE + '?id=' + data.architectId + '&n=' + encodeURIComponent(data.userName) + '&inv=' + Math.round(data.monthlyInvest) + '&etf=' + data.etfTicker + '&w=' + Math.round(data.projectedWealth);
+            var isHighValue = data.monthlyInvest >= 500;
+
+            var captions = {
+                INSTAGRAM: 'I just automated $' + Math.round(data.monthlyInvest) + '/mo into ' + (data.etfTicker || 'ETFs') + '. Projected value: $' + wealthStr + '. Built with @koutalksmoney',
+                TWITTER: 'Just automated $' + Math.round(data.monthlyInvest) + '/mo into ' + (data.etfTicker || 'ETFs') + '.\n\nProjected: $' + wealthStr + ' in 30 years.\n\nVerify: ' + verifyUrl + '\n\n@koutalksmoney',
+                LINKEDIN: 'I completed the Autopilot Money System. I now auto-invest $' + Math.round(data.monthlyInvest) + '/mo into ' + (data.etfTicker || 'diversified ETFs') + '. Verify: ' + verifyUrl + ' #PersonalFinance',
+                TIKTOK: 'POV: You automated $' + Math.round(data.monthlyInvest) + '/mo into ' + (data.etfTicker || 'ETFs') + ' and your wealth is building itself. ' + verifyUrl + ' @koutalksmoney'
+            };
+
+            var linkedInCertUrl = 'https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=' + encodeURIComponent('Autopilot Money System') + '&organizationName=' + encodeURIComponent('Kou Talks Money') + '&certUrl=' + encodeURIComponent(verifyUrl) + '&certId=' + encodeURIComponent(data.architectId);
+            var tweetUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(captions.TWITTER);
+            var liShareUrl = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(verifyUrl);
+
+            var html = '';
+
+            // Download button
+            html += '<div class="text-center mb-4 fade-in"><button id="download-btn" class="btn btn-download pulse-ring" style="max-width:320px;margin:0 auto;font-size:11px"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg> DOWNLOAD HIGH-RES CERTIFICATE</button></div>';
+
+            // Certificate card
+            html += '<div id="cert-card" class="cert cert-reveal"><div class="cert-bg"></div><div class="cert-shimmer"></div><div class="cert-inner">';
+            html += '<div class="cert-header"><div class="cert-logo"><div class="cert-dot-wrap"><div class="cert-dot"></div></div><span class="fw-bold text-white" style="letter-spacing:.15em;font-size:13px">AUTOPILOT<span style="color:'+ACCENT+'">ELITE</span></span></div><span class="cert-badge">WEALTH ARCHITECT</span></div>';
+            html += '<div><div class="mb-2"><p class="cert-label">Architect ID</p><p style="color:'+ACCENT+';font-family:JetBrains Mono;font-size:18px;font-weight:700;letter-spacing:.15em">'+data.architectId+'</p></div>';
+            html += '<div class="cert-chip"></div>';
+            html += '<div class="cert-wealth" id="wealth-counter">$0</div>';
+            html += '<div class="cert-label">Projected Net Worth (30yr)</div></div>';
+            html += '<div class="cert-footer"><div><p class="cert-name">'+data.userName+'</p><p class="cert-since">MEMBER SINCE '+new Date().getFullYear()+'</p></div><div style="color:'+ACCENT+';font-size:12px;font-weight:700">\u2713 VERIFIED</div></div>';
+            html += '</div></div>';
+
+            // Verify bar
+            html += '<div class="verify-bar fade-in" style="animation-delay:.2s"><div style="flex:1;text-align:center"><p class="text-white fw-bold text-sm">Your Verification Page is Live</p><p class="text-gray text-xs mt-2">Drop this link in your bio, resume, or DMs.</p></div><div class="verify-btns"><a href="'+verifyUrl+'" target="_blank" class="btn btn-primary" style="font-size:11px">View Page</a><button class="btn btn-outline" style="font-size:11px" onclick="copyText(\''+verifyUrl+'\',this)">Copy Link</button></div></div>';
+
+            // Social proof
+            html += '<div class="proof-box fade-in" style="animation-delay:.3s"><p class="text-gray text-xs fw-bold tracking mb-2">Your Position</p><p class="proof-num" id="proof-count">Architect #...</p><p class="text-gray text-xs mt-2" id="proof-total"></p></div>';
+
+            // Next steps (OPT #9)
+            html += '<div class="fade-in mb-6" style="animation-delay:.4s"><p class="text-gray text-xs tracking text-center mb-4">What\'s Next</p>';
+            html += '<a href="'+LINKS.COMMAND_CENTER+'" class="next-card"><div class="next-card-inner"><div><h4>Command Center</h4><p>Track your system. Monitor your progress.</p></div><span class="arrow">\u2192</span></div></a>';
+            html += '<a href="'+LINKS.INVESTMENT_SIMPLIFIER+'" class="next-card"><div class="next-card-inner"><div><h4>Investment Simplifier</h4><p>Build a custom portfolio beyond a single ETF.</p></div><span class="arrow">\u2192</span></div></a></div>';
+
+            // LinkedIn certification
+            html += '<a href="'+linkedInCertUrl+'" target="_blank" class="btn btn-li mb-6 fade-in" style="animation-delay:.5s">Add to LinkedIn Profile</a>';
+
+            // Claim section
+            html += '<div class="card fade-in" style="animation-delay:.6s;position:relative;overflow:hidden"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:'+ACCENT+'"></div>';
+            html += '<h3 class="text-white fw-bold text-center" style="font-size:16px;margin-bottom:4px">UNLOCK THE PROMPT VAULT</h3><p class="text-gray text-xs text-center mb-6">Choose your path.</p>';
+
+            // Path A
+            html += '<div style="background:#000;border:1px solid #333;border-radius:6px;overflow:hidden;margin-bottom:12px"><div style="padding:12px 16px;border-bottom:1px solid #333;background:rgba(255,255,255,.02);display:flex;justify-content:space-between;align-items:center"><span class="text-gray text-xs fw-bold tracking">Path A: Quick Claim</span><span class="text-gray text-xs" style="border:1px solid #444;padding:2px 8px;border-radius:4px">1 REWARD</span></div><div style="padding:16px"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:28px;height:28px;border-radius:50%;background:#666;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0">1</div><div><p class="text-white fw-bold text-sm">DM "ARCHITECT" to <span style="color:'+ACCENT+'">@koutalksmoney</span></p><p class="text-gray" style="font-size:11px;margin-top:4px">Instant delivery. ManyChat replies in seconds.</p></div></div><div style="margin-top:12px;margin-left:40px;display:flex;align-items:center;gap:8px"><span class="text-gray text-xs">You get:</span><span class="text-white fw-bold text-xs" style="background:#222;padding:2px 8px;border-radius:4px">Prompt Vault Cheat Sheet</span></div></div></div>';
+
+            // Path B
+            html += '<div style="border-radius:6px;border:2px solid '+ACCENT+';overflow:hidden;position:relative;margin-bottom:16px"><div style="position:absolute;top:0;right:0;padding:2px 8px;font-size:9px;font-weight:700;color:#000;background:'+ACCENT+';text-transform:uppercase;letter-spacing:.05em">Recommended</div><div style="padding:12px 16px;border-bottom:1px solid #333;background:rgba(255,255,255,.02);display:flex;justify-content:space-between;align-items:center"><span class="fw-bold text-xs tracking" style="color:'+ACCENT+'">Path B: Full Unlock</span><span class="fw-bold text-xs" style="color:'+ACCENT+';border:1px solid '+ACCENT+';padding:2px 8px;border-radius:4px">2 REWARDS</span></div><div style="padding:16px">';
+            var steps = [
+                {n:1, t:'Download your certificate (button above)', s:'Or screenshot it. Both work.'},
+                {n:2, t:'Post it to your story and tag <span style="color:'+ACCENT+'">@koutalksmoney</span>', s:'Any platform works.'},
+                {n:3, t:'DM "ARCHITECT" to <span style="color:'+ACCENT+'">@koutalksmoney</span>', s:'Mention you posted. Both rewards delivered instantly.'}
+            ];
+            for (var i = 0; i < steps.length; i++) {
+                html += '<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px"><div style="width:28px;height:28px;border-radius:50%;background:'+ACCENT+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0">'+steps[i].n+'</div><div><p class="text-white fw-bold text-sm">'+steps[i].t+'</p><p class="text-gray" style="font-size:11px">'+steps[i].s+'</p></div></div>';
+            }
+            html += '<div style="margin-left:40px;display:flex;flex-wrap:wrap;align-items:center;gap:8px"><span class="text-gray text-xs">You get:</span><span class="text-white fw-bold text-xs" style="background:#222;padding:2px 8px;border-radius:4px">Prompt Vault Cheat Sheet</span><span class="text-gray text-xs">+</span><span class="fw-bold text-xs" style="color:'+ACCENT+';background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);padding:2px 8px;border-radius:4px">Budget Calculator Secret Code</span></div>';
+            html += '</div></div>';
+
+            // Tiered upsell
+            if (isHighValue) {
+                html += '<div style="border-top:1px solid #333;padding-top:16px;margin-bottom:16px"><div style="background:#000;border:1px solid rgba(250,204,21,.3);border-radius:6px;padding:16px;text-align:center"><p style="color:#facc15;font-size:10px;text-transform:uppercase;letter-spacing:.15em;font-weight:700;margin-bottom:4px">High-Value Architect Detected</p><p class="text-white fw-bold text-sm mb-2">Want a personalized portfolio review?</p><p class="text-gray text-xs mb-4">You\'re investing $'+Math.round(data.monthlyInvest)+'/mo. Get a 1-on-1 strategy session.</p><a href="'+LINKS.INSTAGRAM+'" target="_blank" class="btn" style="background:#facc15;color:#000;max-width:280px;margin:0 auto;font-size:11px">DM "STRATEGY" to Book</a></div></div>';
+            } else {
+                html += '<div style="border-top:1px solid #333;padding-top:16px;margin-bottom:16px"><div style="background:#000;border:1px solid #333;border-radius:6px;padding:16px;text-align:center"><p class="text-gray text-xs fw-bold tracking mb-2">Level Up</p><p class="text-white fw-bold text-sm mb-2">Want to increase your investable income?</p><p class="text-gray text-xs mb-4">The Budget Calculator finds hidden cash. Most users find $50-$200/mo.</p><a href="'+LINKS.BUDGET_CALC+'" target="_blank" class="btn btn-outline" style="max-width:280px;margin:0 auto;font-size:11px">Open Budget Calculator</a></div></div>';
+            }
+
+            // Share links
+            html += '<div style="border-top:1px solid #333;padding-top:16px"><p class="text-gray text-xs tracking text-center mb-4">Quick Share Links</p><div class="grid-2 mb-4"><a href="'+LINKS.INSTAGRAM+'" target="_blank" class="btn btn-ig" style="grid-column:span 2">Open Instagram</a><a href="'+tweetUrl+'" target="_blank" class="btn btn-x">Open X</a><a href="'+liShareUrl+'" target="_blank" class="btn btn-li">Open LinkedIn</a></div></div>';
+
+            // Personalized captions
+            html += '<div style="border-top:1px solid #333;padding-top:16px"><p class="text-gray text-xs tracking text-center mb-4">Copy Your Personalized Captions</p><div class="grid-2">';
+            var platforms = ['INSTAGRAM','TWITTER','LINKEDIN','TIKTOK'];
+            for (var j = 0; j < platforms.length; j++) {
+                html += '<button class="btn btn-outline text-xs" style="padding:8px" onclick="copyCaption(\''+platforms[j]+'\',this)">' + platforms[j] + '</button>';
+            }
+            html += '</div></div></div>';
+
+            html += '<p class="text-gray text-xs text-center mt-4" style="padding-bottom:48px">Your Architect ID is permanent. Share it anywhere to prove you built the machine.</p>';
+
+            app.innerHTML = html;
+
+            // Store captions globally for copy function
+            window._captions = captions;
+
+            // Animated wealth counter
+            animateCounter(data.projectedWealth);
+
+            // Confetti after short delay
+            setTimeout(function() { confetti.launch(); }, 800);
+
+            // Load architect count
+            loadArchitectCount();
+
+            // Download handler
+            document.getElementById('download-btn').addEventListener('click', function() {
+                var btn = this;
+                btn.textContent = 'GENERATING...';
+                btn.disabled = true;
+                html2canvas(document.getElementById('cert-card'), { backgroundColor: '#0a0a0a', scale: 3, useCORS: true }).then(function(canvas) {
+                    var link = document.createElement('a');
+                    link.download = 'autopilot-certificate-' + data.architectId + '.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg> DOWNLOAD HIGH-RES CERTIFICATE';
+                    btn.disabled = false;
+                }).catch(function() { btn.textContent = 'DOWNLOAD FAILED'; btn.disabled = false; });
+            });
+        }
+
+        function animateCounter(target) {
+            var el = document.getElementById('wealth-counter');
+            if (!el || target <= 0) { el.textContent = '$0'; return; }
+            var start = Date.now(), duration = 2500;
+            function tick() {
+                var elapsed = Date.now() - start;
+                var progress = Math.min(elapsed / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = '$' + Math.round(target * eased).toLocaleString();
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        async function loadArchitectCount() {
+            var count = 47; // Believable floor
             try {
-                const savedContext = localStorage.getItem('cashvault_context');
-                if (savedContext) {
-                    const parsed = JSON.parse(savedContext);
-                    if (parsed.source === 'ticker') return THEMES.TICKER;
-                    if (parsed.source === 'score') return THEMES.SCORE;
+                if (window.storage) {
+                    var r = await window.storage.get('architects-recent', true);
+                    if (r) count = JSON.parse(r.value).length;
                 }
             } catch(e) {}
-            return THEMES.DEFAULT;
+            var el = document.getElementById('proof-count');
+            var el2 = document.getElementById('proof-total');
+            if (el) el.textContent = 'Architect #' + (count + 1);
+            if (el2) el2.textContent = 'of ' + (count + 1) + ' total systems installed';
         }
 
-        // === CONFIG ===
-        const CONFIG = {
-            LINKS: { INSTAGRAM: "https://instagram.com/koutalksmoney" },
-            SHARE_TEMPLATES: {
-                INSTAGRAM: "I just installed the Autopilot Money System. My machine is now building wealth while I sleep. @koutalksmoney",
-                TWITTER: "Just installed The Autopilot Money System.\n\nMy wealth is now on autopilot.\n\nGet yours: [LINK]\n\n@koutalksmoney",
-                LINKEDIN: "I just completed the Autopilot Money System certification. If you're still manually managing your finances, you're working too hard. Automation > Willpower. #PersonalFinance #WealthBuilding",
-                TIKTOK: "POV: You just installed the Autopilot Money System and your wealth is now building itself @koutalksmoney"
-            },
-            ANNUAL_RETURN: 0.10
-        };
-
-        // === CORRECTED COMPOUND INTEREST FORMULA ===
-        // Future Value of Annuity: FV = PMT * (((1 + r/n)^(n*t) - 1) / (r/n))
-        function calcFutureValue(monthlyPayment, years) {
-            const r = CONFIG.ANNUAL_RETURN;
-            const n = 12;
-            return monthlyPayment * ((Math.pow(1 + r/n, n * years) - 1) / (r/n));
+        function copyText(text, btn) {
+            navigator.clipboard.writeText(text);
+            var orig = btn.textContent;
+            btn.textContent = '\u2713 Copied';
+            btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
         }
 
-        // === PULL DATA FROM LOCALSTORAGE ===
-        function getStoredData() {
-            const savedData = localStorage.getItem('autopilot_system_data');
-            const parsed = savedData ? JSON.parse(savedData) : {};
-            const architectId = localStorage.getItem('cashvault_architect_id') || 'KOU-XXXXXX';
-            const monthlyInvest = parseFloat(localStorage.getItem('architect_monthly_invest')) || 0;
-            const investAmt = monthlyInvest || (parsed.income ? Math.max(0, (parsed.income - (parsed.bills || 0))) * 0.20 : 0);
-            const projectedWealth = investAmt > 0 ? calcFutureValue(investAmt, 30).toLocaleString(undefined, {maximumFractionDigits:0}) : '0';
-            return {
-                userName: parsed.userName || 'AUTHORIZED USER',
-                architectId,
-                projectedWealth,
-                monthlyInvest: investAmt
-            };
+        function copyCaption(platform, btn) {
+            if (window._captions && window._captions[platform]) {
+                navigator.clipboard.writeText(window._captions[platform]);
+                var orig = btn.textContent;
+                btn.textContent = '\u2713 Copied';
+                btn.classList.add('copied');
+                setTimeout(function() { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+            }
         }
 
-        // === CERTIFICATE PAGE ===
-        function CertificatePage() {
-            const [copiedPlatform, setCopiedPlatform] = useState(null);
-            const [revealed, setRevealed] = useState(false);
-            const confettiLaunched = useRef(false);
-            const theme = resolveTheme();
-            const data = getStoredData();
-
-            // Stagger animation sequence for mobile performance
-            // Phase 1 (0ms): Certificate card reveals
-            // Phase 2 (800ms): Confetti launches
-            useEffect(() => {
-                const timer = setTimeout(() => {
-                    setRevealed(true);
-                    if (!confettiLaunched.current) {
-                        confettiLaunched.current = true;
-                        setTimeout(() => MoneyConfetti.launch(3000, 25), 800);
-                    }
-                }, 100);
-                return () => clearTimeout(timer);
-            }, []);
-
-            // Smooth countdown: 1-second updates using Date.now() delta (no drift)
-            // Delayed start until certificate + confetti settle
-            const countdownStartRef = useRef(null);
-            const [displayCountdown, setDisplayCountdown] = useState(24 * 60 * 60);
-            useEffect(() => {
-                const startDelay = setTimeout(() => {
-                    countdownStartRef.current = Date.now();
-                    const timer = setInterval(() => {
-                        const elapsed = Math.floor((Date.now() - countdownStartRef.current) / 1000);
-                        const remaining = Math.max(0, 24 * 60 * 60 - elapsed);
-                        setDisplayCountdown(remaining);
-                        if (remaining <= 0) clearInterval(timer);
-                    }, 1000);
-                    return () => clearInterval(timer);
-                }, 2000);
-                return () => clearTimeout(startDelay);
-            }, []);
-
-            const formatCountdown = (s) => {
-                const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
-                return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
-            };
-
-            const handleCopy = (platform) => {
-                navigator.clipboard.writeText(CONFIG.SHARE_TEMPLATES[platform]);
-                setCopiedPlatform(platform);
-                setTimeout(() => setCopiedPlatform(null), 2000);
-            };
-
-            const shareUrls = {
-                twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(CONFIG.SHARE_TEMPLATES.TWITTER)}`,
-                linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html')}`
-            };
-
-            return (
-                <div className="min-h-screen flex items-center justify-center p-4 sm:p-6">
-                    <div className="w-full max-w-md mx-auto animate-fade-in">
-                        {/* SCREENSHOT PROMPT */}
-                        <div className="text-center mb-4">
-                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${theme.border} ${theme.color} text-xs font-bold uppercase tracking-widest screenshot-pulse`}>
-                                <span>SCREENSHOT THIS CARD</span>
-                            </div>
-                        </div>
-
-                        {/* CERTIFICATE CARD */}
-                        <div id="certificate-card" className={`relative w-full rounded-xl mb-6 shadow-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`} style={{willChange: 'transform'}}>
-                            <div className="absolute inset-0 bg-[#0a0a0a]"></div>
-                            <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-[#000] to-black opacity-90"></div>
-                            <div className="absolute inset-0 premium-shimmer opacity-20 pointer-events-none"></div>
-                            <div className="relative p-6 flex flex-col justify-between z-10" style={{minHeight: '280px'}}>
-                                <div className="flex justify-between items-start">
-                                    <div className="flex items-center gap-2">
-                                        <div className={`w-8 h-8 rounded-full border-2 ${theme.border} flex items-center justify-center`}><div className={`w-4 h-4 ${theme.bg} rounded-full animate-pulse`}></div></div>
-                                        <span className="font-bold text-white tracking-widest text-sm">AUTOPILOT<span className={theme.color}>ELITE</span></span>
-                                    </div>
-                                    <span className="text-[10px] text-gray-500 font-mono border border-gray-700 px-2 py-1 rounded">WEALTH ARCHITECT</span>
-                                </div>
-                                <div>
-                                    <div className="mb-2"><p className="text-[8px] text-gray-500 uppercase tracking-widest mb-1">Architect ID</p><p className={`${theme.color} font-mono text-lg font-bold tracking-widest`}>{data.architectId}</p></div>
-                                    <div className="w-12 h-9 bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-600 rounded-md mb-3 shadow-sm opacity-90"></div>
-                                    <div className="card-font text-gray-300 text-xl tracking-[0.15em] opacity-80 embossed">${data.projectedWealth}</div>
-                                    <div className="text-[8px] text-gray-500 uppercase tracking-widest mt-1">Projected Net Worth (30yr)</div>
-                                </div>
-                                <div className="flex justify-between items-end">
-                                    <div><p className="text-white font-bold uppercase tracking-widest text-sm embossed card-font">{data.userName}</p><p className="text-[8px] text-gray-500 mt-1">MEMBER SINCE {new Date().getFullYear()}</p></div>
-                                    <div className="text-right"><div className={`${theme.color} text-xs font-bold`}>{'\u2713'} VERIFIED</div></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* VERIFY CTA: First thing after certificate, before offers */}
-                        <div className={`bg-gradient-to-br from-gray-900 to-black border-2 ${theme.border} p-4 rounded-lg mb-6 flex flex-col sm:flex-row items-center gap-4`}>
-                            <div className="flex-1 text-center sm:text-left">
-                                <p className="text-white font-bold text-sm">Your Verification Page is Live</p>
-                                <p className="text-gray-400 text-[11px] mt-0.5">Drop this link in your bio, resume, or DMs. Anyone can confirm your status.</p>
-                            </div>
-                            <div className="flex gap-2 w-full sm:w-auto">
-                                <a href={`https://spacekou5-oss.github.io/cashvault-funnel/verify.html?id=${data.architectId}`} target="_blank" className={`flex-1 sm:flex-none py-2.5 px-5 ${theme.bg} text-black font-bold text-xs rounded text-center transition-all hover:opacity-90 uppercase tracking-wider`}>View Page</a>
-                                <button onClick={() => { navigator.clipboard.writeText(`https://spacekou5-oss.github.io/cashvault-funnel/verify.html?id=${data.architectId}`); setCopiedPlatform('verify'); setTimeout(() => setCopiedPlatform(null), 2000); }} className={`flex-1 sm:flex-none py-2.5 px-5 border ${copiedPlatform === 'verify' ? `${theme.border} ${theme.color}` : 'border-gray-700 text-gray-400'} font-bold text-xs rounded text-center transition-all uppercase tracking-wider`}>{copiedPlatform === 'verify' ? '\u2713 Copied' : 'Copy Link'}</button>
-                            </div>
-                        </div>
-
-                        {/* COUNTDOWN: Neutral styling, smooth 1s ticks */}
-                        <div className="bg-gray-900/60 border border-gray-700 p-4 rounded mb-6 text-center">
-                            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Bonus Access Window</p>
-                            <p className="text-white text-2xl font-mono font-bold">{formatCountdown(displayCountdown)}</p>
-                        </div>
-
-                        {/* CLAIM + SHARE SECTION */}
-                        <div className="text-center space-y-4 pb-12">
-                            <div className="bg-gray-900 border border-gray-800 p-6 rounded-sm shadow-xl relative overflow-hidden">
-                                <div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div>
-                                
-                                {/* TWO-TIER CLAIM STRUCTURE */}
-                                <h3 className="text-white font-bold text-lg mb-1">UNLOCK THE PROMPT VAULT</h3>
-                                <p className="text-gray-500 text-xs mb-6">Choose your path. One gets you the vault. The other gets you everything.</p>
-
-                                <div className="text-left mb-6 space-y-3">
-                                    {/* TIER 1: DM Only (Floor) */}
-                                    <div className="bg-black rounded border border-gray-800 overflow-hidden">
-                                        <div className="px-4 py-3 border-b border-gray-800 bg-gray-900/50 flex justify-between items-center">
-                                            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Path A: Quick Claim</p>
-                                            <span className="text-[10px] text-gray-600 border border-gray-700 px-2 py-0.5 rounded">1 REWARD</span>
-                                        </div>
-                                        <div className="p-4">
-                                            <div className="flex gap-3 items-start">
-                                                <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black bg-gray-500">1</div>
-                                                <div>
-                                                    <p className="text-white text-sm font-bold">DM "ARCHITECT" to <span style={{color: theme.accent}}>@koutalksmoney</span></p>
-                                                    <p className="text-gray-500 text-[11px] mt-1">I'll reply with your Prompt Vault access link.</p>
-                                                </div>
-                                            </div>
-                                            <div className="mt-3 ml-10 flex items-center gap-2">
-                                                <span className="text-[10px] text-gray-500">You get:</span>
-                                                <span className="text-[10px] text-white font-bold bg-gray-800 px-2 py-0.5 rounded">Prompt Vault Cheat Sheet</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* TIER 2: Post + Tag + DM (Ceiling) */}
-                                    <div className="rounded border-2 overflow-hidden relative" style={{borderColor: theme.accent}}>
-                                        <div className="absolute top-0 right-0 px-2 py-0.5 text-[9px] font-bold text-black uppercase tracking-widest" style={{background: theme.accent}}>Recommended</div>
-                                        <div className="px-4 py-3 border-b border-gray-800 bg-gray-900/50 flex justify-between items-center">
-                                            <p className="text-[10px] uppercase tracking-widest font-bold" style={{color: theme.accent}}>Path B: Full Unlock</p>
-                                            <span className="text-[10px] border px-2 py-0.5 rounded font-bold" style={{color: theme.accent, borderColor: theme.accent}}>2 REWARDS</span>
-                                        </div>
-                                        <div className="p-4 space-y-3">
-                                            <div className="flex gap-3 items-start">
-                                                <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black" style={{background: theme.accent}}>1</div>
-                                                <div>
-                                                    <p className="text-white text-sm font-bold">Screenshot the certificate above</p>
-                                                    <p className="text-gray-500 text-[11px]">Long-press or use your phone's screenshot shortcut.</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-3 items-start">
-                                                <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black" style={{background: theme.accent}}>2</div>
-                                                <div>
-                                                    <p className="text-white text-sm font-bold">Post it to your story and tag <span style={{color: theme.accent}}>@koutalksmoney</span></p>
-                                                    <p className="text-gray-500 text-[11px]">Instagram, X, LinkedIn, or TikTok. Any platform works.</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-3 items-start">
-                                                <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black" style={{background: theme.accent}}>3</div>
-                                                <div>
-                                                    <p className="text-white text-sm font-bold">DM "ARCHITECT" to <span style={{color: theme.accent}}>@koutalksmoney</span></p>
-                                                    <p className="text-gray-500 text-[11px]">Mention you posted so I can verify and send both rewards.</p>
-                                                </div>
-                                            </div>
-                                            <div className="mt-2 ml-10 flex flex-wrap items-center gap-2">
-                                                <span className="text-[10px] text-gray-500">You get:</span>
-                                                <span className="text-[10px] text-white font-bold bg-gray-800 px-2 py-0.5 rounded">Prompt Vault Cheat Sheet</span>
-                                                <span className="text-[10px] text-gray-600">+</span>
-                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{color: theme.accent, background: `${theme.accent}15`, border: `1px solid ${theme.accent}40`}}>Budget Calculator Secret Code</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* SHARE TOOLS (convenience, not triggers) */}
-                                <div className="border-t border-gray-800 pt-4">
-                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Quick Share Links</p>
-                                    <p className="text-[10px] text-gray-600 mb-3">These open the app for you. You still need to post + tag to claim.</p>
-                                    <div className="grid grid-cols-2 gap-3 mb-4">
-                                        <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="share-btn share-btn-instagram col-span-2">Open Instagram</a>
-                                        <a href={shareUrls.twitter} target="_blank" className="share-btn share-btn-twitter">Open X</a>
-                                        <a href={shareUrls.linkedin} target="_blank" className="share-btn share-btn-linkedin">Open LinkedIn</a>
-                                    </div>
-                                </div>
-
-                                {/* PRE-WRITTEN CAPTIONS */}
-                                <div className="border-t border-gray-800 pt-4 mt-4">
-                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Copy Pre-Written Captions</p>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {['INSTAGRAM', 'TWITTER', 'LINKEDIN', 'TIKTOK'].map(platform => (
-                                            <button key={platform} onClick={() => handleCopy(platform)} className={`share-btn share-btn-copy text-[10px] py-2 ${copiedPlatform === platform ? 'copied' : ''}`}>{copiedPlatform === platform ? '\u2713 Copied' : `${platform} Caption`}</button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                            <p className="text-[10px] text-gray-600 max-w-xs mx-auto">Your Architect ID is permanent. Share it anywhere to prove you built the machine.</p>
-                        </div>
-                    </div>
-                </div>
-            );
+        function recoverById() {
+            var id = document.getElementById('recovery-id').value.trim().toUpperCase();
+            if (id && id.startsWith('KOU-')) {
+                localStorage.setItem('cashvault_architect_id', id);
+                localStorage.setItem('command_center_architect_id', id);
+                render();
+            }
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<CertificatePage />);
+        // Init
+        confetti.init();
+        render();
     </script>
 </body>
 </html>
