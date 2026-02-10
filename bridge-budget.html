@@ -1,394 +1,917 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Budget Blueprint | Unlocked</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Financial DNA | Blueprint Unlocked</title>
+    <meta property="og:title" content="Your Financial DNA | Blueprint Unlocked">
+    <meta property="og:description" content="Your personalized budget archetype and allocation blueprint.">
+    <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.1.0"></script>
+    <!-- IFRAME BREAKOUT + GUARDED UNLOCK -->
+    <script>
+    (function(){
+        // If inside iframe (Beehiiv redirect), break out to full page
+        try {
+            if (window.self !== window.top) {
+                window.top.location.href = window.location.href;
+                return;
+            }
+        } catch(e) {}
 
-  <!-- IFRAME BREAKOUT + UNLOCK FLAG -->
-  <script>
-      (function() {
-          // If loaded inside Beehiiv iframe, break out to full page
-          try {
-              if (window.self !== window.top) {
-                  window.top.location.href = window.location.href;
-                  return;
-              }
-          } catch(e) {}
+        // Only set unlock flags if there's evidence user completed the quiz
+        var quizDone = localStorage.getItem('budget_quiz_completed') === 'true';
+        var params = new URLSearchParams(window.location.search);
+        var hasSysParam = params.get('sys');
 
-          // Mark as unlocked (they came from Beehiiv redirect)
-          localStorage.setItem('budget_unlocked', 'true');
-          localStorage.setItem('budget_completed', 'true');
-      })();
-  </script>
+        if (quizDone || hasSysParam) {
+            localStorage.setItem('budget_unlocked', 'true');
+            localStorage.setItem('budget_completed', 'true');
 
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #111827;
-      background-image:
-        radial-gradient(at 20% 80%, hsla(260, 50%, 30%, 0.2) 0px, transparent 50%),
-        radial-gradient(at 80% 10%, hsla(210, 45%, 40%, 0.25) 0px, transparent 50%),
-        linear-gradient(to bottom right, #111827, #131b31, #111827);
-      color: #e2e8f0;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: #1f2937; }
-    ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-  </style>
+            // Hydrate from URL params if present
+            if (hasSysParam) localStorage.setItem('budget_selected_system', hasSysParam);
+            var inc = params.get('inc');
+            if (inc) localStorage.setItem('budget_income', inc);
+            var per = params.get('per');
+            if (per) localStorage.setItem('budget_income_period', per);
+        }
+    })();
+    </script>
+
+    <style>
+        :root {
+            --bg-primary: #0f1117;
+            --bg-secondary: #161923;
+            --bg-card: #1c2030;
+            --bg-input: #12141c;
+            --accent: #f59e0b;
+            --accent-glow: rgba(245,158,11,0.25);
+            --accent-dim: rgba(245,158,11,0.1);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #2a2f3e;
+            --border-light: rgba(255,255,255,0.08);
+            --green: #10b981;
+            --blue: #60a5fa;
+            --purple: #a78bfa;
+            --pink: #f472b6;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{
+            font-family:'Inter',-apple-system,sans-serif;
+            background:var(--bg-primary);
+            color:var(--text-primary);
+            min-height:100vh;
+            overflow-x:hidden;
+        }
+        .bg-ambient{
+            position:fixed;inset:0;pointer-events:none;z-index:0;
+            background:
+                radial-gradient(ellipse at 20% 80%,rgba(99,59,159,0.15) 0%,transparent 50%),
+                radial-gradient(ellipse at 80% 10%,rgba(59,99,159,0.12) 0%,transparent 50%);
+        }
+        .container{
+            max-width:720px;margin:0 auto;padding:24px 16px;
+            position:relative;z-index:1;
+        }
+
+        /* Header */
+        .header{text-align:center;margin-bottom:28px;}
+        .header-brand{font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px;}
+        .header-brand a{color:var(--text-muted);text-decoration:none;}
+        .header-brand a:hover{color:var(--accent);}
+        .header-social{font-size:0.65rem;color:var(--text-muted);margin-bottom:16px;}
+        .header-title{
+            font-size:clamp(1.6rem,5vw,2.2rem);font-weight:800;
+            letter-spacing:-0.02em;margin-bottom:6px;
+            background:linear-gradient(135deg,#f1f5f9 30%,#94a3b8);
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+            background-clip:text;
+        }
+        .header-sub{font-size:0.95rem;color:var(--text-secondary);}
+
+        /* Main Card */
+        .main-card{
+            background:var(--bg-secondary);
+            border:1px solid var(--border-light);
+            border-radius:16px;overflow:hidden;
+        }
+
+        @keyframes fadeSlide{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+        /* Banner */
+        .dash-banner{
+            padding:14px 20px;text-align:center;
+            background:rgba(16,185,129,0.08);border-bottom:1px solid rgba(16,185,129,0.15);
+            font-size:0.8rem;color:var(--green);font-weight:600;
+            animation:fadeSlide 0.4s ease;
+        }
+
+        /* Dashboard Header */
+        .dash-header{
+            padding:24px;text-align:center;
+            background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(245,158,11,0.02));
+            border-bottom:1px solid rgba(245,158,11,0.15);
+        }
+        .dash-eyebrow{
+            font-family:'JetBrains Mono',monospace;font-size:0.65rem;
+            color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;
+            margin-bottom:8px;font-weight:700;
+        }
+        .dash-archetype{
+            font-size:clamp(1.3rem,4vw,1.7rem);font-weight:800;
+            letter-spacing:-0.02em;margin-bottom:2px;
+        }
+        .dash-system-name{font-size:0.85rem;color:var(--text-secondary);}
+
+        .dash-body{padding:24px;}
+
+        /* Income */
+        .income-section{
+            background:var(--bg-card);border:1px solid var(--border-light);
+            border-radius:12px;padding:16px 20px;margin-bottom:24px;
+        }
+        .income-label{
+            font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;
+            letter-spacing:0.12em;font-weight:700;margin-bottom:10px;
+            display:flex;align-items:center;gap:8px;
+        }
+        .income-imported{
+            font-size:0.6rem;color:var(--green);font-weight:600;
+            background:rgba(16,185,129,0.1);padding:2px 8px;border-radius:10px;
+        }
+        .income-row{display:flex;gap:10px;align-items:stretch;}
+        .income-field{flex:1;position:relative;}
+        .income-field span{
+            position:absolute;left:12px;top:50%;transform:translateY(-50%);
+            color:var(--text-muted);font-size:0.9rem;
+        }
+        .income-field input{
+            width:100%;background:var(--bg-input);border:2px solid var(--border);
+            border-radius:8px;padding:12px 12px 12px 28px;color:var(--text-primary);
+            font-size:1rem;font-weight:600;outline:none;transition:border-color 0.2s;
+            font-family:'Inter',sans-serif;
+        }
+        .income-field input:focus{border-color:var(--accent);}
+        .income-field input::placeholder{color:var(--text-muted);font-weight:400;}
+        .income-toggle{
+            display:flex;background:var(--bg-input);border:1px solid var(--border);
+            border-radius:8px;overflow:hidden;flex-shrink:0;
+        }
+        .income-toggle button{
+            padding:10px 16px;font-size:0.75rem;font-weight:600;
+            background:transparent;border:none;color:var(--text-muted);
+            cursor:pointer;transition:all 0.2s;white-space:nowrap;
+        }
+        .income-toggle button.active{background:var(--accent);color:#000;}
+
+        /* Content Grid */
+        .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
+        @media(max-width:640px){.dash-grid{grid-template-columns:1fr;}}
+        .dash-col h3{font-size:0.95rem;font-weight:700;margin-bottom:8px;}
+        .dash-desc{font-size:0.85rem;color:var(--text-secondary);line-height:1.6;}
+        .dash-why{font-size:0.85rem;color:rgba(245,158,11,0.85);line-height:1.6;}
+        .dash-why-dynamic{
+            margin-top:12px;padding:12px 16px;
+            background:var(--accent-dim);border:1px solid rgba(245,158,11,0.15);
+            border-radius:10px;font-size:0.8rem;color:var(--text-secondary);line-height:1.6;
+        }
+        .dash-why-dynamic strong{color:var(--accent);}
+
+        /* CSS Doughnut */
+        .doughnut-wrap{display:flex;align-items:center;justify-content:center;padding:16px;}
+        .doughnut-container{position:relative;width:240px;height:240px;}
+        .doughnut-ring{
+            width:100%;height:100%;border-radius:50%;
+            transition:background 0.5s ease;
+            -webkit-mask:radial-gradient(circle,transparent 56%,black 57%);
+            mask:radial-gradient(circle,transparent 56%,black 57%);
+        }
+        .doughnut-center{
+            position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;
+        }
+        .doughnut-center-value{
+            font-family:'JetBrains Mono',monospace;font-size:1.2rem;
+            font-weight:800;color:var(--text-primary);
+        }
+        .doughnut-center-label{font-size:0.65rem;color:var(--text-muted);margin-top:2px;}
+        .doughnut-legend{display:flex;flex-direction:column;gap:6px;margin-top:12px;}
+        .doughnut-legend-item{
+            display:flex;align-items:center;justify-content:space-between;
+            font-size:0.8rem;padding:8px 12px;
+            background:var(--bg-card);border:1px solid var(--border-light);border-radius:8px;
+        }
+        .doughnut-legend-left{display:flex;align-items:center;gap:8px;}
+        .doughnut-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+        .doughnut-legend-label{color:var(--text-secondary);font-weight:500;}
+        .doughnut-legend-value{
+            font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--text-primary);
+        }
+
+        /* Tabs */
+        .tabs-section{border-top:1px solid var(--border-light);padding-top:20px;margin-bottom:24px;}
+        .tabs-title{
+            text-align:center;font-size:0.65rem;color:var(--text-muted);
+            text-transform:uppercase;letter-spacing:0.12em;margin-bottom:12px;font-weight:700;
+        }
+        .tabs-row{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;}
+        .sys-tab{
+            padding:8px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;
+            border:1px solid var(--border);background:transparent;
+            color:var(--text-muted);cursor:pointer;transition:all 0.2s;white-space:nowrap;
+        }
+        .sys-tab:hover{border-color:var(--accent);color:var(--accent);}
+        .sys-tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+        .sys-tab-score{
+            font-family:'JetBrains Mono',monospace;font-size:0.6rem;margin-left:4px;opacity:0.7;
+        }
+
+        /* Cross-sell */
+        .cross-sell{
+            background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.02));
+            border:1px solid rgba(16,185,129,0.2);border-radius:12px;
+            padding:20px;text-align:center;margin-bottom:24px;
+        }
+        .cross-sell-eyebrow{
+            font-family:'JetBrains Mono',monospace;font-size:0.6rem;
+            color:var(--green);text-transform:uppercase;letter-spacing:0.12em;
+            margin-bottom:6px;font-weight:700;
+        }
+        .cross-sell-title{font-size:1rem;font-weight:700;margin-bottom:4px;}
+        .cross-sell-text{font-size:0.8rem;color:var(--text-secondary);margin-bottom:14px;line-height:1.5;}
+        .cross-sell-amount{
+            font-family:'JetBrains Mono',monospace;font-size:1.4rem;
+            font-weight:800;color:var(--green);margin-bottom:14px;
+        }
+        .cross-sell-btn{
+            display:inline-flex;align-items:center;gap:8px;
+            background:var(--green);color:#000;padding:12px 24px;
+            border-radius:8px;font-family:'JetBrains Mono',monospace;
+            font-size:0.8rem;font-weight:700;text-decoration:none;
+            transition:all 0.3s;text-transform:uppercase;letter-spacing:0.04em;
+        }
+        .cross-sell-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(16,185,129,0.3);}
+
+        /* Identity Card */
+        .card-section{border-top:1px solid var(--border-light);padding-top:20px;}
+        .card-section-title{
+            text-align:center;font-size:0.65rem;color:var(--text-muted);
+            text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px;font-weight:700;
+        }
+        .id-card{
+            width:100%;max-width:400px;margin:0 auto;
+            aspect-ratio:1.586/1;border-radius:16px;overflow:hidden;position:relative;
+            background:linear-gradient(135deg,#0c0e1a 0%,#1a1d32 50%,#0e1020 100%);
+            border:1px solid rgba(245,158,11,0.2);
+            padding:24px;display:flex;flex-direction:column;justify-content:space-between;
+        }
+        .id-card-holo{
+            position:absolute;top:-50%;right:-30%;width:300px;height:300px;
+            background:conic-gradient(from 0deg,transparent,rgba(245,158,11,0.06),transparent,rgba(96,165,250,0.05),transparent);
+            border-radius:50%;animation:holoSpin 8s linear infinite;pointer-events:none;
+        }
+        @keyframes holoSpin{to{transform:rotate(360deg);}}
+        .id-card-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;}
+        .id-card-badge{
+            font-family:'JetBrains Mono',monospace;font-size:0.5rem;
+            color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;
+            font-weight:700;border:1px solid rgba(245,158,11,0.3);padding:4px 10px;border-radius:4px;
+        }
+        .id-card-brand{font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:var(--text-muted);text-align:right;}
+        .id-card-mid{position:relative;z-index:1;}
+        .id-card-archetype{
+            font-family:'JetBrains Mono',monospace;font-size:clamp(1rem,3.5vw,1.3rem);
+            font-weight:800;color:var(--accent);letter-spacing:0.06em;
+            text-transform:uppercase;margin-bottom:2px;
+        }
+        .id-card-system{font-size:0.75rem;color:var(--text-secondary);margin-bottom:8px;}
+        .id-card-alloc{display:flex;gap:12px;}
+        .id-card-alloc-item{text-align:center;}
+        .id-card-alloc-val{
+            font-family:'JetBrains Mono',monospace;font-size:0.85rem;
+            font-weight:700;color:var(--text-primary);
+        }
+        .id-card-alloc-lbl{font-size:0.5rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;}
+        .id-card-bottom{
+            display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1;
+        }
+        .id-card-income-val{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:800;color:var(--text-primary);}
+        .id-card-income-lbl{font-size:0.5rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;}
+        .id-card-footer-brand{font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:var(--accent);font-weight:700;}
+        .card-actions{display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;}
+        .card-download-btn{
+            display:inline-flex;align-items:center;gap:8px;
+            background:var(--accent);color:#000;padding:10px 20px;
+            border:none;border-radius:8px;font-family:'JetBrains Mono',monospace;
+            font-size:0.75rem;font-weight:700;cursor:pointer;transition:all 0.3s;text-transform:uppercase;
+        }
+        .card-download-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px var(--accent-glow);}
+        .card-download-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+        .card-share-hint{text-align:center;font-size:0.7rem;color:var(--text-muted);margin-top:10px;}
+
+        /* Recovery prompt */
+        .recovery{padding:40px 24px;text-align:center;animation:fadeSlide 0.4s ease;}
+        .recovery h2{font-size:1.3rem;font-weight:700;margin-bottom:8px;}
+        .recovery p{font-size:0.85rem;color:var(--text-secondary);margin-bottom:20px;}
+        .recovery-options{display:flex;flex-direction:column;gap:8px;max-width:360px;margin:0 auto;}
+        .recovery-opt{
+            padding:12px 16px;border:1px solid var(--border);border-radius:10px;
+            background:var(--bg-card);cursor:pointer;transition:all 0.2s;
+            display:flex;justify-content:space-between;align-items:center;
+        }
+        .recovery-opt:hover{border-color:var(--accent);background:var(--accent-dim);}
+        .recovery-opt-name{font-size:0.9rem;font-weight:600;color:var(--text-primary);}
+        .recovery-opt-arch{font-size:0.7rem;color:var(--accent);font-family:'JetBrains Mono',monospace;}
+
+        /* Footer */
+        .footer{
+            text-align:center;padding:20px 0 12px;margin-top:28px;
+            border-top:1px solid var(--border-light);
+        }
+        .footer-privacy{font-size:0.7rem;color:var(--text-muted);margin-bottom:8px;line-height:1.5;}
+        .footer-links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;}
+        .footer-link{font-size:0.7rem;color:var(--text-muted);text-decoration:none;transition:color 0.2s;}
+        .footer-link:hover{color:var(--accent);}
+
+        @media(max-width:480px){
+            .container{padding:16px 12px;}
+            .dash-body{padding:16px;}
+            .income-row{flex-direction:column;}
+            .income-toggle{align-self:stretch;}
+            .income-toggle button{flex:1;}
+            .doughnut-container{width:200px;height:200px;}
+            .id-card{padding:18px;}
+            .id-card-archetype{font-size:0.95rem;}
+            .card-actions{flex-direction:column;align-items:stretch;}
+        }
+    </style>
 </head>
 <body>
-  <div class="container mx-auto max-w-4xl p-4 sm:p-6 md:p-8 min-h-screen flex flex-col justify-center text-slate-300">
+    <div class="bg-ambient"></div>
+    <div class="container">
+        <header class="header">
+            <div class="header-brand"><a href="https://instagram.com/koutalksmoney" target="_blank">made by kou</a></div>
+            <div class="header-social">Instagram: @koutalksmoney &middot; YouTube: @FinanceWithKou</div>
+            <h1 class="header-title">Your Financial DNA</h1>
+            <p class="header-sub">Your personalized financial blueprint.</p>
+        </header>
 
-    <header class="text-center mb-8">
-      <p class="text-sm text-slate-500 mb-1 uppercase tracking-wide">made by kou</p>
-      <p class="text-xs text-slate-500 mb-3">
-        Instagram: @koutalksmoney · YouTube: @FinanceWithKou
-      </p>
-      <h1 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-400">
-        Budget &amp; Wealth Architect
-      </h1>
-      <p class="text-lg text-slate-400 mt-2">Your personalized financial blueprint.</p>
-    </header>
+        <main class="main-card">
+            <!-- Reinforcement Banner -->
+            <div class="dash-banner" id="dashBanner">&#10003; Blueprint Unlocked. Your personalized system is ready below.</div>
 
-    <main class="bg-slate-900/60 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden transition-all duration-500 relative min-h-[400px]">
-
-      <!-- DASHBOARD (always visible, no gate) -->
-      <section id="step-dashboard" class="animate-fade-in">
-        <div class="bg-gradient-to-r from-amber-600/20 to-amber-900/20 border-b border-amber-500/30 p-6 text-center">
-          <p class="text-amber-400 font-semibold uppercase tracking-wider text-sm mb-1">Based on your answers, we recommend</p>
-          <h2 id="recommended-title" class="text-3xl font-bold text-white"></h2>
-        </div>
-
-        <div class="p-6 sm:p-8 space-y-8">
-          <!-- Income Input -->
-          <section class="bg-slate-800/50 p-6 rounded-xl border border-white/5">
-            <label class="block text-slate-400 text-sm font-semibold mb-3">ENTER YOUR MONTHLY OR ANNUAL INCOME</label>
-            <div class="flex flex-col sm:flex-row gap-4">
-              <div class="relative flex-grow">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
-                <input type="number" id="income-input" placeholder="e.g. 5000"
-                  class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 pl-8 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
-              </div>
-              <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700">
-                <button id="btn-monthly" class="px-6 py-2 rounded-md text-sm font-medium transition-all bg-amber-500 text-slate-900">Monthly</button>
-                <button id="btn-annual" class="px-6 py-2 rounded-md text-sm font-medium transition-all text-slate-400">Annual</button>
-              </div>
-            </div>
-          </section>
-
-          <div class="flex flex-col lg:flex-row gap-8">
-            
-            <div class="w-full lg:w-1/2 space-y-6">
-              <div>
-                <h3 class="text-xl font-bold text-white mb-2">How it works</h3>
-                <p id="system-desc" class="text-slate-300 leading-relaxed"></p>
-              </div>
-              <div>
-                <h3 class="text-xl font-bold text-white mb-2">Why it fits you</h3>
-                <p id="system-advantage" class="text-amber-400/90 leading-relaxed"></p>
-              </div>
-              <div class="h-px bg-white/10 my-6"></div>
-              <div id="breakdown-list" class="space-y-3">
-                <p class="text-slate-500 italic">Enter your income to see the breakdown.</p>
-              </div>
+            <!-- Recovery Prompt (only shown if no system data found) -->
+            <div class="recovery" id="recoverySection" style="display:none;">
+                <h2>Which archetype were you matched to?</h2>
+                <p>We couldn't detect your quiz result. Pick the system you were recommended:</p>
+                <div class="recovery-options" id="recoveryOptions"></div>
             </div>
 
-            <!-- Chart -->
-            <div class="w-full lg:w-1/2 flex items-center justify-center bg-slate-800/30 rounded-xl border border-white/5 p-4 min-h-[300px]">
-              <div class="relative w-full h-[300px]">
-                <canvas id="budget-chart"></canvas>
-              </div>
+            <!-- Dashboard -->
+            <div id="dashboardSection">
+                <div class="dash-header">
+                    <div class="dash-eyebrow">Your Financial Archetype</div>
+                    <div class="dash-archetype" id="dashArchetype"></div>
+                    <div class="dash-system-name" id="dashSystemName"></div>
+                </div>
+                <div class="dash-body">
+                    <!-- Income -->
+                    <div class="income-section">
+                        <div class="income-label">
+                            <span>Enter Your Income</span>
+                            <span class="income-imported" id="incomeImported" style="display:none;">Imported from Autopilot</span>
+                        </div>
+                        <div class="income-row">
+                            <div class="income-field">
+                                <span>$</span>
+                                <input type="number" id="incomeInput" placeholder="e.g. 5000" inputmode="numeric">
+                            </div>
+                            <div class="income-toggle">
+                                <button id="btnMonthly" class="active" onclick="setPeriod('monthly')">Monthly</button>
+                                <button id="btnAnnual" onclick="setPeriod('annual')">Annual</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Grid -->
+                    <div class="dash-grid">
+                        <div class="dash-col">
+                            <h3>How it works</h3>
+                            <div class="dash-desc" id="dashDesc"></div>
+                            <div style="height:16px;"></div>
+                            <h3>Why this matches you</h3>
+                            <div class="dash-why" id="dashWhy"></div>
+                            <div class="dash-why-dynamic" id="dashWhyDynamic" style="display:none;"></div>
+                        </div>
+                        <div class="dash-col">
+                            <div class="doughnut-wrap">
+                                <div>
+                                    <div class="doughnut-container">
+                                        <div class="doughnut-ring" id="doughnutRing"></div>
+                                        <div class="doughnut-center">
+                                            <div class="doughnut-center-value" id="doughnutValue">--</div>
+                                            <div class="doughnut-center-label" id="doughnutLabel">Enter income</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="doughnut-legend" id="doughnutLegend"></div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="tabs-section">
+                        <div class="tabs-title">Explore All Archetypes</div>
+                        <div class="tabs-row" id="tabsRow"></div>
+                    </div>
+
+                    <!-- Cross-sell -->
+                    <div class="cross-sell" id="crossSell">
+                        <div class="cross-sell-eyebrow">Next Step: Automate It</div>
+                        <div class="cross-sell-title" id="crossSellTitle"></div>
+                        <div class="cross-sell-text" id="crossSellText">You've mapped the allocation. Now wire the automation so it runs without you.</div>
+                        <div class="cross-sell-amount" id="crossSellAmount"></div>
+                        <a href="#" class="cross-sell-btn" id="crossSellBtn">Install The Autopilot System &#8594;</a>
+                    </div>
+
+                    <!-- Identity Card -->
+                    <div class="card-section">
+                        <div class="card-section-title">Your Financial DNA Card</div>
+                        <div class="id-card" id="idCard">
+                            <div class="id-card-holo"></div>
+                            <div class="id-card-top">
+                                <div class="id-card-badge">Financial DNA</div>
+                                <div class="id-card-brand">@koutalksmoney</div>
+                            </div>
+                            <div class="id-card-mid">
+                                <div class="id-card-archetype" id="cardArchetype"></div>
+                                <div class="id-card-system" id="cardSystem"></div>
+                                <div class="id-card-alloc" id="cardAlloc"></div>
+                            </div>
+                            <div class="id-card-bottom">
+                                <div>
+                                    <div class="id-card-income-val" id="cardIncome">--</div>
+                                    <div class="id-card-income-lbl">Monthly Income</div>
+                                </div>
+                                <div class="id-card-footer-brand">KOU TALKS MONEY</div>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="card-download-btn" id="cardDownloadBtn" onclick="downloadCard()">
+                                <span id="cardBtnText">Download Card</span>
+                            </button>
+                        </div>
+                        <div class="card-share-hint">Share your Financial DNA on Instagram, LinkedIn, or TikTok</div>
+                    </div>
+                </div>
             </div>
-          </div>
+        </main>
 
-          <!-- System Tabs -->
-          <div class="border-t border-white/10 pt-6">
-            <h4 class="text-center text-slate-400 text-sm font-semibold uppercase tracking-wider mb-4">Explore Other Systems</h4>
-            <div class="flex flex-wrap justify-center gap-2">
-              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="50-30-20">50/30/20</button>
-              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="wealth-builder">Wealth Builder</button>
-              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="pay-yourself-first">Pay Yourself First</button>
-              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="envelope">Envelope</button>
-              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="80-20">80/20</button>
+        <footer class="footer">
+            <div class="footer-privacy">Your data stays on your device. Nothing is sent to our servers.</div>
+            <div class="footer-links">
+                <a href="https://spacekou5-oss.github.io/cashvault-funnel/Kous-Budget-Calculator.html" class="footer-link">Retake Quiz</a>
+                <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="footer-link">Autopilot System</a>
+                <a href="https://spacekou5-oss.github.io/cashvault-funnel/800-club.html" class="footer-link">800-Club</a>
+                <a href="https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" class="footer-link">Freedom Calculator</a>
+                <a href="https://instagram.com/koutalksmoney" target="_blank" class="footer-link">Instagram</a>
             </div>
-          </div>
-        </div>
-      </section>
-    </main>
+        </footer>
+    </div>
 
-    <footer class="mt-8 text-center opacity-60 text-sm text-slate-500">
-      <p>Privacy First. No data is stored.</p>
-    </footer>
-  </div>
+    <script>
+    // =========================================
+    // SYSTEM DATA (must match main app exactly)
+    // =========================================
+    var AUTOPILOT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html';
 
-  <script>
-    // === BUDGET SYSTEMS DATA ===
-    const budgetSystems = {
-      '50-30-20': {
-        title: '50/30/20 Rule',
-        desc: '50% for Needs, 30% for Wants, 20% for Savings & Debt Repayment.',
-        advantage: 'Simplicity. Clear percentages are easy to remember without intensive tracking.',
-        colors: ['#f59e0b', '#818cf8', '#60a5fa']
-      },
-      'wealth-builder': {
-        title: 'Wealth Builder',
-        desc: '50% for Needs, 25% for Investing, 15% for Wants, 10% for Savings.',
-        advantage: 'Prioritizes future wealth while keeping a safety net and some fun money.',
-        colors: ['#f59e0b', '#10b981', '#818cf8', '#60a5fa']
-      },
-      'pay-yourself-first': {
-        title: 'Pay Yourself First',
-        desc: 'Automatically move 20% to savings or investing as soon as income hits your account.',
-        advantage: 'Automates good habits and removes the temptation to spend your savings.',
-        colors: ['#60a5fa', '#818cf8']
-      },
-      '80-20': {
-        title: '80/20 Budget',
-        desc: '20% to Savings & Debt, 80% is a single flexible pool for everything else.',
-        advantage: 'Maximum freedom with one simple rule: save first, then spend the rest guilt-free.',
-        colors: ['#60a5fa', '#818cf8']
-      },
-      'envelope': {
-        title: 'Envelope System',
-        desc: 'Set hard limits by category (e.g., Groceries, Fun, Gas) using envelopes or digital categories.',
-        advantage: 'Powerful for overspenders. Once the envelope is empty, spending stops.',
-        colors: ['#f472b6', '#a78bfa', '#34d399', '#9ca3af']
-      }
+    var SYSTEMS = {
+        '50-30-20': {
+            archetype: 'THE BALANCED STRATEGIST',
+            title: '50/30/20 Rule',
+            desc: '50% for Needs, 30% for Wants, 20% for Savings & Debt. The classic three-bucket system that works because it removes overthinking.',
+            advantage: 'Clear percentages. Easy to remember. No spreadsheets required. You set the rails once and your money follows the tracks.',
+            segments: [
+                { label: 'Needs', pct: 50, color: '#f59e0b' },
+                { label: 'Wants', pct: 30, color: '#818cf8' },
+                { label: 'Savings & Debt', pct: 20, color: '#60a5fa' }
+            ],
+            investPct: 20, investLabel: 'savings/debt allocation'
+        },
+        'wealth-builder': {
+            archetype: 'THE COMPOUND COMMANDER',
+            title: 'Wealth Builder',
+            desc: '50% for Needs, 25% for Investing, 15% for Wants, 10% for Savings. Four buckets engineered to prioritize compound growth over consumption.',
+            advantage: 'Your money works harder than you do. Future wealth is the priority. Safety net stays intact. Wants get disciplined, not eliminated.',
+            segments: [
+                { label: 'Needs', pct: 50, color: '#f59e0b' },
+                { label: 'Investing', pct: 25, color: '#10b981' },
+                { label: 'Wants', pct: 15, color: '#818cf8' },
+                { label: 'Savings', pct: 10, color: '#60a5fa' }
+            ],
+            investPct: 25, investLabel: 'investing allocation'
+        },
+        'pay-yourself-first': {
+            archetype: 'THE AUTOMATION GHOST',
+            title: 'Pay Yourself First',
+            desc: '20% auto-transferred to savings or investing the moment income hits your account. The remaining 80% is yours to manage however you want.',
+            advantage: 'Set the auto-transfer once. Never think about it again. Willpower removed from the equation. Your future self gets paid before your present self can spend it.',
+            segments: [
+                { label: 'Auto-Save/Invest', pct: 20, color: '#60a5fa' },
+                { label: 'Everything Else', pct: 80, color: '#818cf8' }
+            ],
+            investPct: 20, investLabel: 'auto-save allocation'
+        },
+        '80-20': {
+            archetype: 'THE MINIMALIST OPERATOR',
+            title: '80/20 Budget',
+            desc: '20% to Savings & Debt, 80% is one flexible pool for everything else. One rule. Maximum freedom.',
+            advantage: 'Lowest maintenance system possible. Save first, then spend the rest guilt-free. No categories, no tracking, no spreadsheets. Just one clean split.',
+            segments: [
+                { label: 'Savings & Debt', pct: 20, color: '#60a5fa' },
+                { label: 'Everything Else', pct: 80, color: '#818cf8' }
+            ],
+            investPct: 20, investLabel: 'savings/debt allocation'
+        },
+        'envelope': {
+            archetype: 'THE CASH WARLORD',
+            title: 'Envelope System',
+            desc: 'Hard spending limits by category. When the envelope is empty, spending stops. No exceptions, no negotiations, no "I\'ll make up for it next month."',
+            advantage: 'The nuclear option for overspenders. Forces instant feedback: you see the envelope balance drop in real time. Spending becomes a conscious act instead of an unconscious habit.',
+            segments: [
+                { label: 'Groceries', pct: 15, color: '#f472b6' },
+                { label: 'Fun', pct: 10, color: '#a78bfa' },
+                { label: 'Shopping', pct: 7.5, color: '#34d399' },
+                { label: 'Fixed + Savings', pct: 67.5, color: '#64748b' }
+            ],
+            investPct: 15, investLabel: 'savings component'
+        }
     };
 
-    // === RESTORE STATE FROM LOCALSTORAGE ===
-    let selectedSystem = localStorage.getItem('budget_selected_system') || '50-30-20';
-    let income = parseFloat(localStorage.getItem('budget_income')) || 0;
-    let incomePeriod = localStorage.getItem('budget_income_period') || 'monthly';
-    let chartInstance = null;
+    // Quiz questions (needed for dynamic "why" rendering)
+    var QUESTIONS = [
+        { options: [
+            { label: 'Get control of overspending', score: { 'envelope': 4, '50-30-20': 2 }, reason: 'controlling overspending is your top priority' },
+            { label: 'Build an emergency savings buffer', score: { 'pay-yourself-first': 3, '80-20': 2 }, reason: 'building emergency savings is your focus' },
+            { label: 'Aggressively invest and grow wealth', score: { 'wealth-builder': 4 }, reason: 'aggressive wealth growth is your #1 goal' },
+            { label: 'Pay off debt faster', score: { 'envelope': 3, '50-30-20': 3 }, reason: 'eliminating debt is your primary objective' },
+            { label: 'Keep things simple and stress-free', score: { '80-20': 4, 'pay-yourself-first': 3 }, reason: 'simplicity and low stress matter most to you' }
+        ]},
+        { options: [
+            { label: 'Very stable', score: { 'wealth-builder': 2, '50-30-20': 2 }, reason: 'your stable income supports structured allocation' },
+            { label: 'Somewhat stable', score: { '50-30-20': 2 }, reason: 'your semi-stable income needs moderate flexibility' },
+            { label: 'Very irregular', score: { '80-20': 3, 'pay-yourself-first': 3 }, reason: 'your irregular income demands a flexible system' }
+        ]},
+        { options: [
+            { label: 'Yes, almost always', score: { 'envelope': 3, 'pay-yourself-first': 2 }, reason: 'you\'re spending nearly everything you earn' },
+            { label: 'Sometimes', score: { '50-30-20': 2 }, reason: 'your spending occasionally hits your ceiling' },
+            { label: 'No, money left over', score: { 'wealth-builder': 2, '80-20': 1 }, reason: 'you already have margin in your budget' }
+        ]},
+        { options: [
+            { label: 'Light', score: { '80-20': 3, 'pay-yourself-first': 2 }, reason: 'you want to start the savings habit without pressure' },
+            { label: 'Moderate', score: { '50-30-20': 3 }, reason: 'you want consistent, comfortable savings' },
+            { label: 'Aggressive', score: { 'wealth-builder': 4 }, reason: 'you\'re willing to sacrifice wants for faster wealth' }
+        ]},
+        { options: [
+            { label: 'Yes, significant', score: { 'envelope': 4 }, reason: 'high-interest debt needs aggressive containment' },
+            { label: 'Some, manageable', score: { '50-30-20': 2 }, reason: 'your manageable debt allows balanced allocation' },
+            { label: 'Very little or none', score: { 'wealth-builder': 2, 'pay-yourself-first': 1 }, reason: 'minimal debt frees your cash for investing' }
+        ]},
+        { options: [
+            { label: 'Very likely', score: { 'envelope': 5 }, reason: 'you need hard spending limits to stay on track' },
+            { label: 'Sometimes', score: { '50-30-20': 2 }, reason: 'occasional overspending benefits from guardrails' },
+            { label: 'Not very likely', score: { 'wealth-builder': 2, '80-20': 2 }, reason: 'your natural spending discipline allows more freedom' }
+        ]}
+    ];
 
-    // === DOM ELEMENTS ===
-    const recommendedTitle = document.getElementById('recommended-title');
-    const systemDesc = document.getElementById('system-desc');
-    const systemAdvantage = document.getElementById('system-advantage');
-    const incomeInput = document.getElementById('income-input');
-    const btnMonthly = document.getElementById('btn-monthly');
-    const btnAnnual = document.getElementById('btn-annual');
-    const breakdownList = document.getElementById('breakdown-list');
-    const chartCanvas = document.getElementById('budget-chart');
-    const systemTabs = document.querySelectorAll('.system-tab');
+    // =========================================
+    // STATE
+    // =========================================
+    var selectedSystem = '50-30-20';
+    var income = 0;
+    var incomePeriod = 'monthly';
+    var savedScores = {};
+    var savedAnswers = [];
 
-    // === FUNCTIONS ===
-    function applySystemToDashboard() {
-      const sys = budgetSystems[selectedSystem];
-      recommendedTitle.textContent = sys.title;
-      systemDesc.textContent = sys.desc;
-      systemAdvantage.textContent = sys.advantage;
+    var $ = function(id) { return document.getElementById(id); };
 
-      systemTabs.forEach(tab => {
-        const isActive = tab.dataset.system === selectedSystem;
-        tab.classList.remove('bg-amber-500', 'border-amber-500', 'text-slate-900', 'border-white/10');
-        tab.classList.add('border');
-        if (isActive) {
-          tab.classList.add('bg-amber-500', 'border-amber-500', 'text-slate-900');
-        } else {
-          tab.classList.add('border-white/10');
+    function fmt(n) {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0);
+    }
+    function getMonthly() {
+        return incomePeriod === 'annual' ? income / 12 : income;
+    }
+
+    // =========================================
+    // DATA HYDRATION (URL params > localStorage > recovery)
+    // =========================================
+    function hydrateData() {
+        var params = new URLSearchParams(window.location.search);
+        var foundSystem = false;
+
+        // Priority 1: URL params
+        var urlSys = params.get('sys');
+        if (urlSys && SYSTEMS[urlSys]) {
+            selectedSystem = urlSys;
+            foundSystem = true;
         }
-      });
-    }
+        var urlInc = params.get('inc');
+        if (urlInc) income = parseFloat(urlInc) || 0;
+        var urlPer = params.get('per');
+        if (urlPer) incomePeriod = urlPer;
 
-    function getMonthlyIncome() {
-      return incomePeriod === 'annual' ? income / 12 : income;
-    }
-
-    function getBreakdownForSystem() {
-      const monthly = getMonthlyIncome();
-      let items = [];
-      if (selectedSystem === '50-30-20') {
-        items = [
-          { label: 'Needs', amt: monthly * 0.5, color: '#f59e0b' },
-          { label: 'Wants', amt: monthly * 0.3, color: '#818cf8' },
-          { label: 'Savings & Debt', amt: monthly * 0.2, color: '#60a5fa' }
-        ];
-      } else if (selectedSystem === 'wealth-builder') {
-        items = [
-          { label: 'Needs', amt: monthly * 0.5, color: '#f59e0b' },
-          { label: 'Investing', amt: monthly * 0.25, color: '#10b981' },
-          { label: 'Wants', amt: monthly * 0.15, color: '#818cf8' },
-          { label: 'Savings', amt: monthly * 0.1, color: '#60a5fa' }
-        ];
-      } else if (selectedSystem === 'pay-yourself-first') {
-        items = [
-          { label: 'Savings', amt: monthly * 0.2, color: '#60a5fa' },
-          { label: 'Everything Else', amt: monthly * 0.8, color: '#818cf8' }
-        ];
-      } else if (selectedSystem === '80-20') {
-        items = [
-          { label: 'Savings & Debt', amt: monthly * 0.2, color: '#60a5fa' },
-          { label: 'Everything Else', amt: monthly * 0.8, color: '#818cf8' }
-        ];
-      } else {
-        const d = monthly * 0.5;
-        items = [
-          { label: 'Groceries', amt: d * 0.3, color: '#f472b6' },
-          { label: 'Fun', amt: d * 0.2, color: '#a78bfa' },
-          { label: 'Shopping', amt: d * 0.15, color: '#34d399' },
-          { label: 'Fixed Costs', amt: monthly - d * 0.65, color: '#9ca3af' }
-        ];
-      }
-      return items;
-    }
-
-    function formatCurrency(amount) {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount || 0);
-    }
-
-    function updateBreakdownAndChart() {
-      const monthly = getMonthlyIncome();
-      breakdownList.innerHTML = '';
-      if (!income || income <= 0) {
-        breakdownList.innerHTML = '<p class="text-slate-500 italic">Enter your income to see the breakdown.</p>';
-      } else {
-        const items = getBreakdownForSystem();
-        items.forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'flex items-center justify-between bg-slate-800/30 p-3 rounded-lg border border-white/5';
-          row.innerHTML = `<div class="flex items-center gap-3">
-               <div class="w-3 h-3 rounded-full" style="background-color:${item.color};"></div>
-               <span class="text-slate-200 font-medium">${item.label}</span>
-             </div>
-             <span class="text-white font-bold">${formatCurrency(item.amt)}</span>`;
-          breakdownList.appendChild(row);
-        });
-      }
-
-      if (!chartCanvas) return;
-      const ctx = chartCanvas.getContext('2d');
-      if (!ctx) return;
-      if (chartInstance) chartInstance.destroy();
-
-      const items = getBreakdownForSystem();
-      const labels = items.map(i => i.label);
-      const data = items.map(i => i.amt);
-      const colors = items.map(i => i.color);
-
-      const centerTextPlugin = {
-        id: 'centerText',
-        afterDraw(chart) {
-          const opts = chart.options.plugins.centerText || {};
-          if (!opts.display) return;
-          const ctx2 = chart.ctx;
-          const value = opts.value || 0;
-          const formatted = formatCurrency(value);
-          const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
-          const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-          ctx2.save();
-          ctx2.textAlign = 'center';
-          ctx2.textBaseline = 'middle';
-          ctx2.font = '700 20px Inter, sans-serif';
-          ctx2.fillStyle = '#f1f5f9';
-          ctx2.fillText(formatted, centerX, centerY - 10);
-          ctx2.font = '500 12px Inter, sans-serif';
-          ctx2.fillStyle = '#94a3b8';
-          ctx2.fillText('Monthly', centerX, centerY + 15);
-          ctx2.restore();
-        }
-      };
-
-      Chart.register(ChartDataLabels, centerTextPlugin);
-
-      chartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels,
-          datasets: [{ data, backgroundColor: colors, borderColor: '#1e293b', borderWidth: 4, hoverOffset: 10 }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '70%',
-          plugins: {
-            legend: { display: false },
-            tooltip: { enabled: false },
-            centerText: { display: true, value: monthly },
-            datalabels: {
-              color: '#ffffff',
-              font: { weight: 'bold', size: 12 },
-              formatter(value, context) {
-                const label = context.chart.data.labels[context.dataIndex];
-                const shortLabel = String(label).split(' ')[0];
-                return shortLabel + '\n' + formatCurrency(value);
-              },
-              display(context) { return context.dataset.data[context.dataIndex] > 0; },
-              anchor: 'end', align: 'start', offset: 10
+        // Priority 2: localStorage
+        if (!foundSystem) {
+            var lsSys = localStorage.getItem('budget_selected_system');
+            if (lsSys && SYSTEMS[lsSys]) {
+                selectedSystem = lsSys;
+                foundSystem = true;
             }
-          },
-          layout: { padding: 20 }
         }
-      });
+        if (!income) {
+            var lsInc = localStorage.getItem('budget_income');
+            if (lsInc) income = parseFloat(lsInc) || 0;
+        }
+        if (!urlPer) {
+            var lsPer = localStorage.getItem('budget_income_period');
+            if (lsPer) incomePeriod = lsPer;
+        }
+
+        // Ghost Handshake: import from Autopilot
+        var autopilotImported = false;
+        if (!income || income === 0) {
+            try {
+                var apData = JSON.parse(localStorage.getItem('autopilot_system_data') || 'null');
+                if (apData && apData.income && apData.income > 0) {
+                    income = apData.income;
+                    autopilotImported = true;
+                }
+            } catch(e) {}
+        }
+
+        // Restore scores + answers
+        try { savedScores = JSON.parse(localStorage.getItem('budget_scores') || '{}'); } catch(e) {}
+        try { savedAnswers = JSON.parse(localStorage.getItem('budget_answers') || '[]'); } catch(e) {}
+
+        return { foundSystem: foundSystem, autopilotImported: autopilotImported };
     }
 
-    // === EVENT LISTENERS ===
-    incomeInput.addEventListener('input', e => {
-      const val = parseFloat(e.target.value);
-      income = isNaN(val) ? 0 : val;
-      localStorage.setItem('budget_income', income.toString());
-      updateBreakdownAndChart();
-    });
+    // =========================================
+    // RECOVERY PROMPT
+    // =========================================
+    function showRecovery() {
+        $('dashboardSection').style.display = 'none';
+        $('dashBanner').style.display = 'none';
+        var section = $('recoverySection');
+        section.style.display = 'block';
 
-    btnMonthly.addEventListener('click', () => {
-      incomePeriod = 'monthly';
-      localStorage.setItem('budget_income_period', 'monthly');
-      btnMonthly.classList.add('bg-amber-500', 'text-slate-900');
-      btnAnnual.classList.remove('bg-amber-500', 'text-slate-900');
-      btnAnnual.classList.add('text-slate-400');
-      updateBreakdownAndChart();
-    });
-
-    btnAnnual.addEventListener('click', () => {
-      incomePeriod = 'annual';
-      localStorage.setItem('budget_income_period', 'annual');
-      btnAnnual.classList.add('bg-amber-500', 'text-slate-900');
-      btnMonthly.classList.remove('bg-amber-500', 'text-slate-900');
-      btnMonthly.classList.add('text-slate-400');
-      updateBreakdownAndChart();
-    });
-
-    systemTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        selectedSystem = tab.dataset.system;
-        localStorage.setItem('budget_selected_system', selectedSystem);
-        applySystemToDashboard();
-        updateBreakdownAndChart();
-      });
-    });
-
-    // === INITIALIZE ===
-    // Restore income input value
-    if (income > 0) {
-      incomeInput.value = income;
+        var container = $('recoveryOptions');
+        container.innerHTML = '';
+        Object.keys(SYSTEMS).forEach(function(key) {
+            var sys = SYSTEMS[key];
+            var opt = document.createElement('div');
+            opt.className = 'recovery-opt';
+            opt.innerHTML = '<span class="recovery-opt-name">' + sys.title + '</span><span class="recovery-opt-arch">' + sys.archetype + '</span>';
+            opt.onclick = function() {
+                selectedSystem = key;
+                localStorage.setItem('budget_selected_system', key);
+                localStorage.setItem('budget_quiz_completed', 'true');
+                localStorage.setItem('budget_unlocked', 'true');
+                section.style.display = 'none';
+                $('dashboardSection').style.display = 'block';
+                renderDashboard();
+            };
+            container.appendChild(opt);
+        });
     }
 
-    // Restore income period toggle
-    if (incomePeriod === 'annual') {
-      btnAnnual.classList.add('bg-amber-500', 'text-slate-900');
-      btnMonthly.classList.remove('bg-amber-500', 'text-slate-900');
-      btnMonthly.classList.add('text-slate-400');
+    // =========================================
+    // DASHBOARD RENDERER
+    // =========================================
+    function renderDashboard() {
+        var sys = SYSTEMS[selectedSystem];
+        $('dashArchetype').textContent = sys.archetype;
+        $('dashSystemName').textContent = sys.title;
+        $('dashDesc').textContent = sys.desc;
+        $('dashWhy').textContent = sys.advantage;
+
+        renderDynamicWhy();
+        renderTabs();
+        updateChart();
+        updateCrossSell();
+        updateIdCard();
     }
 
-    // Render dashboard
-    applySystemToDashboard();
-    updateBreakdownAndChart();
-  </script>
+    function renderDynamicWhy() {
+        var el = $('dashWhyDynamic');
+        if (!savedAnswers || savedAnswers.length === 0) {
+            el.style.display = 'none';
+            return;
+        }
+        var contributions = savedAnswers
+            .map(function(a) {
+                var q = QUESTIONS[a.qi];
+                if (!q) return null;
+                var opt = q.options[a.oi];
+                if (!opt) return null;
+                return { reason: opt.reason, pts: opt.score[selectedSystem] || 0 };
+            })
+            .filter(function(c) { return c && c.pts > 0; })
+            .sort(function(a, b) { return b.pts - a.pts; })
+            .slice(0, 3);
+
+        if (contributions.length === 0) { el.style.display = 'none'; return; }
+        el.style.display = 'block';
+        var lines = contributions.map(function(c, i) { return '<strong>(' + (i + 1) + ')</strong> ' + c.reason; });
+        el.innerHTML = 'Based on your answers: ' + lines.join('. ') + '.';
+    }
+
+    function renderTabs() {
+        var row = $('tabsRow');
+        row.innerHTML = '';
+        Object.keys(SYSTEMS).forEach(function(key) {
+            var sys = SYSTEMS[key];
+            var btn = document.createElement('button');
+            btn.className = 'sys-tab' + (key === selectedSystem ? ' active' : '');
+            var scoreText = savedScores[key] ? '<span class="sys-tab-score">(' + savedScores[key] + ')</span>' : '';
+            btn.innerHTML = sys.archetype.replace('THE ', '') + scoreText;
+            btn.onclick = function() {
+                selectedSystem = key;
+                localStorage.setItem('budget_selected_system', key);
+                renderDashboard();
+            };
+            row.appendChild(btn);
+        });
+    }
+
+    // =========================================
+    // CSS DOUGHNUT
+    // =========================================
+    function updateChart() {
+        var sys = SYSTEMS[selectedSystem];
+        var monthly = getMonthly();
+        var ring = $('doughnutRing');
+        var centerVal = $('doughnutValue');
+        var centerLbl = $('doughnutLabel');
+        var legend = $('doughnutLegend');
+
+        var stops = [];
+        var cum = 0;
+        sys.segments.forEach(function(seg) {
+            stops.push(seg.color + ' ' + cum + '% ' + (cum + seg.pct) + '%');
+            cum += seg.pct;
+        });
+        ring.style.background = 'conic-gradient(' + stops.join(', ') + ')';
+
+        if (monthly > 0) {
+            centerVal.textContent = fmt(monthly);
+            centerLbl.textContent = 'Monthly';
+        } else {
+            centerVal.textContent = sys.segments.map(function(s) { return s.pct + '%'; }).join('/');
+            centerLbl.textContent = sys.title;
+        }
+
+        legend.innerHTML = '';
+        sys.segments.forEach(function(seg) {
+            var val = monthly > 0 ? fmt(monthly * seg.pct / 100) : seg.pct + '%';
+            var el = document.createElement('div');
+            el.className = 'doughnut-legend-item';
+            el.innerHTML = '<div class="doughnut-legend-left"><div class="doughnut-legend-dot" style="background:' + seg.color + ';"></div><span class="doughnut-legend-label">' + seg.label + '</span></div><span class="doughnut-legend-value">' + val + '</span>';
+            legend.appendChild(el);
+        });
+    }
+
+    // =========================================
+    // CROSS-SELL
+    // =========================================
+    function updateCrossSell() {
+        var sys = SYSTEMS[selectedSystem];
+        var monthly = getMonthly();
+        var investAmt = Math.round(monthly * sys.investPct / 100);
+
+        if (monthly > 0) {
+            $('crossSellTitle').textContent = 'Your ' + sys.archetype + ' system allocates ' + sys.investPct + '% to ' + sys.investLabel + '.';
+            $('crossSellAmount').textContent = fmt(investAmt) + '/mo on autopilot';
+            $('crossSellAmount').style.display = 'block';
+            $('crossSellBtn').href = AUTOPILOT_URL + '?source=budget&monthly=' + investAmt;
+        } else {
+            $('crossSellTitle').textContent = 'Your ' + sys.archetype + ' system says invest ' + sys.investPct + '%.';
+            $('crossSellAmount').style.display = 'none';
+            $('crossSellBtn').href = AUTOPILOT_URL + '?source=budget';
+        }
+    }
+
+    // =========================================
+    // IDENTITY CARD
+    // =========================================
+    function updateIdCard() {
+        var sys = SYSTEMS[selectedSystem];
+        var monthly = getMonthly();
+
+        $('cardArchetype').textContent = sys.archetype;
+        $('cardSystem').textContent = sys.title + ' | ' + sys.segments.map(function(s) { return s.pct + '%'; }).join('/');
+
+        var alloc = $('cardAlloc');
+        alloc.innerHTML = '';
+        sys.segments.forEach(function(seg) {
+            var val = monthly > 0 ? fmt(monthly * seg.pct / 100) : seg.pct + '%';
+            var el = document.createElement('div');
+            el.className = 'id-card-alloc-item';
+            el.innerHTML = '<div class="id-card-alloc-val">' + val + '</div><div class="id-card-alloc-lbl">' + seg.label + '</div>';
+            alloc.appendChild(el);
+        });
+
+        $('cardIncome').textContent = monthly > 0 ? fmt(monthly) : '--';
+    }
+
+    function downloadCard() {
+        var btn = $('cardDownloadBtn');
+        var btnText = $('cardBtnText');
+        btn.disabled = true;
+        btnText.textContent = 'Generating...';
+
+        if (window.html2canvas) {
+            captureCard();
+        } else {
+            var script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+            script.onload = captureCard;
+            script.onerror = function() {
+                btnText.textContent = 'Download Failed';
+                setTimeout(function() { btn.disabled = false; btnText.textContent = 'Download Card'; }, 2000);
+            };
+            document.head.appendChild(script);
+        }
+    }
+
+    function captureCard() {
+        html2canvas($('idCard'), {
+            scale: 3, backgroundColor: '#0c0e1a', useCORS: true, logging: false
+        }).then(function(canvas) {
+            var link = document.createElement('a');
+            link.download = 'financial-dna-' + SYSTEMS[selectedSystem].archetype.replace(/\s+/g, '-').toLowerCase() + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            $('cardBtnText').textContent = 'Downloaded!';
+            setTimeout(function() { $('cardDownloadBtn').disabled = false; $('cardBtnText').textContent = 'Download Card'; }, 2000);
+        }).catch(function() {
+            $('cardBtnText').textContent = 'Download Failed';
+            setTimeout(function() { $('cardDownloadBtn').disabled = false; $('cardBtnText').textContent = 'Download Card'; }, 2000);
+        });
+    }
+
+    // =========================================
+    // INCOME HANDLERS
+    // =========================================
+    $('incomeInput').addEventListener('input', function(e) {
+        var val = parseFloat(e.target.value);
+        income = isNaN(val) ? 0 : val;
+        localStorage.setItem('budget_income', income.toString());
+        updateChart();
+        updateCrossSell();
+        updateIdCard();
+    });
+
+    function setPeriod(p) {
+        incomePeriod = p;
+        localStorage.setItem('budget_income_period', p);
+        $('btnMonthly').classList.toggle('active', p === 'monthly');
+        $('btnAnnual').classList.toggle('active', p === 'annual');
+        updateChart();
+        updateCrossSell();
+        updateIdCard();
+    }
+
+    // =========================================
+    // INITIALIZATION
+    // =========================================
+    (function init() {
+        var result = hydrateData();
+
+        // Populate inputs
+        if (income > 0) {
+            $('incomeInput').value = income;
+            if (result.autopilotImported) $('incomeImported').style.display = 'inline-block';
+        }
+        if (incomePeriod === 'annual') {
+            $('btnAnnual').classList.add('active');
+            $('btnMonthly').classList.remove('active');
+        }
+
+        // Route
+        if (result.foundSystem) {
+            renderDashboard();
+        } else {
+            // No system data found anywhere: show recovery prompt
+            showRecovery();
+        }
+    })();
+    </script>
 </body>
 </html>
