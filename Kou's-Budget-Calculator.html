@@ -1,713 +1,1413 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Budget & Wealth Architect</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover Your Financial DNA | Kou Talks Money</title>
+    <meta property="og:title" content="Discover Your Financial DNA">
+    <meta property="og:description" content="6 questions. 5 archetypes. Find the money system wired to your psychology.">
+    <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.1.0"></script>
+    <!-- No self-redirect logic. Beehiiv redirects to budget-bridge.html -->
 
-  <!-- Beehiiv embed script -->
-  <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0f1117;
+            --bg-secondary: #161923;
+            --bg-card: #1c2030;
+            --bg-input: #12141c;
+            --accent: #f59e0b;
+            --accent-glow: rgba(245,158,11,0.25);
+            --accent-dim: rgba(245,158,11,0.1);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #2a2f3e;
+            --border-light: rgba(255,255,255,0.08);
+            --green: #10b981;
+            --blue: #60a5fa;
+            --purple: #a78bfa;
+            --pink: #f472b6;
+            --red: #ef4444;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{
+            font-family:'Inter',-apple-system,sans-serif;
+            background:var(--bg-primary);
+            color:var(--text-primary);
+            min-height:100vh;
+            overflow-x:hidden;
+        }
+        .bg-ambient{
+            position:fixed;inset:0;pointer-events:none;z-index:0;
+            background:
+                radial-gradient(ellipse at 20% 80%,rgba(99,59,159,0.15) 0%,transparent 50%),
+                radial-gradient(ellipse at 80% 10%,rgba(59,99,159,0.12) 0%,transparent 50%);
+        }
+        .container{
+            max-width:720px;margin:0 auto;padding:24px 16px;
+            position:relative;z-index:1;min-height:100vh;
+        }
 
-  <!-- POSTMESSAGE BRIDGE: If this page loads inside an iframe (Beehiiv redirect), notify parent -->
-  <script>
-      (function() {
-          var params = new URLSearchParams(window.location.search);
-          var isInIframe = window.self !== window.top;
-          if (isInIframe && params.get('unlocked') === 'true') {
-              window.parent.postMessage({ type: 'BUDGET_EMAIL_CAPTURED', unlocked: true }, '*');
-              document.documentElement.style.display = 'none';
-          }
-      })();
-  </script>
+        /* === HEADER === */
+        .header{text-align:center;margin-bottom:28px;}
+        .header-brand{
+            font-size:0.7rem;color:var(--text-muted);
+            text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px;
+        }
+        .header-brand a{color:var(--text-muted);text-decoration:none;}
+        .header-brand a:hover{color:var(--accent);}
+        .header-social{font-size:0.65rem;color:var(--text-muted);margin-bottom:16px;}
+        .header-title{
+            font-size:clamp(1.6rem,5vw,2.2rem);font-weight:800;
+            letter-spacing:-0.02em;margin-bottom:6px;
+            background:linear-gradient(135deg,#f1f5f9 30%,#94a3b8);
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+            background-clip:text;
+        }
+        .header-sub{font-size:0.95rem;color:var(--text-secondary);line-height:1.5;}
 
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #111827;
-      background-image:
-        radial-gradient(at 20% 80%, hsla(260, 50%, 30%, 0.2) 0px, transparent 50%),
-        radial-gradient(at 80% 10%, hsla(210, 45%, 40%, 0.25) 0px, transparent 50%),
-        linear-gradient(to bottom right, #111827, #131b31, #111827);
-      color: #e2e8f0;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fade-in {
-      animation: fadeIn 0.4s ease-out;
-    }
-    
-    /* === BLUR GATE STYLES === */
-    .blur-gate {
-        filter: blur(8px);
-        user-select: none;
-        pointer-events: none;
-        transition: filter 0.6s ease;
-    }
-    .unlocked {
-        filter: blur(0);
-        user-select: auto;
-        pointer-events: auto;
-    }
+        /* === MAIN CARD === */
+        .main-card{
+            background:var(--bg-secondary);
+            border:1px solid var(--border-light);
+            border-radius:16px;overflow:hidden;
+            min-height:400px;position:relative;
+        }
 
-    /* === BEEHIIV GATE OVERLAY === */
-    .beehiiv-gate {
-        transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-    .beehiiv-gate.hidden-gate {
-        opacity: 0;
-        transform: translateY(-10px);
-        pointer-events: none;
-    }
+        /* === SECTIONS (only one visible at a time) === */
+        .section{display:none;animation:fadeSlide 0.4s ease;}
+        .section.active{display:block;}
+        @keyframes fadeSlide{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: #1f2937; }
-    ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-  </style>
+        /* === INTRO === */
+        .intro{padding:48px 32px;text-align:center;}
+        .intro-icon{
+            width:80px;height:80px;border-radius:50%;
+            background:var(--accent-dim);
+            display:flex;align-items:center;justify-content:center;
+            margin:0 auto 24px;
+        }
+        .intro-icon svg{width:40px;height:40px;stroke:var(--accent);fill:none;stroke-width:1.5;}
+        .intro h2{font-size:1.4rem;font-weight:700;margin-bottom:12px;}
+        .intro p{color:var(--text-secondary);max-width:420px;margin:0 auto 28px;line-height:1.6;font-size:0.9rem;}
+        .intro-stats{
+            display:flex;justify-content:center;gap:32px;
+            margin-bottom:28px;
+        }
+        .intro-stat{text-align:center;}
+        .intro-stat-val{
+            font-family:'JetBrains Mono',monospace;font-size:1.3rem;
+            font-weight:800;color:var(--accent);
+        }
+        .intro-stat-label{font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;}
+
+        /* === BUTTONS === */
+        .btn-primary{
+            background:var(--accent);color:#000;border:none;
+            border-radius:10px;padding:14px 32px;
+            font-family:'JetBrains Mono',monospace;font-size:0.85rem;
+            font-weight:700;text-transform:uppercase;letter-spacing:0.04em;
+            cursor:pointer;transition:all 0.3s;
+        }
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px var(--accent-glow);}
+        .btn-secondary{
+            background:transparent;color:var(--text-secondary);border:1px solid var(--border);
+            border-radius:8px;padding:10px 20px;font-size:0.8rem;font-weight:600;
+            cursor:pointer;transition:all 0.2s;
+        }
+        .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+
+        /* === QUIZ === */
+        .quiz{padding:24px 24px 32px;}
+        .quiz-progress{height:3px;background:var(--bg-card);border-radius:2px;margin-bottom:24px;overflow:hidden;}
+        .quiz-progress-bar{height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s ease;}
+        .quiz-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+        .quiz-step{
+            font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+            color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;
+        }
+        .quiz-back{
+            font-size:0.75rem;color:var(--text-muted);cursor:pointer;
+            background:none;border:none;padding:4px 8px;transition:color 0.2s;
+            display:none;
+        }
+        .quiz-back:hover{color:var(--text-primary);}
+        .quiz-back.visible{display:inline-block;}
+        .quiz-question{
+            font-size:clamp(1.1rem,3.5vw,1.4rem);font-weight:700;
+            line-height:1.35;margin-bottom:20px;color:var(--text-primary);
+        }
+        .quiz-options{display:flex;flex-direction:column;gap:10px;}
+        .quiz-opt{
+            background:var(--bg-card);border:1px solid var(--border-light);
+            border-radius:10px;padding:14px 18px;cursor:pointer;
+            transition:all 0.2s;display:flex;align-items:center;
+            justify-content:space-between;gap:12px;
+        }
+        .quiz-opt:hover{border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.05);}
+        .quiz-opt-text{font-size:0.9rem;color:var(--text-secondary);line-height:1.4;}
+        .quiz-opt:hover .quiz-opt-text{color:var(--text-primary);}
+        .quiz-opt-arrow{
+            color:var(--text-muted);font-size:0.8rem;opacity:0;
+            transition:opacity 0.2s;flex-shrink:0;
+        }
+        .quiz-opt:hover .quiz-opt-arrow{opacity:1;color:var(--accent);}
+
+        /* === PROCESSING THEATER === */
+        .processing{padding:60px 32px;text-align:center;}
+        .proc-spinner{
+            width:56px;height:56px;margin:0 auto 24px;position:relative;
+        }
+        .proc-spinner-ring{
+            width:100%;height:100%;border:3px solid var(--border);
+            border-top-color:var(--accent);border-radius:50%;
+            animation:spin 1s linear infinite;
+        }
+        @keyframes spin{to{transform:rotate(360deg);}}
+        .proc-label{
+            font-family:'JetBrains Mono',monospace;font-size:0.8rem;
+            color:var(--accent);margin-bottom:6px;font-weight:600;
+        }
+        .proc-step{font-size:0.7rem;color:var(--text-muted);}
+        .proc-steps-list{
+            max-width:340px;margin:20px auto 0;text-align:left;
+        }
+        .proc-step-item{
+            display:flex;align-items:center;gap:10px;
+            padding:6px 0;font-size:0.75rem;color:var(--text-muted);
+            transition:color 0.3s;
+        }
+        .proc-step-item.active{color:var(--accent);}
+        .proc-step-item.done{color:var(--green);}
+        .proc-check{
+            width:16px;height:16px;border-radius:50%;
+            border:2px solid var(--border);flex-shrink:0;
+            display:flex;align-items:center;justify-content:center;
+            font-size:0.6rem;transition:all 0.3s;
+        }
+        .proc-step-item.active .proc-check{border-color:var(--accent);background:var(--accent-dim);}
+        .proc-step-item.done .proc-check{border-color:var(--green);background:rgba(16,185,129,0.15);color:var(--green);}
+
+        /* === REVEAL + GATE === */
+        .reveal{padding:0;}
+        .reveal-header{
+            padding:32px 24px;text-align:center;
+            background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(245,158,11,0.02));
+            border-bottom:1px solid rgba(245,158,11,0.15);
+        }
+        .reveal-eyebrow{
+            font-family:'JetBrains Mono',monospace;font-size:0.65rem;
+            color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;
+            margin-bottom:8px;font-weight:700;
+        }
+        .reveal-archetype{
+            font-size:clamp(1.5rem,5vw,2rem);font-weight:800;
+            letter-spacing:-0.02em;margin-bottom:4px;
+        }
+        .reveal-system{font-size:0.9rem;color:var(--text-secondary);margin-bottom:16px;}
+        .reveal-why-summary{
+            font-size:0.8rem;color:var(--text-muted);
+            max-width:400px;margin:0 auto;line-height:1.6;
+        }
+        .reveal-why-summary strong{color:var(--text-secondary);}
+
+        /* Gate overlay */
+        .gate-wrapper{position:relative;min-height:300px;}
+        .gate-overlay{
+            position:absolute;inset:0;z-index:20;
+            display:flex;flex-direction:column;align-items:center;
+            justify-content:center;padding:32px 24px;
+            background:linear-gradient(180deg,rgba(15,17,23,0.3) 0%,rgba(15,17,23,0.95) 40%);
+            transition:opacity 0.5s ease,transform 0.5s ease;
+        }
+        .gate-overlay.hidden-gate{opacity:0;transform:translateY(-10px);pointer-events:none;}
+        .gate-lock-icon{
+            width:48px;height:48px;border-radius:50%;
+            background:var(--accent-dim);border:2px solid rgba(245,158,11,0.3);
+            display:flex;align-items:center;justify-content:center;
+            margin-bottom:16px;
+        }
+        .gate-lock-icon svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:2;}
+        .gate-title{font-size:1.1rem;font-weight:700;margin-bottom:6px;text-align:center;}
+        .gate-text{
+            font-size:0.8rem;color:var(--text-secondary);text-align:center;
+            max-width:360px;margin:0 auto 20px;line-height:1.5;
+        }
+        .gate-beehiiv{width:100%;max-width:460px;margin:0 auto;}
+        .gate-beehiiv iframe{
+            width:100%;height:320px;border:none;border-radius:12px;
+            background:transparent;display:block;
+        }
+        .gate-skip{
+            margin-top:12px;font-size:0.7rem;color:var(--text-muted);
+            cursor:pointer;background:none;border:none;
+            text-decoration:underline;display:none;
+        }
+        .gate-skip.visible{display:inline-block;}
+
+        /* Blurred dashboard preview behind gate */
+        .dash-preview{
+            filter:blur(10px);user-select:none;pointer-events:none;
+            padding:24px;opacity:0.4;
+        }
+        .dash-preview.unlocked{
+            filter:none;user-select:auto;pointer-events:auto;opacity:1;
+            transition:all 0.6s ease;
+        }
+
+        /* === DASHBOARD === */
+        .dashboard{padding:0;}
+        .dash-banner{
+            padding:12px 20px;text-align:center;
+            background:rgba(16,185,129,0.08);border-bottom:1px solid rgba(16,185,129,0.15);
+            font-size:0.8rem;color:var(--green);font-weight:600;
+            display:none;
+        }
+        .dash-banner.visible{display:block;animation:fadeSlide 0.4s ease;}
+        .dash-header{
+            padding:24px;text-align:center;
+            background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(245,158,11,0.02));
+            border-bottom:1px solid rgba(245,158,11,0.15);
+        }
+        .dash-archetype{
+            font-size:clamp(1.3rem,4vw,1.7rem);font-weight:800;
+            letter-spacing:-0.02em;margin-bottom:2px;
+        }
+        .dash-system-name{font-size:0.85rem;color:var(--text-secondary);}
+
+        .dash-body{padding:24px;}
+
+        /* Income input */
+        .income-section{
+            background:var(--bg-card);border:1px solid var(--border-light);
+            border-radius:12px;padding:16px 20px;margin-bottom:24px;
+        }
+        .income-label{
+            font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;
+            letter-spacing:0.12em;font-weight:700;margin-bottom:10px;
+            display:flex;align-items:center;gap:8px;
+        }
+        .income-imported{
+            font-size:0.6rem;color:var(--green);font-weight:600;
+            background:rgba(16,185,129,0.1);padding:2px 8px;border-radius:10px;
+        }
+        .income-row{display:flex;gap:10px;align-items:stretch;}
+        .income-field{
+            flex:1;position:relative;
+        }
+        .income-field span{
+            position:absolute;left:12px;top:50%;transform:translateY(-50%);
+            color:var(--text-muted);font-size:0.9rem;
+        }
+        .income-field input{
+            width:100%;background:var(--bg-input);border:2px solid var(--border);
+            border-radius:8px;padding:12px 12px 12px 28px;color:var(--text-primary);
+            font-size:1rem;font-weight:600;outline:none;transition:border-color 0.2s;
+            font-family:'Inter',sans-serif;
+        }
+        .income-field input:focus{border-color:var(--accent);}
+        .income-field input::placeholder{color:var(--text-muted);font-weight:400;}
+        .income-toggle{
+            display:flex;background:var(--bg-input);border:1px solid var(--border);
+            border-radius:8px;overflow:hidden;flex-shrink:0;
+        }
+        .income-toggle button{
+            padding:10px 16px;font-size:0.75rem;font-weight:600;
+            background:transparent;border:none;color:var(--text-muted);
+            cursor:pointer;transition:all 0.2s;white-space:nowrap;
+        }
+        .income-toggle button.active{background:var(--accent);color:#000;}
+
+        /* Content grid */
+        .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
+        @media(max-width:640px){.dash-grid{grid-template-columns:1fr;}}
+
+        .dash-col h3{font-size:0.95rem;font-weight:700;margin-bottom:8px;}
+
+        /* Description and Why sections */
+        .dash-desc{font-size:0.85rem;color:var(--text-secondary);line-height:1.6;}
+        .dash-why{font-size:0.85rem;color:rgba(245,158,11,0.85);line-height:1.6;}
+        .dash-why-dynamic{
+            margin-top:12px;padding:12px 16px;
+            background:var(--accent-dim);border:1px solid rgba(245,158,11,0.15);
+            border-radius:10px;font-size:0.8rem;color:var(--text-secondary);line-height:1.6;
+        }
+        .dash-why-dynamic strong{color:var(--accent);}
+
+        /* CSS Doughnut */
+        .doughnut-wrap{
+            display:flex;align-items:center;justify-content:center;
+            padding:16px;
+        }
+        .doughnut-container{
+            position:relative;width:240px;height:240px;
+        }
+        .doughnut-ring{
+            width:100%;height:100%;border-radius:50%;
+            transition:background 0.5s ease;
+            -webkit-mask:radial-gradient(circle,transparent 56%,black 57%);
+            mask:radial-gradient(circle,transparent 56%,black 57%);
+        }
+        .doughnut-center{
+            position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+            text-align:center;
+        }
+        .doughnut-center-value{
+            font-family:'JetBrains Mono',monospace;font-size:1.2rem;
+            font-weight:800;color:var(--text-primary);
+        }
+        .doughnut-center-label{
+            font-size:0.65rem;color:var(--text-muted);margin-top:2px;
+        }
+        .doughnut-legend{
+            display:flex;flex-direction:column;gap:6px;margin-top:12px;
+        }
+        .doughnut-legend-item{
+            display:flex;align-items:center;justify-content:space-between;
+            font-size:0.8rem;padding:8px 12px;
+            background:var(--bg-card);border:1px solid var(--border-light);
+            border-radius:8px;
+        }
+        .doughnut-legend-left{display:flex;align-items:center;gap:8px;}
+        .doughnut-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+        .doughnut-legend-label{color:var(--text-secondary);font-weight:500;}
+        .doughnut-legend-value{
+            font-family:'JetBrains Mono',monospace;font-weight:700;
+            color:var(--text-primary);
+        }
+
+        /* System tabs */
+        .tabs-section{
+            border-top:1px solid var(--border-light);padding-top:20px;margin-bottom:24px;
+        }
+        .tabs-title{
+            text-align:center;font-size:0.65rem;color:var(--text-muted);
+            text-transform:uppercase;letter-spacing:0.12em;margin-bottom:12px;font-weight:700;
+        }
+        .tabs-row{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;}
+        .sys-tab{
+            padding:8px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;
+            border:1px solid var(--border);background:transparent;
+            color:var(--text-muted);cursor:pointer;transition:all 0.2s;
+            white-space:nowrap;
+        }
+        .sys-tab:hover{border-color:var(--accent);color:var(--accent);}
+        .sys-tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+        .sys-tab-score{
+            font-family:'JetBrains Mono',monospace;font-size:0.6rem;
+            margin-left:4px;opacity:0.7;
+        }
+
+        /* Cross-sell CTA */
+        .cross-sell{
+            background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.02));
+            border:1px solid rgba(16,185,129,0.2);border-radius:12px;
+            padding:20px;text-align:center;margin-bottom:24px;
+        }
+        .cross-sell-eyebrow{
+            font-family:'JetBrains Mono',monospace;font-size:0.6rem;
+            color:var(--green);text-transform:uppercase;letter-spacing:0.12em;
+            margin-bottom:6px;font-weight:700;
+        }
+        .cross-sell-title{font-size:1rem;font-weight:700;margin-bottom:4px;}
+        .cross-sell-text{font-size:0.8rem;color:var(--text-secondary);margin-bottom:14px;line-height:1.5;}
+        .cross-sell-amount{
+            font-family:'JetBrains Mono',monospace;font-size:1.4rem;
+            font-weight:800;color:var(--green);margin-bottom:14px;
+        }
+        .cross-sell-btn{
+            display:inline-flex;align-items:center;gap:8px;
+            background:var(--green);color:#000;padding:12px 24px;
+            border-radius:8px;font-family:'JetBrains Mono',monospace;
+            font-size:0.8rem;font-weight:700;text-decoration:none;
+            transition:all 0.3s;text-transform:uppercase;letter-spacing:0.04em;
+        }
+        .cross-sell-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(16,185,129,0.3);}
+
+        /* Identity Card */
+        .card-section{
+            border-top:1px solid var(--border-light);padding-top:20px;
+        }
+        .card-section-title{
+            text-align:center;font-size:0.65rem;color:var(--text-muted);
+            text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px;font-weight:700;
+        }
+        .id-card{
+            width:100%;max-width:400px;margin:0 auto;
+            aspect-ratio:1.586/1;border-radius:16px;overflow:hidden;
+            position:relative;
+            background:linear-gradient(135deg,#0c0e1a 0%,#1a1d32 50%,#0e1020 100%);
+            border:1px solid rgba(245,158,11,0.2);
+            padding:24px;display:flex;flex-direction:column;
+            justify-content:space-between;
+        }
+        .id-card-holo{
+            position:absolute;top:-50%;right:-30%;width:300px;height:300px;
+            background:conic-gradient(from 0deg,transparent,rgba(245,158,11,0.06),transparent,rgba(96,165,250,0.05),transparent);
+            border-radius:50%;animation:holoSpin 8s linear infinite;pointer-events:none;
+        }
+        @keyframes holoSpin{to{transform:rotate(360deg);}}
+        .id-card-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;}
+        .id-card-badge{
+            font-family:'JetBrains Mono',monospace;font-size:0.5rem;
+            color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;
+            font-weight:700;border:1px solid rgba(245,158,11,0.3);
+            padding:4px 10px;border-radius:4px;
+        }
+        .id-card-brand{
+            font-family:'JetBrains Mono',monospace;font-size:0.55rem;
+            color:var(--text-muted);text-align:right;
+        }
+        .id-card-mid{position:relative;z-index:1;}
+        .id-card-archetype{
+            font-family:'JetBrains Mono',monospace;font-size:clamp(1rem,3.5vw,1.3rem);
+            font-weight:800;color:var(--accent);letter-spacing:0.06em;
+            text-transform:uppercase;margin-bottom:2px;
+        }
+        .id-card-system{font-size:0.75rem;color:var(--text-secondary);margin-bottom:8px;}
+        .id-card-alloc{display:flex;gap:12px;}
+        .id-card-alloc-item{text-align:center;}
+        .id-card-alloc-val{
+            font-family:'JetBrains Mono',monospace;font-size:0.85rem;
+            font-weight:700;color:var(--text-primary);
+        }
+        .id-card-alloc-lbl{font-size:0.5rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;}
+        .id-card-bottom{
+            display:flex;justify-content:space-between;align-items:flex-end;
+            position:relative;z-index:1;
+        }
+        .id-card-income-val{
+            font-family:'JetBrains Mono',monospace;font-size:1rem;
+            font-weight:800;color:var(--text-primary);
+        }
+        .id-card-income-lbl{font-size:0.5rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;}
+        .id-card-footer-brand{
+            font-family:'JetBrains Mono',monospace;font-size:0.55rem;
+            color:var(--accent);font-weight:700;
+        }
+        .card-actions{
+            display:flex;justify-content:center;gap:10px;
+            margin-top:16px;flex-wrap:wrap;
+        }
+        .card-download-btn{
+            display:inline-flex;align-items:center;gap:8px;
+            background:var(--accent);color:#000;padding:10px 20px;
+            border:none;border-radius:8px;font-family:'JetBrains Mono',monospace;
+            font-size:0.75rem;font-weight:700;cursor:pointer;transition:all 0.3s;
+            text-transform:uppercase;
+        }
+        .card-download-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px var(--accent-glow);}
+        .card-download-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+        .card-share-hint{
+            text-align:center;font-size:0.7rem;color:var(--text-muted);margin-top:10px;
+        }
+
+        /* === FOOTER === */
+        .footer{
+            text-align:center;padding:20px 0 12px;margin-top:28px;
+            border-top:1px solid var(--border-light);
+        }
+        .footer-privacy{font-size:0.7rem;color:var(--text-muted);margin-bottom:8px;line-height:1.5;}
+        .footer-links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;}
+        .footer-link{font-size:0.7rem;color:var(--text-muted);text-decoration:none;transition:color 0.2s;}
+        .footer-link:hover{color:var(--accent);}
+
+        /* === RESPONSIVE === */
+        @media(max-width:480px){
+            .container{padding:16px 12px;}
+            .intro{padding:32px 20px;}
+            .quiz{padding:20px 16px 28px;}
+            .dash-body{padding:16px;}
+            .income-row{flex-direction:column;}
+            .income-toggle{align-self:stretch;}
+            .income-toggle button{flex:1;}
+            .doughnut-container{width:200px;height:200px;}
+            .id-card{padding:18px;}
+            .id-card-archetype{font-size:0.95rem;}
+            .card-actions{flex-direction:column;align-items:stretch;}
+        }
+    </style>
 </head>
 <body>
-  <div class="container mx-auto max-w-4xl p-4 sm:p-6 md:p-8 min-h-screen flex flex-col justify-center text-slate-300">
+    <div class="bg-ambient"></div>
 
-    <header class="text-center mb-8">
-      <p class="text-sm text-slate-500 mb-1 uppercase tracking-wide">made by kou</p>
-      <p class="text-xs text-slate-500 mb-3">
-        Instagram: @koutalksmoney · YouTube: @FinanceWithKou
-      </p>
-      <h1 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-400">
-        Budget &amp; Wealth Architect
-      </h1>
-      <p id="header-subtitle" class="text-lg text-slate-400 mt-2">
-        Discover the perfect budgeting system for your lifestyle.
-      </p>
-    </header>
+    <div class="container">
+        <header class="header">
+            <div class="header-brand"><a href="https://instagram.com/koutalksmoney" target="_blank">made by kou</a></div>
+            <div class="header-social">Instagram: @koutalksmoney &middot; YouTube: @FinanceWithKou</div>
+            <h1 class="header-title" id="headerTitle">Discover Your Financial DNA</h1>
+            <p class="header-sub" id="headerSub">6 questions. 5 archetypes. Find the money system wired to your psychology.</p>
+        </header>
 
-    <main class="bg-slate-900/60 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden transition-all duration-500 relative min-h-[400px]">
+        <main class="main-card">
 
-      <!-- INTRO -->
-      <section id="step-intro" class="p-8 text-center flex flex-col items-center justify-center h-full space-y-8 animate-fade-in">
-        <div class="bg-amber-500/10 p-6 rounded-full mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-amber-500">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
-          </svg>
-        </div>
-        <h2 class="text-2xl font-semibold text-slate-200">Stop guessing. Start building wealth.</h2>
-        <p class="text-slate-400 max-w-lg mx-auto">
-          Answer a short high-yield assessment to determine the exact budgeting strategy that fits your psychology, income pattern, and financial goals.
-        </p>
-        <button
-          id="start-assessment-btn"
-          class="bg-amber-500 hover:bg-amber-400 text-slate-900 text-lg font-bold py-4 px-10 rounded-xl transition-transform hover:scale-105 shadow-lg shadow-amber-500/20">
-          Start Assessment
-        </button>
-      </section>
+            <!-- INTRO -->
+            <section id="s-intro" class="section intro active">
+                <div class="intro-icon">
+                    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+                </div>
+                <h2>Stop guessing. Start engineering.</h2>
+                <p>Answer 6 questions to discover which financial archetype matches your psychology, income pattern, and goals. Then we build the blueprint.</p>
+                <div class="intro-stats">
+                    <div class="intro-stat"><div class="intro-stat-val">6</div><div class="intro-stat-label">Questions</div></div>
+                    <div class="intro-stat"><div class="intro-stat-val">5</div><div class="intro-stat-label">Archetypes</div></div>
+                    <div class="intro-stat"><div class="intro-stat-val">90s</div><div class="intro-stat-label">To Complete</div></div>
+                </div>
+                <button class="btn-primary" id="startBtn">Start Assessment</button>
+            </section>
 
-      <!-- QUIZ -->
-      <section id="step-quiz" class="hidden p-6 sm:p-10 animate-fade-in">
-        <div class="w-full bg-slate-800 rounded-full h-2 mb-8">
-          <div id="quiz-progress-inner" class="bg-amber-500 h-2 rounded-full transition-all duration-500" style="width: 0%;"></div>
-        </div>
-        <div id="quiz-step-label" class="mb-2 text-amber-500 font-medium tracking-wide uppercase text-sm">Question 1</div>
-        <h2 id="quiz-question-text" class="text-2xl sm:text-3xl font-bold text-white mb-8 leading-tight"></h2>
-        <div id="quiz-options-container" class="space-y-3"></div>
-      </section>
+            <!-- QUIZ -->
+            <section id="s-quiz" class="section quiz">
+                <div class="quiz-progress"><div class="quiz-progress-bar" id="quizBar"></div></div>
+                <div class="quiz-meta">
+                    <div class="quiz-step" id="quizStep">Question 1 of 6</div>
+                    <button class="quiz-back" id="quizBack" onclick="goBack()">&#8592; Back</button>
+                </div>
+                <div class="quiz-question" id="quizQ"></div>
+                <div class="quiz-options" id="quizOpts"></div>
+            </section>
 
-      <!-- CALCULATING -->
-      <section id="step-calculating" class="hidden flex flex-col items-center justify-center h-[500px] space-y-6">
-        <div class="relative w-20 h-20">
-          <div class="absolute top-0 left-0 w-full h-full border-4 border-slate-700 rounded-full"></div>
-          <div class="absolute top-0 left-0 w-full h-full border-4 border-amber-500 rounded-full border-t-transparent animate-spin"></div>
-        </div>
-        <p class="text-xl text-slate-300 font-medium animate-pulse">Analyzing your financial profile...</p>
-      </section>
+            <!-- PROCESSING -->
+            <section id="s-processing" class="section processing">
+                <div class="proc-spinner"><div class="proc-spinner-ring"></div></div>
+                <div class="proc-label" id="procLabel">Analyzing responses...</div>
+                <div class="proc-steps-list" id="procSteps"></div>
+            </section>
 
-      <!-- DASHBOARD -->
-      <section id="step-dashboard" class="hidden animate-fade-in">
-        <div class="bg-gradient-to-r from-amber-600/20 to-amber-900/20 border-b border-amber-500/30 p-6 text-center">
-          <p class="text-amber-400 font-semibold uppercase tracking-wider text-sm mb-1">Based on your answers, we recommend</p>
-          <h2 id="recommended-title" class="text-3xl font-bold text-white"></h2>
-        </div>
+            <!-- REVEAL + GATE -->
+            <section id="s-reveal" class="section reveal">
+                <div class="reveal-header">
+                    <div class="reveal-eyebrow">Based on 6 answers, you are</div>
+                    <div class="reveal-archetype" id="revealArchetype"></div>
+                    <div class="reveal-system" id="revealSystem"></div>
+                    <div class="reveal-why-summary" id="revealWhy"></div>
+                </div>
+                <div class="gate-wrapper">
+                    <div class="gate-overlay" id="gateOverlay">
+                        <div class="gate-lock-icon">
+                            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                        </div>
+                        <div class="gate-title">Your blueprint is ready.</div>
+                        <div class="gate-text">6 answers analyzed. 1 archetype matched. Enter your email to unlock your full breakdown, dollar allocations, and comparison tools.</div>
+                        <div class="gate-beehiiv">
+                            <iframe id="beehiivFrame" src="https://subscribe-forms.beehiiv.com/e01f8d58-517b-4b46-afbf-78c51d559c90" scrolling="no"></iframe>
+                        </div>
+                        <button class="gate-skip" id="gateSkip" onclick="window.location.href='budget-bridge.html'">Already submitted? Click here</button>
+                    </div>
+                    <div class="dash-preview" id="dashPreview">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                            <div style="background:var(--bg-card);border-radius:10px;height:120px;border:1px solid var(--border-light);"></div>
+                            <div style="background:var(--bg-card);border-radius:10px;height:120px;border:1px solid var(--border-light);"></div>
+                        </div>
+                        <div style="background:var(--bg-card);border-radius:10px;height:80px;margin-top:16px;border:1px solid var(--border-light);"></div>
+                        <div style="background:var(--bg-card);border-radius:10px;height:60px;margin-top:16px;border:1px solid var(--border-light);"></div>
+                    </div>
+                </div>
+            </section>
 
-        <div class="p-6 sm:p-8 space-y-8">
-          <!-- Income Input -->
-          <section class="bg-slate-800/50 p-6 rounded-xl border border-white/5">
-            <label class="block text-slate-400 text-sm font-semibold mb-3">ENTER YOUR MONTHLY OR ANNUAL INCOME</label>
-            <div class="flex flex-col sm:flex-row gap-4">
-              <div class="relative flex-grow">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
-                <input type="number" id="income-input" placeholder="e.g. 5000"
-                  class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 pl-8 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
-              </div>
-              <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700">
-                <button id="btn-monthly" class="px-6 py-2 rounded-md text-sm font-medium transition-all bg-amber-500 text-slate-900">Monthly</button>
-                <button id="btn-annual" class="px-6 py-2 rounded-md text-sm font-medium transition-all text-slate-400">Annual</button>
-              </div>
+            <!-- DASHBOARD -->
+            <section id="s-dashboard" class="section dashboard">
+                <div class="dash-banner" id="dashBanner">&#10003; Blueprint Unlocked. Your personalized system is ready.</div>
+                <div class="dash-header">
+                    <div class="reveal-eyebrow">Your Financial Archetype</div>
+                    <div class="dash-archetype" id="dashArchetype"></div>
+                    <div class="dash-system-name" id="dashSystemName"></div>
+                </div>
+                <div class="dash-body">
+                    <!-- Income Input -->
+                    <div class="income-section">
+                        <div class="income-label">
+                            <span>Enter Your Income</span>
+                            <span class="income-imported" id="incomeImported" style="display:none;">Imported from Autopilot</span>
+                        </div>
+                        <div class="income-row">
+                            <div class="income-field">
+                                <span>$</span>
+                                <input type="number" id="incomeInput" placeholder="e.g. 5000" inputmode="numeric">
+                            </div>
+                            <div class="income-toggle">
+                                <button id="btnMonthly" class="active" onclick="setPeriod('monthly')">Monthly</button>
+                                <button id="btnAnnual" onclick="setPeriod('annual')">Annual</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Grid -->
+                    <div class="dash-grid">
+                        <div class="dash-col">
+                            <h3>How it works</h3>
+                            <div class="dash-desc" id="dashDesc"></div>
+                            <div style="height:16px;"></div>
+                            <h3>Why this matches you</h3>
+                            <div class="dash-why" id="dashWhy"></div>
+                            <div class="dash-why-dynamic" id="dashWhyDynamic"></div>
+                        </div>
+                        <div class="dash-col">
+                            <div class="doughnut-wrap">
+                                <div>
+                                    <div class="doughnut-container">
+                                        <div class="doughnut-ring" id="doughnutRing"></div>
+                                        <div class="doughnut-center">
+                                            <div class="doughnut-center-value" id="doughnutValue">--</div>
+                                            <div class="doughnut-center-label" id="doughnutLabel">Enter income</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="doughnut-legend" id="doughnutLegend"></div>
+                        </div>
+                    </div>
+
+                    <!-- System Tabs -->
+                    <div class="tabs-section">
+                        <div class="tabs-title">Explore All Archetypes</div>
+                        <div class="tabs-row" id="tabsRow"></div>
+                    </div>
+
+                    <!-- Autopilot Cross-Sell -->
+                    <div class="cross-sell" id="crossSell">
+                        <div class="cross-sell-eyebrow">Next Step: Automate It</div>
+                        <div class="cross-sell-title" id="crossSellTitle">Your system says invest. This tool does it.</div>
+                        <div class="cross-sell-text" id="crossSellText">You've mapped the allocation. Now wire the automation.</div>
+                        <div class="cross-sell-amount" id="crossSellAmount"></div>
+                        <a href="#" class="cross-sell-btn" id="crossSellBtn">Install The Autopilot System &#8594;</a>
+                    </div>
+
+                    <!-- Identity Card -->
+                    <div class="card-section">
+                        <div class="card-section-title">Your Financial DNA Card</div>
+                        <div class="id-card" id="idCard">
+                            <div class="id-card-holo"></div>
+                            <div class="id-card-top">
+                                <div class="id-card-badge">Financial DNA</div>
+                                <div class="id-card-brand">@koutalksmoney</div>
+                            </div>
+                            <div class="id-card-mid">
+                                <div class="id-card-archetype" id="cardArchetype"></div>
+                                <div class="id-card-system" id="cardSystem"></div>
+                                <div class="id-card-alloc" id="cardAlloc"></div>
+                            </div>
+                            <div class="id-card-bottom">
+                                <div>
+                                    <div class="id-card-income-val" id="cardIncome">--</div>
+                                    <div class="id-card-income-lbl">Monthly Income</div>
+                                </div>
+                                <div class="id-card-footer-brand">KOU TALKS MONEY</div>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="card-download-btn" id="cardDownloadBtn" onclick="downloadCard()">
+                                <span id="cardBtnText">Download Card</span>
+                            </button>
+                        </div>
+                        <div class="card-share-hint">Share your Financial DNA on Instagram, LinkedIn, or TikTok</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-privacy">Your data stays on your device. Nothing is sent to our servers.</div>
+            <div class="footer-links">
+                <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="footer-link">Autopilot System</a>
+                <a href="https://spacekou5-oss.github.io/cashvault-funnel/800-club.html" class="footer-link">800-Club</a>
+                <a href="https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" class="footer-link">Freedom Calculator</a>
+                <a href="https://instagram.com/koutalksmoney" target="_blank" class="footer-link">Instagram</a>
             </div>
-          </section>
+        </footer>
+    </div>
 
-          <div class="flex flex-col lg:flex-row gap-8 relative">
-            
-            <div class="w-full lg:w-1/2 space-y-6 relative">
-              
-              <!-- How it works (always visible) -->
-              <div>
-                <h3 class="text-xl font-bold text-white mb-2">How it works</h3>
-                <p id="system-desc" class="text-slate-300 leading-relaxed"></p>
-              </div>
-              
-              <!-- ================================== -->
-              <!-- BEEHIIV GATE OVERLAY (replaces old) -->
-              <!-- ================================== -->
-              <div id="gate-overlay" class="beehiiv-gate absolute top-[180px] left-0 right-0 bottom-0 z-20 flex flex-col items-center justify-start pt-6">
-                  <div class="w-full flex justify-center">
-                      <iframe
-                          id="beehiiv-budget-frame"
-                          src="https://subscribe-forms.beehiiv.com/e01f8d58-517b-4b46-afbf-78c51d559c90"
-                          class="beehiiv-embed"
-                          data-test-id="beehiiv-embed"
-                          frameborder="0"
-                          scrolling="no"
-                          style="width: 100%; max-width: 500px; height: 400px; margin: 0 auto; border-radius: 16px; background-color: transparent; box-shadow: none; border: none; display: block;">
-                      </iframe>
-                  </div>
-              </div>
+    <script>
+    // =========================================
+    // 1. CONSTANTS & SYSTEM DATA
+    // =========================================
+    const AUTOPILOT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html';
 
-              <!-- Locked content (blurred until email captured) -->
-              <div id="locked-content" class="blur-gate">
-                  <div>
-                    <h3 class="text-xl font-bold text-white mb-2">Why it fits you</h3>
-                    <p id="system-advantage" class="text-amber-400/90 leading-relaxed"></p>
-                  </div>
-                  <div class="h-px bg-white/10 my-6"></div>
-                  <div id="breakdown-list" class="space-y-3">
-                    <p class="text-slate-500 italic">Enter your income to see the breakdown.</p>
-                  </div>
-              </div>
-
-            </div>
-
-            <!-- Chart -->
-            <div class="w-full lg:w-1/2 flex items-center justify-center bg-slate-800/30 rounded-xl border border-white/5 p-4 min-h-[300px]">
-              <div class="relative w-full h-[300px]">
-                <canvas id="budget-chart"></canvas>
-              </div>
-            </div>
-          </div>
-
-          <!-- System Tabs -->
-          <div class="border-t border-white/10 pt-6">
-            <h4 class="text-center text-slate-400 text-sm font-semibold uppercase tracking-wider mb-4">Explore Other Systems</h4>
-            <div class="flex flex-wrap justify-center gap-2">
-              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="50-30-20">50/30/20</button>
-              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="wealth-builder">Wealth Builder</button>
-              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="pay-yourself-first">Pay Yourself First</button>
-              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="envelope">Envelope</button>
-              <button class="system-tab px-4 py-2 rounded-full text-xs sm:text-sm border transition-all" data-system="80-20">80/20</button>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="mt-8 text-center opacity-60 text-sm text-slate-500">
-      <p>Privacy First. No data is stored.</p>
-    </footer>
-  </div>
-
-  <script>
-    // =============================================
-    // === BEEHIIV POSTMESSAGE DETECTION (BUDGET) ==
-    // =============================================
-    // When Beehiiv redirects the iframe to our URL with ?unlocked=true,
-    // that page detects it's in an iframe and sends postMessage here.
-
-    window.addEventListener('message', function(event) {
-        if (event.data && event.data.type === 'BUDGET_EMAIL_CAPTURED') {
-            unlockProtocol();
+    const SYSTEMS = {
+        '50-30-20': {
+            archetype: 'THE BALANCED STRATEGIST',
+            title: '50/30/20 Rule',
+            desc: '50% for Needs, 30% for Wants, 20% for Savings & Debt. The classic three-bucket system that works because it removes overthinking.',
+            advantage: 'Clear percentages. Easy to remember. No spreadsheets required. You set the rails once and your money follows the tracks.',
+            segments: [
+                { label: 'Needs', pct: 50, color: '#f59e0b' },
+                { label: 'Wants', pct: 30, color: '#818cf8' },
+                { label: 'Savings & Debt', pct: 20, color: '#60a5fa' }
+            ],
+            investPct: 20,
+            investLabel: 'savings/debt allocation'
+        },
+        'wealth-builder': {
+            archetype: 'THE COMPOUND COMMANDER',
+            title: 'Wealth Builder',
+            desc: '50% for Needs, 25% for Investing, 15% for Wants, 10% for Savings. Four buckets engineered to prioritize compound growth over consumption.',
+            advantage: 'Your money works harder than you do. Future wealth is the priority. Safety net stays intact. Wants get disciplined, not eliminated.',
+            segments: [
+                { label: 'Needs', pct: 50, color: '#f59e0b' },
+                { label: 'Investing', pct: 25, color: '#10b981' },
+                { label: 'Wants', pct: 15, color: '#818cf8' },
+                { label: 'Savings', pct: 10, color: '#60a5fa' }
+            ],
+            investPct: 25,
+            investLabel: 'investing allocation'
+        },
+        'pay-yourself-first': {
+            archetype: 'THE AUTOMATION GHOST',
+            title: 'Pay Yourself First',
+            desc: '20% auto-transferred to savings or investing the moment income hits your account. The remaining 80% is yours to manage however you want.',
+            advantage: 'Set the auto-transfer once. Never think about it again. Willpower removed from the equation. Your future self gets paid before your present self can spend it.',
+            segments: [
+                { label: 'Auto-Save/Invest', pct: 20, color: '#60a5fa' },
+                { label: 'Everything Else', pct: 80, color: '#818cf8' }
+            ],
+            investPct: 20,
+            investLabel: 'auto-save allocation'
+        },
+        '80-20': {
+            archetype: 'THE MINIMALIST OPERATOR',
+            title: '80/20 Budget',
+            desc: '20% to Savings & Debt, 80% is one flexible pool for everything else. One rule. Maximum freedom.',
+            advantage: 'Lowest maintenance system possible. Save first, then spend the rest guilt-free. No categories, no tracking, no spreadsheets. Just one clean split.',
+            segments: [
+                { label: 'Savings & Debt', pct: 20, color: '#60a5fa' },
+                { label: 'Everything Else', pct: 80, color: '#818cf8' }
+            ],
+            investPct: 20,
+            investLabel: 'savings/debt allocation'
+        },
+        'envelope': {
+            archetype: 'THE CASH WARLORD',
+            title: 'Envelope System',
+            desc: 'Hard spending limits by category. When the envelope is empty, spending stops. No exceptions, no negotiations, no "I\'ll make up for it next month."',
+            advantage: 'The nuclear option for overspenders. Forces instant feedback: you see the envelope balance drop in real time. Spending becomes a conscious act instead of an unconscious habit.',
+            segments: [
+                { label: 'Groceries', pct: 15, color: '#f472b6' },
+                { label: 'Fun', pct: 10, color: '#a78bfa' },
+                { label: 'Shopping', pct: 7.5, color: '#34d399' },
+                { label: 'Fixed + Savings', pct: 67.5, color: '#64748b' }
+            ],
+            investPct: 15,
+            investLabel: 'savings component'
         }
-    });
-
-    // Start detection when page loads
-    window.addEventListener('DOMContentLoaded', function() {
-        // Returning visitor unlock is now handled in initApp() below
-    });
-
-    // =============================================
-    // === UNLOCK LOGIC (SIMPLIFIED, NO CASHFLOW) ==
-    // =============================================
-    function unlockProtocol(silent) {
-        const gate = document.getElementById('gate-overlay');
-        const content = document.getElementById('locked-content');
-
-        if (!silent) {
-            // Animate gate out
-            gate.classList.add('hidden-gate');
-            setTimeout(() => gate.style.display = 'none', 500);
-        } else {
-            // Instant hide for returning users
-            gate.style.display = 'none';
-        }
-
-        // Unblur content
-        content.classList.remove('blur-gate');
-        content.classList.add('unlocked');
-
-        // Persist unlock state
-        localStorage.setItem('budget_unlocked', 'true');
-        localStorage.setItem('budget_completed', 'true');
-    }
-
-    // =============================================
-    // === STANDARD APP LOGIC (UNCHANGED) ==========
-    // =============================================
-    const budgetSystems = {
-      '50-30-20': {
-        title: '50/30/20 Rule',
-        desc: '50% for Needs, 30% for Wants, 20% for Savings & Debt Repayment.',
-        advantage: 'Simplicity. Clear percentages are easy to remember without intensive tracking.',
-        colors: ['#f59e0b', '#818cf8', '#60a5fa']
-      },
-      'wealth-builder': {
-        title: 'Wealth Builder',
-        desc: '50% for Needs, 25% for Investing, 15% for Wants, 10% for Savings.',
-        advantage: 'Prioritizes future wealth while keeping a safety net and some fun money.',
-        colors: ['#f59e0b', '#10b981', '#818cf8', '#60a5fa']
-      },
-      'pay-yourself-first': {
-        title: 'Pay Yourself First',
-        desc: 'Automatically move 20% to savings or investing as soon as income hits your account.',
-        advantage: 'Automates good habits and removes the temptation to spend your savings.',
-        colors: ['#60a5fa', '#818cf8']
-      },
-      '80-20': {
-        title: '80/20 Budget',
-        desc: '20% to Savings & Debt, 80% is a single flexible pool for everything else.',
-        advantage: 'Maximum freedom with one simple rule: save first, then spend the rest guilt-free.',
-        colors: ['#60a5fa', '#818cf8']
-      },
-      'envelope': {
-        title: 'Envelope System',
-        desc: 'Set hard limits by category (e.g., Groceries, Fun, Gas) using envelopes or digital categories.',
-        advantage: 'Powerful for overspenders. Once the envelope is empty, spending stops.',
-        colors: ['#f472b6', '#a78bfa', '#34d399', '#9ca3af']
-      }
     };
 
-    const questions = [
-      { id: 1, text: 'What is your #1 money goal for the next 12-24 months?', options: [
-          { label: 'Get control of overspending / stop living paycheck to paycheck', score: { 'envelope': 4, '50-30-20': 2 } },
-          { label: 'Build savings for emergencies', score: { 'pay-yourself-first': 3, '80-20': 2 } },
-          { label: 'Aggressively invest and grow wealth', score: { 'wealth-builder': 4 } },
-          { label: 'Pay off debt faster', score: { 'envelope': 3, '50-30-20': 3 } },
-          { label: 'Keep things simple and stress-free', score: { '80-20': 4, 'pay-yourself-first': 3 } }
-        ]
-      },
-      { id: 2, text: 'When you think about your money, what matters more right now?', options: [
-          { label: 'Simplicity and low effort', score: { '80-20': 4, 'pay-yourself-first': 2 } },
-          { label: 'Maximum long-term growth (even if it\'s stricter)', score: { 'wealth-builder': 4 } },
-          { label: 'Strict guardrails so I don\'t overspend', score: { 'envelope': 4 } },
-          { label: 'Flexibility and freedom month-to-month', score: { '50-30-20': 3, 'pay-yourself-first': 2 } }
-        ]
-      },
-      { id: 3, text: 'How predictable is your income each month?', options: [
-          { label: 'Very stable (same or similar every month)', score: { 'wealth-builder': 2, '50-30-20': 2 } },
-          { label: 'Somewhat stable (small variations)', score: { '50-30-20': 2 } },
-          { label: 'Very irregular (hours/tips/commissions vary a lot)', score: { '80-20': 3, 'pay-yourself-first': 3 } }
-        ]
-      },
-      { id: 4, text: 'Do you currently spend close to 100% of what you earn each month?', options: [
-          { label: 'Yes, most of the time', score: { 'envelope': 3, 'pay-yourself-first': 2 } },
-          { label: 'Sometimes', score: { '50-30-20': 2 } },
-          { label: 'No, I usually have money left over', score: { 'wealth-builder': 2, '80-20': 1 } }
-        ]
-      },
-      { id: 5, text: 'Which of these best describes your current situation?', options: [
-          { label: 'I have little/no savings and little/no investing', score: { 'pay-yourself-first': 3, '50-30-20': 2 } },
-          { label: 'I have some savings but want to build more', score: { 'pay-yourself-first': 2, '50-30-20': 2 } },
-          { label: 'I\'m already investing and want to ramp it up', score: { 'wealth-builder': 4 } },
-          { label: 'I\'m mainly focused on paying off debt', score: { 'envelope': 3, '50-30-20': 2 } }
-        ]
-      },
-      { id: 6, text: 'How aggressively do you want to save/invest right now?', options: [
-          { label: 'Light (just want to start the habit)', score: { '80-20': 3, 'pay-yourself-first': 2 } },
-          { label: 'Moderate (consistent but comfortable)', score: { '50-30-20': 3 } },
-          { label: 'Aggressive (I\'m willing to sacrifice wants to build wealth fast)', score: { 'wealth-builder': 4 } }
-        ]
-      },
-      { id: 7, text: 'Do you have high-interest debt (credit cards, personal loans)?', options: [
-          { label: 'Yes, a lot', score: { 'envelope': 4 } },
-          { label: 'Some, but manageable', score: { '50-30-20': 2 } },
-          { label: 'Very little or none', score: { 'wealth-builder': 2, 'pay-yourself-first': 1 } }
-        ]
-      },
-      { id: 8, text: 'Be honest: how likely are you to overspend if you don\'t see hard limits?', options: [
-          { label: 'Very likely \u2013 I swipe first, think later', score: { 'envelope': 5 } },
-          { label: 'Sometimes \u2013 depends on the month', score: { '50-30-20': 2 } },
-          { label: 'Not very likely \u2013 I\'m naturally cautious', score: { 'wealth-builder': 2, '80-20': 2 } }
-        ]
-      },
-      { id: 9, text: 'If your budget gets too detailed or complicated, what happens?', options: [
-          { label: 'I drop it in a week', score: { '80-20': 4, 'pay-yourself-first': 3 } },
-          { label: 'I try, but stop tracking after a while', score: { '50-30-20': 2 } },
-          { label: 'I\'m okay with detail if it helps me', score: { 'wealth-builder': 3, 'envelope': 2 } }
-        ]
-      },
-      { id: 10, text: 'How much time per week are you realistically willing to spend on budgeting?', options: [
-          { label: '5 minutes (set it and forget it)', score: { 'pay-yourself-first': 4, '80-20': 3 } },
-          { label: '15-30 minutes (quick review + small tweaks)', score: { '50-30-20': 3 } },
-          { label: '30-60 minutes (I like details and tracking)', score: { 'wealth-builder': 3, 'envelope': 3 } }
-        ]
-      },
-      { id: 11, text: 'Which sounds more like you?', options: [
-          { label: '"Give me a simple percentage split and I\'m happy."', score: { '50-30-20': 2, '80-20': 2 } },
-          { label: '"I want envelopes/categories so I know exactly what\'s left."', score: { 'envelope': 4 } },
-          { label: '"I\'d rather automate my savings/investing and not think about it."', score: { 'pay-yourself-first': 4 } }
-        ]
-      }
+    // =========================================
+    // 2. QUIZ QUESTIONS (6, cut from 11)
+    // =========================================
+    const QUESTIONS = [
+        {
+            text: 'What is your #1 money goal for the next 12 months?',
+            options: [
+                { label: 'Get control of overspending', score: { 'envelope': 4, '50-30-20': 2 }, reason: 'controlling overspending is your top priority' },
+                { label: 'Build an emergency savings buffer', score: { 'pay-yourself-first': 3, '80-20': 2 }, reason: 'building emergency savings is your focus' },
+                { label: 'Aggressively invest and grow wealth', score: { 'wealth-builder': 4 }, reason: 'aggressive wealth growth is your #1 goal' },
+                { label: 'Pay off debt faster', score: { 'envelope': 3, '50-30-20': 3 }, reason: 'eliminating debt is your primary objective' },
+                { label: 'Keep things simple and stress-free', score: { '80-20': 4, 'pay-yourself-first': 3 }, reason: 'simplicity and low stress matter most to you' }
+            ]
+        },
+        {
+            text: 'How predictable is your income each month?',
+            options: [
+                { label: 'Very stable (same amount every month)', score: { 'wealth-builder': 2, '50-30-20': 2 }, reason: 'your stable income supports structured allocation' },
+                { label: 'Somewhat stable (small swings)', score: { '50-30-20': 2 }, reason: 'your semi-stable income needs moderate flexibility' },
+                { label: 'Very irregular (hours, tips, commissions)', score: { '80-20': 3, 'pay-yourself-first': 3 }, reason: 'your irregular income demands a flexible system' }
+            ]
+        },
+        {
+            text: 'Do you currently spend close to 100% of what you earn?',
+            options: [
+                { label: 'Yes, almost always', score: { 'envelope': 3, 'pay-yourself-first': 2 }, reason: 'you\'re spending nearly everything you earn' },
+                { label: 'Sometimes, depends on the month', score: { '50-30-20': 2 }, reason: 'your spending occasionally hits your ceiling' },
+                { label: 'No, I usually have money left over', score: { 'wealth-builder': 2, '80-20': 1 }, reason: 'you already have margin in your budget' }
+            ]
+        },
+        {
+            text: 'How aggressively do you want to save and invest right now?',
+            options: [
+                { label: 'Light: just want to start the habit', score: { '80-20': 3, 'pay-yourself-first': 2 }, reason: 'you want to start the savings habit without pressure' },
+                { label: 'Moderate: consistent but comfortable', score: { '50-30-20': 3 }, reason: 'you want consistent, comfortable savings' },
+                { label: 'Aggressive: I\'ll cut wants to build wealth faster', score: { 'wealth-builder': 4 }, reason: 'you\'re willing to sacrifice wants for faster wealth' }
+            ]
+        },
+        {
+            text: 'Do you have high-interest debt (credit cards, personal loans)?',
+            options: [
+                { label: 'Yes, a significant amount', score: { 'envelope': 4 }, reason: 'high-interest debt needs aggressive containment' },
+                { label: 'Some, but manageable', score: { '50-30-20': 2 }, reason: 'your manageable debt allows balanced allocation' },
+                { label: 'Very little or none', score: { 'wealth-builder': 2, 'pay-yourself-first': 1 }, reason: 'minimal debt frees your cash for investing' }
+            ]
+        },
+        {
+            text: 'Be honest: how likely are you to overspend if there are no hard limits?',
+            options: [
+                { label: 'Very likely. I swipe first, think later.', score: { 'envelope': 5 }, reason: 'you need hard spending limits to stay on track' },
+                { label: 'Sometimes, depends on the category', score: { '50-30-20': 2 }, reason: 'occasional overspending benefits from guardrails' },
+                { label: 'Not very likely. I\'m naturally cautious.', score: { 'wealth-builder': 2, '80-20': 2 }, reason: 'your natural spending discipline allows more freedom' }
+            ]
+        }
     ];
 
-    let currentStep = 'intro';
-    let currentQuestionIndex = 0;
-    const scores = { '50-30-20': 0, 'wealth-builder': 0, 'pay-yourself-first': 0, '80-20': 0, 'envelope': 0 };
-    let selectedSystem = '50-30-20';
-    let income = 0;
-    let incomePeriod = 'monthly';
-    let chartInstance = null;
+    const PROC_STEPS = [
+        'Scoring 6 responses across 5 financial archetypes...',
+        'Evaluating spending psychology profile...',
+        'Matching income pattern to system requirements...',
+        'Calculating optimal allocation ratios...',
+        'Generating Financial DNA report...'
+    ];
 
-    const headerSubtitle = document.getElementById('header-subtitle');
-    const stepIntro = document.getElementById('step-intro');
-    const stepQuiz = document.getElementById('step-quiz');
-    const stepCalculating = document.getElementById('step-calculating');
-    const stepDashboard = document.getElementById('step-dashboard');
-    const startBtn = document.getElementById('start-assessment-btn');
+    // =========================================
+    // 3. STATE
+    // =========================================
+    let state = {
+        currentSection: 'intro',
+        questionIndex: 0,
+        scores: { '50-30-20': 0, 'wealth-builder': 0, 'pay-yourself-first': 0, '80-20': 0, 'envelope': 0 },
+        answerHistory: [],   // { qi, oi, scoreMap }
+        selectedSystem: '50-30-20',
+        income: 0,
+        incomePeriod: 'monthly',
+        isUnlocked: false
+    };
 
-    const quizProgressInner = document.getElementById('quiz-progress-inner');
-    const quizStepLabel = document.getElementById('quiz-step-label');
-    const quizQuestionText = document.getElementById('quiz-question-text');
-    const quizOptionsContainer = document.getElementById('quiz-options-container');
+    // =========================================
+    // 4. DOM REFS
+    // =========================================
+    const $ = id => document.getElementById(id);
 
-    const recommendedTitle = document.getElementById('recommended-title');
-    const systemDesc = document.getElementById('system-desc');
-    const systemAdvantage = document.getElementById('system-advantage');
-
-    const incomeInput = document.getElementById('income-input');
-    const btnMonthly = document.getElementById('btn-monthly');
-    const btnAnnual = document.getElementById('btn-annual');
-    const breakdownList = document.getElementById('breakdown-list');
-    const chartCanvas = document.getElementById('budget-chart');
-    const systemTabs = document.querySelectorAll('.system-tab');
-
-    function showStep(step) {
-      currentStep = step;
-      stepIntro.classList.add('hidden');
-      stepQuiz.classList.add('hidden');
-      stepCalculating.classList.add('hidden');
-      stepDashboard.classList.add('hidden');
-
-      if (step === 'intro') stepIntro.classList.remove('hidden');
-      if (step === 'quiz') stepQuiz.classList.remove('hidden');
-      if (step === 'calculating') stepCalculating.classList.remove('hidden');
-      if (step === 'dashboard') stepDashboard.classList.remove('hidden');
-
-      headerSubtitle.textContent = step === 'dashboard'
-        ? 'Your personalized financial blueprint.'
-        : 'Discover the perfect budgeting system for your lifestyle.';
+    // =========================================
+    // 5. UTILITY
+    // =========================================
+    function fmt(n) {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0);
+    }
+    function fmtShort(n) {
+        if (n >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
+        if (n >= 1000) return '$' + (n / 1000).toFixed(0) + 'K';
+        return '$' + n;
+    }
+    function getMonthly() {
+        return state.incomePeriod === 'annual' ? state.income / 12 : state.income;
     }
 
-    function renderQuestion() {
-      const q = questions[currentQuestionIndex];
-      const total = questions.length;
-      const progress = (currentQuestionIndex / total) * 100;
+    // =========================================
+    // 6. SECTION MANAGEMENT
+    // =========================================
+    function showSection(id) {
+        state.currentSection = id;
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        $(id).classList.add('active');
 
-      quizProgressInner.style.width = progress + '%';
-      quizStepLabel.textContent = `Question ${currentQuestionIndex + 1} of ${total}`;
-      quizQuestionText.textContent = q.text;
-
-      quizOptionsContainer.innerHTML = '';
-      q.options.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'w-full text-left p-4 sm:p-5 rounded-xl bg-slate-800/50 border border-white/5 hover:border-amber-500/50 hover:bg-slate-800 transition-all duration-200 group flex items-center justify-between';
-        btn.innerHTML = `<span class="text-slate-300 group-hover:text-white text-lg">${opt.label}</span>
-           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-slate-600 group-hover:text-amber-500 opacity-0 group-hover:opacity-100 transition-opacity">
-             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-           </svg>`;
-        btn.addEventListener('click', () => selectOption(q, opt));
-        quizOptionsContainer.appendChild(btn);
-      });
-    }
-
-    function selectOption(question, option) {
-      Object.entries(option.score).forEach(([sys, pts]) => {
-        scores[sys] += pts;
-      });
-      if (currentQuestionIndex < questions.length - 1) {
-        currentQuestionIndex += 1;
-        renderQuestion();
-      } else {
-        finishQuiz();
-      }
-    }
-
-    function finishQuiz() {
-      let winner = '50-30-20';
-      let maxScore = -Infinity;
-      Object.entries(scores).forEach(([sys, score]) => {
-        if (score > maxScore) { maxScore = score; winner = sys; }
-      });
-      selectedSystem = winner;
-
-      // Persist quiz results
-      localStorage.setItem('budget_selected_system', selectedSystem);
-      localStorage.setItem('budget_quiz_completed', 'true');
-
-      showStep('calculating');
-      setTimeout(() => {
-        showStep('dashboard');
-        applySystemToDashboard();
-        updateBreakdownAndChart();
-      }, 1500);
-    }
-
-    function applySystemToDashboard() {
-      const sys = budgetSystems[selectedSystem];
-      recommendedTitle.textContent = sys.title;
-      systemDesc.textContent = sys.desc;
-      systemAdvantage.textContent = sys.advantage;
-
-      systemTabs.forEach(tab => {
-        const isActive = tab.dataset.system === selectedSystem;
-        tab.classList.remove('bg-amber-500', 'border-amber-500', 'text-slate-900', 'border-white/10');
-        tab.classList.add('border');
-        if (isActive) {
-          tab.classList.add('bg-amber-500', 'border-amber-500', 'text-slate-900');
+        var sub = $('headerSub');
+        if (id === 's-dashboard') {
+            sub.textContent = 'Your personalized financial blueprint.';
         } else {
-          tab.classList.add('border-white/10');
+            sub.textContent = '6 questions. 5 archetypes. Find the money system wired to your psychology.';
         }
-      });
     }
 
-    function getMonthlyIncome() {
-      return incomePeriod === 'annual' ? income / 12 : income;
-    }
+    // =========================================
+    // 7. QUIZ ENGINE
+    // =========================================
+    function renderQuestion() {
+        var q = QUESTIONS[state.questionIndex];
+        var total = QUESTIONS.length;
+        var pct = (state.questionIndex / total) * 100;
 
-    function getBreakdownForSystem() {
-      const monthly = getMonthlyIncome();
-      let items = [];
-      if (selectedSystem === '50-30-20') {
-        items = [
-          { label: 'Needs', amt: monthly * 0.5, color: '#f59e0b' },
-          { label: 'Wants', amt: monthly * 0.3, color: '#818cf8' },
-          { label: 'Savings & Debt', amt: monthly * 0.2, color: '#60a5fa' }
-        ];
-      } else if (selectedSystem === 'wealth-builder') {
-        items = [
-          { label: 'Needs', amt: monthly * 0.5, color: '#f59e0b' },
-          { label: 'Investing', amt: monthly * 0.25, color: '#10b981' },
-          { label: 'Wants', amt: monthly * 0.15, color: '#818cf8' },
-          { label: 'Savings', amt: monthly * 0.1, color: '#60a5fa' }
-        ];
-      } else if (selectedSystem === 'pay-yourself-first') {
-        items = [
-          { label: 'Savings', amt: monthly * 0.2, color: '#60a5fa' },
-          { label: 'Everything Else', amt: monthly * 0.8, color: '#818cf8' }
-        ];
-      } else if (selectedSystem === '80-20') {
-        items = [
-          { label: 'Savings & Debt', amt: monthly * 0.2, color: '#60a5fa' },
-          { label: 'Everything Else', amt: monthly * 0.8, color: '#818cf8' }
-        ];
-      } else {
-        const d = monthly * 0.5;
-        items = [
-          { label: 'Groceries', amt: d * 0.3, color: '#f472b6' },
-          { label: 'Fun', amt: d * 0.2, color: '#a78bfa' },
-          { label: 'Shopping', amt: d * 0.15, color: '#34d399' },
-          { label: 'Fixed Costs', amt: monthly - d * 0.65, color: '#9ca3af' }
-        ];
-      }
-      return items;
-    }
+        $('quizBar').style.width = pct + '%';
+        $('quizStep').textContent = 'Question ' + (state.questionIndex + 1) + ' of ' + total;
+        $('quizQ').textContent = q.text;
 
-    function formatCurrency(amount) {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount || 0);
-    }
+        var backBtn = $('quizBack');
+        if (state.questionIndex > 0) backBtn.classList.add('visible');
+        else backBtn.classList.remove('visible');
 
-    function updateBreakdownAndChart() {
-      const monthly = getMonthlyIncome();
-      breakdownList.innerHTML = '';
-      if (!income || income <= 0) {
-        breakdownList.innerHTML = '<p class="text-slate-500 italic">Enter your income to see the breakdown.</p>';
-      } else {
-        const items = getBreakdownForSystem();
-        items.forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'flex items-center justify-between bg-slate-800/30 p-3 rounded-lg border border-white/5';
-          row.innerHTML = `<div class="flex items-center gap-3">
-               <div class="w-3 h-3 rounded-full" style="background-color:${item.color};"></div>
-               <span class="text-slate-200 font-medium">${item.label}</span>
-             </div>
-             <span class="text-white font-bold">${formatCurrency(item.amt)}</span>`;
-          breakdownList.appendChild(row);
+        var container = $('quizOpts');
+        container.innerHTML = '';
+        q.options.forEach(function(opt, oi) {
+            var btn = document.createElement('div');
+            btn.className = 'quiz-opt';
+            btn.innerHTML = '<span class="quiz-opt-text">' + opt.label + '</span><span class="quiz-opt-arrow">&#8594;</span>';
+            btn.onclick = function() { selectAnswer(state.questionIndex, oi); };
+            container.appendChild(btn);
         });
-      }
-
-      if (!chartCanvas) return;
-      const ctx = chartCanvas.getContext('2d');
-      if (!ctx) return;
-      if (chartInstance) chartInstance.destroy();
-
-      const items = getBreakdownForSystem();
-      const labels = items.map(i => i.label);
-      const data = items.map(i => i.amt);
-      const colors = items.map(i => i.color);
-
-      const centerTextPlugin = {
-        id: 'centerText',
-        afterDraw(chart) {
-          const opts = chart.options.plugins.centerText || {};
-          if (!opts.display) return;
-          const ctx = chart.ctx;
-          const value = opts.value || 0;
-          const formatted = formatCurrency(value);
-          const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
-          const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-          ctx.save();
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.font = '700 20px Inter, sans-serif';
-          ctx.fillStyle = '#f1f5f9';
-          ctx.fillText(formatted, centerX, centerY - 10);
-          ctx.font = '500 12px Inter, sans-serif';
-          ctx.fillStyle = '#94a3b8';
-          ctx.fillText('Monthly', centerX, centerY + 15);
-          ctx.restore();
-        }
-      };
-
-      Chart.register(ChartDataLabels, centerTextPlugin);
-
-      chartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels,
-          datasets: [{ data, backgroundColor: colors, borderColor: '#1e293b', borderWidth: 4, hoverOffset: 10 }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '70%',
-          plugins: {
-            legend: { display: false },
-            tooltip: { enabled: false },
-            centerText: { display: true, value: monthly },
-            datalabels: {
-              color: '#ffffff',
-              font: { weight: 'bold', size: 12 },
-              formatter(value, context) {
-                const label = context.chart.data.labels[context.dataIndex];
-                const shortLabel = String(label).split(' ')[0];
-                return shortLabel + '\n' + formatCurrency(value);
-              },
-              display(context) { return context.dataset.data[context.dataIndex] > 0; },
-              anchor: 'end', align: 'start', offset: 10
-            }
-          },
-          layout: { padding: 20 }
-        }
-      });
     }
 
-    // === EVENT LISTENERS ===
-    startBtn.addEventListener('click', () => {
-      currentQuestionIndex = 0;
-      showStep('quiz');
-      renderQuestion();
-    });
+    function selectAnswer(qi, oi) {
+        var opt = QUESTIONS[qi].options[oi];
+        // Record answer for undo + dynamic why
+        state.answerHistory.push({ qi: qi, oi: oi, scoreMap: Object.assign({}, opt.score) });
+        // Apply scores
+        Object.keys(opt.score).forEach(function(sys) {
+            state.scores[sys] += opt.score[sys];
+        });
 
-    incomeInput.addEventListener('input', e => {
-      const val = parseFloat(e.target.value);
-      income = isNaN(val) ? 0 : val;
-      localStorage.setItem('budget_income', income.toString());
-      updateBreakdownAndChart();
-    });
+        if (state.questionIndex < QUESTIONS.length - 1) {
+            state.questionIndex++;
+            renderQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
 
-    btnMonthly.addEventListener('click', () => {
-      incomePeriod = 'monthly';
-      localStorage.setItem('budget_income_period', 'monthly');
-      btnMonthly.classList.add('bg-amber-500', 'text-slate-900');
-      btnAnnual.classList.remove('bg-amber-500', 'text-slate-900');
-      btnAnnual.classList.add('text-slate-400');
-      updateBreakdownAndChart();
-    });
+    function goBack() {
+        if (state.answerHistory.length === 0) return;
+        var last = state.answerHistory.pop();
+        // Subtract scores
+        Object.keys(last.scoreMap).forEach(function(sys) {
+            state.scores[sys] -= last.scoreMap[sys];
+        });
+        state.questionIndex--;
+        renderQuestion();
+    }
 
-    btnAnnual.addEventListener('click', () => {
-      incomePeriod = 'annual';
-      localStorage.setItem('budget_income_period', 'annual');
-      btnAnnual.classList.add('bg-amber-500', 'text-slate-900');
-      btnMonthly.classList.remove('bg-amber-500', 'text-slate-900');
-      btnMonthly.classList.add('text-slate-400');
-      updateBreakdownAndChart();
-    });
+    // =========================================
+    // 8. QUIZ COMPLETION
+    // =========================================
+    function finishQuiz() {
+        // Determine winner
+        var winner = '50-30-20';
+        var maxScore = -1;
+        Object.keys(state.scores).forEach(function(sys) {
+            if (state.scores[sys] > maxScore) {
+                maxScore = state.scores[sys];
+                winner = sys;
+            }
+        });
+        state.selectedSystem = winner;
 
-    systemTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        selectedSystem = tab.dataset.system;
-        localStorage.setItem('budget_selected_system', selectedSystem);
-        applySystemToDashboard();
-        updateBreakdownAndChart();
-      });
-    });
+        // Persist
+        localStorage.setItem('budget_quiz_completed', 'true');
+        localStorage.setItem('budget_selected_system', winner);
+        localStorage.setItem('budget_scores', JSON.stringify(state.scores));
+        localStorage.setItem('budget_answers', JSON.stringify(state.answerHistory));
 
-    // === INITIALIZATION: Restore state or start fresh ===
-    (function initApp() {
-      const quizCompleted = localStorage.getItem('budget_quiz_completed') === 'true';
-      const savedSystem = localStorage.getItem('budget_selected_system');
-      const savedIncome = localStorage.getItem('budget_income');
-      const savedPeriod = localStorage.getItem('budget_income_period');
-      const isUnlocked = localStorage.getItem('budget_unlocked') === 'true';
+        // Processing theater
+        showSection('s-processing');
+        runProcessingTheater();
+    }
 
-      if (quizCompleted && savedSystem) {
-        // Restore all saved state
-        selectedSystem = savedSystem;
+    // =========================================
+    // 9. PROCESSING THEATER
+    // =========================================
+    function runProcessingTheater() {
+        var container = $('procSteps');
+        container.innerHTML = '';
+        PROC_STEPS.forEach(function(text) {
+            var el = document.createElement('div');
+            el.className = 'proc-step-item';
+            el.innerHTML = '<div class="proc-check"></div><span>' + text + '</span>';
+            container.appendChild(el);
+        });
 
-        if (savedIncome) {
-          income = parseFloat(savedIncome);
-          incomeInput.value = income;
+        var items = container.querySelectorAll('.proc-step-item');
+        var i = 0;
+        var interval = setInterval(function() {
+            if (i > 0) {
+                items[i - 1].classList.remove('active');
+                items[i - 1].classList.add('done');
+                items[i - 1].querySelector('.proc-check').innerHTML = '&#10003;';
+            }
+            if (i < items.length) {
+                items[i].classList.add('active');
+                $('procLabel').textContent = PROC_STEPS[i];
+                i++;
+            } else {
+                clearInterval(interval);
+                setTimeout(showReveal, 400);
+            }
+        }, 750);
+    }
+
+    // =========================================
+    // 10. REVEAL + GATE
+    // =========================================
+    function showReveal() {
+        var sys = SYSTEMS[state.selectedSystem];
+        $('revealArchetype').textContent = sys.archetype;
+        $('revealSystem').textContent = sys.title;
+
+        // Dynamic why summary from top answers
+        var contributions = state.answerHistory
+            .map(function(a) {
+                var opt = QUESTIONS[a.qi].options[a.oi];
+                return { reason: opt.reason, pts: opt.score[state.selectedSystem] || 0 };
+            })
+            .filter(function(c) { return c.pts > 0; })
+            .sort(function(a, b) { return b.pts - a.pts; })
+            .slice(0, 3);
+
+        if (contributions.length > 0) {
+            var reasons = contributions.map(function(c, i) { return '<strong>(' + (i + 1) + ')</strong> ' + c.reason; });
+            $('revealWhy').innerHTML = 'You told us: ' + reasons.join('. ') + '. This archetype is built for that exact profile.';
         }
 
-        if (savedPeriod) {
-          incomePeriod = savedPeriod;
-          if (savedPeriod === 'annual') {
-            btnAnnual.classList.add('bg-amber-500', 'text-slate-900');
-            btnMonthly.classList.remove('bg-amber-500', 'text-slate-900');
-            btnMonthly.classList.add('text-slate-400');
-          }
+        showSection('s-reveal');
+
+        // Show skip button after 15s
+        setTimeout(function() {
+            $('gateSkip').classList.add('visible');
+        }, 15000);
+    }
+
+    // =========================================
+    // 11. UNLOCK LOGIC (returning users via localStorage, set by bridge page)
+    // =========================================
+    // No unlockDashboard() needed here. Email flow redirects to budget-bridge.html.
+    // Returning users with budget_unlocked=true in localStorage are routed
+    // directly to dashboard in init().
+
+    // =========================================
+    // 12. DASHBOARD RENDERER
+    // =========================================
+    function renderDashboard() {
+        var sys = SYSTEMS[state.selectedSystem];
+
+        $('dashArchetype').textContent = sys.archetype;
+        $('dashSystemName').textContent = sys.title;
+        $('dashDesc').textContent = sys.desc;
+        $('dashWhy').textContent = sys.advantage;
+
+        // Dynamic why from answers
+        renderDynamicWhy();
+
+        // Render tabs
+        renderTabs();
+
+        // Render chart + legend
+        updateChartAndLegend();
+
+        // Render cross-sell
+        updateCrossSell();
+
+        // Render identity card
+        updateIdCard();
+    }
+
+    function renderDynamicWhy() {
+        var el = $('dashWhyDynamic');
+        var answers = state.answerHistory;
+        if (!answers || answers.length === 0) {
+            // Try restore from localStorage
+            try {
+                var saved = JSON.parse(localStorage.getItem('budget_answers') || '[]');
+                if (saved.length > 0) answers = saved;
+            } catch(e) {}
+        }
+        if (!answers || answers.length === 0) {
+            el.style.display = 'none';
+            return;
+        }
+        el.style.display = 'block';
+
+        var contributions = answers
+            .map(function(a) {
+                var opt = QUESTIONS[a.qi] ? QUESTIONS[a.qi].options[a.oi] : null;
+                if (!opt) return null;
+                return { reason: opt.reason, pts: opt.score[state.selectedSystem] || 0 };
+            })
+            .filter(function(c) { return c && c.pts > 0; })
+            .sort(function(a, b) { return b.pts - a.pts; })
+            .slice(0, 3);
+
+        if (contributions.length === 0) {
+            el.style.display = 'none';
+            return;
+        }
+        var lines = contributions.map(function(c, i) { return '<strong>(' + (i + 1) + ')</strong> ' + c.reason; });
+        el.innerHTML = 'Based on your answers: ' + lines.join('. ') + '.';
+    }
+
+    function renderTabs() {
+        var row = $('tabsRow');
+        row.innerHTML = '';
+        var savedScores = state.scores;
+        if (!savedScores || Object.values(savedScores).every(function(v){return v === 0;})) {
+            try { savedScores = JSON.parse(localStorage.getItem('budget_scores') || '{}'); } catch(e) {}
         }
 
-        // Skip intro and quiz, go straight to dashboard
-        showStep('dashboard');
-        applySystemToDashboard();
-        updateBreakdownAndChart();
+        Object.keys(SYSTEMS).forEach(function(key) {
+            var sys = SYSTEMS[key];
+            var btn = document.createElement('button');
+            btn.className = 'sys-tab' + (key === state.selectedSystem ? ' active' : '');
+            var scoreText = savedScores[key] ? '<span class="sys-tab-score">(' + savedScores[key] + ')</span>' : '';
+            btn.innerHTML = sys.archetype.replace('THE ', '') + scoreText;
+            btn.onclick = function() {
+                state.selectedSystem = key;
+                localStorage.setItem('budget_selected_system', key);
+                renderDashboard();
+            };
+            row.appendChild(btn);
+        });
+    }
 
-        // If already unlocked, remove the gate immediately
-        if (isUnlocked) {
-          unlockProtocol(true);
+    // =========================================
+    // 13. CSS DOUGHNUT CHART
+    // =========================================
+    function updateChartAndLegend() {
+        var sys = SYSTEMS[state.selectedSystem];
+        var monthly = getMonthly();
+        var ring = $('doughnutRing');
+        var centerVal = $('doughnutValue');
+        var centerLbl = $('doughnutLabel');
+        var legend = $('doughnutLegend');
+
+        // Build conic gradient
+        var stops = [];
+        var cum = 0;
+        sys.segments.forEach(function(seg) {
+            stops.push(seg.color + ' ' + cum + '% ' + (cum + seg.pct) + '%');
+            cum += seg.pct;
+        });
+        ring.style.background = 'conic-gradient(' + stops.join(', ') + ')';
+
+        // Center text
+        if (monthly > 0) {
+            centerVal.textContent = fmt(monthly);
+            centerLbl.textContent = 'Monthly';
+        } else {
+            // Show system shorthand when no income
+            centerVal.textContent = sys.segments.map(function(s){return s.pct + '%';}).join('/');
+            centerLbl.textContent = sys.title;
         }
-      } else {
-        // Fresh user, start from intro
-        showStep('intro');
-      }
+
+        // Legend
+        legend.innerHTML = '';
+        sys.segments.forEach(function(seg) {
+            var val = monthly > 0 ? fmt(monthly * seg.pct / 100) : seg.pct + '%';
+            var el = document.createElement('div');
+            el.className = 'doughnut-legend-item';
+            el.innerHTML = '<div class="doughnut-legend-left"><div class="doughnut-legend-dot" style="background:' + seg.color + ';"></div><span class="doughnut-legend-label">' + seg.label + '</span></div><span class="doughnut-legend-value">' + val + '</span>';
+            legend.appendChild(el);
+        });
+    }
+
+    // =========================================
+    // 14. CROSS-SELL CTA
+    // =========================================
+    function updateCrossSell() {
+        var sys = SYSTEMS[state.selectedSystem];
+        var monthly = getMonthly();
+        var investAmt = Math.round(monthly * sys.investPct / 100);
+
+        if (monthly > 0) {
+            $('crossSellTitle').textContent = 'Your ' + sys.archetype + ' system allocates ' + sys.investPct + '% to ' + sys.investLabel + '.';
+            $('crossSellAmount').textContent = fmt(investAmt) + '/mo on autopilot';
+            $('crossSellAmount').style.display = 'block';
+            $('crossSellBtn').href = AUTOPILOT_URL + '?source=budget&monthly=' + investAmt;
+        } else {
+            $('crossSellTitle').textContent = 'Your ' + sys.archetype + ' system says invest ' + sys.investPct + '%.';
+            $('crossSellAmount').style.display = 'none';
+            $('crossSellBtn').href = AUTOPILOT_URL + '?source=budget';
+        }
+        $('crossSellText').textContent = 'You\'ve mapped the allocation. Now wire the automation so it runs without you.';
+    }
+
+    // =========================================
+    // 15. IDENTITY CARD
+    // =========================================
+    function updateIdCard() {
+        var sys = SYSTEMS[state.selectedSystem];
+        var monthly = getMonthly();
+
+        $('cardArchetype').textContent = sys.archetype;
+        $('cardSystem').textContent = sys.title + ' | ' + sys.segments.map(function(s){return s.pct + '%';}).join('/');
+
+        var alloc = $('cardAlloc');
+        alloc.innerHTML = '';
+        sys.segments.forEach(function(seg) {
+            var val = monthly > 0 ? fmt(monthly * seg.pct / 100) : seg.pct + '%';
+            var el = document.createElement('div');
+            el.className = 'id-card-alloc-item';
+            el.innerHTML = '<div class="id-card-alloc-val">' + val + '</div><div class="id-card-alloc-lbl">' + seg.label + '</div>';
+            alloc.appendChild(el);
+        });
+
+        $('cardIncome').textContent = monthly > 0 ? fmt(monthly) : '--';
+    }
+
+    function downloadCard() {
+        var btn = $('cardDownloadBtn');
+        var btnText = $('cardBtnText');
+        btn.disabled = true;
+        btnText.textContent = 'Generating...';
+
+        // Dynamically load html2canvas
+        if (window.html2canvas) {
+            captureCard();
+        } else {
+            var script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+            script.onload = captureCard;
+            script.onerror = function() {
+                btnText.textContent = 'Download Failed';
+                setTimeout(function(){ btn.disabled = false; btnText.textContent = 'Download Card'; }, 2000);
+            };
+            document.head.appendChild(script);
+        }
+    }
+
+    function captureCard() {
+        var card = $('idCard');
+        html2canvas(card, {
+            scale: 3,
+            backgroundColor: '#0c0e1a',
+            useCORS: true,
+            logging: false
+        }).then(function(canvas) {
+            var link = document.createElement('a');
+            link.download = 'financial-dna-' + SYSTEMS[state.selectedSystem].archetype.replace(/\s+/g, '-').toLowerCase() + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            $('cardBtnText').textContent = 'Downloaded!';
+            setTimeout(function(){
+                $('cardDownloadBtn').disabled = false;
+                $('cardBtnText').textContent = 'Download Card';
+            }, 2000);
+        }).catch(function() {
+            $('cardBtnText').textContent = 'Download Failed';
+            setTimeout(function(){
+                $('cardDownloadBtn').disabled = false;
+                $('cardBtnText').textContent = 'Download Card';
+            }, 2000);
+        });
+    }
+
+    // =========================================
+    // 16. INCOME INPUT HANDLERS
+    // =========================================
+    $('incomeInput').addEventListener('input', function(e) {
+        var val = parseFloat(e.target.value);
+        state.income = isNaN(val) ? 0 : val;
+        localStorage.setItem('budget_income', state.income.toString());
+        updateChartAndLegend();
+        updateCrossSell();
+        updateIdCard();
+    });
+
+    function setPeriod(p) {
+        state.incomePeriod = p;
+        localStorage.setItem('budget_income_period', p);
+        $('btnMonthly').classList.toggle('active', p === 'monthly');
+        $('btnAnnual').classList.toggle('active', p === 'annual');
+        updateChartAndLegend();
+        updateCrossSell();
+        updateIdCard();
+    }
+
+    // =========================================
+    // 17. START BUTTON
+    // =========================================
+    $('startBtn').addEventListener('click', function() {
+        state.questionIndex = 0;
+        state.scores = { '50-30-20': 0, 'wealth-builder': 0, 'pay-yourself-first': 0, '80-20': 0, 'envelope': 0 };
+        state.answerHistory = [];
+        showSection('s-quiz');
+        renderQuestion();
+    });
+
+    // =========================================
+    // 18. INITIALIZATION
+    // =========================================
+    (function init() {
+        var quizDone = localStorage.getItem('budget_quiz_completed') === 'true';
+        var isUnlocked = localStorage.getItem('budget_unlocked') === 'true';
+        var savedSystem = localStorage.getItem('budget_selected_system');
+        var savedIncome = localStorage.getItem('budget_income');
+        var savedPeriod = localStorage.getItem('budget_income_period');
+        var savedScores = null;
+        var savedAnswers = null;
+
+        try { savedScores = JSON.parse(localStorage.getItem('budget_scores')); } catch(e) {}
+        try { savedAnswers = JSON.parse(localStorage.getItem('budget_answers')); } catch(e) {}
+
+        // Ghost Handshake: import income from Autopilot if available
+        var autopilotImported = false;
+        if (!savedIncome || savedIncome === '0') {
+            try {
+                var apData = JSON.parse(localStorage.getItem('autopilot_system_data') || 'null');
+                if (apData && apData.income && apData.income > 0) {
+                    savedIncome = apData.income.toString();
+                    localStorage.setItem('budget_income', savedIncome);
+                    autopilotImported = true;
+                }
+            } catch(e) {}
+        }
+
+        // URL param overrides
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('sys') && SYSTEMS[params.get('sys')]) {
+            savedSystem = params.get('sys');
+            localStorage.setItem('budget_selected_system', savedSystem);
+        }
+        if (params.get('inc')) {
+            savedIncome = params.get('inc');
+            localStorage.setItem('budget_income', savedIncome);
+        }
+        if (params.get('per')) {
+            savedPeriod = params.get('per');
+            localStorage.setItem('budget_income_period', savedPeriod);
+        }
+
+        // Restore state
+        if (savedSystem && SYSTEMS[savedSystem]) state.selectedSystem = savedSystem;
+        if (savedIncome) state.income = parseFloat(savedIncome) || 0;
+        if (savedPeriod) state.incomePeriod = savedPeriod;
+        if (savedScores) state.scores = savedScores;
+        if (savedAnswers) state.answerHistory = savedAnswers;
+
+        // Populate inputs
+        if (state.income > 0) {
+            $('incomeInput').value = state.income;
+            if (autopilotImported) $('incomeImported').style.display = 'inline-block';
+        }
+        if (state.incomePeriod === 'annual') {
+            $('btnAnnual').classList.add('active');
+            $('btnMonthly').classList.remove('active');
+        }
+
+        // Route to correct section
+        if (quizDone && isUnlocked) {
+            // Returning unlocked user: straight to dashboard
+            state.isUnlocked = true;
+            renderDashboard();
+            showSection('s-dashboard');
+        } else if (quizDone && !isUnlocked) {
+            // Quiz done but not unlocked: show reveal with gate
+            var sys = SYSTEMS[state.selectedSystem];
+            $('revealArchetype').textContent = sys.archetype;
+            $('revealSystem').textContent = sys.title;
+            renderDynamicWhyForReveal();
+            showSection('s-reveal');
+            setTimeout(function() { $('gateSkip').classList.add('visible'); }, 15000);
+        } else {
+            // Fresh user
+            showSection('s-intro');
+        }
     })();
-  </script>
+
+    function renderDynamicWhyForReveal() {
+        var answers = state.answerHistory;
+        if (!answers || answers.length === 0) return;
+        var contributions = answers
+            .map(function(a) {
+                var opt = QUESTIONS[a.qi] ? QUESTIONS[a.qi].options[a.oi] : null;
+                if (!opt) return null;
+                return { reason: opt.reason, pts: opt.score[state.selectedSystem] || 0 };
+            })
+            .filter(function(c) { return c && c.pts > 0; })
+            .sort(function(a, b) { return b.pts - a.pts; })
+            .slice(0, 3);
+        if (contributions.length > 0) {
+            var reasons = contributions.map(function(c, i) { return '<strong>(' + (i + 1) + ')</strong> ' + c.reason; });
+            $('revealWhy').innerHTML = 'You told us: ' + reasons.join('. ') + '. This archetype is built for that exact profile.';
+        }
+    }
+    </script>
 </body>
 </html>
