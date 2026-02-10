@@ -82,7 +82,7 @@
         .header h1 { font-size: clamp(1.75rem, 5vw, 2.5rem); font-weight: 800; margin-bottom: 10px; letter-spacing: -0.02em; }
         .header p { color: var(--text-secondary); font-size: 1rem; max-width: 400px; margin: 0 auto; line-height: 1.6; }
 
-        /* === FIX #9: ARCHITECT ID EXPLAINER === */
+        /* Explainer */
         .explainer {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -131,7 +131,7 @@
         .verify-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-green-glow); }
         .verify-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        /* === FIX #10: FAQ ACCORDION === */
+        /* FAQ Accordion */
         .faq-section {
             border-top: 1px solid var(--border);
             padding-top: 20px;
@@ -206,10 +206,205 @@
         .verified-id { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 800; color: var(--accent-green); letter-spacing: 0.15em; margin-bottom: 10px; text-shadow: 0 0 30px var(--accent-green-glow); }
         .verified-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; }
         .verified-subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 25px; }
+
+        /* === NEW: Verified architect name === */
+        .verified-architect-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 8px;
+        }
+
         .verified-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding-top: 20px; border-top: 1px solid rgba(34,197,94,0.2); }
         .verified-stat { text-align: center; }
         .verified-stat-value { font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; font-weight: 800; }
         .verified-stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+
+        /* === NEW: Architect Data Stats (from URL params) === */
+        .architect-data-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(34,197,94,0.15);
+            display: none;
+        }
+        .architect-data-section.visible { display: block; }
+        .architect-data-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 12px;
+        }
+        .architect-data-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .architect-data-card {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 10px;
+            text-align: center;
+        }
+        .architect-data-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--accent-green);
+            margin-bottom: 4px;
+        }
+        .architect-data-sublabel {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .architect-data-note {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        /* === NEW: Protocol Education Section === */
+        .protocol-section {
+            margin-top: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: none;
+        }
+        .protocol-section.visible { display: block; }
+        .protocol-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+            user-select: none;
+        }
+        .protocol-header:hover { background: rgba(255,255,255,0.04); }
+        .protocol-header-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent-green);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .protocol-arrow {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            transition: transform 0.3s;
+        }
+        .protocol-section.open .protocol-arrow { transform: rotate(180deg); color: var(--accent-green); }
+        .protocol-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+        .protocol-section.open .protocol-body {
+            max-height: 600px;
+        }
+        .protocol-body-inner {
+            padding: 20px;
+        }
+        .protocol-step {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+        .protocol-step:last-child { margin-bottom: 0; }
+        .protocol-step-num {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            flex-shrink: 0;
+        }
+        .protocol-step-text h4 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        .protocol-step-text p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* === NEW: Referral CTA inside verified result === */
+        .referral-cta {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(251,191,36,0.08) 0%, rgba(251,191,36,0.02) 100%);
+            border: 1px solid rgba(251,191,36,0.25);
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+        }
+        .referral-cta.visible { display: block; }
+        .referral-cta-eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 8px;
+        }
+        .referral-cta-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        .referral-cta-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+        .referral-cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-green);
+            color: #000;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .referral-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-green-glow); }
+        .referral-cta-note {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
 
         /* Not Found Result */
         .result-notfound { text-align: center; padding: 30px; background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(239,68,68,0.02) 100%); border: 2px solid var(--accent-red); border-radius: 16px; }
@@ -323,6 +518,8 @@
             .verify-btn { width: 100%; }
             .verified-stats { gap: 10px; }
             .verified-stat-value { font-size: 1rem; }
+            .architect-data-grid { gap: 8px; }
+            .architect-data-value { font-size: 0.9rem; }
             .footer-links { flex-direction: column; gap: 12px; }
             .recent-item-right { gap: 8px; }
             .recent-item-time { display: none; }
@@ -345,7 +542,7 @@
             <p>Check if someone has completed the Autopilot Money System and earned their Wealth Architect certification.</p>
         </div>
 
-        <!-- FIX #9: ARCHITECT ID EXPLAINER -->
+        <!-- ARCHITECT ID EXPLAINER -->
         <div class="explainer">
             <div class="explainer-icon">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="13" y2="12"/><circle cx="16" cy="16" r="2"/></svg>
@@ -363,7 +560,7 @@
                 <button id="verifyBtn" class="verify-btn" onclick="verifyArchitect()">Verify</button>
             </div>
 
-            <!-- FIX #10: FAQ ACCORDION -->
+            <!-- FAQ ACCORDION -->
             <div class="faq-section" id="faqSection">
                 <div class="faq-header">Common Questions</div>
 
@@ -419,6 +616,8 @@
                 <div class="result-verified">
                     <div class="verified-badge">Verified Architect</div>
                     <div class="verified-id" id="verifiedId">KOU-XXXXXX</div>
+                    <!-- NEW: Architect name from URL params -->
+                    <div class="verified-architect-name" id="verifiedName" style="display:none;"></div>
                     <div class="verified-title">Wealth Architect</div>
                     <div class="verified-subtitle">This person has installed the Autopilot Money System</div>
                     <div class="verified-stats">
@@ -426,7 +625,65 @@
                         <div class="verified-stat"><div class="verified-stat-value" id="verifiedYear">2026</div><div class="verified-stat-label">Since</div></div>
                         <div class="verified-stat"><div class="verified-stat-value">Elite</div><div class="verified-stat-label">Status</div></div>
                     </div>
+
+                    <!-- NEW: Architect data stats from URL params -->
+                    <div class="architect-data-section" id="architectDataSection">
+                        <div class="architect-data-label">System Configuration</div>
+                        <div class="architect-data-grid">
+                            <div class="architect-data-card">
+                                <div class="architect-data-value" id="dataInvest">$0</div>
+                                <div class="architect-data-sublabel">Monthly<br>Auto-Invest</div>
+                            </div>
+                            <div class="architect-data-card">
+                                <div class="architect-data-value" id="dataEtf">--</div>
+                                <div class="architect-data-sublabel">Target<br>ETF</div>
+                            </div>
+                            <div class="architect-data-card">
+                                <div class="architect-data-value" id="dataWealth">$0</div>
+                                <div class="architect-data-sublabel">30-Year<br>Projection</div>
+                            </div>
+                        </div>
+                        <div class="architect-data-note" id="dataNote"></div>
+                    </div>
                 </div>
+
+                <!-- NEW: Protocol education (collapsible) -->
+                <div class="protocol-section" id="protocolSection">
+                    <div class="protocol-header" onclick="toggleProtocol()">
+                        <span class="protocol-header-text">What did this person complete?</span>
+                        <span class="protocol-arrow" id="protocolArrow">&#9660;</span>
+                    </div>
+                    <div class="protocol-body">
+                        <div class="protocol-body-inner">
+                            <div class="protocol-step">
+                                <div class="protocol-step-num">1</div>
+                                <div class="protocol-step-text"><h4>Income Calibration</h4><p>Calculated real deployable income after all bills and obligations. Not gross income. What's actually left.</p></div>
+                            </div>
+                            <div class="protocol-step">
+                                <div class="protocol-step-num">2</div>
+                                <div class="protocol-step-text"><h4>Infrastructure Setup</h4><p>Opened checking, high-yield savings, and investment accounts. Configured automated transfers between them.</p></div>
+                            </div>
+                            <div class="protocol-step">
+                                <div class="protocol-step-num">3</div>
+                                <div class="protocol-step-text"><h4>ETF Selection</h4><p>Selected a diversified investment fund matched to their risk tolerance and time horizon.</p></div>
+                            </div>
+                            <div class="protocol-step">
+                                <div class="protocol-step-num">4</div>
+                                <div class="protocol-step-text"><h4>Automation Activation</h4><p>Configured auto-invest so wealth builds without manual intervention. Zero willpower required after setup.</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW: Referral CTA for cold visitors -->
+                <div class="referral-cta" id="referralCta">
+                    <div class="referral-cta-eyebrow">Their machine is running. Is yours?</div>
+                    <div class="referral-cta-title">Build Your Own Autopilot System</div>
+                    <div class="referral-cta-text">Same 7-module protocol. Same automation. Takes about 4 minutes. Free. No login.</div>
+                    <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="referral-cta-btn">Start Building (Free) &#8594;</a>
+                    <div class="referral-cta-note">No credit card. No signup wall. Instant access.</div>
+                </div>
+
                 <div class="verified-gift" id="verifiedGift">
                     <div class="gift-header">
                         <div class="gift-icon">
@@ -548,13 +805,38 @@
             { text: 'Retrieving architect data...', step: 'Finalizing verification...' }
         ];
 
+        // === NEW: URL PARAM DATA FOR REFERRAL CONTEXT ===
+        // When someone shares their verify link with params like ?id=KOU-ABC123&n=Kou&inv=300&etf=VTI&w=586000
+        // we read and display this data in the verified result
+        const URL_ARCHITECT_DATA = (function() {
+            const p = new URLSearchParams(window.location.search);
+            const inv = parseFloat(p.get('inv')) || 0;
+            const w = parseFloat(p.get('w')) || (inv > 0 ? calcFutureValue(inv, 30) : 0);
+            return {
+                name: p.get('n') ? decodeURIComponent(p.get('n')) : null,
+                invest: inv,
+                etf: p.get('etf') || null,
+                wealth: w,
+                hasData: inv > 0 || p.get('n') || p.get('etf')
+            };
+        })();
+
+        function calcFutureValue(monthly, years) {
+            var r = 0.10, n = 12;
+            return monthly * ((Math.pow(1 + r/n, n * years) - 1) / (r/n));
+        }
+
         // === FAQ TOGGLE ===
         function toggleFaq(item) {
-            // Close all other items
             document.querySelectorAll('.faq-item').forEach(el => {
                 if (el !== item) el.classList.remove('open');
             });
             item.classList.toggle('open');
+        }
+
+        // === NEW: Protocol section toggle ===
+        function toggleProtocol() {
+            document.getElementById('protocolSection').classList.toggle('open');
         }
 
         // === PERSISTENT STORAGE HELPERS ===
@@ -716,6 +998,55 @@
             if (e.key === 'Enter') verifyArchitect();
         });
 
+        // === NEW: Populate architect data in verified result ===
+        function showArchitectData() {
+            const data = URL_ARCHITECT_DATA;
+            if (!data.hasData) return;
+
+            // Show name if available
+            if (data.name) {
+                const nameEl = document.getElementById('verifiedName');
+                nameEl.textContent = data.name;
+                nameEl.style.display = 'block';
+            }
+
+            // Show data stats
+            if (data.invest > 0 || data.etf) {
+                const section = document.getElementById('architectDataSection');
+                section.classList.add('visible');
+
+                if (data.invest > 0) {
+                    document.getElementById('dataInvest').textContent = '$' + Math.round(data.invest).toLocaleString();
+                }
+                if (data.etf) {
+                    document.getElementById('dataEtf').textContent = data.etf;
+                }
+                if (data.wealth > 0) {
+                    document.getElementById('dataWealth').textContent = '$' + Math.round(data.wealth).toLocaleString();
+                    document.getElementById('dataNote').textContent = 'Based on $' + Math.round(data.invest) + '/mo at ~10% avg annual return (S&P 500 historical average).';
+                }
+            }
+
+            // Show protocol section (collapsed by default for education)
+            document.getElementById('protocolSection').classList.add('visible');
+
+            // Show referral CTA for cold visitors
+            // (only show if visitor is NOT the architect themselves)
+            const localId = localStorage.getItem('cashvault_architect_id');
+            const urlId = new URLSearchParams(window.location.search).get('id');
+            if (!localId || localId !== urlId) {
+                document.getElementById('referralCta').classList.add('visible');
+                // Hide the gift section for non-owners
+                document.getElementById('verifiedGift').style.display = 'none';
+            }
+        }
+
+        // === DETECT IF VISITOR IS THE ARCHITECT (owner vs. stranger) ===
+        function isArchitectOwner(verifiedId) {
+            const localId = localStorage.getItem('cashvault_architect_id');
+            return localId && localId === verifiedId;
+        }
+
         async function verifyArchitect() {
             const input = document.getElementById('architectIdInput');
             const btn = document.getElementById('verifyBtn');
@@ -785,6 +1116,22 @@
                     document.getElementById('verifiedId').textContent = architectId;
                     document.getElementById('verifiedYear').textContent = new Date().getFullYear();
                     resultVerified.classList.add('show');
+
+                    // NEW: Show/hide based on owner vs stranger
+                    if (isArchitectOwner(architectId)) {
+                        // Owner: show gift, hide referral CTA
+                        document.getElementById('verifiedGift').style.display = 'block';
+                        document.getElementById('referralCta').classList.remove('visible');
+                    } else {
+                        // Stranger: show referral CTA, hide gift
+                        document.getElementById('referralCta').classList.add('visible');
+                        document.getElementById('verifiedGift').style.display = 'none';
+                    }
+
+                    // NEW: Always show protocol education and architect data on verification
+                    document.getElementById('protocolSection').classList.add('visible');
+                    showArchitectData();
+
                     document.getElementById('ctaSection').style.display = 'none';
                     
                     addToRecentVerifications(architectId);
