@@ -1148,10 +1148,16 @@
                 setPromptsGenerated(p => ({...p, [cat]: p[cat] + 1}));
                 const updated = autoSaveToVault(promptText, cat, status);
                 setSavedPrompts(updated);
-                setNewestIndex(updated.length - 1);
-                setVaultOpen(true);
-                setShowVaultPointer(true);
-                setTimeout(() => { setShowVaultPointer(false); setNewestIndex(-1); }, 5000);
+
+                /* PRE-EMAIL: Silent save. No vault fanfare.
+                   Keep eyes on the blur gate and email form.
+                   POST-EMAIL: Full vault experience. */
+                if (isUnlocked) {
+                    setNewestIndex(updated.length - 1);
+                    setVaultOpen(true);
+                    setShowVaultPointer(true);
+                    setTimeout(() => { setShowVaultPointer(false); setNewestIndex(-1); }, 5000);
+                }
             };
 
             const handleSavePrompt = (prompt, category) => {
