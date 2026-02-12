@@ -255,6 +255,21 @@
             font-size:0.65rem;color:var(--text-muted);text-align:center;
             margin-top:6px;font-style:italic;
         }
+        .envelope-suggestion{
+            display:flex;align-items:flex-start;gap:10px;
+            padding:12px 14px;border-radius:8px;margin-top:6px;
+            background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);
+            font-size:0.78rem;line-height:1.5;color:var(--text-secondary);
+            animation:fadeSlide 0.3s ease;
+        }
+        .envelope-suggestion-icon{
+            flex-shrink:0;font-size:1rem;margin-top:1px;
+        }
+        .envelope-suggestion strong{color:var(--accent);font-weight:700;}
+        .envelope-suggestion .env-yearly{
+            font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+            color:var(--green);font-weight:600;
+        }
 
         /* Tabs */
         .tabs-section{border-top:1px solid var(--border-light);padding-top:20px;margin-bottom:24px;}
@@ -786,9 +801,51 @@
         localStorage.setItem('budget_envelope_overrides', JSON.stringify(envelopeOverrides));
         updateEnvelopeDoughnut();
         updateEnvelopeUnallocated();
+        updateEnvelopeSuggestion();
         updateEnvelopePctBadges();
         updateCrossSell();
         updateIdCard();
+    }
+
+    function updateEnvelopeSuggestion() {
+        var el = document.getElementById('envelopeSuggestion');
+        if (!el) return;
+        var monthly = getMonthly();
+        if (monthly <= 0) { el.innerHTML = ''; return; }
+
+        var total = getEnvelopeTotal();
+        var diff = monthly - total;
+
+        // Only show when there IS unallocated money
+        if (diff < 1) {
+            el.innerHTML = '';
+            return;
+        }
+
+        var yearly = diff * 12;
+        var pct = Math.round((diff / monthly) * 100);
+        var msg = '';
+
+        if (diff >= monthly * 0.10) {
+            // Large surplus (10%+ of income): split recommendation
+            var half = Math.round(diff / 2);
+            msg = '<span class="envelope-suggestion-icon">&#9889;</span>' +
+                '<div>You have <strong>' + fmt(diff) + '/mo</strong> (' + pct + '%) unallocated. ' +
+                'Move it to <strong>Savings & Debt</strong>. That is an extra <span class="env-yearly">' + fmt(yearly) + '/year</span> compounding in your favor. ' +
+                'Or split it: <strong>' + fmt(half) + '</strong> to Savings, <strong>' + fmt(diff - half) + '</strong> to Buffer for extra protection.</div>';
+        } else if (diff >= 20) {
+            // Moderate surplus: direct to savings
+            msg = '<span class="envelope-suggestion-icon">&#9889;</span>' +
+                '<div>You have <strong>' + fmt(diff) + '/mo</strong> left over. ' +
+                'Route it to <strong>Savings & Debt</strong>. That is <span class="env-yearly">' + fmt(yearly) + '/year</span> your future self will thank you for.</div>';
+        } else {
+            // Micro surplus: acknowledge it
+            msg = '<span class="envelope-suggestion-icon">&#10004;</span>' +
+                '<div><strong>' + fmt(diff) + '/mo</strong> surplus. Healthy micro-buffer. No action needed.</div>';
+        }
+
+        el.className = 'envelope-suggestion';
+        el.innerHTML = msg;
     }
 
     function updateEnvelopeDoughnut() {
@@ -985,6 +1042,12 @@
             unalloc.id = 'envelopeUnallocated';
             legend.appendChild(unalloc);
             updateEnvelopeUnallocated();
+
+            // Smart suggestion for unallocated funds
+            var suggestion = document.createElement('div');
+            suggestion.id = 'envelopeSuggestion';
+            legend.appendChild(suggestion);
+            updateEnvelopeSuggestion();
 
             var hint = document.createElement('div');
             hint.className = 'envelope-hint';
