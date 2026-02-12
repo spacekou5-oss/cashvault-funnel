@@ -843,18 +843,33 @@
             );
         }
 
-        function GoalGradientBar({ data, requiredFields }) {
+        function GoalGradientBar({ data, requiredFields, isUnlocked }) {
             const filledCount = requiredFields.filter(f => data[f] && data[f].trim() !== '').length;
-            const progress = Math.round((filledCount / requiredFields.length) * 100);
-            const isComplete = filledCount === requiredFields.length;
-            const remaining = requiredFields.length - filledCount;
+            const totalFields = requiredFields.length;
+            const progress = Math.round((filledCount / totalFields) * 100);
+            const isComplete = filledCount === totalFields;
             const progressColor = isComplete ? 'var(--success)' : 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)';
             const percentColor = isComplete ? 'var(--success)' : progress === 0 ? 'var(--text-muted)' : '#10b981';
-            const label = isComplete ? 'Ready to Generate' : remaining === requiredFields.length ? 'Fill all fields to generate' : `${remaining} field${remaining !== 1 ? 's' : ''} remaining`;
+
+            /* Dynamic whisper: email mention only after 50% investment */
+            let label = 'Fill all fields to generate';
+            if (isUnlocked) {
+                /* Post-email: straightforward progress */
+                if (isComplete) label = 'Ready to generate';
+                else if (filledCount === 0) label = 'Fill all fields to generate';
+                else label = `${totalFields - filledCount} field${totalFields - filledCount !== 1 ? 's' : ''} remaining`;
+            } else {
+                /* Pre-email: the countdown whisper */
+                if (isComplete) label = '\u26A1 Ready. Hit generate. Email delivers the full output to your Vault.';
+                else if (filledCount === 0) label = 'Fill all fields to generate';
+                else if (progress < 50) label = 'Keep going. Your custom prompt is building.';
+                else label = '\u26A1 Almost there. One email unlocks everything.';
+            }
+
             return (
                 <div className="progress-container">
                     <div className="progress-header">
-                        <span className="progress-label">{label}</span>
+                        <span className="progress-label" style={!isUnlocked && progress >= 50 ? {color: 'var(--gold)', transition: 'color 0.4s'} : {}}>{label}</span>
                         <span className="progress-percent" style={{color:percentColor}}>{progress}%</span>
                     </div>
                     <div className="progress-bar-track">
@@ -948,7 +963,7 @@
                         ))}
                     </div>
 
-                    <GoalGradientBar data={inputs} requiredFields={requiredFields} />
+                    <GoalGradientBar data={inputs} requiredFields={requiredFields} isUnlocked={isUnlocked} />
 
                     <div className="space-y-5">
                         {(() => {
