@@ -77,11 +77,17 @@
         .error-state p { color: var(--text-secondary); margin-bottom: 24px; }
         .error-recovery { display: grid; gap: 12px; max-width: 400px; margin: 0 auto; }
 
+        /* Saved count banner */
+        .saved-banner { background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.25); border-radius: 12px; padding: 14px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; animation: fadeInUp 0.4s ease; }
+        .saved-banner-icon { font-size: 1.3rem; }
+        .saved-banner-text { flex: 1; font-size: 0.85rem; color: var(--text-secondary); }
+        .saved-banner-text strong { color: var(--accent-gold); font-weight: 700; }
+        .saved-banner-count { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 800; color: var(--accent-gold); }
+
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes glow { 0%, 100% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.25); } 50% { box-shadow: 0 0 60px rgba(99, 102, 241, 0.35), 0 0 80px rgba(139, 92, 246, 0.15); } }
         @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        /* Particle effect (brand-matched indigo/purple) */
         .particle-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; overflow: hidden; }
         .particle { position: absolute; border-radius: 50%; animation: particle-fall 3s ease-out forwards; }
         @keyframes particle-fall { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(100px) scale(0); } }
@@ -117,6 +123,13 @@
             </div>
         </div>
 
+        <!-- Saved prompts count banner -->
+        <div class="saved-banner" id="savedBanner" style="display:none;">
+            <span class="saved-banner-icon">&#128451;&#65039;</span>
+            <span class="saved-banner-text">Your Vault has <strong id="savedCount">0</strong> saved prompt(s). All accessible from the main console.</span>
+            <span class="saved-banner-count" id="savedCountBig">0</span>
+        </div>
+
         <div class="prompt-card">
             <div class="prompt-header">
                 <div class="prompt-title-wrap">
@@ -143,10 +156,9 @@
             </div>
         </div>
 
-        <!-- Dynamic tips (BRIDGE FIX B) -->
         <div class="tips-card">
             <div class="tips-header">
-                <span>💡</span>
+                <span>&#128161;</span>
                 <h3>How to Use This Prompt</h3>
             </div>
             <div class="tips-list" id="tips-list">
@@ -157,60 +169,57 @@
             </div>
         </div>
 
-        <!-- Actions: Reordered CTAs (BRIDGE FIX A) -->
         <div class="actions">
-            <a href="https://chat.openai.com" target="_blank" class="btn btn-primary">
-                <span>🚀</span> Open ChatGPT and Paste This
+            <a href="https://chat.openai.com" target="_blank" class="btn btn-primary" onclick="persistState()">
+                <span>&#128640;</span> Open ChatGPT and Paste This
             </a>
-            <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" class="btn btn-secondary" id="ecosystem-cta">
-                <span>📊</span> Build Your Portfolio
+            <a href="#" class="btn btn-secondary" id="ecosystem-cta" onclick="persistAndNavigate(this); return false;">
+                <span>&#128202;</span> Build Your Portfolio
             </a>
-            <a href="https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" class="btn btn-secondary">
-                <span>🗄️</span> Explore Full Vault (21 Prompts)
+            <a href="https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" class="btn btn-secondary" onclick="persistAndReturnToVault(); return false;">
+                <span>&#128452;&#65039;</span> Explore Full Vault (21 Prompts)
             </a>
         </div>
 
-        <!-- More Prompts CTA (FIX: truthful count) -->
         <div class="more-prompts">
             <div class="prompt-count">
-                <span>🔥</span> 21 Battle-Tested Prompt Templates
+                <span>&#128293;</span> 21 Battle-Tested Prompt Templates
             </div>
             <h3>This is Just the Beginning</h3>
             <p>The Vault contains AI prompts for career advancement, side hustles, investing, credit building, debt payoff, tax optimization, and more. All free. All built from real frameworks.</p>
-            <a href="https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" class="btn btn-secondary" style="display: inline-flex;">
+            <a href="https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" class="btn btn-secondary" style="display: inline-flex;" onclick="persistAndReturnToVault(); return false;">
                 Open The Vault
             </a>
         </div>
 
         <div class="footer">
-            Made by <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a><br>
+            Made by <a href="https://instagram.com/koutalksmoney" target="_blank" onclick="persistState()">@koutalksmoney</a><br>
             Don't work hard. Copy my homework.
         </div>
     </div>
 
-    <!-- Error State (BRIDGE FIX C: recovery paths) -->
     <div class="container error-state" id="error-state" style="display: none;">
-        <div style="font-size: 3rem; margin-bottom: 20px;">🔓</div>
+        <div style="font-size: 3rem; margin-bottom: 20px;">&#128275;</div>
         <h2>Your Access is Confirmed</h2>
-        <p>Your prompt couldn't be loaded (browser data may have cleared), but your email access is active. Generate a new prompt and it will be unlocked instantly.</p>
+        <p>Your prompt could not be loaded (browser data may have cleared), but your email access is active. Generate a new prompt and it will unlock instantly.</p>
         <div class="error-recovery">
-            <a href="https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" class="btn btn-primary">
-                <span>🗄️</span> Return to The Vault (Unlocked)
+            <a href="https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" class="btn btn-primary" onclick="persistAndReturnToVault(); return false;">
+                <span>&#128452;&#65039;</span> Return to The Vault (Unlocked)
             </a>
-            <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" class="btn btn-secondary">
-                <span>📊</span> Try Investment Simplifier
+            <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" class="btn btn-secondary" onclick="persistState()">
+                <span>&#128202;</span> Try Investment Simplifier
             </a>
-            <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="btn btn-secondary">
-                <span>⚙️</span> Try Autopilot System
+            <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="btn btn-secondary" onclick="persistState()">
+                <span>&#9881;&#65039;</span> Try Autopilot System
             </a>
         </div>
     </div>
 
     <script>
-        const STORAGE_KEY = 'promptVault_unlocked';
+        var STORAGE_KEY = 'promptVault_unlocked';
+        var VAULT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html';
 
-        /* Category-specific tips (BRIDGE FIX B) */
-        const CATEGORY_TIPS = {
+        var CATEGORY_TIPS = {
             'Career': [
                 'Copy the prompt above using the gold button.',
                 'Open ChatGPT and paste it in a new conversation.',
@@ -231,30 +240,68 @@
             ]
         };
 
-        /* Category-specific ecosystem CTAs */
-        const CATEGORY_CTAS = {
-            'Career': { text: 'Build Your Portfolio', icon: '📊', link: 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html' },
-            'Venture': { text: 'Open Autopilot System', icon: '⚙️', link: 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html' },
-            'Wealth': { text: 'Open Freedom Calculator', icon: '🔢', link: 'https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html' }
+        var CATEGORY_CTAS = {
+            'Career': { text: 'Build Your Portfolio', icon: '&#128202;', link: 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html' },
+            'Venture': { text: 'Open Autopilot System', icon: '&#9881;&#65039;', link: 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html' },
+            'Wealth': { text: 'Open Freedom Calculator', icon: '&#128522;', link: 'https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html' }
         };
 
-        const categoryIcons = {
-            'career': '💼', 'venture': '🚀', 'wealth': '💰',
-            'budgeting': '💰', 'investing': '📈', 'credit': '💳',
-            'side hustles': '🚀', 'default': '⚡'
+        var categoryIcons = {
+            'career': '&#128188;', 'venture': '&#128640;', 'wealth': '&#128176;',
+            'default': '&#9889;'
         };
+
+        /* ================================================
+           CORE: Persist state to localStorage.
+           This is the lock that keeps the user's identity
+           and progress alive across ALL navigation.
+           Called BEFORE every outbound click.
+           ================================================ */
+        function persistState() {
+            localStorage.setItem('vault_email_captured', 'true');
+            localStorage.setItem('vault_user_email', 'verified_via_bridge');
+            localStorage.setItem('vault_first_visit_complete', 'true');
+        }
+
+        /* Navigate to an external ecosystem tool.
+           Persist first, then go. */
+        function persistAndNavigate(el) {
+            persistState();
+            var href = el.getAttribute('href');
+            if (href && href !== '#') {
+                window.location.href = href;
+            }
+        }
+
+        /* Special handler: Return to vault with full handshake.
+           Sets the bridge_email flag so the vault recognizes
+           a returning verified user and opens their vault. */
+        function persistAndReturnToVault() {
+            persistState();
+            localStorage.setItem('promptVault_bridge_email', 'verified');
+
+            // Convert any pending prompts to unlocked before return
+            try {
+                var saved = JSON.parse(localStorage.getItem('vault_saved_prompts') || '[]');
+                var updated = saved.map(function(p) {
+                    if (p.status === 'pending') p.status = 'unlocked';
+                    return p;
+                });
+                localStorage.setItem('vault_saved_prompts', JSON.stringify(updated));
+            } catch(e) {}
+
+            window.location.href = VAULT_URL;
+        }
 
         function loadPrompt() {
             /* ================================================
-               FIX 1: WRITE UNLOCK FLAGS IMMEDIATELY
-               Even before we check if prompt data exists.
+               WRITE UNLOCK FLAGS IMMEDIATELY.
                The user gave their email. That fact is permanent.
+               This runs before anything else on the page.
                ================================================ */
-            localStorage.setItem('vault_email_captured', 'true');
-            localStorage.setItem('vault_user_email', 'verified_via_bridge');
-            localStorage.setItem('promptVault_bridge_email', 'verified');
+            persistState();
 
-            const data = localStorage.getItem(STORAGE_KEY);
+            var data = localStorage.getItem(STORAGE_KEY);
 
             if (!data) {
                 showError();
@@ -262,12 +309,10 @@
             }
 
             try {
-                const prompt = JSON.parse(data);
+                var prompt = JSON.parse(data);
                 renderPrompt(prompt);
-
-                /* FIX 7: Auto-save prompt to Vault */
                 autoSaveToVault(prompt);
-
+                showSavedCount();
                 triggerParticles();
             } catch (e) {
                 console.error('Failed to parse prompt data:', e);
@@ -276,98 +321,102 @@
         }
 
         function renderPrompt(p) {
-            const categoryLower = (p.category || '').toLowerCase();
-            const icon = categoryIcons[categoryLower] || categoryIcons['default'];
+            var categoryLower = (p.category || '').toLowerCase();
+            var iconMap = { career: '\uD83D\uDCBC', venture: '\uD83D\uDE80', wealth: '\uD83D\uDCB0' };
+            var icon = iconMap[categoryLower] || '\u26A1';
 
             document.getElementById('display-category').textContent = icon + ' ' + p.category;
             document.getElementById('display-title').textContent = p.title;
             document.getElementById('display-prompt').textContent = p.fullPrompt;
 
-            /* BRIDGE FIX B: Category-specific tips */
-            const tips = CATEGORY_TIPS[p.category] || CATEGORY_TIPS['Career'];
-            const tipsList = document.getElementById('tips-list');
-            tipsList.innerHTML = tips.map((tip, i) =>
-                `<div class="tip-item"><div class="tip-number">${i + 1}</div><div class="tip-text">${tip}</div></div>`
-            ).join('');
+            var tips = CATEGORY_TIPS[p.category] || CATEGORY_TIPS['Career'];
+            var tipsList = document.getElementById('tips-list');
+            tipsList.innerHTML = tips.map(function(tip, i) {
+                return '<div class="tip-item"><div class="tip-number">' + (i + 1) + '</div><div class="tip-text">' + tip + '</div></div>';
+            }).join('');
 
-            /* BRIDGE FIX A: Category-specific ecosystem CTA */
-            const ctaConfig = CATEGORY_CTAS[p.category] || CATEGORY_CTAS['Career'];
-            const ctaEl = document.getElementById('ecosystem-cta');
+            var ctaConfig = CATEGORY_CTAS[p.category] || CATEGORY_CTAS['Career'];
+            var ctaEl = document.getElementById('ecosystem-cta');
             if (ctaEl && ctaConfig) {
-                ctaEl.href = ctaConfig.link;
-                ctaEl.innerHTML = `<span>${ctaConfig.icon}</span> ${ctaConfig.text}`;
+                ctaEl.setAttribute('href', ctaConfig.link);
+                ctaEl.innerHTML = '<span>' + ctaConfig.icon + '</span> ' + ctaConfig.text;
             }
         }
 
-        /* FIX 7: Save prompt to vault collection */
         function autoSaveToVault(promptData) {
             try {
-                const existing = JSON.parse(localStorage.getItem('vault_saved_prompts') || '[]');
-                const newPrompt = {
+                var existing = JSON.parse(localStorage.getItem('vault_saved_prompts') || '[]');
+                var newPrompt = {
                     prompt: promptData.fullPrompt,
                     category: (promptData.category || 'CAREER').toUpperCase(),
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
+                    status: 'unlocked'
                 };
-                const isDuplicate = existing.some(p => p.prompt === newPrompt.prompt);
+                var isDuplicate = existing.some(function(p) { return p.prompt === newPrompt.prompt; });
                 if (!isDuplicate) {
                     existing.push(newPrompt);
                     localStorage.setItem('vault_saved_prompts', JSON.stringify(existing));
                 }
+                // Also convert any remaining pending prompts to unlocked
+                var updated = existing.map(function(p) {
+                    if (p.status === 'pending') p.status = 'unlocked';
+                    return p;
+                });
+                localStorage.setItem('vault_saved_prompts', JSON.stringify(updated));
             } catch (e) {
                 console.error('Failed to auto-save to vault:', e);
             }
         }
 
-        /* BRIDGE FIX C: Error state with recovery + still sets unlock flags */
+        function showSavedCount() {
+            try {
+                var saved = JSON.parse(localStorage.getItem('vault_saved_prompts') || '[]');
+                if (saved.length > 0) {
+                    document.getElementById('savedBanner').style.display = 'flex';
+                    document.getElementById('savedCount').textContent = saved.length;
+                    document.getElementById('savedCountBig').textContent = saved.length;
+                }
+            } catch(e) {}
+        }
+
         function showError() {
             document.getElementById('main-content').style.display = 'none';
             document.getElementById('error-state').style.display = 'block';
-            /* Unlock flags already set at top of loadPrompt() */
         }
 
         function copyPrompt() {
-            const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            var data = JSON.parse(localStorage.getItem(STORAGE_KEY));
             if (!data) return;
 
-            navigator.clipboard.writeText(data.fullPrompt).then(() => {
-                const btn = document.getElementById('copy-btn');
+            navigator.clipboard.writeText(data.fullPrompt).then(function() {
+                var btn = document.getElementById('copy-btn');
                 btn.classList.add('copied');
-                btn.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Copied to Clipboard!
-                `;
-                setTimeout(() => {
+                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg> Copied to Clipboard!';
+                setTimeout(function() {
                     btn.classList.remove('copied');
-                    btn.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                        Copy Full Prompt
-                    `;
+                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> Copy Full Prompt';
                 }, 2500);
             });
         }
 
-        /* FIX 11: Brand-matched particles (indigo/purple, not gold sparkles) */
         function triggerParticles() {
-            const container = document.getElementById('particle-container');
-            const colors = ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd'];
-
-            for (let i = 0; i < 30; i++) {
-                setTimeout(() => {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    particle.style.left = Math.random() * 100 + '%';
-                    particle.style.top = Math.random() * 50 + '%';
-                    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                    const size = (Math.random() * 8 + 4) + 'px';
-                    particle.style.width = size;
-                    particle.style.height = size;
-                    container.appendChild(particle);
-                    setTimeout(() => particle.remove(), 3000);
-                }, i * 50);
+            var container = document.getElementById('particle-container');
+            var colors = ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd'];
+            for (var i = 0; i < 30; i++) {
+                (function(idx) {
+                    setTimeout(function() {
+                        var particle = document.createElement('div');
+                        particle.className = 'particle';
+                        particle.style.left = Math.random() * 100 + '%';
+                        particle.style.top = Math.random() * 50 + '%';
+                        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                        var size = (Math.random() * 8 + 4) + 'px';
+                        particle.style.width = size;
+                        particle.style.height = size;
+                        container.appendChild(particle);
+                        setTimeout(function() { particle.remove(); }, 3000);
+                    }, idx * 50);
+                })(i);
             }
         }
 
