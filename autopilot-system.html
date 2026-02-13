@@ -97,18 +97,15 @@
         .ig-banner-close { background: none; border: none; color: rgba(0,0,0,0.5); font-size: 16px; cursor: pointer; padding: 0 4px; font-family: inherit; }
         .ig-banner-active { padding-top: 44px; }
 
-        /* TOAST NOTIFICATION */
         @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
         .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 9998; background: #1a1a1a; border: 1px solid #333; padding: 12px 20px; border-radius: 8px; font-size: 12px; animation: toastIn 0.3s ease-out; display: flex; align-items: center; gap: 12px; }
         .toast.hiding { animation: toastOut 0.3s ease-in forwards; }
 
-        /* COMPARISON VISUAL */
         .compare-card { border: 1px solid #333; background: #0d0d0d; padding: 16px; border-radius: 4px; }
         .compare-card.wrong { border-color: #7f1d1d; }
         .compare-card.right { border-color: var(--theme-accent, #22c55e); }
 
-        /* ANIMATED COUNTER */
         @keyframes countUp { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -133,7 +130,7 @@
                     if (r) return JSON.parse(r.value).length;
                 }
             } catch(e) {}
-            return Math.floor(Math.random() * 200) + 47; // Fallback: believable floor
+            return Math.floor(Math.random() * 200) + 47;
         }
         async function saveArchitectToShared(architectId, userData) {
             try {
@@ -173,7 +170,7 @@
 
         // --- CONFIG ---
         const CONFIG = {
-            TOTAL_MODULES: 7, // 0-6 (was 8, now collapsed)
+            TOTAL_MODULES: 7,
             BEEHIIV: { AUTOPILOT_IFRAME_SRC: "https://subscribe-forms.beehiiv.com/bb43aed8-5214-49d9-856a-7dd4bb7a416d" },
             LINKS: { SOFI: "https://www.sofi.com/", FIDELITY: "https://www.fidelity.com/", INSTAGRAM: "https://instagram.com/koutalksmoney", TWITTER: "https://twitter.com/koutalksmoney", YOUTUBE: "https://youtube.com/@FinanceWithKou", COMMAND_CENTER: "https://spacekou5-oss.github.io/cashvault-funnel/command-center.html", INVESTMENT_SIMPLIFIER: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html", VERIFY_BASE: "https://spacekou5-oss.github.io/cashvault-funnel/verify.html" },
             THEMES: {
@@ -186,7 +183,6 @@
                 MODERATE: { GROWTH: { ticker: "VTI", name: "Vanguard Total Stock Market", return: "10%", desc: "The standard. Own every US public company.", risk: "4,000+ companies. Max diversification within the US market." }, STABILITY: { ticker: "VT", name: "Vanguard Total World Stock", return: "8-9%", desc: "Own the entire world economy.", risk: "9,000+ companies globally. Less US-dependent, more diversified." } },
                 AGGRESSIVE: { GROWTH: { ticker: "QQQM", name: "Invesco NASDAQ 100", return: "12-14%", desc: "Top 100 non-financial companies. Innovation heavy.", risk: "Higher reward potential. Bigger swings. Tech-heavy concentration." }, TECH: { ticker: "VGT", name: "Vanguard Info Tech", return: "15%+", desc: "Pure technology sector play. High volatility.", risk: "Highest potential return AND highest drawdowns. Not for the anxious." } }
             },
-            // OPT #7: Honest processing labels
             PROCESSING_STEPS: [
                 { id: 1, text: "Reading your income and expense data...", duration: 500 },
                 { id: 2, text: "Calculating deployable income after bills...", duration: 500 },
@@ -263,7 +259,7 @@
                         userData: { income: p.has('i') ? Number(p.get('i')) : 0, bills: p.has('b') ? Number(p.get('b')) : 0, billsProfile: p.get('bp') || null, userName: p.get('n') ? decodeURIComponent(p.get('n')) : "", userEmail: "", payFreq: "Bi-weekly", etfChoice: resolveEtfFromTicker(p.get('etf')), checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false } }
                     };
                     if (p.has('cl')) { const bits = p.get('cl'); if (bits.length === 5) { result.userData.checklist = { sofiCheck: bits[0]==='1', sofiSave: bits[1]==='1', roth: bits[2]==='1', split: bits[3]==='1', autoInvest: bits[4]==='1' }; } }
-                    if (result.emailCaptured) result.module = 6; // Was 7, now 6
+                    if (result.emailCaptured) result.module = 6;
                     return result;
                 } catch(e) { return null; }
             },
@@ -275,7 +271,6 @@
 
         function isInstagramBrowser() { const ua = (navigator.userAgent || navigator.vendor || '').toLowerCase(); return ua.indexOf('instagram') > -1; }
 
-        // === INSTAGRAM BANNER ===
         function InstagramBanner({ isVisible }) {
             const [show, setShow] = useState(isVisible);
             if (!show) return null;
@@ -288,7 +283,6 @@
             );
         }
 
-        // === WELCOME BACK TOAST (OPT #10) ===
         function WelcomeToast({ module, onDismiss, onReset }) {
             const [hiding, setHiding] = useState(false);
             useEffect(() => {
@@ -329,7 +323,6 @@
             useEffect(() => { localStorage.setItem('autopilot_current_module', module.toString()); }, [module]);
             useEffect(() => { URLState.update(module, userData, architectId); }, [module, userData, architectId]);
 
-            // OPT #10 (Bridge): Cross-tab storage sync
             useEffect(() => {
                 const handler = (e) => {
                     if (e.key === 'autopilot_email_captured' && e.newValue === 'true') {
@@ -364,7 +357,6 @@
             const updateData = (key, value) => setUserData(prev => ({ ...prev, [key]: value }));
             const toggleCheck = (key) => setUserData(prev => ({ ...prev, checklist: { ...prev.checklist, [key]: !prev.checklist[key] } }));
 
-            // OPT #2: Progress starts at 15%, 7 modules (0-6), certificate = 6
             const installationPercent = Math.round(15 + (module / 6) * 85);
 
             const handleReset = () => { URLState.clear(); localStorage.removeItem('autopilot_current_module'); localStorage.removeItem('autopilot_system_data'); localStorage.removeItem('autopilot_email_captured'); window.location.reload(); };
@@ -411,7 +403,7 @@
                     <div className="w-full max-w-2xl min-h-[500px] transition-all duration-300 relative">{renderModule()}</div>
                     {module < 6 && (
                         <div className="w-full max-w-2xl mt-8 flex justify-between text-xs text-gray-600">
-                            <button onClick={() => setModule(m => Math.max(0, m - 1))} className={`hover:text-white ${module === 0 ? 'invisible' : ''}`}>[ \u2190 BACK ]</button>
+                            <button onClick={() => setModule(m => Math.max(0, m - 1))} className={`hover:text-white ${module === 0 ? 'invisible' : ''}`}>[ BACK ]</button>
                             <span>SECURE CONNECTION</span>
                         </div>
                     )}
@@ -420,7 +412,7 @@
         }
 
         // ==========================
-        // MODULE 0: BRIDGE (OPT #1)
+        // MODULE 0: BRIDGE
         // ==========================
         function ModuleBridge({ context, theme, next }) {
             const isTicker = context?.source === 'ticker';
@@ -446,7 +438,6 @@
                             </div>
                         </div>
 
-                        {/* COLD TRAFFIC VARIANT (OPT #1) */}
                         {isCold && (
                             <div className="space-y-5 animate-fade-in">
                                 <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight">You make money.<br/>Where does it go?</h2>
@@ -493,7 +484,6 @@
                             </div>
                         )}
 
-                        {/* Terminal readout: only show for funnel traffic */}
                         {!isCold && (
                             <div className="border-t border-gray-800 my-6 pt-6 text-left text-sm text-gray-300 space-y-2 font-mono">
                                 <p>> Initializing financial operating system...</p>
@@ -512,14 +502,13 @@
         }
 
         // ======================================
-        // MODULE 1: CALIBRATOR (OPT #3, #4)
+        // MODULE 1: CALIBRATOR
         // ======================================
         function ModuleCalibrator({ userData, updateData, theme, next }) {
             const [showCustom, setShowCustom] = useState(false);
             const [showComparison, setShowComparison] = useState(false);
             const profiles = CONFIG.PROFILES;
 
-            // OPT #3: Profile cards shown first, then income
             const selectProfile = (profileId) => {
                 const profile = profiles[profileId];
                 updateData('billsProfile', profileId);
@@ -545,7 +534,6 @@
             const billsPct = userData.income > 0 ? Math.round((userData.bills / userData.income) * 100) : 0;
             const deployPct = 100 - billsPct;
 
-            // OPT #4: Traditional vs actual comparison numbers
             const traditionalInvest = userData.income * 0.20;
             const actualInvest = invest;
 
@@ -554,7 +542,6 @@
                     <h2 className="text-xl font-bold mb-2 text-white border-b border-gray-800 pb-2">CALIBRATE YOUR MACHINE</h2>
                     <p className="text-xs text-gray-500 mb-6">Two inputs. That's all we need to build your system.</p>
                     
-                    {/* OPT #3: STEP 1 - Profile cards FIRST (low-cost micro-commitment) */}
                     <div className="mb-6">
                         <label className="block text-xs text-gray-500 mb-3 uppercase tracking-widest">{'\u2460'} What's your situation?</label>
                         <p className="text-[10px] text-gray-600 mb-3">Pick the one that's closest. This determines how much of your income is locked to bills.</p>
@@ -570,7 +557,6 @@
                         </div>
                     </div>
 
-                    {/* STEP 2 - Income (only appears after profile selection) */}
                     {hasProfile && (
                         <div className="mb-6 animate-fade-in">
                             <label className="block text-xs text-gray-500 mb-1 uppercase tracking-widest">{'\u2461'} Monthly Income (After Taxes)</label>
@@ -582,7 +568,6 @@
                         </div>
                     )}
 
-                    {/* Custom bills input */}
                     {showCustom && hasProfile && (
                         <div className="mb-6 animate-fade-in">
                             <label className="block text-xs text-gray-500 mb-1">YOUR TOTAL MONTHLY BILLS</label>
@@ -594,7 +579,6 @@
                         </div>
                     )}
 
-                    {/* OPT #4: Split-screen comparison (Traditional vs Actual) */}
                     {hasProfile && hasIncome && deployable > 0 && (
                         <div className="mb-6 animate-fade-in">
                             <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Why most budgets fail (and yours won't)</p>
@@ -615,7 +599,6 @@
                         </div>
                     )}
 
-                    {/* Deployment breakdown */}
                     {hasProfile && hasIncome && deployable > 0 && (
                         <div className="bg-gray-900 p-4 rounded border border-gray-800 mb-6 animate-fade-in">
                             <div className="mb-4">
@@ -656,14 +639,14 @@
         }
 
         // =====================================================
-        // MODULE 2: INFRASTRUCTURE + AUTOMATION (OPT #2, #5)
+        // MODULE 2: INFRASTRUCTURE + AUTOMATION
         // =====================================================
         function ModuleInfrastructure({ userData, toggleCheck, updateData, theme, next }) {
             const investAmount = getInvest(userData).toFixed(0);
             const safetyAmount = getSafety(userData).toFixed(0);
             const [whyOpen, setWhyOpen] = useState(false);
             const [method, setMethod] = useState('split');
-            const [section, setSection] = useState(1); // 1 = accounts, 2 = wiring
+            const [section, setSection] = useState(1);
 
             const accountsDone = userData.checklist.sofiCheck && userData.checklist.sofiSave && userData.checklist.roth;
             const allDone = accountsDone && userData.checklist.split;
@@ -673,7 +656,6 @@
                     <h2 className="text-xl font-bold mb-2 text-white">BUILD THE INFRASTRUCTURE</h2>
                     <p className="text-xs text-gray-500 mb-6">Open three accounts, then wire the money flow. Two steps, one module.</p>
 
-                    {/* SECTION TABS */}
                     <div className="flex gap-2 mb-6">
                         <button onClick={() => setSection(1)} className={`flex-1 py-2 text-xs font-bold uppercase border transition-all ${section === 1 ? `${theme.border} ${theme.color}` : 'border-gray-700 text-gray-500'}`}>
                             {'\u2460'} Accounts {accountsDone ? '\u2713' : ''}
@@ -685,7 +667,6 @@
 
                     {section === 1 && (
                         <div className="animate-fade-in">
-                            {/* OPT #5: Principle-first, not product-first */}
                             <div className="bg-black/50 border border-gray-800 rounded p-4 mb-4">
                                 <p className="text-white text-xs font-bold mb-2">YOU NEED THREE ACCOUNTS:</p>
                                 <div className="space-y-1 text-[11px] text-gray-400">
@@ -784,7 +765,7 @@
         }
 
         // ======================================
-        // MODULE 3: ETF SELECTOR (OPT #6)
+        // MODULE 3: ETF SELECTOR
         // ======================================
         function ModuleSelector({ userData, updateData, toggleCheck, theme, next }) {
             const [step, setStep] = useState(0);
@@ -806,7 +787,6 @@
                 </div>
             );
             
-            // OPT #6: Comparison table before final pick
             if (step === 1) {
                 const options = risk === 'Conservative' ? CONFIG.ETF_DATA.CONSERVATIVE : risk === 'Moderate' ? CONFIG.ETF_DATA.MODERATE : CONFIG.ETF_DATA.AGGRESSIVE;
                 const keys = Object.keys(options);
@@ -900,7 +880,7 @@
         }
 
         // ===============================
-        // MODULE 4: PROJECTION (OPT #7)
+        // MODULE 4: PROJECTION
         // ===============================
         function ModuleProjection({ userData, updateData, theme, next }) {
             const [isProcessing, setIsProcessing] = useState(false);
@@ -929,24 +909,26 @@
         }
 
         // ==========================================
-        // MODULE 5: EMAIL GATE (OPT #8)
+        // MODULE 5: EMAIL GATE (CHANGED: 8s + name verification)
         // ==========================================
         function ModuleEmailGate({ userData, updateData, theme, architectId, setArchitectId, next }) {
             const [saving, setSaving] = useState(false);
             const [showFallback, setShowFallback] = useState(false);
+            const [verifyName, setVerifyName] = useState('');
+            const [verifyError, setVerifyError] = useState(false);
             const investAmount = getInvest(userData);
             const projectedWealth = calcFutureValue(investAmount, 30).toLocaleString(undefined, {maximumFractionDigits:0});
 
-            // OPT #8: Show manual fallback after 15 seconds
+            // CHANGED: 8 seconds instead of 15
             useEffect(() => {
-                const t = setTimeout(() => setShowFallback(true), 15000);
+                const t = setTimeout(() => setShowFallback(true), 8000);
                 return () => clearTimeout(t);
             }, []);
 
             const completeGate = async () => {
                 setSaving(true);
                 const fallbackEmail = `architect_${Date.now()}@autopilot.system`;
-                const generatedId = architectId || generateIdFromEmail(fallbackEmail);
+                const generatedId = architectId || generateIdFromName(userData.userName || fallbackEmail);
                 setArchitectId(generatedId);
                 localStorage.setItem('autopilot_email_captured', 'true');
                 localStorage.setItem('cashvault_architect_id', generatedId);
@@ -959,7 +941,6 @@
                 setTimeout(() => next(), 800);
             };
 
-            // PostMessage listener
             useEffect(() => {
                 const handler = async (event) => {
                     if (event.data && event.data.type === 'AUTOPILOT_EMAIL_CAPTURED') { await completeGate(); }
@@ -1004,10 +985,15 @@
                             <iframe src={CONFIG.BEEHIIV.AUTOPILOT_IFRAME_SRC} className="beehiiv-embed" frameBorder="0" scrolling="no" style={{ width: '100%', maxWidth: '600px', height: '260px', margin: '0 auto', borderRadius: '0px', backgroundColor: 'transparent', border: 'none', display: 'block' }} />
                         </div>
 
-                        {/* OPT #8: Manual fallback button */}
+                        {/* CHANGED: Name verification fallback instead of simple skip button */}
                         {showFallback && (
-                            <div className="text-center animate-fade-in">
-                                <button onClick={completeGate} className="text-xs text-gray-500 underline hover:text-white transition-colors">Already submitted your email? Click here to continue {'\u2192'}</button>
+                            <div className="text-center animate-fade-in space-y-3">
+                                <p className="text-xs text-gray-500">Already submitted your email? Verify your identity to continue.</p>
+                                <div className="flex gap-2 max-w-xs mx-auto">
+                                    <input type="text" placeholder="CONFIRM YOUR NAME" value={verifyName} onChange={(e) => { setVerifyName(e.target.value); setVerifyError(false); }} className="flex-1 bg-black border border-gray-700 text-white text-center text-xs p-2.5 font-bold uppercase tracking-wider outline-none focus:border-white transition-colors" />
+                                    <button onClick={() => { if (verifyName.trim().toLowerCase() === userData.userName.trim().toLowerCase()) completeGate(); else setVerifyError(true); }} disabled={!verifyName.trim()} className={`px-4 py-2 text-xs font-bold uppercase transition-all ${verifyName.trim() ? 'border ' + theme.border + ' ' + theme.color + ' hover:bg-gray-900' : 'border border-gray-700 text-gray-600 cursor-not-allowed'}`}>Verify</button>
+                                </div>
+                                {verifyError && <p className="text-red-400 text-[10px] animate-fade-in">Name does not match. Enter the same name you used in Module 4.</p>}
                             </div>
                         )}
 
@@ -1021,9 +1007,7 @@
         }
 
         // ==========================================================================
-        // MODULE 6: CERTIFICATE (OPT #9 + All Bonuses)
-        // html2canvas download, LinkedIn, social proof, tiered upsell,
-        // next-step bridge, personalized captions, animated counter
+        // MODULE 6: CERTIFICATE (CHANGED: budget calc link + Command Center mention)
         // ==========================================================================
         function ModuleCertificate({ userData, theme, architectId }) {
             const [copiedPlatform, setCopiedPlatform] = useState(null);
@@ -1037,7 +1021,6 @@
             const projectedWealth30 = calcFutureValue(monthlyInvest, 30);
             const projectedWealthStr = projectedWealth30.toLocaleString(undefined, {maximumFractionDigits:0});
 
-            // Animated counter for projected wealth
             const [displayWealth, setDisplayWealth] = useState(0);
             useEffect(() => {
                 if (!revealed) return;
@@ -1047,14 +1030,13 @@
                 const tick = () => {
                     const elapsed = Date.now() - start;
                     const progress = Math.min(elapsed / duration, 1);
-                    const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+                    const eased = 1 - Math.pow(1 - progress, 3);
                     setDisplayWealth(Math.round(target * eased));
                     if (progress < 1) requestAnimationFrame(tick);
                 };
                 requestAnimationFrame(tick);
             }, [revealed]);
 
-            // Load architect count (social proof)
             useEffect(() => { getArchitectCount().then(c => setArchitectCount(c)); }, []);
 
             useEffect(() => {
@@ -1067,7 +1049,6 @@
 
             const verifyUrl = `${CONFIG.LINKS.VERIFY_BASE}?id=${architectId}&n=${encodeURIComponent(userData.userName || '')}&inv=${Math.round(monthlyInvest)}&etf=${userData.etfChoice?.ticker || ''}&w=${Math.round(projectedWealth30)}`;
 
-            // Personalized share captions (OPT Bridge #6)
             const shareTemplates = {
                 INSTAGRAM: `I just automated $${Math.round(monthlyInvest)}/mo into ${userData.etfChoice?.ticker || 'ETFs'}. Projected value: $${projectedWealthStr}. Built with @koutalksmoney`,
                 TWITTER: `Just automated $${Math.round(monthlyInvest)}/mo into ${userData.etfChoice?.ticker || 'ETFs'}.\n\nProjected: $${projectedWealthStr} in 30 years.\n\nVerify my system: ${verifyUrl}\n\n@koutalksmoney`,
@@ -1075,7 +1056,6 @@
                 TIKTOK: `POV: You automated $${Math.round(monthlyInvest)}/mo into ${userData.etfChoice?.ticker || 'ETFs'} and your wealth is building itself. Verify: ${verifyUrl} @koutalksmoney`
             };
 
-            // html2canvas download
             const handleDownload = async () => {
                 if (!cardRef.current || downloading) return;
                 setDownloading(true);
@@ -1096,15 +1076,12 @@
                 linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(verifyUrl)}`
             };
 
-            // LinkedIn Add Certification URL
             const linkedInCertUrl = `https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${encodeURIComponent('Autopilot Money System')}&organizationName=${encodeURIComponent('Kou Talks Money')}&certUrl=${encodeURIComponent(verifyUrl)}&certId=${encodeURIComponent(architectId)}`;
 
-            // Tiered upsell
             const isHighValue = monthlyInvest >= 500;
 
             return (
                 <div className="w-full max-w-md mx-auto animate-fade-in">
-                    {/* Download + Screenshot CTA */}
                     <div className="text-center mb-4 flex flex-col items-center gap-2">
                         <button onClick={handleDownload} disabled={downloading} className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${theme.border} ${theme.color} text-xs font-bold uppercase tracking-widest screenshot-pulse hover:bg-gray-900 transition-colors disabled:opacity-50`}>
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
@@ -1112,7 +1089,6 @@
                         </button>
                     </div>
 
-                    {/* CERTIFICATE CARD */}
                     <div ref={cardRef} id="certificate-card" className={`relative w-full rounded-xl mb-6 shadow-2xl overflow-hidden border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`} style={{willChange: 'transform'}}>
                         <div className="absolute inset-0 bg-[#0a0a0a]"></div>
                         <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-[#000] to-black opacity-90"></div>
@@ -1135,7 +1111,6 @@
                         </div>
                     </div>
 
-                    {/* VERIFY CTA */}
                     <div className={`bg-gradient-to-br from-gray-900 to-black border-2 ${theme.border} p-4 rounded-lg mb-6 flex flex-col sm:flex-row items-center gap-4`}>
                         <div className="flex-1 text-center sm:text-left">
                             <p className="text-white font-bold text-sm">Your Verification Page is Live</p>
@@ -1147,14 +1122,12 @@
                         </div>
                     </div>
 
-                    {/* Social Proof Counter (replaces countdown) */}
                     <div className="bg-gray-900/60 border border-gray-700 p-4 rounded mb-6 text-center">
                         <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Your Position</p>
                         <p className="text-white text-2xl font-mono font-bold">Architect #{architectCount !== null ? architectCount + 1 : '...'}</p>
                         <p className="text-[10px] text-gray-500 mt-1">of {architectCount !== null ? architectCount + 1 : '...'} total systems installed</p>
                     </div>
 
-                    {/* OPT #9: NEXT-STEP BRIDGE (before share section) */}
                     <div className="space-y-3 mb-6">
                         <p className="text-[10px] text-gray-500 uppercase tracking-widest text-center">What's Next</p>
                         <a href={CONFIG.LINKS.COMMAND_CENTER} className="block bg-gray-900 border border-gray-800 hover:border-gray-600 p-4 rounded transition-all group">
@@ -1171,12 +1144,10 @@
                         </a>
                     </div>
 
-                    {/* LinkedIn Add Certification */}
                     <a href={linkedInCertUrl} target="_blank" className="block w-full mb-6 bg-[#0077B5] hover:bg-[#006097] text-white text-center py-3 rounded font-bold text-xs uppercase tracking-widest transition-all">
                         Add to LinkedIn Profile
                     </a>
 
-                    {/* SHARE + CLAIM SECTION */}
                     <div className="text-center space-y-4 pb-12">
                         <div className="bg-gray-900 border border-gray-800 p-6 rounded-sm shadow-xl relative overflow-hidden">
                             <div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div>
@@ -1184,7 +1155,6 @@
                             <p className="text-gray-500 text-xs mb-6">Choose your path. One gets you the vault. The other gets you everything.</p>
 
                             <div className="text-left mb-6 space-y-3">
-                                {/* TIER 1: DM Only */}
                                 <div className="bg-black rounded border border-gray-800 overflow-hidden">
                                     <div className="px-4 py-3 border-b border-gray-800 bg-gray-900/50 flex justify-between items-center">
                                         <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Path A: Quick Claim</p>
@@ -1199,7 +1169,6 @@
                                     </div>
                                 </div>
 
-                                {/* TIER 2: Post + Tag + DM */}
                                 <div className="rounded border-2 overflow-hidden relative" style={{borderColor: theme.accent}}>
                                     <div className="absolute top-0 right-0 px-2 py-0.5 text-[9px] font-bold text-black uppercase tracking-widest" style={{background: theme.accent}}>Recommended</div>
                                     <div className="px-4 py-3 border-b border-gray-800 bg-gray-900/50 flex justify-between items-center">
@@ -1217,17 +1186,19 @@
                                                 <div><p className="text-white text-sm font-bold">{t}</p><p className="text-gray-500 text-[11px]">{s}</p></div>
                                             </div>
                                         ))}
-                                        <div className="mt-2 ml-10 flex flex-wrap items-center gap-2">
-                                            <span className="text-[10px] text-gray-500">You get:</span>
-                                            <span className="text-[10px] text-white font-bold bg-gray-800 px-2 py-0.5 rounded">Prompt Vault Cheat Sheet</span>
-                                            <span className="text-[10px] text-gray-600">+</span>
-                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{color: theme.accent, background: `${theme.accent}15`, border: `1px solid ${theme.accent}40`}}>Budget Calculator Secret Code</span>
+                                        <div className="mt-2 ml-10">
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <span className="text-[10px] text-gray-500">You get:</span>
+                                                <span className="text-[10px] text-white font-bold bg-gray-800 px-2 py-0.5 rounded">Prompt Vault Cheat Sheet</span>
+                                                <span className="text-[10px] text-gray-600">+</span>
+                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{color: theme.accent, background: `${theme.accent}15`, border: `1px solid ${theme.accent}40`}}>Budget Calculator Secret Code</span>
+                                            </div>
+                                            <p className="text-[10px] text-gray-500 mt-2">Enter the code in your <a href={CONFIG.LINKS.COMMAND_CENTER} className={`${theme.color} underline hover:brightness-125`}>Command Center</a> to activate.</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Tiered Upsell */}
                             <div className="border-t border-gray-800 pt-4 mb-4">
                                 {isHighValue ? (
                                     <div className="bg-black border border-yellow-500/30 rounded p-4 text-center">
@@ -1241,12 +1212,11 @@
                                         <p className="text-gray-400 text-[10px] uppercase tracking-widest font-bold mb-1">Level Up</p>
                                         <p className="text-white font-bold text-sm mb-2">Want to increase your investable income?</p>
                                         <p className="text-gray-500 text-[10px] mb-3">The Budget Calculator finds hidden cash in your spending. Most users find $50-$200/mo they didn't know existed.</p>
-                                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html" target="_blank" className="inline-block px-6 py-2 border border-gray-600 text-white font-bold text-xs rounded uppercase hover:bg-gray-900 transition-colors">Open Budget Calculator</a>
+                                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/budget-calculator.html" target="_blank" className="inline-block px-6 py-2 border border-gray-600 text-white font-bold text-xs rounded uppercase hover:bg-gray-900 transition-colors">Open Budget Calculator</a>
                                     </div>
                                 )}
                             </div>
 
-                            {/* SHARE TOOLS */}
                             <div className="border-t border-gray-800 pt-4">
                                 <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Quick Share Links</p>
                                 <div className="grid grid-cols-2 gap-3 mb-4">
@@ -1256,7 +1226,6 @@
                                 </div>
                             </div>
 
-                            {/* PERSONALIZED CAPTIONS */}
                             <div className="border-t border-gray-800 pt-4 mt-4">
                                 <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Copy Your Personalized Captions</p>
                                 <div className="grid grid-cols-2 gap-2">
