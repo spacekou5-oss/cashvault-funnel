@@ -7,7 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-    <!-- html2canvas for real screenshot export (Optimization #8) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -52,7 +51,6 @@
         .success-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; background: linear-gradient(135deg, var(--text-primary), var(--accent-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .success-header p { color: var(--text-secondary); font-size: 1.1rem; }
 
-        /* Post-Decision Reinforcement (Optimization #3) */
         .reinforcement {
             text-align: center; margin-top: 16px; padding: 12px 20px;
             background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);
@@ -79,6 +77,19 @@
         .allocation-box.stocks .allocation-value { color: var(--accent-green); }
         .allocation-box.bonds .allocation-value { color: var(--accent-indigo); }
 
+        /* Strategy Explainer */
+        .strategy-explainer {
+            background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.04) 100%);
+            border: 1px solid rgba(99,102,241,0.2); border-radius: 12px;
+            padding: 20px; margin-bottom: 24px; animation: fadeInUp 0.6s ease-out 0.12s backwards;
+        }
+        .strategy-explainer h3 { font-size: 1rem; font-weight: 700; color: var(--accent-indigo); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .strategy-explainer p { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; margin-bottom: 8px; }
+        .strategy-explainer .strategy-detail { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+        .strategy-detail-item { flex: 1; min-width: 140px; padding: 10px 14px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-subtle); }
+        .strategy-detail-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .strategy-detail-value { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); }
+
         /* ETF Grid */
         .etf-section { margin-bottom: 24px; }
         .section-title { font-size: 1rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
@@ -93,12 +104,15 @@
         .etf-info { display: flex; flex-direction: column; }
         .etf-ticker { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
         .etf-name { font-size: 0.85rem; color: var(--text-muted); }
-        /* ETF Description (Optimization #5) */
         .etf-desc { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; font-style: italic; }
+        .etf-meta { display: flex; gap: 8px; margin-top: 4px; }
+        .etf-meta-tag { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+        .etf-meta-tag.expense { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+        .etf-meta-tag.type { background: rgba(99,102,241,0.15); color: var(--accent-indigo); }
         .etf-percent { font-size: 1.5rem; font-weight: 800; color: var(--accent-green); text-align: right; }
         .etf-dollars { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; text-align: right; }
 
-        /* Projections (Optimization #6: emotional contrast) */
+        /* Projections */
         .projections-card { background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary)); border: 1px solid var(--border-accent); border-radius: 16px; padding: 32px; margin-bottom: 24px; animation: fadeInUp 0.6s ease-out 0.2s backwards; }
         .projections-header { text-align: center; margin-bottom: 24px; }
         .projections-header h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
@@ -116,7 +130,6 @@
         .projection-box.year30 .projection-value { color: var(--accent-green); }
         .projection-subtext { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
 
-        /* Comparison (Optimization #6: emotional contrast) */
         .comparison-banner {
             margin-top: 20px; padding: 16px; text-align: center;
             background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.25); border-radius: 12px;
@@ -126,17 +139,19 @@
         .comparison-banner .avg { color: var(--text-muted); }
         .comparison-banner .multiplier { color: var(--accent-amber); font-size: 1.3rem; font-weight: 800; display: block; margin-top: 6px; }
 
-        /* Cost of Waiting Ticker (Optimization: L1 Leverage) */
         .cost-of-waiting {
             display: flex; align-items: center; justify-content: center; gap: 8px;
             margin-top: 16px; padding: 10px 16px;
             background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 10px;
             font-size: 0.85rem; color: var(--accent-red);
         }
-        .cost-of-waiting .tick-value { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 0.95rem; }
+        .cost-of-waiting .tick-value { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 0.95rem; min-width: 60px; text-align: center; }
 
-        /* Share Card */
+        /* === SHARE CARD (STRATEGIC PLACEMENT: right after projections for max dopamine) === */
         .share-card { background: linear-gradient(135deg, #0f172a, #1e293b); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 24px; margin-bottom: 24px; animation: fadeInUp 0.6s ease-out 0.3s backwards; }
+        .share-card-header { text-align: center; margin-bottom: 16px; }
+        .share-card-header h3 { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+        .share-card-header p { font-size: 0.8rem; color: var(--text-muted); }
         .share-card-inner { background: linear-gradient(145deg, #1a1f3a, #0f1629); border-radius: 12px; padding: 24px; position: relative; overflow: hidden; }
         .share-card-inner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent-indigo), var(--accent-purple), var(--accent-green)); }
         .share-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(99,102,241,0.2); border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: var(--accent-indigo); margin-bottom: 16px; }
@@ -147,6 +162,9 @@
         .share-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--border-subtle); }
         .share-id { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
         .share-handle { font-size: 0.85rem; color: var(--accent-indigo); font-weight: 600; }
+        
+        /* Share Actions */
+        .share-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
 
         /* Action Buttons */
         .actions { display: grid; gap: 12px; margin-bottom: 32px; animation: fadeInUp 0.6s ease-out 0.4s backwards; }
@@ -159,8 +177,9 @@
         .btn-secondary:hover { border-color: var(--accent-indigo); background: var(--bg-card-hover); }
         .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px dashed var(--border-subtle); }
         .btn-ghost:hover { color: var(--text-primary); border-color: var(--text-muted); }
+        .btn-sm { padding: 10px 16px; font-size: 0.85rem; }
 
-        /* Autopilot CTA Context (Optimization #4) */
+        /* Autopilot CTA Context */
         .autopilot-context {
             background: var(--bg-card); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px;
             padding: 16px; margin-bottom: 12px; animation: fadeInUp 0.6s ease-out 0.35s backwards;
@@ -169,17 +188,41 @@
         .autopilot-context .what-how { color: var(--accent-green); font-weight: 700; }
         .autopilot-micro-preview { margin-top: 10px; padding: 8px 12px; background: var(--bg-secondary); border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
 
-        /* Next Steps (Optimization #10: personalized) */
-        .next-steps { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 24px; animation: fadeInUp 0.6s ease-out 0.5s backwards; }
-        .next-steps h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-        .steps-list { display: grid; gap: 12px; }
-        .step-item { display: flex; gap: 12px; align-items: flex-start; }
-        .step-number { width: 28px; height: 28px; background: var(--bg-secondary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: var(--accent-indigo); flex-shrink: 0; }
-        .step-content h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; }
-        .step-content p { font-size: 0.85rem; color: var(--text-muted); }
-        .step-etf-detail { font-family: 'JetBrains Mono', monospace; color: var(--accent-green); font-weight: 600; }
+        /* === BROKERAGE EXPLAINER (NEW) === */
+        .brokerage-explainer {
+            background: linear-gradient(135deg, rgba(99,102,241,0.06) 0%, rgba(139,92,246,0.03) 100%);
+            border: 1px solid rgba(99,102,241,0.2); border-radius: 14px;
+            padding: 24px; margin-bottom: 24px; animation: fadeInUp 0.6s ease-out 0.45s backwards;
+        }
+        .brokerage-explainer h3 { font-size: 1rem; font-weight: 700; color: var(--accent-indigo); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .brokerage-explainer .explainer-text { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; margin-bottom: 16px; }
+        .brokerage-explainer .explainer-highlight { color: var(--accent-green); font-weight: 600; }
+        .brokerage-explainer .explainer-note { padding: 12px 16px; background: var(--bg-card); border-left: 3px solid var(--accent-green); border-radius: 0 8px 8px 0; font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 16px; }
+        .brokerage-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .brokerage-options { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media (min-width: 600px) { .brokerage-options { grid-template-columns: repeat(3, 1fr); } }
+        .brokerage-option { text-align: center; padding: 18px 14px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; transition: all 0.2s; text-decoration: none; display: block; cursor: pointer; position: relative; }
+        .brokerage-option:hover { border-color: var(--accent-indigo); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(99,102,241,0.15); }
+        .brokerage-option.recommended { border-color: var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.1); }
+        .brokerage-option-rec { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-green); background: rgba(16,185,129,0.12); padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 10px; }
+        .brokerage-option-name { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+        .brokerage-option-cost { font-size: 0.75rem; color: var(--accent-green); font-weight: 600; margin-bottom: 10px; }
+        .brokerage-option-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 10px; }
+        .brokerage-option-best { font-size: 0.75rem; color: var(--accent-indigo); font-weight: 600; margin-bottom: 12px; padding-top: 8px; border-top: 1px solid var(--border-subtle); }
+        .brokerage-option-cta { font-size: 0.75rem; color: var(--accent-indigo); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
 
-        /* Bookmark/Return (Optimization #9) */
+        /* === NEXT STEPS (SIMPLIFIED FOR BEGINNERS) === */
+        .next-steps { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 24px; margin-bottom: 24px; animation: fadeInUp 0.6s ease-out 0.5s backwards; }
+        .next-steps h3 { font-size: 1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        .steps-list { display: grid; gap: 16px; }
+        .step-item { display: flex; gap: 14px; align-items: flex-start; padding: 16px; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-subtle); }
+        .step-number { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; color: white; flex-shrink: 0; }
+        .step-content h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; color: var(--text-primary); }
+        .step-content p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+        .step-content .step-detail { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-subtle); line-height: 1.5; }
+        .step-etf-detail { font-family: 'JetBrains Mono', monospace; color: var(--accent-green); font-weight: 600; }
+        .step-time { display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; color: var(--accent-amber); font-weight: 600; padding: 2px 8px; background: rgba(245,158,11,0.1); border-radius: 4px; margin-top: 6px; }
+
         .bookmark-reminder {
             text-align: center; margin-top: 20px; padding: 12px;
             background: rgba(99,102,241,0.05); border: 1px dashed rgba(99,102,241,0.2); border-radius: 10px;
@@ -209,6 +252,7 @@
             .projection-subtext { display: none; }
             .portfolio-header { flex-direction: column; gap: 12px; align-items: flex-start; }
             .success-header h1 { font-size: 1.6rem; }
+            .share-actions { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -223,7 +267,6 @@
             </div>
             <h1>Portfolio Unlocked</h1>
             <p>Your personalized ETF allocation is ready.</p>
-            <!-- Post-Decision Reinforcement (Optimization #3) -->
             <div class="reinforcement">
                 <p id="reinforcement-text">You just did what 90% of people never do: built an actual plan.</p>
                 <p class="subtext" id="reinforcement-sub"></p>
@@ -242,6 +285,14 @@
                 <div class="allocation-box stocks"><div class="allocation-label">&#x1F4C8; Stocks</div><div class="allocation-value" id="display-stocks">--%</div></div>
                 <div class="allocation-box bonds"><div class="allocation-label">&#x1F3E6; Bonds</div><div class="allocation-value" id="display-bonds">--%</div></div>
             </div>
+
+            <!-- STRATEGY EXPLAINER (OPTIMIZATION: More context than just holdings) -->
+            <div class="strategy-explainer" id="strategyExplainer">
+                <h3>&#x1F9E0; What This Means</h3>
+                <p id="strategyExplainerText">Loading...</p>
+                <div class="strategy-detail" id="strategyDetails"></div>
+            </div>
+
             <div class="etf-section">
                 <div class="section-title">Your Buy List</div>
                 <div class="etf-grid" id="etf-grid"></div>
@@ -258,12 +309,10 @@
                 <div class="projection-box year20"><div class="projection-label">20 Years</div><div class="projection-value" id="proj-20">$--</div><div class="projection-subtext">Acceleration</div></div>
                 <div class="projection-box year30"><div class="projection-label">30 Years</div><div class="projection-value" id="proj-30">$--</div><div class="projection-subtext">Freedom</div></div>
             </div>
-            <!-- Emotional Contrast Comparison (Optimization #6) -->
             <div class="comparison-banner">
                 <p>The average American retires with <span class="avg">$87,000</span>. You're projected at <span class="highlight" id="comp-you">$0</span>.</p>
                 <span class="multiplier" id="comp-multiplier">0x ahead of the pack</span>
             </div>
-            <!-- Cost of Waiting Ticker (L1 Leverage) -->
             <div class="cost-of-waiting">
                 <span>&#x23F3;</span>
                 <span>Not starting costs you </span>
@@ -272,8 +321,12 @@
             </div>
         </div>
 
-        <!-- Share Card (with comparison inside) -->
+        <!-- SHARE CARD (STRATEGIC: placed right after projections for peak dopamine) -->
         <div class="share-card">
+            <div class="share-card-header">
+                <h3>&#x1F4F8; Screenshot This. Post It. Tag Me.</h3>
+                <p>Show your friends you have a plan. Challenge them to build theirs.</p>
+            </div>
             <div class="share-card-inner" id="share-card-inner">
                 <div class="share-badge"><span>&#x2713;</span> INVESTMENT ARCHITECT</div>
                 <div class="share-title">30-Year Projection</div>
@@ -285,31 +338,91 @@
                     <div class="share-handle">@koutalksmoney</div>
                 </div>
             </div>
+            <div class="share-actions">
+                <button class="btn btn-secondary btn-sm" onclick="copyCaption()"><span>&#x1F4CB;</span> Copy Caption</button>
+                <button class="btn btn-ghost btn-sm" onclick="downloadCard()"><span>&#x1F4F8;</span> Download Card</button>
+            </div>
         </div>
 
         <!-- Actions -->
         <div class="actions">
-            <!-- Autopilot CTA Context (Optimization #4) -->
             <div class="autopilot-context" id="autopilot-context">
                 <p>You have the <span class="what-how">WHAT</span> (your portfolio). Now install the <span class="what-how">HOW</span>. The Autopilot System sets up automatic monthly purchases of these exact ETFs, so you never have to remember.</p>
                 <div class="autopilot-micro-preview" id="autopilot-preview"></div>
             </div>
             <a href="#" id="autopilot-btn" class="btn btn-autopilot"><span>&#x1F916;</span> Install The Autopilot System</a>
-            <button class="btn btn-secondary" onclick="copyCaption()"><span>&#x1F4CB;</span> Copy Share Caption</button>
-            <button class="btn btn-ghost" onclick="downloadCard()"><span>&#x1F4F8;</span> Download Share Card</button>
         </div>
 
-        <!-- Personalized Next Steps (Optimization #10) -->
-        <div class="next-steps">
-            <h3>&#x1F3AF; Your Exact Next 3 Steps</h3>
-            <div class="steps-list" id="steps-list">
-                <div class="step-item"><div class="step-number">1</div><div class="step-content"><h4>Open a Brokerage</h4><p>Fidelity, Schwab, or Vanguard. All free. Takes 10 minutes.</p></div></div>
-                <div class="step-item"><div class="step-number">2</div><div class="step-content"><h4>Buy Your ETFs</h4><p>Use the allocations above.</p></div></div>
-                <div class="step-item"><div class="step-number">3</div><div class="step-content"><h4>Automate Monthly</h4><p>Set up recurring investments.</p></div></div>
+        <!-- BROKERAGE EXPLAINER (NEW: Educates beginners) -->
+        <div class="brokerage-explainer">
+            <h3>&#x1F3E6; Wait, What's a Brokerage?</h3>
+            <p class="explainer-text">
+                A brokerage is just an app where you buy investments. Think of it like a <span class="explainer-highlight">bank account, but for stocks and ETFs</span>. You transfer money in, then use it to buy the ETFs in your portfolio above.
+            </p>
+            <div class="explainer-note">
+                <strong>Important:</strong> This tool gave you the plan (which ETFs to buy and how much of each). A brokerage is where you actually buy them. You don't need a brokerage to use this app. You need one to execute the plan.
+            </div>
+            <p class="explainer-text" style="margin-bottom: 12px;">All three are free, charge $0 per trade, and take about 10 minutes to set up. The only real difference is which one fits your style:</p>
+            <div class="brokerage-options">
+                <a href="https://www.fidelity.com/open-account/overview" target="_blank" rel="noopener" class="brokerage-option recommended">
+                    <div class="brokerage-option-rec">Most Popular With Beginners</div>
+                    <div class="brokerage-option-name">Fidelity</div>
+                    <div class="brokerage-option-cost">$0 to open</div>
+                    <div class="brokerage-option-desc">Best app for beginners. Buy fractional shares starting at $1. Free learning center walks you through everything step by step.</div>
+                    <div class="brokerage-option-best">Best if: You've never invested before</div>
+                    <div class="brokerage-option-cta">Open Account &#x2197;</div>
+                </a>
+                <a href="https://www.schwab.com/open-an-account" target="_blank" rel="noopener" class="brokerage-option">
+                    <div class="brokerage-option-name">Schwab</div>
+                    <div class="brokerage-option-cost">$0 to open</div>
+                    <div class="brokerage-option-desc">400+ physical branches if you want to talk to a real person. Best research tools in the industry. 24/7 phone and chat support.</div>
+                    <div class="brokerage-option-best">Best if: You want in-person or phone help</div>
+                    <div class="brokerage-option-cta">Open Account &#x2197;</div>
+                </a>
+                <a href="https://investor.vanguard.com/accounts-plans/individual-brokerage-account" target="_blank" rel="noopener" class="brokerage-option">
+                    <div class="brokerage-option-name">Vanguard</div>
+                    <div class="brokerage-option-cost">$0 to open</div>
+                    <div class="brokerage-option-desc">The company that invented index funds. Lowest fees in the game. No-frills platform built for people who buy and hold forever.</div>
+                    <div class="brokerage-option-best">Best if: You want the absolute lowest cost</div>
+                    <div class="brokerage-option-cta">Open Account &#x2197;</div>
+                </a>
             </div>
         </div>
 
-        <!-- Bookmark/Return (Optimization #9) -->
+        <!-- NEXT STEPS (SIMPLIFIED: Plain English for absolute beginners) -->
+        <div class="next-steps">
+            <h3>&#x1F3AF; Your Exact Next 3 Steps</h3>
+            <div class="steps-list" id="steps-list">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Open a Free Brokerage Account</h4>
+                        <p>Go to Fidelity.com, Schwab.com, or Vanguard.com. Click "Open an Account." Pick "Individual Brokerage Account." Fill in your name, address, and Social Security number. That's it.</p>
+                        <div class="step-detail">No fees. No minimum balance. No catches. It's like signing up for any other app, but for investing.</div>
+                        <div class="step-time">&#x23F1; ~10 minutes</div>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Buy Your ETFs</h4>
+                        <p id="step2-text">Transfer money into your new account. Then search for each ticker symbol (the 3-4 letter code like VTI or SCHD), enter the dollar amount, and hit "Buy."</p>
+                        <div class="step-detail" id="step2-detail">Loading your exact buy list...</div>
+                        <div class="step-time">&#x23F1; ~5 minutes per ETF</div>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4 id="step3-title">Set Up Automatic Monthly Buys</h4>
+                        <p id="step3-text">In your brokerage, look for "Recurring Investments" or "Automatic Investments." Set each ETF to buy automatically every month on the same day (like payday). Now your portfolio grows on autopilot.</p>
+                        <div class="step-detail">This is the most important step. Automating removes the #1 reason people fail at investing: forgetting to do it.</div>
+                        <div class="step-time">&#x23F1; ~5 minutes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="bookmark-reminder" id="bookmark-reminder">
             &#x1F516; <a href="#" id="bookmark-link">Bookmark this page</a> to come back to your portfolio anytime.
         </div>
@@ -330,6 +443,43 @@
     <script>
         const STORAGE_KEY = 'investmentSimplifier_portfolio';
         const styleLabels = { growth: '\u{1F680} Growth', balanced: '\u2696\uFE0F Balanced', income: '\u{1F6E1}\uFE0F Income' };
+        const styleDescriptions = {
+            growth: {
+                summary: 'Your portfolio is built for maximum long-term growth. It leans heavily into stocks because you have time on your side. The strategy accepts more ups and downs in the short term in exchange for higher projected returns over decades.',
+                riskLevel: 'Higher volatility',
+                timeHorizon: '10+ years',
+                bestFor: 'Young investors with time'
+            },
+            balanced: {
+                summary: 'Your portfolio splits between growth and stability. You get exposure to stock market gains while bonds act as a shock absorber during downturns. This is the "sleep well at night" strategy that still builds serious wealth.',
+                riskLevel: 'Moderate volatility',
+                timeHorizon: '7+ years',
+                bestFor: 'Most investors'
+            },
+            income: {
+                summary: 'Your portfolio prioritizes companies that pay regular dividends and bonds that generate steady income. You are trading some growth potential for more predictable cash flow hitting your account every quarter.',
+                riskLevel: 'Lower volatility',
+                timeHorizon: '5+ years',
+                bestFor: 'Cash flow seekers'
+            }
+        };
+
+        // ETF metadata for enhanced display
+        const etfMeta = {
+            'VTI': { expense: '0.03%', type: 'Total Market' },
+            'VOO': { expense: '0.03%', type: 'S&P 500' },
+            'VXUS': { expense: '0.07%', type: 'International' },
+            'BND': { expense: '0.03%', type: 'Bonds' },
+            'SCHD': { expense: '0.06%', type: 'Dividends' },
+            'SCHG': { expense: '0.04%', type: 'Growth' },
+            'QQQM': { expense: '0.15%', type: 'Tech/Growth' },
+            'AVUV': { expense: '0.25%', type: 'Small Cap' },
+            'VYM': { expense: '0.06%', type: 'High Yield' },
+            'DGRO': { expense: '0.08%', type: 'Div Growth' },
+            'SGOV': { expense: '0.05%', type: 'Treasury' },
+            'VGT': { expense: '0.10%', type: 'Tech Sector' },
+            'VT': { expense: '0.07%', type: 'Global' }
+        };
 
         function formatCurrency(num) {
             if (num >= 1000000) return '$' + (num / 1000000).toFixed(2) + 'M';
@@ -337,18 +487,14 @@
             return '$' + num.toLocaleString();
         }
 
-        // === DATA HYDRATION (Optimization #1: URL params > cookie > localStorage) ===
         function loadPortfolioData() {
-            // Priority 1: URL parameters
             const params = new URLSearchParams(window.location.search);
             if (params.has('data')) {
                 try {
                     const decoded = JSON.parse(decodeURIComponent(params.get('data')));
                     if (decoded && decoded.etfs) return decoded;
-                } catch(e) { console.warn('URL param parse failed'); }
+                } catch(e) {}
             }
-
-            // Priority 2: Cookie
             try {
                 const cookies = document.cookie.split(';');
                 for (const cookie of cookies) {
@@ -358,40 +504,31 @@
                         if (decoded && decoded.etfs) return decoded;
                     }
                 }
-            } catch(e) { console.warn('Cookie parse failed'); }
-
-            // Priority 3: localStorage
+            } catch(e) {}
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) {
                 try {
                     const parsed = JSON.parse(stored);
                     if (parsed && parsed.etfs) return parsed;
-                } catch(e) { console.warn('localStorage parse failed'); }
+                } catch(e) {}
             }
-
             return null;
         }
 
         function loadPortfolio() {
             const portfolio = loadPortfolioData();
-            
             if (!portfolio) { showError(); return; }
-
-            // Flag that user completed bridge (for main app auto-unlock)
             localStorage.setItem('investmentSimplifier_bridge_email', 'true');
-
             renderPortfolio(portfolio);
             generateBookmarkURL(portfolio);
-
-            // Delayed confetti synced to projection count-up (Optimization #2)
+            // Delayed confetti synced to projection count-up
             setTimeout(() => {
                 animateCountUp('proj-30', portfolio.projections.year30);
-                setTimeout(() => triggerConfetti(), 1500); // fire AFTER count-up completes
+                setTimeout(() => triggerConfetti(), 1500);
             }, 800);
         }
 
         function renderPortfolio(p) {
-            // Basic info
             document.getElementById('display-age').textContent = p.age;
             document.getElementById('display-style').textContent = styleLabels[p.style] || p.style;
             document.getElementById('display-id').textContent = 'ID: ' + p.portfolioId;
@@ -402,20 +539,22 @@
             // Projections
             document.getElementById('proj-10').textContent = formatCurrency(p.projections.year10);
             document.getElementById('proj-20').textContent = formatCurrency(p.projections.year20);
-            // proj-30 is animated via animateCountUp
 
-            // Comparison (Optimization #6)
+            // Comparison
             const multiplier = (p.projections.year30 / 87000).toFixed(1);
             document.getElementById('comp-you').textContent = formatCurrency(p.projections.year30);
             document.getElementById('comp-multiplier').textContent = multiplier + 'x ahead of the pack';
 
-            // Post-Decision Reinforcement (Optimization #3)
+            // Post-Decision Reinforcement
             const reinforcementSub = document.getElementById('reinforcement-sub');
             if (p.age && p.age < 30) {
                 reinforcementSub.textContent = `The average American has $0 invested at ${p.age}. You're now ahead of 80% of your generation.`;
             } else {
                 reinforcementSub.textContent = `Most people never build a portfolio. You just did it in 60 seconds.`;
             }
+
+            // Strategy Explainer (OPTIMIZATION: More context)
+            renderStrategyExplainer(p);
 
             // Share card
             document.getElementById('share-value').textContent = formatCurrency(p.projections.year30);
@@ -424,12 +563,11 @@
             document.getElementById('share-bonds').textContent = p.bondPercent + '%';
             document.getElementById('share-id').textContent = 'ID: ' + p.portfolioId;
 
-            // ETF Grid with descriptions (Optimization #5)
+            // ETF Grid with enhanced info
             const etfGrid = document.getElementById('etf-grid');
             etfGrid.innerHTML = '';
-            const lumpSum = 1000; // default for dollar display
             p.etfs.forEach(etf => {
-                const dollarAmount = Math.round(lumpSum * etf.percent / 100);
+                const meta = etfMeta[etf.ticker] || { expense: 'N/A', type: 'Fund' };
                 const card = document.createElement('div');
                 card.className = `etf-card ${etf.type}`;
                 card.innerHTML = `
@@ -437,6 +575,10 @@
                         <span class="etf-ticker">${etf.ticker}</span>
                         <span class="etf-name">${etf.name}</span>
                         ${etf.description ? `<span class="etf-desc">${etf.description}</span>` : ''}
+                        <div class="etf-meta">
+                            <span class="etf-meta-tag expense">${meta.expense} fee</span>
+                            <span class="etf-meta-tag type">${meta.type}</span>
+                        </div>
                     </div>
                     <div>
                         <span class="etf-percent">${etf.percent}%</span>
@@ -444,7 +586,7 @@
                 etfGrid.appendChild(card);
             });
 
-            // Autopilot CTA context (Optimization #4)
+            // Autopilot CTA context
             const coreEtf = p.etfs.find(e => e.type === 'core') || p.etfs[0];
             const monthly = p.monthlyInvestment || 500;
             const previewEl = document.getElementById('autopilot-preview');
@@ -454,50 +596,51 @@
             }
             document.getElementById('autopilot-btn').href = `https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html?source=bridge&monthly=${monthly}&suggested_etf=${coreEtf?.ticker || 'VTI'}`;
 
-            // Personalized Next Steps (Optimization #10)
+            // Personalized Next Steps (SIMPLIFIED)
             renderPersonalizedSteps(p);
 
-            // Start Cost of Waiting ticker
+            // Start Cost of Waiting ticker (FIXED: smooth rAF)
             startCostTicker(p.projections.year30);
         }
 
-        // Personalized Next Steps (Optimization #10)
-        function renderPersonalizedSteps(p) {
-            const stepsList = document.getElementById('steps-list');
-            const lumpSum = 5000; // assumed starting amount for step instructions
-            
-            let step2Html = '';
-            p.etfs.forEach((etf, i) => {
-                const amount = Math.round(lumpSum * etf.percent / 100);
-                step2Html += `<span class="step-etf-detail">${etf.ticker}</span> \u2192 Buy $${amount.toLocaleString()} (${etf.percent}%)`;
-                if (i < p.etfs.length - 1) step2Html += '<br>';
-            });
-
-            stepsList.innerHTML = `
-                <div class="step-item">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h4>Open a Brokerage</h4>
-                        <p>Fidelity, Schwab, or Vanguard. All free. Takes 10 minutes.</p>
-                    </div>
+        // OPTIMIZATION: Strategy explainer with real context
+        function renderStrategyExplainer(p) {
+            const desc = styleDescriptions[p.style] || styleDescriptions.balanced;
+            document.getElementById('strategyExplainerText').textContent = desc.summary;
+            const details = document.getElementById('strategyDetails');
+            details.innerHTML = `
+                <div class="strategy-detail-item">
+                    <div class="strategy-detail-label">Risk Level</div>
+                    <div class="strategy-detail-value">${desc.riskLevel}</div>
                 </div>
-                <div class="step-item">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h4>Buy Your ETFs</h4>
-                        <p>${step2Html}</p>
-                    </div>
+                <div class="strategy-detail-item">
+                    <div class="strategy-detail-label">Best Held For</div>
+                    <div class="strategy-detail-value">${desc.timeHorizon}</div>
                 </div>
-                <div class="step-item">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h4>Automate $${(p.monthlyInvestment || 500).toLocaleString()}/Month</h4>
-                        <p>Set up recurring purchases for each ticker. Then forget it and let compound interest work.</p>
-                    </div>
-                </div>`;
+                <div class="strategy-detail-item">
+                    <div class="strategy-detail-label">Best For</div>
+                    <div class="strategy-detail-value">${desc.bestFor}</div>
+                </div>
+            `;
         }
 
-        // Bookmark URL (Optimization #9)
+        // SIMPLIFIED Next Steps (plain English for absolute beginners)
+        function renderPersonalizedSteps(p) {
+            const lumpSum = 1000;
+            let step2Detail = '';
+            p.etfs.forEach((etf, i) => {
+                const amount = Math.round(lumpSum * etf.percent / 100);
+                step2Detail += `<span class="step-etf-detail">${etf.ticker}</span> \u2192 Search "${etf.ticker}" in your brokerage, buy $${amount.toLocaleString()} worth (that's ${etf.percent}% of $${lumpSum.toLocaleString()})`;
+                if (i < p.etfs.length - 1) step2Detail += '<br><br>';
+            });
+            document.getElementById('step2-detail').innerHTML = `<strong>Your exact buy list with $${lumpSum.toLocaleString()} to start:</strong><br><br>${step2Detail}`;
+
+            // Update step 3 with actual monthly amount
+            const monthly = p.monthlyInvestment || 500;
+            document.getElementById('step3-title').textContent = `Set Up Automatic $${monthly.toLocaleString()}/Month Buys`;
+            document.getElementById('step3-text').textContent = `In your brokerage, look for "Recurring Investments" or "Automatic Investments." Set each ETF to buy automatically every month on the same day (like payday). Your $${monthly.toLocaleString()}/month gets split across your ETFs based on the percentages above.`;
+        }
+
         function generateBookmarkURL(p) {
             const encoded = encodeURIComponent(JSON.stringify(p));
             const bookmarkUrl = window.location.origin + window.location.pathname + '?data=' + encoded;
@@ -509,13 +652,11 @@
                     bookmarkLink.textContent = 'Link copied! Paste it anywhere.';
                     setTimeout(() => { bookmarkLink.textContent = 'Bookmark this page'; }, 3000);
                 }).catch(() => {
-                    // Fallback: open prompt
                     prompt('Copy this link to save your portfolio:', bookmarkUrl);
                 });
             });
         }
 
-        // Animated count-up (Optimization #2)
         function animateCountUp(elementId, target) {
             const el = document.getElementById(elementId);
             const duration = 1500;
@@ -530,16 +671,19 @@
             requestAnimationFrame(update);
         }
 
-        // Cost of Waiting Ticker
+        // FIXED: Smooth cost ticker using requestAnimationFrame
         function startCostTicker(projectedValue) {
             const dailyCost = projectedValue / (30 * 365);
-            const costPerSecond = dailyCost / 86400;
-            let accumulated = 0;
+            const costPerMs = dailyCost / 86400000;
             const el = document.getElementById('costTickerValue');
-            setInterval(() => {
-                accumulated += costPerSecond;
+            const startTime = performance.now();
+            function tick(now) {
+                const elapsed = now - startTime;
+                const accumulated = elapsed * costPerMs;
                 el.textContent = '$' + accumulated.toFixed(2);
-            }, 1000);
+                requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
         }
 
         function showError() {
@@ -547,13 +691,11 @@
             document.getElementById('error-state').style.display = 'block';
         }
 
-        // Copy caption (Optimization #7: personality-driven + better hashtags)
         function copyCaption() {
             const data = loadPortfolioData();
             if (!data) return;
             const multiplier = (data.projections.year30 / 87000).toFixed(1);
             const caption = `I just found out I could be ${multiplier}x richer than the average American by retirement.\n\nBuilt my portfolio in 60 seconds. What's your number?\n\n${data.stockPercent}% Stocks / ${data.bondPercent}% Bonds\n30-Year Projection: ${formatCurrency(data.projections.year30)}\n\nBuild yours free \u2193\n@koutalksmoney\n\n#moneytok #investingforbeginners #etfportfolio #buildwealth #financialliteracy`;
-
             navigator.clipboard.writeText(caption).then(() => {
                 const btn = event.target.closest('.btn');
                 const original = btn.innerHTML;
@@ -562,15 +704,12 @@
             });
         }
 
-        // Real screenshot download (Optimization #8: html2canvas)
         function downloadCard() {
             const shareCard = document.getElementById('share-card-inner');
             if (!shareCard) return;
-            
             const btn = event.target.closest('.btn');
             const original = btn.innerHTML;
             btn.innerHTML = '<span>\u23F3</span> Generating...';
-            
             html2canvas(shareCard, {
                 backgroundColor: '#0f1629',
                 scale: 2,
@@ -589,16 +728,13 @@
             });
         }
 
-        // Confetti (delayed per Optimization #2)
         function triggerConfetti() {
             const canvas = document.getElementById('confetti-canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-
             const particles = [];
             const colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899'];
-
             for (let i = 0; i < 100; i++) {
                 particles.push({
                     x: Math.random() * canvas.width,
@@ -610,7 +746,6 @@
                     spin: (Math.random() - 0.5) * 0.2
                 });
             }
-
             let frame = 0;
             function animate() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
