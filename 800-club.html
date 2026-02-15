@@ -82,7 +82,6 @@
             transition: all 0.2s ease-in-out;
             cursor: pointer;
         }
-
         .check-box::before {
             content: "";
             width: 0.8em;
@@ -93,18 +92,15 @@
             transform-origin: center;
             clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
         }
-
         .check-box:checked {
             border-color: #00F0FF;
             background-color: rgba(0, 240, 255, 0.1);
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
         }
-        
         .check-box:checked::before {
             transform: scale(1);
             box-shadow: inset 1em 1em #00F0FF;
         }
-
         .gold-mode .check-box:checked {
             border-color: #FFD700;
             background-color: rgba(255, 215, 0, 0.1);
@@ -142,6 +138,59 @@
         }
 
         [x-cloak] { display: none !important; }
+
+        /* FIX #6: How-to hint styles */
+        .hint-panel {
+            background: rgba(0, 240, 255, 0.04);
+            border-left: 2px solid rgba(0, 240, 255, 0.3);
+            padding: 8px 10px;
+            margin-top: 6px;
+            border-radius: 0 6px 6px 0;
+            animation: hintSlide 0.2s ease-out;
+        }
+        .hint-panel p {
+            font-size: 10px;
+            color: #aaa;
+            line-height: 1.5;
+        }
+        @keyframes hintSlide {
+            from { opacity: 0; max-height: 0; }
+            to { opacity: 1; max-height: 200px; }
+        }
+        .hint-toggle {
+            font-size: 9px;
+            color: #555;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background: transparent;
+        }
+        .hint-toggle:hover { color: #00F0FF; border-color: #00F0FF; }
+
+        /* Returning user banner */
+        .returning-banner {
+            background: linear-gradient(135deg, rgba(0,240,255,0.06), rgba(0,240,255,0.02));
+            border: 1px solid rgba(0,240,255,0.25);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin: 8px 16px 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            animation: bannerIn 0.5s ease;
+        }
+        .returning-banner .b-text { font-size: 11px; color: #00F0FF; font-weight: 600; }
+        .returning-banner .b-sub { font-size: 10px; color: #666; }
+        .returning-banner button { 
+            font-size: 10px; padding: 4px 10px; border-radius: 4px; cursor: pointer;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+            transition: all 0.2s; background: transparent; border: 1px solid #333; color: #666;
+        }
+        .returning-banner button:hover { border-color: #FF0000; color: #FF0000; }
+        @keyframes bannerIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-stealth-bg text-stealth-white font-sans antialiased min-h-screen overflow-x-hidden">
@@ -181,7 +230,7 @@
                 </div>
 
                 <button @click="onboarding = false" 
-                        class="group relative inline-flex items-center justify-center px-8 py-4 font-black text-white transition-all duration-200 bg-transparent border-2 border-stealth-blue rounded-none hover:bg-stealth-blue hover:text-black hover:shadow-[0_0_20px_rgba(0,240,255,0.6)] animate-pulse-fast mt-8">
+                        class="group relative inline-flex items-center justify-center px-8 py-4 font-black text-white transition-all duration-200 bg-transparent border-2 border-stealth-blue rounded-none hover:bg-stealth-blue hover:text-black hover:shadow-[0_0_20px_rgba(0,240,255,0.6)] animate-pulse-fast mt-8 cursor-pointer">
                     <span class="mr-2">[</span> INITIATE PROTOCOL <span class="ml-2">]</span>
                 </button>
             </div>
@@ -189,6 +238,15 @@
 
         <div class="w-full max-w-lg mx-auto">
             
+            <!-- RETURNING USER BANNER (FIX #5) -->
+            <div x-show="isReturningUser && !onboarding" class="returning-banner" x-cloak>
+                <div>
+                    <div class="b-text">&#x1F504; Your progress is loaded.</div>
+                    <div class="b-sub"><span x-text="checkedCount"></span>/10 completed. <span x-text="lastVisitLabel"></span></div>
+                </div>
+                <button @click="resetProgress()">Start Over</button>
+            </div>
+
             <!-- STICKY HEADER -->
             <div class="sticky top-0 z-40 bg-stealth-bg/95 backdrop-blur-md border-b border-stealth-border pb-4 pt-4 px-4 shadow-2xl transition-opacity duration-1000"
                  :class="onboarding ? 'opacity-0' : 'opacity-100'">
@@ -202,40 +260,55 @@
                              ]"
                              x-text="statusText">
                         </div>
+                        <!-- FIX #11: Status subtext -->
+                        <p class="text-[10px] text-stealth-text font-mono" x-text="statusSubtext"></p>
                     </div>
                     <div class="text-3xl font-black font-mono transition-transform" 
                          :class="scorePop ? 'animate-score-pop' : ''"
-                         x-text="displayProgress + '%'"></div>
+                         x-text="progress + '%'"></div>
                 </div>
 
+                <!-- FIX #2: Honest progress bar (no +15% inflation) -->
                 <div class="w-full h-3 bg-stealth-card rounded-full overflow-hidden border border-stealth-border relative">
                     <div class="absolute top-0 left-0 h-full bg-stealth-blue transition-all duration-500 ease-out"
-                         :style="`width: ${Math.min(100, displayProgress)}%`">
+                         :style="'width: ' + Math.min(100, progress) + '%'">
                     </div>
                     <div class="absolute top-0 left-0 h-full bg-stealth-gold transition-all duration-500 ease-out z-10 shadow-[0_0_15px_#FFD700]"
-                         :style="`width: ${displayProgress > 100 ? (displayProgress - 100) * 10 : 0}%`"
-                         x-show="displayProgress > 100">
+                         :style="'width: ' + (progress > 100 ? ((progress - 100) * 10) : 0) + '%'"
+                         x-show="progress > 100">
                     </div>
                 </div>
-                
-                <p class="text-[10px] text-stealth-text text-center mt-2 font-mono" x-show="progress === 0 && !onboarding">
-                    You showed up. That's Step Zero. <span class="text-stealth-blue">+15%</span>
+
+                <!-- FIX #7: Bonus teaser at 85%+ -->
+                <p x-show="progress >= 80 && !bonus.checked && !onboarding" x-cloak
+                   class="text-[10px] text-stealth-gold font-mono mt-2 text-center animate-pulse">
+                    &darr; Secret hack below: unlock GOD MODE (110%)
                 </p>
             </div>
 
             <div class="px-4 mt-6 space-y-3 pb-40" :class="{ 'gold-mode': progress > 100 }">
                 
+                <!-- FIX #6: Checklist items with how-to hints -->
                 <template x-for="item in items" :key="item.id">
-                    <label class="flex items-center gap-4 bg-stealth-card border border-stealth-border p-4 rounded-xl cursor-pointer hover:border-stealth-blue/30 transition-colors group">
-                        <input type="checkbox" x-model="item.checked" @change="onCheckChange(item)" class="check-box flex-shrink-0">
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start">
-                                <p class="font-bold text-sm text-white group-hover:text-stealth-blue transition-colors" x-text="item.title"></p>
-                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-stealth-blue/10 text-stealth-blue" x-text="'+' + item.impact + ' pts'"></span>
+                    <div class="bg-stealth-card border border-stealth-border rounded-xl overflow-hidden hover:border-stealth-blue/30 transition-colors group">
+                        <label class="flex items-center gap-4 p-4 cursor-pointer">
+                            <input type="checkbox" x-model="item.checked" @change="onCheckChange(item)" class="check-box flex-shrink-0">
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <p class="font-bold text-sm text-white group-hover:text-stealth-blue transition-colors" x-text="item.title"></p>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" @click.prevent.stop="item.showHint = !item.showHint" class="hint-toggle" x-text="item.showHint ? 'CLOSE' : 'HOW?'"></button>
+                                        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-stealth-blue/10 text-stealth-blue" x-text="'+' + item.impact + ' pts'"></span>
+                                    </div>
+                                </div>
+                                <p class="text-[10px] text-stealth-text mt-0.5" x-text="item.desc"></p>
                             </div>
-                            <p class="text-[10px] text-stealth-text mt-0.5" x-text="item.desc"></p>
+                        </label>
+                        <!-- Expandable how-to hint -->
+                        <div x-show="item.showHint" x-cloak class="hint-panel mx-4 mb-3">
+                            <p x-text="item.hint"></p>
                         </div>
-                    </label>
+                    </div>
                 </template>
 
                 <div class="flex items-center gap-4 py-4">
@@ -244,29 +317,40 @@
                     <div class="h-px bg-stealth-border flex-1"></div>
                 </div>
 
-                <label class="flex items-center gap-4 bg-stealth-card border border-stealth-gold/30 p-4 rounded-xl cursor-pointer hover:border-stealth-gold transition-colors group relative overflow-hidden">
+                <div class="bg-stealth-card border border-stealth-gold/30 rounded-xl overflow-hidden hover:border-stealth-gold transition-colors group relative">
                     <div class="absolute inset-0 bg-stealth-gold opacity-5 group-hover:opacity-10 transition-opacity"></div>
-                    <input type="checkbox" x-model="bonus.checked" @change="onCheckChange(bonus)" class="check-box flex-shrink-0 border-stealth-gold/50 text-stealth-gold">
-                    <div class="relative z-10 flex-1">
-                        <div class="flex justify-between items-start">
-                            <p class="font-bold text-sm text-stealth-gold" x-text="bonus.title"></p>
-                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-stealth-gold/10 text-stealth-gold">+50 pts</span>
+                    <label class="flex items-center gap-4 p-4 cursor-pointer">
+                        <input type="checkbox" x-model="bonus.checked" @change="onCheckChange(bonus)" class="check-box flex-shrink-0 border-stealth-gold/50 text-stealth-gold">
+                        <div class="relative z-10 flex-1">
+                            <div class="flex justify-between items-start">
+                                <p class="font-bold text-sm text-stealth-gold" x-text="bonus.title"></p>
+                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-stealth-gold/10 text-stealth-gold">+10 pts</span>
+                            </div>
+                            <p class="text-[10px] text-stealth-text mt-0.5" x-text="bonus.desc"></p>
                         </div>
-                        <p class="text-[10px] text-stealth-text mt-0.5" x-text="bonus.desc"></p>
+                    </label>
+                    <div x-show="bonus.showHint" x-cloak class="hint-panel mx-4 mb-3" style="border-left-color: rgba(255,215,0,0.3); background: rgba(255,215,0,0.04);">
+                        <p x-text="bonus.hint" style="color: #bba055;"></p>
                     </div>
-                </label>
+                    <div class="px-4 pb-3">
+                        <button type="button" @click="bonus.showHint = !bonus.showHint" class="hint-toggle" style="border-color: rgba(255,215,0,0.3); color: #776622;" x-text="bonus.showHint ? 'CLOSE' : 'HOW?'"></button>
+                    </div>
+                </div>
 
-                <!-- LOCKED LEVEL 2 PREVIEW -->
+                <!-- LOCKED LEVEL 2 PREVIEW (FIX #8: Tappable) -->
                 <div class="mt-12 relative pt-6 pb-6">
-                    <div class="absolute inset-0 z-20 flex flex-col items-center justify-center">
+                    <div class="absolute inset-0 z-20 flex flex-col items-center justify-center"
+                         @click="progress >= 70 ? showModal = true : null"
+                         :class="progress >= 70 ? 'cursor-pointer' : ''">
                          <div class="bg-black/90 border border-stealth-gold px-6 py-3 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(255,215,0,0.2)] flex flex-col items-center gap-2 transform transition-transform duration-300 hover:scale-105">
-                            <span class="text-2xl animate-bounce">🔒</span>
+                            <span class="text-2xl animate-bounce" x-text="progress >= 70 ? '&#x1F513;' : '&#x1F512;'"></span>
                             <div class="text-center">
-                                <p class="text-xs font-black text-stealth-gold uppercase tracking-widest">
-                                    Level 2: Wealth Architect
+                                <p class="text-xs font-black uppercase tracking-widest"
+                                   :class="progress >= 70 ? 'text-stealth-gold' : 'text-stealth-text'"
+                                   x-text="progress >= 70 ? 'TAP TO UNLOCK LEVEL 2' : 'Level 2: Wealth Architect'">
                                 </p>
-                                <p class="text-white/50 text-[10px] font-mono mt-1">
-                                    [ACCESS RESTRICTED]
+                                <p class="text-white/50 text-[10px] font-mono mt-1"
+                                   x-text="progress >= 70 ? 'Your Wealth Blueprint is ready.' : 'Reach 70% to unlock'">
                                 </p>
                             </div>
                          </div>
@@ -275,7 +359,7 @@
                     <div class="blur-sm opacity-40 pointer-events-none select-none grayscale space-y-3">
                         <template x-for="ghost in lockedItems" :key="ghost.title">
                             <div class="flex items-center gap-4 bg-stealth-card border border-stealth-border p-4 rounded-xl">
-                                <div class="w-6 h-6 border-2 border-stealth-gray rounded bg-stealth-bg"></div>
+                                <div class="w-6 h-6 border-2 border-stealth-border rounded bg-stealth-bg"></div>
                                 <div>
                                     <p class="font-bold text-sm text-stealth-white" x-text="ghost.title"></p>
                                     <p class="text-[10px] text-stealth-text mt-0.5" x-text="ghost.desc"></p>
@@ -288,25 +372,36 @@
             </div>
         </div>
 
-        <!-- CTA BUTTON -->
+        <!-- CTA BAR (FIX #9: Active progress indicator when locked) -->
         <div class="fixed bottom-0 left-0 w-full z-50 p-4 bg-stealth-bg/90 backdrop-blur-md border-t border-stealth-border"
              x-show="!onboarding"
              x-transition:enter="transition ease-out duration-1000"
              x-transition:enter-start="translate-y-full"
              x-transition:enter-end="translate-y-0">
             
-            <button @click="displayProgress >= 70 ? showModal = true : null"
-               :class="displayProgress >= 70 ? 'bg-stealth-gold text-black shadow-[0_0_20px_#FFD700] hover:scale-[1.02] animate-pulse-fast cursor-pointer' : 'bg-stealth-card text-stealth-text border border-stealth-border cursor-not-allowed opacity-50'"
-               class="flex items-center justify-center gap-3 w-full max-w-lg mx-auto py-4 rounded-xl font-black uppercase text-center transition-all duration-500">
-               
-               <span x-text="displayProgress >= 70 ? '🔓' : '🔒'"></span>
-               <span x-text="displayProgress >= 70 ? 'BECOME A WEALTH ARCHITECT' : 'LEVEL 2 LOCKED (REACH 70%)'"></span>
-               
+            <!-- UNLOCKED STATE: CTA button -->
+            <button x-show="progress >= 70" 
+                    @click="showModal = true"
+                    class="flex items-center justify-center gap-3 w-full max-w-lg mx-auto py-4 rounded-xl font-black uppercase text-center transition-all duration-500 bg-stealth-gold text-black shadow-[0_0_20px_#FFD700] hover:scale-[1.02] animate-pulse-fast cursor-pointer">
+               <span>&#x1F513;</span>
+               <span>BECOME A WEALTH ARCHITECT</span>
             </button>
-            
+
+            <!-- LOCKED STATE: Progress indicator (FIX #9) -->
+            <div x-show="progress < 70" class="w-full max-w-lg mx-auto text-center py-2">
+                <p class="text-xs text-stealth-text font-mono mb-2">
+                    <span class="text-stealth-blue font-bold" x-text="Math.max(0, 70 - progress) + '%'"></span> to unlock Level 2: Wealth Architect
+                </p>
+                <div class="w-full h-1.5 bg-stealth-card rounded-full overflow-hidden">
+                    <div class="h-full bg-stealth-blue rounded-full transition-all duration-500"
+                         :style="'width: ' + Math.min(100, (progress / 70) * 100) + '%'"></div>
+                </div>
+            </div>
         </div>
 
-        <!-- EMAIL GATE: 800 CLUB → WEALTH ARCHITECT -->
+        <!-- ============================================== -->
+        <!-- EMAIL GATE: 800 CLUB -> WEALTH ARCHITECT      -->
+        <!-- ============================================== -->
         <div x-cloak x-show="showModal" 
              class="fixed inset-0 z-[70] flex items-center justify-center p-3"
              x-transition:enter="transition ease-out duration-300"
@@ -324,23 +419,21 @@
                  x-transition:enter-end="opacity-100 scale-100">
                 
                 <button @click="showModal = false" 
-                        class="absolute top-3 right-3 text-stealth-text/50 hover:text-stealth-text transition-colors z-10">
+                        class="absolute top-3 right-3 text-stealth-text/50 hover:text-stealth-text transition-colors z-10 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
 
-                <!-- HEADLINE -->
                 <div class="text-center mb-3">
                     <h2 class="text-xl sm:text-2xl font-black uppercase text-stealth-gold tracking-tight drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]">
-                        🏗️ BECOME A WEALTH ARCHITECT
+                        &#x1F3D7;&#xFE0F; BECOME A WEALTH ARCHITECT
                     </h2>
                     <p class="text-stealth-blue font-mono text-[10px] mt-1 uppercase tracking-widest">
-                        Phase 1 Done → Phase 2: Cash Flow Design
+                        Phase 1 Done &rarr; Phase 2: Cash Flow Design
                     </p>
                 </div>
 
-                <!-- SUBHEAD -->
                 <div class="text-center mb-3">
                     <p class="text-xs text-gray-300 leading-relaxed">
                         You just proved you can execute. <span class="text-white font-semibold">Most quit at Step 3. You did not.</span>
@@ -350,7 +443,6 @@
                     </p>
                 </div>
 
-                <!-- ROADMAP -->
                 <div class="bg-black/50 border border-stealth-border rounded-lg p-3 mb-4">
                     <p class="text-[10px] text-stealth-text uppercase tracking-widest mb-2 text-center">What Happens Next:</p>
                     <div class="flex items-center gap-2 text-[10px]">
@@ -371,9 +463,16 @@
                     </div>
                 </div>
 
-                <!-- BEEHIIV EMBED -->
+                <!-- Context line above form -->
+                <p class="text-xs text-center text-stealth-gold font-bold mb-2">
+                    &darr; Enter your email. Your 70/20/10 blueprint loads instantly.
+                </p>
+
+                <!-- BEEHIIV EMBED (FIX #3: With async script + redirect handler) -->
                 <div class="flex justify-center pb-2">
-                    <iframe src="https://subscribe-forms.beehiiv.com/90d138cb-47b1-4e1c-a5e2-ffd2119b2021" 
+                    <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+                    <iframe id="beehiivFrame"
+                            src="https://subscribe-forms.beehiiv.com/90d138cb-47b1-4e1c-a5e2-ffd2119b2021" 
                             class="beehiiv-embed" 
                             data-test-id="beehiiv-embed" 
                             frameborder="0" 
@@ -381,11 +480,71 @@
                             style="width: 100%; max-width: 400px; height: 320px; margin: 0; border-radius: 16px; background-color: transparent;"></iframe>
                 </div>
 
-                <!-- TRUST LINE -->
+                <!-- BEEHIIV REDIRECT HANDLER (FIX #3) -->
+                <script>
+                (function() {
+                    const REDIRECT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/Kous-Budget-Calculator.html';
+                    let hasRedirected = false;
+
+                    function doRedirect() {
+                        if (hasRedirected) return;
+                        hasRedirected = true;
+                        try {
+                            localStorage.setItem('eightclub_completed', 'true');
+                            localStorage.setItem('eightclub_email', 'true');
+                        } catch(e) {}
+                        window.top.location.href = REDIRECT_URL;
+                    }
+
+                    window.addEventListener('message', function(event) {
+                        if (event.origin && event.origin.includes('beehiiv.com')) {
+                            const data = event.data;
+                            if (typeof data === 'string') {
+                                if (data.includes('subscribed') || data.includes('success') || data.includes('confirmed')) {
+                                    doRedirect();
+                                }
+                            }
+                            if (typeof data === 'object' && data !== null) {
+                                if (data.type === 'beehiiv:subscribe:success' || 
+                                    data.event === 'subscribed' || 
+                                    data.subscribed === true ||
+                                    data.type === 'subscribe_success') {
+                                    doRedirect();
+                                }
+                            }
+                        }
+                    });
+
+                    const iframe = document.getElementById('beehiivFrame');
+                    if (iframe) {
+                        let initialHeight = iframe.style.height;
+                        const heightObserver = new MutationObserver(function(mutations) {
+                            mutations.forEach(function(mutation) {
+                                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                                    const newHeight = iframe.style.height;
+                                    if (newHeight !== initialHeight && initialHeight) {
+                                        setTimeout(doRedirect, 1500);
+                                    }
+                                }
+                            });
+                        });
+                        heightObserver.observe(iframe, { attributes: true, attributeFilter: ['style', 'height'] });
+                    }
+                })();
+                </script>
+
+                <!-- "Already submitted?" fallback -->
                 <div class="text-center mt-2 pb-2">
-                    <p class="text-[10px] text-gray-500 font-mono tracking-wide">
+                    <p class="text-[10px] text-gray-500 font-mono tracking-wide mb-2">
                         Instant access. Your personalized 70/20/10 blueprint. Zero spam.
                     </p>
+                    <div x-show="showFallbackLink" x-cloak>
+                        <p class="text-[10px] text-gray-400 mb-2">Already submitted your email?</p>
+                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/Kous-Budget-Calculator.html" 
+                           class="inline-block text-[11px] font-bold text-stealth-gold hover:text-white transition-colors uppercase tracking-widest">
+                            Open Wealth Blueprint &rarr;
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -404,22 +563,56 @@
                 scorePop: false,
                 
                 previousStatus: 'GHOST',
+                isReturningUser: false,
+                lastVisitLabel: '',
                 
+                // FIX #10: Auto-pop guard
+                modalAutoTriggered: false,
+                
+                // Fallback link timer
+                showFallbackLink: false,
+                _fallbackTimer: null,
+                
+                // FIX #6: Items with how-to hints
                 items: [
-                    { id: 1, title: 'The Spy', desc: 'Download Credit Karma / Experian app.', checked: false, impact: 10 },
-                    { id: 2, title: 'The Safety', desc: 'Turn on "Autopay" (Minimum Balance).', checked: false, impact: 10 },
-                    { id: 3, title: 'The Sniper', desc: 'Pay balance 3 days before Statement Date.', checked: false, impact: 10 },
-                    { id: 4, title: 'The Ratio', desc: 'Keep Utilization below 10%.', checked: false, impact: 10 },
-                    { id: 5, title: 'The Cleanup', desc: 'Dispute any error older than 2 years.', checked: false, impact: 10 },
-                    { id: 6, title: 'The Ask', desc: 'Request Limit Increase (Every 6 months).', checked: false, impact: 10 },
-                    { id: 7, title: 'The Boost', desc: 'Connect Utility Bills (Experian Boost).', checked: false, impact: 10 },
-                    { id: 8, title: 'The Wait', desc: 'No new inquiries for 6 months.', checked: false, impact: 10 },
-                    { id: 9, title: 'The Rule', desc: 'Treat Credit Card like a Debit Card.', checked: false, impact: 10 },
-                    { id: 10, title: 'The Active', desc: 'Use card once a month (don\'t let it rot).', checked: false, impact: 10 },
+                    { id: 1, title: 'The Spy', desc: 'Download Credit Karma / Experian app.', 
+                      hint: 'Download Credit Karma (free, App Store or Google Play). It shows your TransUnion and Equifax scores. Then download Experian (also free) for your third score. Check both weekly. The numbers update every 7-14 days.', 
+                      checked: false, impact: 10, showHint: false },
+                    { id: 2, title: 'The Safety', desc: 'Turn on "Autopay" (Minimum Balance).', 
+                      hint: 'Open your credit card app. Go to Settings or Payments. Find "Autopay" or "Automatic Payments." Set it to pay the MINIMUM balance each month. This prevents late payments (the #1 score killer). You should still pay the full balance manually each month. Autopay is the safety net.', 
+                      checked: false, impact: 10, showHint: false },
+                    { id: 3, title: 'The Sniper', desc: 'Pay balance 3 days before Statement Date.', 
+                      hint: 'Your Statement Date is when the bank reports your balance to credit bureaus. Find it in your card app under "Statements" or "Account Details." Pay your FULL balance 3 days before that date. This way, the bank reports a near-zero balance (low utilization) even if you used the card heavily that month.', 
+                      checked: false, impact: 10, showHint: false },
+                    { id: 4, title: 'The Ratio', desc: 'Keep Utilization below 10%.', 
+                      hint: 'Utilization = balance / credit limit. If your limit is $1,000, keep your reported balance under $100. Check Credit Karma to see your current utilization. If it is above 10%, pay down before the Statement Date. Under 10% is good. Under 3% is elite. 0% can actually hurt (shows no activity). Aim for 1-5%.', 
+                      checked: false, impact: 10, showHint: false },
+                    { id: 5, title: 'The Cleanup', desc: 'Dispute any error older than 2 years.', 
+                      hint: 'In Credit Karma, tap each account and look for errors: wrong balance, accounts you do not recognize, late payments that were actually on time. To dispute: go to annualcreditreport.com, pull your free report, and use the "Dispute" button next to any error. The bureau has 30 days to investigate. Old collections (2+ years) are worth disputing. They often get removed.', 
+                      checked: false, impact: 10, showHint: false },
+                    { id: 6, title: 'The Ask', desc: 'Request Limit Increase (Every 6 months).', 
+                      hint: 'Open your credit card app. Go to Settings or Account Services. Look for "Request Credit Limit Increase." Ask for 2x your current limit. Most issuers do a soft pull (no score impact). If approved, your utilization drops instantly. If denied, wait 6 months and try again. Do NOT apply for a new card just to get more credit.', 
+                      checked: false, impact: 10, showHint: false },
+                    { id: 7, title: 'The Boost', desc: 'Connect Utility Bills (Experian Boost).', 
+                      hint: 'Open the Experian app. Tap "Boost My Score." Connect your bank account (the one you pay bills from). Experian scans for utility, phone, and streaming payments. Each bill you connect adds positive history. Most people see a 5-15 point boost instantly. It is free and only helps. It cannot lower your score.', 
+                      checked: false, impact: 10, showHint: false },
+                    { id: 8, title: 'The Wait', desc: 'No new inquiries for 6 months.', 
+                      hint: 'Every time you apply for credit (new card, loan, financing), a hard inquiry hits your report. Each one drops your score 5-10 points and stays for 2 years. Stop applying for anything new for 6 months. If you get pre-approved offers, ignore them. Let your existing accounts age. Time is the cheat code here.', 
+                      checked: false, impact: 10, showHint: false },
+                    { id: 9, title: 'The Rule', desc: 'Treat Credit Card like a Debit Card.', 
+                      hint: 'Only charge what you can pay off TODAY. Before every purchase, check your bank balance. If you cannot afford to transfer the money right now, do not swipe. Spend on the credit card, but pay it off the same week (or same day). You get the credit-building benefits without the debt trap.', 
+                      checked: false, impact: 10, showHint: false },
+                    { id: 10, title: 'The Active', desc: 'Use card once a month (don\'t let it rot).', 
+                      hint: 'Inactive cards get closed by issuers (kills your credit age and available credit). Set one small recurring bill on each card (like a streaming subscription). That one transaction per month keeps the card alive. Set autopay so it pays itself. You never think about it again.', 
+                      checked: false, impact: 10, showHint: false },
                 ],
-                bonus: { id: 11, title: 'The Piggyback', desc: 'Become Authorized User on parent\'s card (750+).', checked: false, impact: 10 },
                 
-                // REFRAMED: Level 2 preview now hints at Wealth Architect
+                bonus: { 
+                    id: 11, title: 'The Piggyback', desc: 'Become Authorized User on parent\'s card (750+).', 
+                    hint: 'Ask a parent or family member with a 750+ score and low utilization to add you as an Authorized User on their oldest card. You do NOT need to use the card. Their entire payment history on that card gets added to YOUR credit report. One phone call can add 10+ years of perfect payment history to your file. Make sure the issuer reports authorized users (most major banks do).',
+                    checked: false, impact: 10, showHint: false 
+                },
+                
                 lockedItems: [
                     { title: 'The 70% Rule', desc: 'Cap your spending at 70% of income.' },
                     { title: 'The 20% Engine', desc: 'Auto-invest 20% before you see it.' },
@@ -428,22 +621,115 @@
 
                 celebrated: false,
 
+                // ===========================
+                // FIX #1: localStorage PERSISTENCE
+                // ===========================
+                saveProgress() {
+                    try {
+                        const state = {
+                            items: this.items.map(i => ({ id: i.id, checked: i.checked })),
+                            bonus: this.bonus.checked,
+                            timestamp: new Date().toISOString()
+                        };
+                        localStorage.setItem('credit_protocol_state', JSON.stringify(state));
+                        
+                        // FIX #4: Command Center keys
+                        localStorage.setItem('credit_protocol_score', String(this.progress));
+                        if (this.progress >= 70) {
+                            localStorage.setItem('eightclub_completed', 'true');
+                        }
+                    } catch(e) {}
+                },
+
+                loadProgress() {
+                    try {
+                        const saved = localStorage.getItem('credit_protocol_state');
+                        if (!saved) return false;
+                        const data = JSON.parse(saved);
+                        if (data.items) {
+                            data.items.forEach(s => {
+                                const item = this.items.find(i => i.id === s.id);
+                                if (item) item.checked = s.checked;
+                            });
+                        }
+                        if (data.bonus !== undefined) this.bonus.checked = data.bonus;
+                        
+                        if (data.timestamp) {
+                            const diff = Date.now() - new Date(data.timestamp).getTime();
+                            const mins = Math.floor(diff / 60000);
+                            const hours = Math.floor(diff / 3600000);
+                            const days = Math.floor(diff / 86400000);
+                            if (mins < 60) this.lastVisitLabel = mins + ' min ago';
+                            else if (hours < 24) this.lastVisitLabel = hours + ' hours ago';
+                            else this.lastVisitLabel = days + ' days ago';
+                        }
+                        return true;
+                    } catch(e) { return false; }
+                },
+
+                resetProgress() {
+                    this.items.forEach(i => { i.checked = false; i.showHint = false; });
+                    this.bonus.checked = false;
+                    this.bonus.showHint = false;
+                    this.isReturningUser = false;
+                    this.celebrated = false;
+                    this.modalAutoTriggered = false;
+                    this.previousStatus = 'GHOST';
+                    try {
+                        localStorage.removeItem('credit_protocol_state');
+                        localStorage.removeItem('credit_protocol_score');
+                        localStorage.removeItem('eightclub_completed');
+                    } catch(e) {}
+                },
+
+                // ===========================
+                // INIT
+                // ===========================
+                init() {
+                    const hasSaved = this.loadProgress();
+                    
+                    if (hasSaved && this.progress > 0) {
+                        // FIX #5: Skip onboarding for returning users
+                        this.isReturningUser = true;
+                        this.onboarding = false;
+                        this.previousStatus = this.statusText;
+                        // If they already hit 100%+, don't re-trigger celebration
+                        if (this.progress >= 100) this.celebrated = true;
+                    }
+                },
+
+                // ===========================
+                // COMPUTED PROPERTIES
+                // ===========================
+                get checkedCount() {
+                    return this.items.filter(i => i.checked).length;
+                },
+
                 get progress() {
                     let score = this.items.filter(i => i.checked).length * 10;
                     if (this.bonus.checked) score += 10;
                     
+                    // FIX #10: Trigger celebration + auto-pop modal
                     if (score >= 100 && !this.celebrated) {
                         this.celebrated = true;
-                        this.makeItRain();
+                        this.$nextTick(() => {
+                            this.makeItRain();
+                            // Auto-pop email modal 2 seconds into celebration
+                            if (!this.modalAutoTriggered) {
+                                this.modalAutoTriggered = true;
+                                setTimeout(() => { this.showModal = true; }, 2000);
+                            }
+                        });
                     }
-                    if (score < 100) this.celebrated = false;
+                    if (score < 100) {
+                        this.celebrated = false;
+                        this.modalAutoTriggered = false;
+                    }
 
                     return score;
                 },
 
-                get displayProgress() {
-                    return this.progress + 15;
-                },
+                // FIX #2: Removed +15% inflation. Clean math.
 
                 get statusText() {
                     const p = this.progress;
@@ -454,6 +740,19 @@
                     return "STATUS: GHOST";
                 },
 
+                // FIX #11: Status subtexts
+                get statusSubtext() {
+                    const p = this.progress;
+                    if (p >= 110) return "Banks compete for your business.";
+                    if (p >= 100) return "800+ credit score trajectory.";
+                    if (p >= 60) return "Better than 70% of your age group.";
+                    if (p >= 30) return "You've started. Most haven't.";
+                    return "Invisible to the system. Time to change that.";
+                },
+
+                // ===========================
+                // EVENT HANDLERS
+                // ===========================
                 onCheckChange(item) {
                     this.scorePop = true;
                     setTimeout(() => this.scorePop = false, 300);
@@ -463,6 +762,9 @@
                         this.triggerRankUp(newStatus);
                         this.previousStatus = newStatus;
                     }
+
+                    // FIX #1: Save on every change
+                    this.saveProgress();
                 },
 
                 triggerRankUp(newStatus) {
@@ -489,7 +791,6 @@
                         el.style.animationDelay = (Math.random() * 0.5) + 's';
                         
                         container.appendChild(el);
-
                         setTimeout(() => { el.remove(); }, 4000);
                     }
                 }
