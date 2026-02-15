@@ -55,6 +55,8 @@
         input[type=range] {
             -webkit-appearance: none; 
             background: transparent;
+            touch-action: pan-x;
+            will-change: transform;
         }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
@@ -284,6 +286,7 @@
 
             <!-- Results Card -->
             <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 relative overflow-hidden"
+                 style="will-change: transform;"
                  :class="{ 'animate-shake': displayLoss > 500000 }">
                 
                 <div class="absolute top-0 right-0 w-32 h-32 bg-cyber-green opacity-5 blur-[80px]" x-show="waitYears === 0"></div>
@@ -522,6 +525,7 @@
                 
                 displayLoss: 0,
                 lossAnimationFrame: null,
+                _lastAnimStart: 0,
                 showDamageFlash: false,
                 
                 previousWaitYears: 1,
@@ -651,8 +655,13 @@
                         cancelAnimationFrame(this.lossAnimationFrame);
                     }
                     
-                    const duration = 600;
-                    const startTime = performance.now();
+                    // Shorter animation during rapid slider interaction
+                    const now = performance.now();
+                    const timeSinceLastAnim = now - (this._lastAnimStart || 0);
+                    const duration = timeSinceLastAnim < 300 ? 200 : 600;
+                    this._lastAnimStart = now;
+                    
+                    const startTime = now;
                     
                     const animate = (currentTime) => {
                         const elapsed = currentTime - startTime;
@@ -678,10 +687,10 @@
                     }, 600);
                 },
                 
-                // FIX #4: No overlay. Direct save. Smooth slider.
+                // FIX #4: No overlay. Debounced save. Smooth slider.
                 onSliderChange() {
                     this.previousWaitYears = this.waitYears;
-                    this.saveState();
+                    this.debounceSave();
                 },
 
                 // ===========================
@@ -795,14 +804,19 @@
                     return 'bg-cyber-red hover:bg-red-600 text-white shadow-[0_0_20px_rgba(255,0,0,0.4)] animate-pulse-fast';
                 },
 
+                // Cached formatter (created ONCE, reused on every call)
+                _moneyFmt: null,
                 formatMoney(value) {
                     if (isNaN(value) || !isFinite(value) || value === null) return "$0";
-                    return new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: 'USD',
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0
-                    }).format(value);
+                    if (!this._moneyFmt) {
+                        this._moneyFmt = new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD',
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        });
+                    }
+                    return this._moneyFmt.format(value);
                 }
             }
         }
