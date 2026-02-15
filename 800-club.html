@@ -737,24 +737,6 @@
                 get progress() {
                     let score = this.items.filter(i => i.checked).length * 10;
                     if (this.bonus.checked) score += 10;
-                    
-                    // FIX #10: Trigger celebration + auto-pop modal
-                    if (score >= 100 && !this.celebrated) {
-                        this.celebrated = true;
-                        this.$nextTick(() => {
-                            this.makeItRain();
-                            // Auto-pop email modal 2 seconds into celebration
-                            if (!this.modalAutoTriggered) {
-                                this.modalAutoTriggered = true;
-                                setTimeout(() => { this.showModal = true; }, 2000);
-                            }
-                        });
-                    }
-                    if (score < 100) {
-                        this.celebrated = false;
-                        this.modalAutoTriggered = false;
-                    }
-
                     return score;
                 },
 
@@ -790,6 +772,21 @@
                     if (newStatus !== this.previousStatus) {
                         this.triggerRankUp(newStatus);
                         this.previousStatus = newStatus;
+                    }
+
+                    // FIX #10: Celebration + auto-pop modal at 100%
+                    const currentProgress = this.progress;
+                    if (currentProgress >= 100 && !this.celebrated) {
+                        this.celebrated = true;
+                        this.makeItRain();
+                        if (!this.modalAutoTriggered) {
+                            this.modalAutoTriggered = true;
+                            setTimeout(() => { this.showModal = true; }, 2000);
+                        }
+                    }
+                    if (currentProgress < 100) {
+                        this.celebrated = false;
+                        this.modalAutoTriggered = false;
                     }
 
                     // FIX #1: Save on every change
