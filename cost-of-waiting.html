@@ -120,12 +120,33 @@
             100% { opacity: 0; }
         }
         
-        .recalc-overlay {
-            background: rgba(5,5,5,0.85);
-            backdrop-filter: blur(2px);
-        }
-        
         [x-cloak] { display: none !important; }
+
+        /* Returning user banner */
+        .returning-banner {
+            background: linear-gradient(135deg, rgba(0,255,65,0.08), rgba(0,255,65,0.02));
+            border: 1px solid rgba(0,255,65,0.3);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            animation: fadeIn 0.5s ease;
+        }
+        .returning-banner .banner-text { font-size: 11px; color: #00FF41; font-weight: 600; }
+        .returning-banner .banner-sub { font-size: 10px; color: #666; }
+        .returning-banner button { 
+            font-size: 10px; padding: 4px 10px; border-radius: 4px; cursor: pointer;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+        .returning-banner .btn-reset { background: transparent; border: 1px solid #333; color: #666; }
+        .returning-banner .btn-reset:hover { border-color: #FF0000; color: #FF0000; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
     </style>
 </head>
 <body class="bg-cyber-black text-white font-sans antialiased min-h-screen flex items-center justify-center p-4">
@@ -138,7 +159,9 @@
              class="damage-flash">
         </div>
 
-        <!-- IDLE STATE: Gatekeeper Screen -->
+        <!-- ========================================= -->
+        <!-- IDLE STATE: Gatekeeper (First Visit Only) -->
+        <!-- ========================================= -->
         <div x-show="state === 'idle'" 
              x-transition:enter="transition ease-out duration-300"
              x-transition:leave="transition ease-in duration-200 opacity-0"
@@ -149,7 +172,7 @@
                     SYSTEM HALTED
                 </h1>
                 <p class="text-cyber-gray font-mono text-xs uppercase tracking-[0.2em]">
-                    Secure Connection Required
+                    Compound Interest Engine Offline
                 </p>
             </div>
 
@@ -157,7 +180,7 @@
                     class="group relative inline-flex items-center justify-center px-8 py-6 overflow-hidden font-mono font-bold text-white transition-all duration-300 bg-transparent border-2 border-cyber-red rounded-none hover:bg-cyber-red/10 focus:outline-none cursor-pointer">
                 <span class="absolute w-0 h-0 transition-all duration-500 ease-out bg-cyber-red rounded-full group-hover:w-80 group-hover:h-80 opacity-10"></span>
                 <span class="relative flex items-center gap-4 text-xl tracking-widest uppercase">
-                    <span class="animate-pulse">⚠️</span> Initialize Engine
+                    <span class="animate-pulse">&#x26A0;&#xFE0F;</span> Initialize Engine
                 </span>
             </button>
 
@@ -166,7 +189,9 @@
             </p>
         </div>
 
-        <!-- PROCESSING STATE: Fake Loading -->
+        <!-- ========================================= -->
+        <!-- PROCESSING STATE: Honest Theater          -->
+        <!-- ========================================= -->
         <div x-show="state === 'processing'" x-cloak
              class="absolute inset-0 flex flex-col items-center justify-center z-50">
             <div class="w-full max-w-xs space-y-4">
@@ -185,7 +210,9 @@
             </div>
         </div>
 
-        <!-- ACTIVE STATE: Calculator -->
+        <!-- ========================================= -->
+        <!-- ACTIVE STATE: Calculator                  -->
+        <!-- ========================================= -->
         <div x-show="state === 'active'" 
              x-transition:enter="transition ease-out duration-700 transform"
              x-transition:enter-start="opacity-0 translate-y-4 scale-95"
@@ -193,22 +220,31 @@
              x-cloak
              class="w-full">
 
+            <!-- Returning user banner (FIX #2: skip gatekeeper) -->
+            <div x-show="isReturningUser" class="returning-banner">
+                <div>
+                    <div class="banner-text">&#x1F504; Your previous numbers are loaded.</div>
+                    <div class="banner-sub">Last calculated <span x-text="lastVisitLabel"></span></div>
+                </div>
+                <button class="btn-reset" @click="resetToDefaults()">Start Fresh</button>
+            </div>
+
             <div class="mb-8 text-center">
                 <h1 class="text-4xl font-black tracking-tighter uppercase glitch" data-text="PROJECT TICKER">
                     PROJECT TICKER
                 </h1>
                 <div class="flex items-center justify-center gap-2 mt-2">
                     <span class="w-2 h-2 bg-cyber-green rounded-full animate-pulse"></span>
-                    <p class="text-xs text-cyber-gray font-mono tracking-widest uppercase">Live Connection Active</p>
+                    <p class="text-xs text-cyber-gray font-mono tracking-widest uppercase">Calculator Active</p>
                 </div>
             </div>
 
-            <!-- Input Card -->
+            <!-- Input Card (FIX #6: Added currentWealth field) -->
             <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 shadow-2xl">
-                <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-xs font-bold text-cyber-gray uppercase mb-2">Current Age</label>
-                        <input type="number" x-model.number="age" 
+                        <input type="number" x-model.number="age" @input="debounceSave()"
                             class="w-full bg-black border border-cyber-gray text-white font-mono text-xl p-3 rounded focus:outline-none focus:border-white transition-colors text-center"
                             placeholder="20">
                     </div>
@@ -216,38 +252,39 @@
                         <label class="block text-xs font-bold text-cyber-gray uppercase mb-2">Monthly Invest</label>
                         <div class="relative">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cyber-gray">$</span>
-                            <input type="number" x-model.number="contribution" 
+                            <input type="number" x-model.number="contribution" @input="debounceSave()"
                                 class="w-full bg-black border border-cyber-gray text-white font-mono text-xl p-3 pl-8 rounded focus:outline-none focus:border-white transition-colors text-center"
                                 placeholder="500">
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-8">
+                <!-- FIX #6: Saved So Far input -->
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-cyber-gray uppercase mb-2">Saved So Far</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cyber-gray">$</span>
+                        <input type="number" x-model.number="currentWealth" @input="debounceSave()"
+                            class="w-full bg-black border border-cyber-gray text-white font-mono text-lg p-3 pl-8 rounded focus:outline-none focus:border-white transition-colors text-center"
+                            placeholder="0">
+                    </div>
+                    <p class="text-[10px] text-cyber-gray/50 text-center mt-1">Already have savings? Include them for an accurate projection.</p>
+                </div>
+
+                <div class="mt-4">
                     <div class="flex justify-between items-end mb-4">
                         <label class="text-sm font-bold uppercase tracking-wider text-cyber-red">Years You Wait</label>
                         <span class="text-3xl font-black font-mono text-cyber-red" x-text="waitYears + ' YRS'"></span>
                     </div>
+                    <!-- FIX #4: No recalc overlay. Direct reactive updates. -->
                     <input type="range" min="0" max="10" step="1" x-model.number="waitYears" @input="onSliderChange()" class="w-full mb-2">
                     <p class="text-center text-[10px] text-cyber-gray uppercase mt-2">Slide right to see the damage</p>
                 </div>
             </div>
 
             <!-- Results Card -->
-            <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 relative overflow-hidden">
-                
-                <!-- IDLENESS AVERSION: Recalculating Overlay -->
-                <div x-show="isRecalculating" 
-                     x-transition:enter="transition ease-out duration-150"
-                     x-transition:enter-start="opacity-0"
-                     x-transition:enter-end="opacity-100"
-                     x-transition:leave="transition ease-in duration-150"
-                     class="absolute inset-0 z-20 recalc-overlay flex items-center justify-center rounded-xl">
-                    <div class="text-center">
-                        <div class="w-6 h-6 border-2 border-cyber-red border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                        <p class="text-xs font-mono text-cyber-red animate-pulse" x-text="recalcText"></p>
-                    </div>
-                </div>
+            <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 relative overflow-hidden"
+                 :class="{ 'animate-shake': displayLoss > 500000 }">
                 
                 <div class="absolute top-0 right-0 w-32 h-32 bg-cyber-green opacity-5 blur-[80px]" x-show="waitYears === 0"></div>
                 <div class="absolute bottom-0 left-0 w-32 h-32 bg-cyber-red opacity-5 blur-[80px]" x-show="waitYears > 0"></div>
@@ -255,49 +292,59 @@
                 <div class="mb-6 border-b border-dashed border-cyber-gray pb-6">
                     <p class="text-xs font-bold text-cyber-green uppercase tracking-widest mb-1">Your Potential Net Worth</p>
                     <div class="text-3xl sm:text-4xl font-black font-mono text-white tracking-tight" x-text="formatMoney(wealthNow)"></div>
-                    <p class="text-[10px] text-cyber-gray mt-1">At age 65 (10% Return)</p>
+                    <p class="text-[10px] text-cyber-gray mt-1">At age 65 (8% avg. annual return, inflation-adjusted)</p>
                 </div>
 
                 <div>
                     <p class="text-xs font-bold text-cyber-red uppercase tracking-widest mb-1">Wealth You Burned</p>
                     <!-- PEAK-END: Animated loss counter -->
                     <div class="text-4xl sm:text-5xl font-black font-mono text-cyber-red tracking-tight" 
-                         :class="{ 'animate-shake': displayLoss > 500000 }"
                          x-text="'-' + formatMoney(displayLoss)"></div>
                 </div>
 
                 <div class="mt-6 p-3 bg-black border border-cyber-red/30 rounded text-center">
                     <p class="text-sm font-bold text-white uppercase" 
-                       :class="{ 'animate-shake text-cyber-red': displayLoss > 500000 }"
+                       :class="{ 'text-cyber-red': displayLoss > 500000 }"
                        x-text="getFeedback()"></p>
+                </div>
+
+                <!-- FIX #8: Daily cost on MAIN screen (not hidden in modal) -->
+                <div x-show="dailyCost > 0" class="mt-4 pt-4 border-t border-dashed border-cyber-gray/50 text-center">
+                    <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-1">To Erase This Damage:</p>
+                    <div class="text-2xl font-black text-cyber-green font-mono">
+                        <span x-text="formatMoney(dailyCost)"></span><span class="text-sm text-white">/day</span>
+                    </div>
+                    <p class="text-[10px] text-gray-500 mt-1" x-text="getDailyCostMessage()"></p>
                 </div>
                 
                 <!-- OPERATIONAL TRANSPARENCY: Show The Math -->
                 <div class="mt-4 pt-4 border-t border-dashed border-cyber-gray/50" x-show="waitYears > 0">
                     <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">The Math:</p>
                     <div class="text-[10px] text-gray-500 font-mono space-y-1 text-center">
-                        <p><span class="text-white" x-text="formatMoney(contribution)"></span>/mo × <span class="text-white" x-text="(retirementAge - age)"></span> yrs = <span class="text-cyber-green" x-text="formatMoney(wealthNow)"></span></p>
+                        <p x-show="currentWealth > 0"><span class="text-white" x-text="formatMoney(currentWealth)"></span> saved + <span class="text-white" x-text="formatMoney(contribution)"></span>/mo x <span class="text-white" x-text="(retirementAge - age)"></span> yrs = <span class="text-cyber-green" x-text="formatMoney(wealthNow)"></span></p>
+                        <p x-show="currentWealth === 0"><span class="text-white" x-text="formatMoney(contribution)"></span>/mo x <span class="text-white" x-text="(retirementAge - age)"></span> yrs = <span class="text-cyber-green" x-text="formatMoney(wealthNow)"></span></p>
                         <p>Waiting <span class="text-cyber-red" x-text="waitYears"></span> yrs = <span class="text-cyber-red" x-text="waitYears * 12"></span> fewer months compounding</p>
                         <p>Lost growth: <span class="text-cyber-red font-bold" x-text="formatMoney(loss)"></span></p>
                     </div>
                 </div>
             </div>
 
-            <!-- CTA Button -->
+            <!-- FIX #7: Responsive CTA (color + text changes with loss amount) -->
             <button @click="showModal = true" 
-                class="group block w-full bg-cyber-red hover:bg-red-600 text-white text-center py-4 rounded-xl font-black uppercase tracking-widest transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(255,0,0,0.4)] animate-pulse-fast cursor-pointer">
+                class="group block w-full text-center py-4 rounded-xl font-black uppercase tracking-widest transition-all hover:scale-[1.02] cursor-pointer"
+                :class="ctaStyle">
                 <span class="flex items-center justify-center gap-2">
-                    <span>🔧 BUILD THE VEHICLE</span>
-                    <span class="inline-block transition-transform group-hover:translate-x-1">➜</span>
+                    <span x-text="ctaText"></span>
+                    <span class="inline-block transition-transform group-hover:translate-x-1">&#x279C;</span>
                 </span>
             </button>
-            
+
             <p class="text-center text-[10px] text-cyber-gray mt-4 opacity-50">
-                Assumes 10% annual return compounded monthly. Not financial advice.
+                Assumes 8% annual return (S&P 500 historical average, inflation-adjusted) compounded monthly. Not financial advice.
             </p>
 
             <!-- ============================================== -->
-            <!-- EMAIL GATE: COST OF WAITING → INVESTMENT SIMPLIFIER -->
+            <!-- EMAIL GATE: COST OF WAITING -> INVESTMENT SIMPLIFIER -->
             <!-- ============================================== -->
             <div x-cloak x-show="showModal" 
                  class="fixed inset-0 z-[70] flex items-center justify-center p-3"
@@ -317,7 +364,7 @@
                      x-transition:enter-end="opacity-100 scale-100">
                     
                     <button @click="showModal = false" 
-                            class="absolute top-3 right-3 text-cyber-gray/50 hover:text-cyber-gray transition-colors z-10">
+                            class="absolute top-3 right-3 text-cyber-gray/50 hover:text-cyber-gray transition-colors z-10 cursor-pointer">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -333,11 +380,11 @@
                             THE VEHICLE EXISTS.
                         </h2>
                         <p class="text-cyber-blue font-mono text-[10px] mt-1 uppercase tracking-widest">
-                            Phase 1 Complete → Phase 2: Portfolio
+                            Phase 1 Complete &rarr; Phase 2: Portfolio
                         </p>
                     </div>
 
-                    <!-- DAILY COST CALCULATOR: THE CONVERSION WEAPON -->
+                    <!-- DAILY COST CALCULATOR: REINFORCED IN MODAL -->
                     <div class="bg-black border-2 border-cyber-green/50 rounded-lg p-4 mb-3 text-center" x-show="dailyCost > 0">
                         <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">To Erase This Damage:</p>
                         <div class="text-4xl font-black text-cyber-green font-mono drop-shadow-[0_0_15px_rgba(0,255,65,0.5)]">
@@ -376,13 +423,75 @@
 
                     <!-- BEEHIIV EMBED -->
                     <div class="flex justify-center pb-2">
-                        <iframe src="https://subscribe-forms.beehiiv.com/63ac9ac6-ada8-47a5-b5b6-654bdf88a7b6" 
+                        <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+                        <iframe id="beehiivFrame"
+                                src="https://subscribe-forms.beehiiv.com/63ac9ac6-ada8-47a5-b5b6-654bdf88a7b6" 
                                 class="beehiiv-embed" 
                                 data-test-id="beehiiv-embed" 
                                 frameborder="0" 
                                 scrolling="no" 
-                                style="width: 100%; max-width: 400px; height: 320px; margin: 0; border-radius: 16px; background-color: transparent;"></iframe>
+                                style="width: 400px; height: 285px; margin: 0; border-radius: 16px 16px 16px 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
                     </div>
+
+                    <!-- BEEHIIV REDIRECT HANDLER: Catches subscribe event and redirects parent window -->
+                    <script>
+                    (function() {
+                        const REDIRECT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html';
+                        let hasRedirected = false;
+
+                        function doRedirect() {
+                            if (hasRedirected) return;
+                            hasRedirected = true;
+                            // Save state before leaving
+                            try {
+                                localStorage.setItem('waiting_completed', 'true');
+                                localStorage.setItem('cost_of_waiting_email', 'true');
+                            } catch(e) {}
+                            // Redirect the PARENT window, not the iframe
+                            window.top.location.href = REDIRECT_URL;
+                        }
+
+                        // METHOD 1: Listen for postMessage from Beehiiv iframe
+                        window.addEventListener('message', function(event) {
+                            // Beehiiv sends various message formats on subscribe
+                            if (event.origin && event.origin.includes('beehiiv.com')) {
+                                const data = event.data;
+                                if (typeof data === 'string') {
+                                    if (data.includes('subscribed') || data.includes('success') || data.includes('confirmed')) {
+                                        doRedirect();
+                                    }
+                                }
+                                if (typeof data === 'object' && data !== null) {
+                                    if (data.type === 'beehiiv:subscribe:success' || 
+                                        data.event === 'subscribed' || 
+                                        data.subscribed === true ||
+                                        data.type === 'subscribe_success') {
+                                        doRedirect();
+                                    }
+                                }
+                            }
+                        });
+
+                        // METHOD 2: Detect iframe height change (Beehiiv embed.js resizes on success)
+                        const iframe = document.getElementById('beehiivFrame');
+                        if (iframe) {
+                            let initialHeight = iframe.style.height;
+                            const heightObserver = new MutationObserver(function(mutations) {
+                                mutations.forEach(function(mutation) {
+                                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                                        const newHeight = iframe.style.height;
+                                        if (newHeight !== initialHeight && initialHeight) {
+                                            // Height changed = form state changed (likely submitted)
+                                            // Wait a beat to let Beehiiv process
+                                            setTimeout(doRedirect, 1500);
+                                        }
+                                    }
+                                });
+                            });
+                            heightObserver.observe(iframe, { attributes: true, attributeFilter: ['style', 'height'] });
+                        }
+                    })();
+                    </script>
 
                     <!-- TRUST LINE -->
                     <div class="text-center mt-2 pb-2">
@@ -403,7 +512,8 @@
                 showModal: false,
                 age: 20,
                 contribution: 500,
-                waitYears: 0,
+                currentWealth: 0, // FIX #6: Saved So Far field
+                waitYears: 1, // FIX #3: Start at 1 year for instant emotional payload
                 
                 state: 'idle', 
                 statusText: '',
@@ -414,17 +524,120 @@
                 lossAnimationFrame: null,
                 showDamageFlash: false,
                 
-                isRecalculating: false,
-                recalcText: 'Recalculating decay...',
-                previousWaitYears: 0,
-                recalcMessages: [
-                    'Recalculating decay...',
-                    'Projecting loss...',
-                    'Updating damage...'
-                ],
+                previousWaitYears: 1,
+                
+                isReturningUser: false,
+                lastVisitLabel: '',
+                
+                saveDebounceTimer: null,
 
+                // ===========================
+                // FIX #1: localStorage PERSISTENCE
+                // ===========================
+                saveState() {
+                    const data = {
+                        age: this.age,
+                        contribution: this.contribution,
+                        currentWealth: this.currentWealth,
+                        waitYears: this.waitYears,
+                        wealthNow: this.wealthNow,
+                        loss: this.loss,
+                        dailyCost: this.dailyCost,
+                        calculatedAt: new Date().toISOString()
+                    };
+                    try {
+                        localStorage.setItem('cost_of_waiting_data', JSON.stringify(data));
+                        localStorage.setItem('waiting_completed', 'true');
+                    } catch(e) {}
+                },
+
+                loadState() {
+                    try {
+                        const saved = localStorage.getItem('cost_of_waiting_data');
+                        if (!saved) return false;
+                        const data = JSON.parse(saved);
+                        if (data.age) this.age = data.age;
+                        if (data.contribution) this.contribution = data.contribution;
+                        if (data.currentWealth) this.currentWealth = data.currentWealth;
+                        if (data.waitYears !== undefined) this.waitYears = data.waitYears;
+                        this.previousWaitYears = this.waitYears;
+                        
+                        // Calculate "last visit" label
+                        if (data.calculatedAt) {
+                            const diff = Date.now() - new Date(data.calculatedAt).getTime();
+                            const mins = Math.floor(diff / 60000);
+                            const hours = Math.floor(diff / 3600000);
+                            const days = Math.floor(diff / 86400000);
+                            if (mins < 60) this.lastVisitLabel = mins + ' minutes ago';
+                            else if (hours < 24) this.lastVisitLabel = hours + ' hours ago';
+                            else this.lastVisitLabel = days + ' days ago';
+                        }
+                        return true;
+                    } catch(e) { return false; }
+                },
+
+                // Debounced save for input fields (300ms)
+                debounceSave() {
+                    if (this.saveDebounceTimer) clearTimeout(this.saveDebounceTimer);
+                    this.saveDebounceTimer = setTimeout(() => this.saveState(), 300);
+                },
+
+                resetToDefaults() {
+                    this.age = 20;
+                    this.contribution = 500;
+                    this.currentWealth = 0;
+                    this.waitYears = 1;
+                    this.previousWaitYears = 1;
+                    this.isReturningUser = false;
+                    this.displayLoss = this.loss;
+                    try { localStorage.removeItem('cost_of_waiting_data'); } catch(e) {}
+                },
+
+                // ===========================
+                // FIX #11: Cross-app Freedom Calculator prefill
+                // ===========================
+                prefillFromFreedomCalc() {
+                    try {
+                        const freedomData = localStorage.getItem('freedom_calculator_result');
+                        if (!freedomData) return false;
+                        const fd = JSON.parse(freedomData);
+                        if (fd.age) this.age = fd.age;
+                        if (fd.monthlyInvest) this.contribution = fd.monthlyInvest;
+                        if (fd.currentWealth) this.currentWealth = fd.currentWealth;
+                        return true;
+                    } catch(e) { return false; }
+                },
+
+                // ===========================
+                // INIT: Smart routing (FIX #2)
+                // ===========================
                 init() {
+                    // FIX #2: Returning user detection
+                    const hasSavedState = this.loadState();
+                    
+                    if (hasSavedState) {
+                        // Returning user: skip gatekeeper + processing entirely
+                        this.isReturningUser = true;
+                        this.state = 'active';
+                        // FIX #3 (MAX LEVERAGE): Animate loss from $0 on reveal
+                        // Even for returning users, the count-up creates re-engagement
+                        this.displayLoss = 0;
+                        this.$nextTick(() => {
+                            setTimeout(() => {
+                                this.animateLossCounter(0, this.loss);
+                                if (this.loss > 500000) {
+                                    setTimeout(() => this.triggerDamageFlash(), 800);
+                                }
+                            }, 400);
+                        });
+                    } else {
+                        // First visit: check for Freedom Calculator data
+                        this.prefillFromFreedomCalc();
+                    }
+
+                    // Watch loss for reactive animations
                     this.$watch('loss', (newLoss, oldLoss) => {
+                        if (this.state !== 'active') return;
                         this.animateLossCounter(oldLoss, newLoss);
                         
                         if (newLoss > 500000 && oldLoss <= 500000) {
@@ -465,35 +678,27 @@
                     }, 600);
                 },
                 
+                // FIX #4: No overlay. Direct save. Smooth slider.
                 onSliderChange() {
-                    const change = Math.abs(this.waitYears - this.previousWaitYears);
-                    
-                    if (change >= 1) {
-                        this.isRecalculating = true;
-                        this.recalcText = this.recalcMessages[Math.floor(Math.random() * this.recalcMessages.length)];
-                        
-                        setTimeout(() => {
-                            this.isRecalculating = false;
-                        }, 400);
-                    }
-                    
                     this.previousWaitYears = this.waitYears;
+                    this.saveState();
                 },
 
+                // ===========================
+                // FIX #5: Honest processing theater
+                // ===========================
                 ignite() {
                     this.state = 'processing';
                     this.progress = 0;
                     this.logs = [];
                     
                     const sequence = [
-                        { text: "ESTABLISHING SECURE HANDSHAKE...", delay: 500, prog: 10 },
-                        { text: "ACCESSING MARKET HISTORY (1920-2025)...", delay: 1200, prog: 35 },
-                        { text: "ANALYZING INFLATION VECTORS...", delay: 2000, prog: 60 },
-                        { text: "CALCULATING OPPORTUNITY DECAY...", delay: 2800, prog: 85 },
-                        { text: "RENDERING PROJECTION MODEL...", delay: 3500, prog: 100 }
+                        { text: "LOADING COMPOUND INTEREST MODEL...", delay: 500, prog: 15 },
+                        { text: "SETTING BASE RETURN: 8% ANNUAL (S&P 500 AVG)...", delay: 1200, prog: 35 },
+                        { text: "CALIBRATING MONTHLY COMPOUNDING (8% / 12)...", delay: 2000, prog: 55 },
+                        { text: "PROJECTING OPPORTUNITY COST AT " + this.waitYears + "-YEAR DELAY...", delay: 2800, prog: 80 },
+                        { text: "RENDERING RESULTS...", delay: 3500, prog: 100 }
                     ];
-
-                    let cumulativeTime = 0;
 
                     sequence.forEach(step => {
                         setTimeout(() => {
@@ -502,17 +707,31 @@
                             this.progress = step.prog;
                             if (this.logs.length > 5) this.logs.shift();
                         }, step.delay);
-                        cumulativeTime = step.delay;
                     });
 
                     setTimeout(() => {
                         this.state = 'active';
-                        this.displayLoss = this.loss;
-                    }, cumulativeTime + 600);
+                        this.saveState(); // FIX #1: Save on first calculation
+                        // FIX #3 (MAX LEVERAGE): Animate loss from $0 on first reveal
+                        // Processing theater promised damage. Now DELIVER it with a count-up.
+                        this.displayLoss = 0;
+                        this.$nextTick(() => {
+                            setTimeout(() => {
+                                this.animateLossCounter(0, this.loss);
+                                // If the default 1-year loss is already > 500K, flash
+                                if (this.loss > 500000) {
+                                    setTimeout(() => this.triggerDamageFlash(), 800);
+                                }
+                            }, 200);
+                        });
+                    }, 4100);
                 },
 
+                // ===========================
+                // FIX #10: Standardized 8% return
+                // ===========================
                 retirementAge: 65,
-                annualRate: 0.10,
+                annualRate: 0.08,
 
                 get wealthNow() { return this.calculateFV(this.age); },
                 get wealthLater() { return this.calculateFV(this.age + this.waitYears); },
@@ -520,34 +739,37 @@
 
                 get dailyCost() {
                     const yearsRemaining = this.retirementAge - (this.age + this.waitYears);
-                    
                     if (yearsRemaining <= 0) return 0;
                     if (this.loss <= 0) return 0;
-                    
                     const daysRemaining = yearsRemaining * 365;
                     const daily = this.loss / daysRemaining;
-                    
                     if (isNaN(daily) || !isFinite(daily)) return 0;
-                    
                     return daily;
                 },
 
+                // FIX #6: calculateFV now includes currentWealth compounding
                 calculateFV(startAge) {
                     if (startAge >= this.retirementAge) return 0;
                     const years = this.retirementAge - startAge;
                     const months = years * 12;
                     const monthlyRate = this.annualRate / 12;
-                    if (this.contribution <= 0) return 0;
-                    return this.contribution * ( (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate );
+                    
+                    // Future value of existing savings
+                    const fvSavings = (this.currentWealth || 0) * Math.pow(1 + monthlyRate, months);
+                    // Future value of monthly contributions
+                    const fvContributions = (this.contribution || 0) * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+                    
+                    return fvSavings + fvContributions;
                 },
 
+                // FIX #9: Gen Z feedback copy (rent, loans, house, retirement)
                 getFeedback() {
                     const loss = this.displayLoss;
                     if (loss === 0) return "YOU ARE ON TRACK. STAY LOCKED IN.";
-                    if (loss < 50000) return "THAT IS A DOWN PAYMENT. GONE.";
-                    if (loss < 100000) return "YOU JUST BURNED A BRAND NEW TESLA.";
-                    if (loss < 500000) return "THAT IS A FERRARI. GONE.";
-                    return "YOU ARE SETTING YOUR RETIREMENT ON FIRE.";
+                    if (loss < 50000) return "THAT IS 2 YEARS OF RENT. GONE.";
+                    if (loss < 100000) return "THAT IS YOUR ENTIRE STUDENT LOAN. BURNED.";
+                    if (loss < 500000) return "THAT IS A HOUSE. VAPORIZED BY WAITING.";
+                    return "YOU JUST DELETED A RETIREMENT. WHILE SCROLLING.";
                 },
 
                 getDailyCostMessage() {
@@ -559,8 +781,22 @@
                     return "Steep. But doing nothing costs more.";
                 },
 
+                // FIX #7: Responsive CTA (color + text matches emotional state)
+                get ctaText() {
+                    if (this.loss === 0) return "\u{1F4CA} SEE YOUR ETF PORTFOLIO";
+                    if (this.loss < 100000) return "\u{1F527} START BEFORE IT GETS WORSE";
+                    if (this.loss < 500000) return "\u26A0\uFE0F RECOVER THE DAMAGE";
+                    return "\u{1F6A8} STOP THE BLEEDING NOW";
+                },
+
+                get ctaStyle() {
+                    if (this.loss === 0) return 'bg-cyber-green hover:bg-green-500 text-black shadow-[0_0_20px_rgba(0,255,65,0.4)]';
+                    if (this.loss < 500000) return 'bg-cyber-gold hover:bg-yellow-500 text-black shadow-[0_0_20px_rgba(255,215,0,0.4)]';
+                    return 'bg-cyber-red hover:bg-red-600 text-white shadow-[0_0_20px_rgba(255,0,0,0.4)] animate-pulse-fast';
+                },
+
                 formatMoney(value) {
-                    if (isNaN(value) || !isFinite(value) || value === null) return "$0.00";
+                    if (isNaN(value) || !isFinite(value) || value === null) return "$0";
                     return new Intl.NumberFormat('en-US', {
                         style: 'currency',
                         currency: 'USD',
