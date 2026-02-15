@@ -286,11 +286,15 @@
 
             <!-- Results Card -->
             <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 relative overflow-hidden"
-                 style="will-change: transform;"
-                 :class="{ 'animate-shake': displayLoss > 500000 }">
+                 style="will-change: transform; contain: layout style;"
+                 :class="{ 'animate-shake': isShaking }">
                 
-                <div class="absolute top-0 right-0 w-32 h-32 bg-cyber-green opacity-5 blur-[80px]" x-show="waitYears === 0"></div>
-                <div class="absolute bottom-0 left-0 w-32 h-32 bg-cyber-red opacity-5 blur-[80px]" x-show="waitYears > 0"></div>
+                <div class="absolute top-0 right-0 w-32 h-32 bg-cyber-green rounded-full opacity-[0.03]" 
+                     style="filter: blur(40px); will-change: opacity;"
+                     x-show="waitYears === 0"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 bg-cyber-red rounded-full opacity-[0.03]" 
+                     style="filter: blur(40px); will-change: opacity;"
+                     x-show="waitYears > 0"></div>
 
                 <div class="mb-6 border-b border-dashed border-cyber-gray pb-6">
                     <p class="text-xs font-bold text-cyber-green uppercase tracking-widest mb-1">Your Potential Net Worth</p>
@@ -307,7 +311,7 @@
 
                 <div class="mt-6 p-3 bg-black border border-cyber-red/30 rounded text-center">
                     <p class="text-sm font-bold text-white uppercase" 
-                       :class="{ 'text-cyber-red': displayLoss > 500000 }"
+                       :class="{ 'text-cyber-red': isShaking }"
                        x-text="getFeedback()"></p>
                 </div>
 
@@ -516,7 +520,7 @@
                 age: 20,
                 contribution: 500,
                 currentWealth: 0, // FIX #6: Saved So Far field
-                waitYears: 1, // FIX #3: Start at 1 year for instant emotional payload
+                waitYears: 0,
                 
                 state: 'idle', 
                 statusText: '',
@@ -527,8 +531,9 @@
                 lossAnimationFrame: null,
                 _lastAnimStart: 0,
                 showDamageFlash: false,
+                isShaking: false,
                 
-                previousWaitYears: 1,
+                previousWaitYears: 0,
                 
                 isReturningUser: false,
                 lastVisitLabel: '',
@@ -623,16 +628,13 @@
                         // Returning user: skip gatekeeper + processing entirely
                         this.isReturningUser = true;
                         this.state = 'active';
-                        // FIX #3 (MAX LEVERAGE): Animate loss from $0 on reveal
-                        // Even for returning users, the count-up creates re-engagement
                         this.displayLoss = 0;
-                        this.$nextTick(() => {
-                            setTimeout(() => {
-                                this.animateLossCounter(0, this.loss);
-                                if (this.loss > 500000) {
-                                    setTimeout(() => this.triggerDamageFlash(), 800);
-                                }
-                            }, 400);
+                        // Single deferred animation after Alpine renders
+                        requestAnimationFrame(() => {
+                            this.animateLossCounter(0, this.loss);
+                            if (this.loss > 500000) {
+                                this.isShaking = true;
+                            }
                         });
                     } else {
                         // First visit: check for Freedom Calculator data
@@ -644,8 +646,16 @@
                         if (this.state !== 'active') return;
                         this.animateLossCounter(oldLoss, newLoss);
                         
+                        // Stable shake: set once when threshold crossed, clear after animation
+                        if (newLoss > 500000 && !this.isShaking) {
+                            this.isShaking = true;
+                        } else if (newLoss <= 500000) {
+                            this.isShaking = false;
+                        }
+                        
+                        // Defer damage flash to next frame to avoid DOM mutation storm
                         if (newLoss > 500000 && oldLoss <= 500000) {
-                            this.triggerDamageFlash();
+                            requestAnimationFrame(() => this.triggerDamageFlash());
                         }
                     });
                 },
@@ -705,7 +715,7 @@
                         { text: "LOADING COMPOUND INTEREST MODEL...", delay: 500, prog: 15 },
                         { text: "SETTING BASE RETURN: 8% ANNUAL (S&P 500 AVG)...", delay: 1200, prog: 35 },
                         { text: "CALIBRATING MONTHLY COMPOUNDING (8% / 12)...", delay: 2000, prog: 55 },
-                        { text: "PROJECTING OPPORTUNITY COST AT " + this.waitYears + "-YEAR DELAY...", delay: 2800, prog: 80 },
+                        { text: "PROJECTING OPPORTUNITY COST MODEL...", delay: 2800, prog: 80 },
                         { text: "RENDERING RESULTS...", delay: 3500, prog: 100 }
                     ];
 
@@ -720,19 +730,8 @@
 
                     setTimeout(() => {
                         this.state = 'active';
-                        this.saveState(); // FIX #1: Save on first calculation
-                        // FIX #3 (MAX LEVERAGE): Animate loss from $0 on first reveal
-                        // Processing theater promised damage. Now DELIVER it with a count-up.
-                        this.displayLoss = 0;
-                        this.$nextTick(() => {
-                            setTimeout(() => {
-                                this.animateLossCounter(0, this.loss);
-                                // If the default 1-year loss is already > 500K, flash
-                                if (this.loss > 500000) {
-                                    setTimeout(() => this.triggerDamageFlash(), 800);
-                                }
-                            }, 200);
-                        });
+                        this.saveState();
+                        this.displayLoss = this.loss;
                     }, 4100);
                 },
 
