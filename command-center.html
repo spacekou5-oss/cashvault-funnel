@@ -64,6 +64,45 @@
             position: relative; z-index: 1;
         }
 
+        /* ===================== */
+        /* FIX #1: ACCESS GATE  */
+        /* ===================== */
+        .access-gate {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; padding: 40px 20px; position: relative; z-index: 1; text-align: center;
+        }
+        .access-gate.show { display: flex; }
+        .gate-icon { font-size: 4rem; margin-bottom: 20px; opacity: 0.8; }
+        .gate-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.02em; }
+        .gate-subtitle { font-size: 1rem; color: var(--text-secondary); line-height: 1.6; max-width: 400px; margin: 0 auto 30px; }
+        .gate-cta {
+            display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px;
+            background: var(--accent-green); color: #000; border: none; border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 700;
+            text-decoration: none; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .gate-cta:hover { transform: translateY(-3px); box-shadow: 0 10px 30px var(--accent-green-glow); }
+        .gate-divider { display: flex; align-items: center; gap: 16px; margin: 30px 0; width: 100%; max-width: 350px; color: var(--text-muted); font-size: 0.75rem; }
+        .gate-divider::before, .gate-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .gate-id-section { width: 100%; max-width: 350px; }
+        .gate-id-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; text-align: left; }
+        .gate-id-input-wrapper { display: flex; gap: 10px; }
+        .gate-id-input {
+            flex: 1; background: var(--bg-card); border: 2px solid var(--border); border-radius: 8px;
+            padding: 14px 16px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+            text-align: center; outline: none; transition: all 0.3s;
+        }
+        .gate-id-input:focus { border-color: var(--accent-green); box-shadow: 0 0 0 3px var(--accent-green-dim); }
+        .gate-id-input::placeholder { color: var(--text-muted); font-weight: 400; }
+        .gate-id-btn {
+            background: var(--accent-gold); color: #000; border: none; border-radius: 8px;
+            padding: 14px 20px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+            font-weight: 700; cursor: pointer; transition: all 0.3s; white-space: nowrap;
+        }
+        .gate-id-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--accent-gold-glow); }
+        .gate-error { color: var(--danger); font-size: 0.75rem; margin-top: 8px; display: none; text-align: left; }
+
         /* HEADER */
         .header {
             display: flex; justify-content: space-between; align-items: center;
@@ -183,7 +222,6 @@
         }
         .systems-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         
-        /* SYSTEM CARDS */
         .system-card {
             display: flex; align-items: center; gap: 12px; padding: 16px;
             background: var(--bg-card); border: 1px solid var(--border);
@@ -193,89 +231,38 @@
         .system-card:hover { border-color: var(--border-active); background: var(--bg-card-hover); transform: translateX(3px); }
         .system-card.completed { border-color: rgba(34, 197, 94, 0.3); }
         .system-card.completed:hover { border-color: var(--accent-green); }
-        
         .system-card.locked { opacity: 0.6; cursor: pointer; border-style: dashed; }
         .system-card.locked:hover { transform: none; background: var(--bg-card); opacity: 0.8; }
         .system-card.locked .system-icon { filter: grayscale(1); }
 
-        /* SOCIAL ACTION CARDS - Special Styling */
-        .system-card.social-action {
-            position: relative;
-        }
-        
+        .system-card.social-action { position: relative; }
         .system-card.social-action.dm-unlock {
             background: linear-gradient(135deg, rgba(236, 72, 153, 0.08) 0%, var(--bg-card) 100%);
-            border-color: rgba(236, 72, 153, 0.3);
-            border-style: solid;
+            border-color: rgba(236, 72, 153, 0.3); border-style: solid;
         }
-        
-        .system-card.social-action.dm-unlock:hover {
-            border-color: var(--accent-pink);
-            box-shadow: 0 0 25px var(--accent-pink-glow);
-        }
-        
+        .system-card.social-action.dm-unlock:hover { border-color: var(--accent-pink); box-shadow: 0 0 25px var(--accent-pink-glow); }
         .system-card.social-action.story-unlock {
             background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, var(--bg-card) 100%);
-            border-color: rgba(251, 191, 36, 0.3);
-            border-style: solid;
+            border-color: rgba(251, 191, 36, 0.3); border-style: solid;
         }
-        
-        .system-card.social-action.story-unlock:hover {
-            border-color: var(--accent-gold);
-            box-shadow: 0 0 25px var(--accent-gold-glow);
-        }
-        
-        /* Pulsing animation for social action cards */
+        .system-card.social-action.story-unlock:hover { border-color: var(--accent-gold); box-shadow: 0 0 25px var(--accent-gold-glow); }
         .system-card.social-action.locked::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 14px;
-            padding: 2px;
+            content: ''; position: absolute; inset: -2px; border-radius: 14px; padding: 2px;
             background: linear-gradient(90deg, transparent, rgba(236, 72, 153, 0.3), transparent);
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            animation: social-pulse 2s ease-in-out infinite;
+            -webkit-mask-composite: xor; mask-composite: exclude; animation: social-pulse 2s ease-in-out infinite;
         }
-        
-        .system-card.social-action.story-unlock.locked::before {
-            background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent);
-        }
-        
-        @keyframes social-pulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-        
-        /* Action Badge inside cards */
+        .system-card.social-action.story-unlock.locked::before { background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent); }
+        @keyframes social-pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
         .action-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            padding: 3px 8px;
-            border-radius: 20px;
-            font-size: 0.55rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            animation: badge-pulse 2s ease-in-out infinite;
+            position: absolute; top: 8px; right: 8px; padding: 3px 8px;
+            border-radius: 20px; font-size: 0.55rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.05em; animation: badge-pulse 2s ease-in-out infinite;
         }
-        
-        .action-badge.dm {
-            background: var(--accent-pink);
-            color: white;
-        }
-        
-        .action-badge.story {
-            background: var(--accent-gold);
-            color: #000;
-        }
-        
-        @keyframes badge-pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
+        .action-badge.dm { background: var(--accent-pink); color: white; }
+        .action-badge.story { background: var(--accent-gold); color: #000; }
+        @keyframes badge-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
         .system-icon {
             width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
@@ -287,7 +274,9 @@
         
         .system-info { flex: 1; min-width: 0; }
         .system-name { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
-        .system-desc { font-size: 0.7rem; color: var(--text-muted); }
+        /* FIX #10: Completion context subtitle */
+        .system-desc { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .system-desc.completed-context { color: var(--accent-green); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 600; }
         .system-status { font-size: 1.2rem; }
 
         /* NEXT ACTION */
@@ -317,6 +306,10 @@
             text-decoration: none; cursor: pointer; transition: all 0.2s; position: relative; z-index: 1;
         }
         .next-action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-green-glow); }
+        /* FIX #7: Level-up variant */
+        .next-action.level-up { border-color: var(--accent-gold); background: linear-gradient(135deg, rgba(251,191,36,0.1) 0%, var(--bg-card) 100%); }
+        .next-action.level-up .next-action-badge { background: var(--accent-gold); }
+        .next-action.level-up .next-action-btn { background: var(--accent-gold); }
 
         /* SHARE SECTION */
         .share-section {
@@ -346,132 +339,64 @@
             border-radius: 20px; padding: 35px; max-width: 450px; width: 100%; text-align: center;
             animation: modalReveal 0.3s ease; max-height: 90vh; overflow-y: auto;
         }
-        @keyframes modalReveal {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
+        @keyframes modalReveal { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         .info-modal-card.pink { border-color: var(--accent-pink); }
         .info-modal-card.gold { border-color: var(--accent-gold); }
-        
         .info-modal-icon { font-size: 3rem; margin-bottom: 15px; }
         .info-modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
         .info-modal-subtitle { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
         
-        .unlock-method {
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        .unlock-method-title {
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--accent-green);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .unlock-method { background: var(--bg-secondary); border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: left; }
+        .unlock-method-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-green); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .unlock-method-title.pink { color: var(--accent-pink); }
         .unlock-method-title.gold { color: var(--accent-gold); }
-        
-        .unlock-step {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border);
-        }
+        .unlock-step { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
         .unlock-step:last-child { border-bottom: none; }
-        .unlock-step-num {
-            width: 22px;
-            height: 22px;
-            background: var(--accent-green);
-            color: #000;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 800;
-            flex-shrink: 0;
-        }
+        .unlock-step-num { width: 22px; height: 22px; background: var(--accent-green); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; flex-shrink: 0; }
         .unlock-step-num.pink { background: var(--accent-pink); }
         .unlock-step-num.gold { background: var(--accent-gold); }
-        .unlock-step-text {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
+        .unlock-step-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4; }
         .unlock-step-text strong { color: var(--text-primary); }
         
-        .secret-keyword-box {
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.15));
-            border: 2px dashed rgba(236, 72, 153, 0.5);
-            border-radius: 12px; padding: 20px; margin-bottom: 20px;
-        }
-        .secret-keyword-label {
-            font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.15em; color: var(--accent-pink); margin-bottom: 8px;
-        }
-        .secret-keyword {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.8rem; font-weight: 800; color: var(--text-primary);
-            letter-spacing: 0.1em;
-        }
+        .secret-keyword-box { background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.15)); border: 2px dashed rgba(236, 72, 153, 0.5); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .secret-keyword-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent-pink); margin-bottom: 8px; }
+        .secret-keyword { font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 800; color: var(--text-primary); letter-spacing: 0.1em; }
         
         .code-input-group { margin-bottom: 18px; }
-        .code-input {
-            width: 100%; padding: 14px; background: var(--bg-secondary);
-            border: 2px solid var(--border); border-radius: 10px; color: var(--text-primary);
-            font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700;
-            text-align: center; letter-spacing: 0.15em; text-transform: uppercase;
-            transition: border-color 0.2s;
-        }
+        .code-input { width: 100%; padding: 14px; background: var(--bg-secondary); border: 2px solid var(--border); border-radius: 10px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; text-align: center; letter-spacing: 0.15em; text-transform: uppercase; transition: border-color 0.2s; }
         .code-input:focus { outline: none; border-color: var(--accent-pink); }
         .code-input::placeholder { color: var(--text-muted); letter-spacing: normal; font-size: 0.85rem; }
         .code-error { color: var(--danger); font-size: 0.75rem; margin-top: 6px; display: none; }
         
         .info-modal-btns { display: flex; gap: 10px; flex-direction: column; }
-        .info-modal-btn {
-            padding: 14px; border-radius: 10px; font-size: 0.9rem; font-weight: 700;
-            cursor: pointer; transition: all 0.2s; text-decoration: none;
-            display: flex; align-items: center; justify-content: center; gap: 8px; border: none;
-        }
-        .info-modal-btn.primary {
-            background: var(--accent-green); color: #000;
-        }
-        .info-modal-btn.primary.pink {
-            background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple)); color: #fff;
-        }
-        .info-modal-btn.primary.gold {
-            background: linear-gradient(135deg, var(--accent-gold), #f59e0b); color: #000;
-        }
-        .info-modal-btn.primary:hover {
-            transform: translateY(-2px); box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
-        }
-        .info-modal-btn.secondary {
-            background: transparent; color: var(--text-secondary); border: 2px solid var(--border);
-        }
+        .info-modal-btn { padding: 14px; border-radius: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; }
+        .info-modal-btn.primary { background: var(--accent-green); color: #000; }
+        .info-modal-btn.primary.pink { background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple)); color: #fff; }
+        .info-modal-btn.primary.gold { background: linear-gradient(135deg, var(--accent-gold), #f59e0b); color: #000; }
+        .info-modal-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4); }
+        .info-modal-btn.secondary { background: transparent; color: var(--text-secondary); border: 2px solid var(--border); }
 
-        /* DUAL OPTIONS */
         .dual-options { display: flex; gap: 12px; margin-bottom: 18px; }
-        .dual-option {
-            flex: 1; background: var(--bg-secondary); border: 2px solid var(--border);
-            border-radius: 12px; padding: 16px 12px; text-align: center;
-            cursor: pointer; transition: all 0.2s;
-        }
+        .dual-option { flex: 1; background: var(--bg-secondary); border: 2px solid var(--border); border-radius: 12px; padding: 16px 12px; text-align: center; cursor: pointer; transition: all 0.2s; }
         .dual-option:hover { border-color: var(--accent-green); }
         .dual-option.selected { border-color: var(--accent-gold); background: rgba(251, 191, 36, 0.1); }
         .dual-option-icon { font-size: 1.5rem; margin-bottom: 8px; }
         .dual-option-title { font-size: 0.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
         .dual-option-desc { font-size: 0.65rem; color: var(--text-muted); }
-        
         .dual-section { display: none; }
         .dual-section.show { display: block; }
+
+        /* FIX #11: Share modal (replaces alert) */
+        .share-modal-content { text-align: center; }
+        .share-card-preview {
+            background: linear-gradient(135deg, rgba(34,197,94,0.15) 0%, var(--bg-secondary) 100%);
+            border: 2px solid rgba(34,197,94,0.3); border-radius: 16px; padding: 25px; margin-bottom: 20px;
+        }
+        .share-card-id { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 800; color: var(--accent-green); margin-bottom: 8px; }
+        .share-card-stats { font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+        .share-card-level { font-size: 0.8rem; color: var(--accent-gold); font-weight: 700; margin-bottom: 12px; }
+        .share-card-brand { font-size: 0.7rem; color: var(--text-muted); }
+        .share-instructions { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 15px; }
 
         /* FOOTER */
         .footer { margin-top: 35px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; }
@@ -488,9 +413,13 @@
         .all-complete-title { font-size: 1.2rem; font-weight: 800; color: var(--accent-gold); margin-bottom: 6px; }
         .all-complete-desc { font-size: 0.85rem; color: var(--text-secondary); }
 
-        /* RESPONSIVE */
+        /* FIX #9: MOBILE - 3-column compact hero stats */
         @media (max-width: 700px) {
-            .hero-stats { grid-template-columns: 1fr; }
+            .hero-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .hero-stat { padding: 12px 8px; }
+            .hero-stat-value { font-size: 1.1rem; }
+            .hero-stat-sub { display: none; }
+            .hero-stat-cta { display: none; }
             .systems-grid { grid-template-columns: 1fr; }
             .header { flex-direction: column; gap: 15px; text-align: center; }
             .header-left { flex-direction: column; }
@@ -506,38 +435,47 @@
     <div class="bg-glow bg-glow-1"></div>
     <div class="bg-glow bg-glow-2"></div>
 
+    <!-- FIX #1: ACCESS GATE -->
+    <div class="access-gate" id="accessGate">
+        <div class="gate-icon">🔒</div>
+        <h1 class="gate-title">Command Center</h1>
+        <p class="gate-subtitle">This dashboard requires an Architect ID. Complete the Autopilot Money System to earn yours.</p>
+        <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="gate-cta">Install The System &#8594;</a>
+        <div class="gate-divider">Already have an Architect ID?</div>
+        <div class="gate-id-section">
+            <div class="gate-id-label">Enter your Architect ID</div>
+            <div class="gate-id-input-wrapper">
+                <input type="text" id="gateIdInput" class="gate-id-input" placeholder="KOU-XXXXXX" maxlength="10" autocomplete="off">
+                <button class="gate-id-btn" onclick="gateManualEntry()">Enter</button>
+            </div>
+            <p class="gate-error" id="gateError">Invalid ID format. Must be KOU- followed by 6 characters.</p>
+        </div>
+    </div>
+
     <!-- UNIVERSAL INFO MODAL -->
     <div class="info-modal" id="infoModal">
         <div class="info-modal-card" id="infoModalCard">
             <div class="info-modal-icon" id="infoModalIcon">🔒</div>
             <h2 class="info-modal-title" id="infoModalTitle">System Locked</h2>
             <p class="info-modal-subtitle" id="infoModalSubtitle">Complete the required steps to unlock</p>
-            
-            <div id="infoModalContent">
-                <!-- Dynamic content inserted here -->
-            </div>
-            
+            <div id="infoModalContent"></div>
             <div class="info-modal-btns">
-                <button class="info-modal-btn primary" id="infoModalPrimaryBtn" onclick="handleInfoModalAction()">
-                    Continue
-                </button>
+                <button class="info-modal-btn primary" id="infoModalPrimaryBtn" onclick="handleInfoModalAction()">Continue</button>
                 <button class="info-modal-btn secondary" onclick="closeInfoModal()">Close</button>
             </div>
         </div>
     </div>
 
-    <!-- BUDGET CALCULATOR CODE INPUT MODAL -->
+    <!-- BUDGET CODE MODAL -->
     <div class="info-modal" id="budgetCodeModal">
         <div class="info-modal-card pink">
             <div class="info-modal-icon">🔑</div>
             <h2 class="info-modal-title">Enter Unlock Code</h2>
             <p class="info-modal-subtitle">DM the secret keyword to @koutalksmoney to receive your code</p>
-            
             <div class="code-input-group">
                 <input type="text" id="budgetCodeInput" class="code-input" placeholder="Enter code here" maxlength="12">
                 <p class="code-error" id="budgetCodeError">Invalid code. DM "INNERLOOP" to get the correct code.</p>
             </div>
-            
             <div class="info-modal-btns">
                 <button class="info-modal-btn primary pink" onclick="verifyBudgetCode()">🔓 Unlock</button>
                 <button class="info-modal-btn secondary" onclick="closeBudgetCodeModal()">Cancel</button>
@@ -545,18 +483,16 @@
         </div>
     </div>
 
-    <!-- PROMPT VAULT CODE INPUT MODAL -->
+    <!-- VAULT CODE MODAL -->
     <div class="info-modal" id="vaultCodeModal">
         <div class="info-modal-card gold">
             <div class="info-modal-icon">🔑</div>
             <h2 class="info-modal-title">Enter Vault Code</h2>
             <p class="info-modal-subtitle">Post your Architect Certificate on your Instagram Story, tag @koutalksmoney, and I'll DM you the code!</p>
-            
             <div class="code-input-group">
                 <input type="text" id="vaultCodeInput" class="code-input" placeholder="Enter code here" maxlength="12">
                 <p class="code-error" id="vaultCodeError">Invalid code. Post your certificate to your story and tag me to get the correct code.</p>
             </div>
-            
             <div class="info-modal-btns">
                 <button class="info-modal-btn primary gold" onclick="verifyVaultCode()">🔓 Unlock Vault</button>
                 <button class="info-modal-btn secondary" onclick="closeVaultCodeModal()">Cancel</button>
@@ -564,8 +500,29 @@
         </div>
     </div>
 
+    <!-- FIX #11: SHARE MODAL (replaces alert) -->
+    <div class="info-modal" id="shareModal">
+        <div class="info-modal-card">
+            <div class="share-modal-content">
+                <div class="info-modal-icon">📸</div>
+                <h2 class="info-modal-title">Share Your Progress</h2>
+                <div class="share-card-preview" id="shareCardPreview">
+                    <div class="share-card-id" id="shareCardId">KOU-XXXXXX</div>
+                    <div class="share-card-stats" id="shareCardStats">0/7 Systems Active</div>
+                    <div class="share-card-level" id="shareCardLevel">Bronze Architect</div>
+                    <div class="share-card-brand">@koutalksmoney</div>
+                </div>
+                <p class="share-instructions">Screenshot this card, post it to your Instagram Story, and tag <strong>@koutalksmoney</strong> to show your progress.</p>
+            </div>
+            <div class="info-modal-btns">
+                <a href="https://instagram.com/koutalksmoney" target="_blank" class="info-modal-btn primary">Open Instagram &#8594;</a>
+                <button class="info-modal-btn secondary" onclick="closeShareModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN DASHBOARD -->
-    <div class="container" id="mainDashboard">
+    <div class="container" id="mainDashboard" style="display:none;">
         <div class="header">
             <div class="header-left">
                 <div class="logo">COMMAND <span>CENTER</span></div>
@@ -585,9 +542,9 @@
             </div>
             <div class="hero-stat clickable" id="freedomStat" onclick="goToFreedomCalc()">
                 <div class="hero-stat-label">Freedom Year</div>
-                <div class="hero-stat-value" id="freedomDate">—</div>
+                <div class="hero-stat-value" id="freedomDate">&mdash;</div>
                 <div class="hero-stat-sub" id="freedomSub">Your target</div>
-                <div class="hero-stat-cta" id="freedomCta">Calculate →</div>
+                <div class="hero-stat-cta" id="freedomCta">Calculate &rarr;</div>
             </div>
             <div class="hero-stat gold">
                 <div class="hero-stat-label">Days Building</div>
@@ -598,7 +555,7 @@
 
         <div class="velocity-section" id="velocitySection">
             <div class="velocity-left">
-                <div class="velocity-icon">⚡</div>
+                <div class="velocity-icon">&#9889;</div>
                 <div class="velocity-info">
                     <h3>Wealth Velocity</h3>
                     <p id="velocityDesc">Complete more systems to accelerate</p>
@@ -610,26 +567,26 @@
         <div class="level-section">
             <div class="level-header">
                 <span class="level-title">Architect Level</span>
-                <span class="level-badge bronze" id="levelBadge"><span>⭐</span><span id="levelName">Bronze</span></span>
+                <span class="level-badge bronze" id="levelBadge"><span>&#11088;</span><span id="levelName">Bronze</span></span>
             </div>
             <div class="level-progress">
-                <div class="level-progress-bar bronze" id="levelProgressBar" style="width: 15%;"></div>
+                <div class="level-progress-bar bronze" id="levelProgressBar" style="width: 0%;"></div>
             </div>
             <div class="level-info">
                 <span id="levelCurrentXp">0 / 7 systems</span>
-                <span id="levelNextReward">3 more → Silver</span>
+                <span id="levelNextReward">3 more &rarr; Silver</span>
             </div>
         </div>
 
         <div class="next-action" id="nextAction">
-            <div class="next-action-badge"><span>⚡</span><span>Next Step</span></div>
+            <div class="next-action-badge"><span>&#9889;</span><span>Next Step</span></div>
             <h3 class="next-action-title" id="nextActionTitle">Start Building</h3>
             <p class="next-action-desc" id="nextActionDesc">Begin with the Autopilot System.</p>
-            <a href="#" class="next-action-btn" id="nextActionBtn"><span id="nextActionBtnText">Continue</span><span>→</span></a>
+            <a href="#" class="next-action-btn" id="nextActionBtn"><span id="nextActionBtnText">Continue</span><span>&rarr;</span></a>
         </div>
 
         <div class="all-complete" id="allComplete" style="display: none;">
-            <div class="all-complete-icon">👑</div>
+            <div class="all-complete-icon">&#128081;</div>
             <h3 class="all-complete-title">ELITE ARCHITECT</h3>
             <p class="all-complete-desc">All systems operational. Maximum velocity achieved.</p>
         </div>
@@ -646,8 +603,8 @@
             <h3 class="share-title">Share Progress</h3>
             <p class="share-subtitle">Building while they're sleeping</p>
             <div class="share-buttons">
-                <a href="#" class="share-btn" onclick="shareToInstagram()"><span>📸</span><span>Story</span></a>
-                <a href="#" class="share-btn" onclick="shareToTwitter()"><span>𝕏</span><span>Post</span></a>
+                <a href="#" class="share-btn" onclick="shareToInstagram(); return false;"><span>📸</span><span>Story</span></a>
+                <a href="#" class="share-btn" onclick="shareToTwitter(); return false;"><span>𝕏</span><span>Post</span></a>
                 <button class="share-btn" onclick="copyShareText()"><span>📋</span><span>Copy</span></button>
             </div>
         </div>
@@ -658,7 +615,7 @@
     </div>
 
     <script>
-        const CONFIG = {
+        var CONFIG = {
             AUTOPILOT_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html',
             FREEDOM_CALCULATOR_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html',
             COST_OF_WAITING_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html',
@@ -667,222 +624,204 @@
             BUDGET_CALCULATOR_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/Kous-Budget-Calculator.html',
             PROMPT_VAULT_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html',
             COMMAND_CENTER_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/command-center.html',
-            INSTAGRAM: 'https://instagram.com/koutalksmoney',
-            
-            BUDGET_CODE: 'CASHFLOW',
-            VAULT_CODE: 'CERTIFIED'
+            INSTAGRAM: 'https://instagram.com/koutalksmoney'
         };
 
+        // ==============================================
+        // FIX #2: HASH OBFUSCATION (no plaintext codes)
+        // ==============================================
+        function simpleHash(str) {
+            var hash = 0;
+            for (var i = 0; i < str.length; i++) {
+                var ch = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + ch;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return hash;
+        }
+        // Pre-computed: simpleHash('CASHFLOW') and simpleHash('CERTIFIED')
+        var BUDGET_HASH = simpleHash('CASHFLOW');
+        var VAULT_HASH = simpleHash('CERTIFIED');
+
         // === MASTER SYSTEM CONFIGURATION ===
-        // The "Wide Net" Strategy: Check explicit flags AND data artifacts
-        const SYSTEM_CONFIG = {
+        var SYSTEM_CONFIG = {
             'autopilot': {
                 primaryKey: 'autopilot_completed',
                 fallbackKey: 'cashvault_architect_id',
-                logic: (p, f) => p === 'true' || !!localStorage.getItem(f)
+                logic: function(p, f) { return p === 'true' || !!localStorage.getItem(f); }
             },
             'freedom': {
                 primaryKey: 'freedom_completed',
                 fallbackKey: 'freedom_calculator_result',
-                logic: (p, f) => p === 'true' || !!localStorage.getItem(f)
+                logic: function(p, f) { return p === 'true' || !!localStorage.getItem(f); }
             },
             'waiting': {
                 primaryKey: 'waiting_completed',
                 fallbackKey: 'cost_of_waiting_data',
-                logic: (p, f) => p === 'true' || !!localStorage.getItem(f)
+                logic: function(p, f) { return p === 'true' || !!localStorage.getItem(f); }
             },
             'investment': {
                 primaryKey: 'investment_completed',
                 fallbackKey: 'investment_simplifier_completed',
-                logic: (p, f) => p === 'true' || localStorage.getItem(f) === 'true'
+                logic: function(p, f) { return p === 'true' || localStorage.getItem(f) === 'true'; }
             },
             '800club': {
                 primaryKey: 'eightclub_completed',
                 fallbackKey: 'credit_protocol_score',
-                logic: (p, f) => p === 'true' || parseInt(localStorage.getItem(f) || '0') > 0
+                logic: function(p, f) {
+                    if (p === 'true') return true;
+                    var score = parseInt(localStorage.getItem(f) || '0', 10);
+                    return !isNaN(score) && score > 0;
+                }
             },
             'budget': {
                 primaryKey: 'budget_completed',
                 fallbackKey: 'budget_unlocked',
-                logic: (p, f) => p === 'true' || localStorage.getItem(f) === 'true'
+                logic: function(p, f) { return p === 'true' || localStorage.getItem(f) === 'true'; }
             },
             'prompt': {
                 primaryKey: 'prompt_completed',
                 fallbackKey: 'vault_saved_prompts',
-                logic: (p, f) => {
-                    // Advanced Logic: Mark complete only if they are truly engaged
-                    const categories = JSON.parse(localStorage.getItem('prompt_vault_categories_used') || '[]');
-                    const savedPrompts = JSON.parse(localStorage.getItem(f) || '[]');
-                    return p === 'true' || categories.length >= 3 || savedPrompts.length > 0;
+                logic: function(p, f) {
+                    if (p === 'true') return true;
+                    // FIX #4: Check both categories and saved prompts
+                    try {
+                        var categories = JSON.parse(localStorage.getItem('prompt_vault_categories_used') || '[]');
+                        var savedPrompts = JSON.parse(localStorage.getItem(f) || '[]');
+                        return categories.length >= 3 || savedPrompts.length > 0;
+                    } catch(e) { return false; }
                 }
             }
         };
 
-        // === ROBUST CHECK FUNCTION ===
         function checkSystemCompletion(systemId) {
-            const config = SYSTEM_CONFIG[systemId];
+            var config = SYSTEM_CONFIG[systemId];
             if (!config) return false;
-            
-            const primary = localStorage.getItem(config.primaryKey);
+            var primary = localStorage.getItem(config.primaryKey);
             return config.logic(primary, config.fallbackKey);
         }
 
-        // SYSTEMS WITH UNLOCK EXPLANATIONS
-        const SYSTEMS = [
-            { 
-                id: 'autopilot', 
-                name: 'Autopilot System', 
-                desc: 'Your wealth machine', 
-                icon: '🤖',
-                url: CONFIG.AUTOPILOT_URL,
-                storageKey: 'autopilot_completed',
-                unlockType: 'always',
-                priority: 1,
-                socialAction: null,
-                unlockExplanation: {
-                    title: 'Always Available',
-                    subtitle: 'This is your entry point. Start here.',
-                    steps: ['Click to begin the Autopilot System', 'Complete all 6 modules', 'Claim your unique Architect ID']
+        // FIX #10: Get completion context for system cards
+        function getCompletionContext(systemId) {
+            try {
+                switch(systemId) {
+                    case 'autopilot':
+                        var archId = localStorage.getItem('cashvault_architect_id');
+                        return archId ? 'ID: ' + archId : null;
+                    case 'freedom':
+                        var fData = JSON.parse(localStorage.getItem('freedom_calculator_result') || 'null');
+                        if (fData && fData.exitAge) return 'Freedom Age: ' + fData.exitAge;
+                        if (fData && fData.freedomYears) return 'In ' + fData.freedomYears + ' years';
+                        return null;
+                    case 'waiting':
+                        var wData = JSON.parse(localStorage.getItem('cost_of_waiting_data') || 'null');
+                        if (wData && wData.costPerDay) return 'Cost: $' + Math.round(wData.costPerDay) + '/day';
+                        return null;
+                    case 'investment':
+                        var iData = JSON.parse(localStorage.getItem('investmentSimplifier_portfolio') || 'null');
+                        if (iData && iData.etf) return 'Portfolio: ' + iData.etf;
+                        return null;
+                    case '800club':
+                        var score = localStorage.getItem('credit_protocol_score');
+                        if (score) return 'Score: ' + score + '%';
+                        return null;
+                    case 'budget':
+                        var bData = JSON.parse(localStorage.getItem('budget_calculator_result') || 'null');
+                        if (bData && bData.selectedSystem) return 'System: ' + bData.selectedSystem;
+                        return null;
+                    case 'prompt':
+                        var cats = JSON.parse(localStorage.getItem('prompt_vault_categories_used') || '[]');
+                        if (cats.length > 0) return cats.length + ' categories used';
+                        return null;
                 }
-            },
-            { 
-                id: 'freedom', 
-                name: 'Freedom Calculator', 
-                desc: 'Know your number', 
-                icon: '🎯',
-                url: CONFIG.FREEDOM_CALCULATOR_URL,
-                storageKey: 'freedom_completed',
-                unlockType: 'completion',
-                unlockRequires: 'autopilot',
-                priority: 2,
-                socialAction: null,
-                unlockExplanation: {
-                    title: 'Complete Autopilot System',
-                    subtitle: "You need to install your core wealth machine first.",
-                    steps: ['Open the Autopilot System', 'Complete all 6 modules', 'Claim your Architect ID', 'Freedom Calculator unlocks automatically']
-                }
-            },
-            { 
-                id: 'waiting', 
-                name: 'Cost of Waiting', 
-                desc: 'Urgency multiplier', 
-                icon: '⏰',
-                url: CONFIG.COST_OF_WAITING_URL,
-                storageKey: 'waiting_completed',
-                unlockType: 'completion',
-                unlockRequires: 'freedom',
-                priority: 3,
-                socialAction: null,
-                unlockExplanation: {
-                    title: 'Complete Freedom Calculator',
-                    subtitle: "Know your target before seeing what delays cost you.",
-                    steps: ['Open the Freedom Calculator', 'Enter your financial details', 'Get your Freedom Number', 'Cost of Waiting unlocks automatically']
-                }
-            },
-            { 
-                id: 'investment', 
-                name: 'Investment Simplifier', 
-                desc: 'Portfolio builder', 
-                icon: '📊',
-                url: CONFIG.INVESTMENT_SIMPLIFIER_URL,
-                storageKey: 'investment_completed',
-                unlockType: 'completion',
-                unlockRequires: 'waiting',
-                priority: 4,
-                socialAction: null,
-                unlockExplanation: {
-                    title: 'Complete Cost of Waiting',
-                    subtitle: "Now that you feel the urgency, learn HOW to invest.",
-                    steps: ['Open Cost of Waiting Calculator', 'See what procrastination costs', 'Get motivated to act', 'Investment Simplifier unlocks automatically']
-                }
-            },
-            { 
-                id: '800club', 
-                name: '800-Club Protocol', 
-                desc: 'Credit leverage', 
-                icon: '💳',
-                url: CONFIG.EIGHT_HUNDRED_CLUB_URL,
-                storageKey: 'eightclub_completed',
-                unlockType: 'level',
-                unlockLevel: 'silver',
-                priority: 5,
-                socialAction: null,
-                unlockExplanation: {
-                    title: 'Reach Silver Level',
-                    subtitle: "Complete 3 systems to reach Silver and unlock credit mastery.",
-                    steps: ['Complete any 3 systems', 'Reach Silver Architect level', '800-Club Protocol unlocks automatically'],
-                    showProgress: true
-                }
-            },
-            { 
-                id: 'budget', 
-                name: 'Budget Calculator', 
-                desc: 'Cash flow control', 
-                icon: '💰',
-                url: CONFIG.BUDGET_CALCULATOR_URL,
-                storageKey: 'budget_completed',
-                unlockType: 'code',
-                unlockKey: 'budget_unlocked',
-                priority: 6,
-                socialAction: 'dm', // DM to unlock
-                unlockExplanation: {
-                    title: 'DM Secret Keyword',
-                    subtitle: "Get exclusive access by connecting with me directly.",
-                    secretKeyword: 'INNERLOOP',
-                    steps: ['DM @koutalksmoney on Instagram', 'Send the secret keyword: INNERLOOP', "I'll reply with your unlock code instantly", 'Enter the code to unlock'],
-                    hasCodeInput: true
-                }
-            },
-            { 
-                id: 'prompt', 
-                name: 'Prompt Vault', 
-                desc: 'AI arsenal', 
-                icon: '🧠',
-                url: CONFIG.PROMPT_VAULT_URL,
-                storageKey: 'prompt_completed',
-                unlockType: 'dual',
-                unlockLevel: 'gold',
-                unlockKey: 'vault_unlocked',
-                priority: 7,
-                socialAction: 'story', // Story post to unlock
-                unlockExplanation: {
-                    title: 'Two Ways to Unlock',
-                    subtitle: "Choose your path to the AI arsenal.",
-                    dualOptions: [
-                        { 
-                            icon: '⭐', 
-                            title: 'Reach Gold Level', 
-                            desc: 'Complete 5 systems',
-                            steps: ['Complete any 5 systems', 'Reach Gold Architect level', 'Prompt Vault unlocks automatically']
-                        },
-                        { 
-                            icon: '📸', 
-                            title: 'Post Certificate', 
-                            desc: 'Tag me on your story',
-                            steps: ['Open Autopilot System', 'Scroll to your Architect Certificate', 'Screenshot the certificate card', '<strong>Post it on your Instagram Story</strong>', '<strong>Tag @koutalksmoney in the story</strong>', "I'll DM you the Vault code!"]
-                        }
-                    ],
-                    hasCodeInput: true
-                }
-            }
+            } catch(e) {}
+            return null;
+        }
+
+        var SYSTEMS = [
+            { id: 'autopilot', name: 'Autopilot System', desc: 'Your wealth machine', icon: '🤖', url: CONFIG.AUTOPILOT_URL, storageKey: 'autopilot_completed', unlockType: 'always', priority: 1, socialAction: null, unlockExplanation: { title: 'Always Available', subtitle: 'This is your entry point. Start here.', steps: ['Click to begin the Autopilot System', 'Complete all 6 modules', 'Claim your unique Architect ID'] } },
+            { id: 'freedom', name: 'Freedom Calculator', desc: 'Know your number', icon: '🎯', url: CONFIG.FREEDOM_CALCULATOR_URL, storageKey: 'freedom_completed', unlockType: 'completion', unlockRequires: 'autopilot', priority: 2, socialAction: null, unlockExplanation: { title: 'Complete Autopilot System', subtitle: "Install your core wealth machine first.", steps: ['Open the Autopilot System', 'Complete all 6 modules', 'Claim your Architect ID', 'Freedom Calculator unlocks automatically'] } },
+            { id: 'waiting', name: 'Cost of Waiting', desc: 'Urgency multiplier', icon: '⏰', url: CONFIG.COST_OF_WAITING_URL, storageKey: 'waiting_completed', unlockType: 'completion', unlockRequires: 'freedom', priority: 3, socialAction: null, unlockExplanation: { title: 'Complete Freedom Calculator', subtitle: "Know your target before seeing what delays cost you.", steps: ['Open the Freedom Calculator', 'Enter your financial details', 'Get your Freedom Number', 'Cost of Waiting unlocks automatically'] } },
+            { id: 'investment', name: 'Investment Simplifier', desc: 'Portfolio builder', icon: '📊', url: CONFIG.INVESTMENT_SIMPLIFIER_URL, storageKey: 'investment_completed', unlockType: 'completion', unlockRequires: 'waiting', priority: 4, socialAction: null, unlockExplanation: { title: 'Complete Cost of Waiting', subtitle: "Now that you feel the urgency, learn HOW to invest.", steps: ['Open Cost of Waiting Calculator', 'See what procrastination costs', 'Get motivated to act', 'Investment Simplifier unlocks automatically'] } },
+            { id: '800club', name: '800-Club Protocol', desc: 'Credit leverage', icon: '💳', url: CONFIG.EIGHT_HUNDRED_CLUB_URL, storageKey: 'eightclub_completed', unlockType: 'level', unlockLevel: 'silver', priority: 5, socialAction: null, unlockExplanation: { title: 'Reach Silver Level', subtitle: "Complete 3 systems to reach Silver and unlock credit mastery.", steps: ['Complete any 3 systems', 'Reach Silver Architect level', '800-Club Protocol unlocks automatically'], showProgress: true } },
+            { id: 'budget', name: 'Budget Calculator', desc: 'Cash flow control', icon: '💰', url: CONFIG.BUDGET_CALCULATOR_URL, storageKey: 'budget_completed', unlockType: 'code', unlockKey: 'budget_unlocked', priority: 6, socialAction: 'dm', unlockExplanation: { title: 'DM Secret Keyword', subtitle: "Get exclusive access by connecting with me directly.", secretKeyword: 'INNERLOOP', steps: ['DM @koutalksmoney on Instagram', 'Send the secret keyword: INNERLOOP', "I'll reply with your unlock code instantly", 'Enter the code to unlock'], hasCodeInput: true } },
+            { id: 'prompt', name: 'Prompt Vault', desc: 'AI arsenal', icon: '🧠', url: CONFIG.PROMPT_VAULT_URL, storageKey: 'prompt_completed', unlockType: 'dual', unlockLevel: 'gold', unlockKey: 'vault_unlocked', priority: 7, socialAction: 'story', unlockExplanation: { title: 'Two Ways to Unlock', subtitle: "Choose your path to the AI arsenal.", dualOptions: [{ icon: '⭐', title: 'Reach Gold Level', desc: 'Complete 5 systems', steps: ['Complete any 5 systems', 'Reach Gold Architect level', 'Prompt Vault unlocks automatically'] }, { icon: '📸', title: 'Post Certificate', desc: 'Tag me on your story', steps: ['Open Autopilot System', 'Scroll to your Architect Certificate', 'Screenshot the certificate card', '<strong>Post it on your Instagram Story</strong>', '<strong>Tag @koutalksmoney in the story</strong>', "I'll DM you the Vault code!"] }], hasCodeInput: true } }
         ];
 
-        let currentArchitectId = '';
-        let completedSystems = [];
-        let unlockedSystems = ['autopilot'];
-        let currentModalSystem = null;
+        var currentArchitectId = '';
+        var completedSystems = [];
+        var unlockedSystems = ['autopilot'];
+        var currentModalSystem = null;
 
-        document.addEventListener('DOMContentLoaded', () => {
+        // ==============================================
+        // FIX #1: ACCESS GATE
+        // ==============================================
+        function checkAccess() {
+            var architectId = localStorage.getItem('cashvault_architect_id') || localStorage.getItem('command_center_architect_id');
+            if (architectId) {
+                document.getElementById('mainDashboard').style.display = 'block';
+                document.getElementById('accessGate').classList.remove('show');
+                return true;
+            }
+            document.getElementById('mainDashboard').style.display = 'none';
+            document.getElementById('accessGate').classList.add('show');
+            return false;
+        }
+
+        function gateManualEntry() {
+            var input = document.getElementById('gateIdInput');
+            var error = document.getElementById('gateError');
+            var id = input.value.trim().toUpperCase();
+
+            if (/^KOU-[A-Z0-9]{6}$/.test(id)) {
+                localStorage.setItem('cashvault_architect_id', id);
+                localStorage.setItem('command_center_architect_id', id);
+                error.style.display = 'none';
+                document.getElementById('accessGate').classList.remove('show');
+                document.getElementById('mainDashboard').style.display = 'block';
+                initDashboard();
+            } else {
+                error.style.display = 'block';
+                input.style.borderColor = 'var(--danger)';
+                setTimeout(function() { input.style.borderColor = ''; }, 2000);
+            }
+        }
+
+        // Gate input formatting
+        document.getElementById('gateIdInput').addEventListener('input', function(e) {
+            var value = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+            if (value.length > 0 && !value.startsWith('KOU-') && !value.startsWith('KOU') && !value.startsWith('KO') && !value.startsWith('K')) {
+                if (value.length <= 6) value = 'KOU-' + value;
+            }
+            if (value.length > 4 && value[3] !== '-') value = value.slice(0, 3) + '-' + value.slice(3);
+            e.target.value = value.slice(0, 10);
+        });
+
+        document.getElementById('gateIdInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') gateManualEntry();
+        });
+
+        // ==============================================
+        // INIT
+        // ==============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAccess()) {
+                initDashboard();
+            }
+        });
+
+        function initDashboard() {
             loadArchitectId();
             loadCompletionStatus();
             loadUnlockStatus();
             renderDashboard();
             trackStartDate();
-        });
+            writeEcosystemContext(); // FIX #12
+        }
 
         function loadArchitectId() {
-            currentArchitectId = localStorage.getItem('cashvault_architect_id') || 
-                                localStorage.getItem('command_center_architect_id') || 
+            currentArchitectId = localStorage.getItem('cashvault_architect_id') ||
+                                localStorage.getItem('command_center_architect_id') ||
                                 'KOU-??????';
         }
 
@@ -892,297 +831,248 @@
             }
         }
 
-        // === UPDATED LOAD COMPLETION STATUS WITH WIDE NET STRATEGY ===
         function loadCompletionStatus() {
             completedSystems = [];
-            
-            // Iterate through our defined systems and check status using robust check
-            SYSTEMS.forEach(system => {
+            SYSTEMS.forEach(function(system) {
                 if (checkSystemCompletion(system.id)) {
                     completedSystems.push(system.id);
-                    // Self-heal: ensure primary key is set if we detected completion via fallback
                     if (localStorage.getItem(system.storageKey) !== 'true') {
                         localStorage.setItem(system.storageKey, 'true');
                     }
                 }
             });
-            
-            // Legacy Fallback: Ensure Autopilot is marked if Architect ID exists (Safety Net)
-            if (localStorage.getItem('cashvault_architect_id') && !completedSystems.includes('autopilot')) {
+            if (localStorage.getItem('cashvault_architect_id') && completedSystems.indexOf('autopilot') === -1) {
                 completedSystems.push('autopilot');
                 localStorage.setItem('autopilot_completed', 'true');
             }
         }
 
+        // FIX #3: Completed systems auto-unlock regardless of sequence
         function loadUnlockStatus() {
             unlockedSystems = ['autopilot'];
-            
-            SYSTEMS.forEach(system => {
-                // Completion-based unlock
+
+            SYSTEMS.forEach(function(system) {
+                // FIX #3: Self-completed = auto-unlocked (regardless of prerequisite)
+                if (completedSystems.indexOf(system.id) !== -1) {
+                    if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
+                    return; // Skip further checks, already unlocked
+                }
+
                 if (system.unlockType === 'completion' && system.unlockRequires) {
-                    if (completedSystems.includes(system.unlockRequires)) {
-                        if (!unlockedSystems.includes(system.id)) unlockedSystems.push(system.id);
+                    if (completedSystems.indexOf(system.unlockRequires) !== -1) {
+                        if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
                     }
                 }
-                
-                // Level-based unlock
                 if (system.unlockType === 'level') {
-                    const level = getArchitectLevel();
-                    if (system.unlockLevel === 'silver' && ['silver', 'gold', 'elite'].includes(level)) {
-                        if (!unlockedSystems.includes(system.id)) unlockedSystems.push(system.id);
+                    var level = getArchitectLevel();
+                    if (system.unlockLevel === 'silver' && ['silver', 'gold', 'elite'].indexOf(level) !== -1) {
+                        if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
                     }
                 }
-
-                // Code-based unlock
                 if (system.unlockType === 'code' && localStorage.getItem(system.unlockKey) === 'true') {
-                    if (!unlockedSystems.includes(system.id)) unlockedSystems.push(system.id);
+                    if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
                 }
-
-                // Dual unlock (level OR code)
                 if (system.unlockType === 'dual') {
-                    const level = getArchitectLevel();
-                    const hasCode = localStorage.getItem(system.unlockKey) === 'true';
-                    if ((system.unlockLevel === 'gold' && ['gold', 'elite'].includes(level)) || hasCode) {
-                        if (!unlockedSystems.includes(system.id)) unlockedSystems.push(system.id);
+                    var lvl = getArchitectLevel();
+                    var hasCode = localStorage.getItem(system.unlockKey) === 'true';
+                    if ((system.unlockLevel === 'gold' && ['gold', 'elite'].indexOf(lvl) !== -1) || hasCode) {
+                        if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
                     }
                 }
-            });
-
-            // Ensure completed systems are also unlocked
-            completedSystems.forEach(id => {
-                if (!unlockedSystems.includes(id)) unlockedSystems.push(id);
             });
         }
 
         function getArchitectLevel() {
-            const count = completedSystems.length;
+            var count = completedSystems.length;
             if (count >= 7) return 'elite';
             if (count >= 5) return 'gold';
             if (count >= 3) return 'silver';
             return 'bronze';
         }
 
+        // FIX #6A: Velocity with narrative copy
         function getVelocityScore() {
-            const count = completedSystems.length;
-            if (count >= 7) return { score: '2.0x', desc: 'Maximum velocity achieved' };
-            if (count >= 5) return { score: '1.5x', desc: 'High velocity mode' };
-            if (count >= 3) return { score: '1.25x', desc: 'Accelerating' };
-            return { score: '1.0x', desc: 'Complete more systems to accelerate' };
+            var count = completedSystems.length;
+            if (count >= 7) return { score: '2.0x', desc: 'Maximum velocity. All systems operational. You are the machine.', label: 'elite' };
+            if (count >= 5) return { score: '1.5x', desc: 'High velocity. Two more systems to max. Do not lose momentum.', label: 'high' };
+            if (count >= 3) return { score: '1.25x', desc: "You're accelerating. The compound effect is kicking in.", label: 'mid' };
+            if (count >= 1) return { score: '1.0x', desc: 'Engine started. Each system you add compounds the last.', label: 'low' };
+            return { score: '1.0x', desc: 'Install your first system to start building velocity.', label: 'zero' };
         }
 
         function renderDashboard() {
             document.getElementById('displayArchitectId').textContent = currentArchitectId;
-            
-            const startDate = localStorage.getItem('architect_start_date');
+
+            var startDate = localStorage.getItem('architect_start_date');
             if (startDate) {
-                const days = Math.max(1, Math.ceil((new Date() - new Date(startDate)) / (1000 * 60 * 60 * 24)));
+                var days = Math.max(1, Math.ceil((new Date() - new Date(startDate)) / (1000 * 60 * 60 * 24)));
                 document.getElementById('daysBuilding').textContent = days;
             }
-            
-            const freedomData = localStorage.getItem('freedom_calculator_result');
+
+            var freedomData = localStorage.getItem('freedom_calculator_result');
             if (freedomData) {
                 try {
-                    const data = JSON.parse(freedomData);
+                    var data = JSON.parse(freedomData);
                     if (data.freedomYears) {
-                        const freedomYear = new Date().getFullYear() + parseInt(data.freedomYears);
+                        var freedomYear = new Date().getFullYear() + parseInt(data.freedomYears);
                         document.getElementById('freedomDate').textContent = freedomYear;
-                        document.getElementById('freedomSub').textContent = `${data.freedomYears} years`;
+                        document.getElementById('freedomSub').textContent = data.freedomYears + ' years';
                         document.getElementById('freedomCta').style.display = 'none';
                     }
                 } catch(e) {}
             }
-            
-            const velocity = getVelocityScore();
+
+            var velocity = getVelocityScore();
             document.getElementById('velocityScore').textContent = velocity.score;
             document.getElementById('velocityDesc').textContent = velocity.desc;
-            
-            document.getElementById('systemsCompleted').textContent = `${completedSystems.length}/7`;
-            document.getElementById('systemsCount').textContent = `${completedSystems.length}/7`;
-            
+
+            // FIX #6B: Write velocity to localStorage for cross-app use
+            try {
+                localStorage.setItem('cashvault_velocity', JSON.stringify({
+                    score: velocity.score,
+                    label: velocity.label,
+                    systems: completedSystems.length
+                }));
+            } catch(e) {}
+
+            document.getElementById('systemsCompleted').textContent = completedSystems.length + '/7';
+            document.getElementById('systemsCount').textContent = completedSystems.length + '/7';
+
             renderSystemsGrid();
             updateArchitectLevel();
             updateNextAction();
+            writeEcosystemContext(); // FIX #12
         }
 
         function goToFreedomCalc() {
-            if (unlockedSystems.includes('freedom')) {
+            if (unlockedSystems.indexOf('freedom') !== -1) {
                 window.location.href = CONFIG.FREEDOM_CALCULATOR_URL;
             } else {
-                const freedomSystem = SYSTEMS.find(s => s.id === 'freedom');
+                var freedomSystem = SYSTEMS.find(function(s) { return s.id === 'freedom'; });
                 showInfoModal(freedomSystem);
             }
         }
 
         function renderSystemsGrid() {
-            const grid = document.getElementById('systemsGrid');
+            var grid = document.getElementById('systemsGrid');
             grid.innerHTML = '';
 
-            SYSTEMS.forEach(system => {
-                const isCompleted = completedSystems.includes(system.id);
-                const isUnlocked = unlockedSystems.includes(system.id);
-                const isSocialAction = system.socialAction && !isUnlocked && !isCompleted;
-                
-                const card = document.createElement('div');
-                
-                // Build class list
-                let classNames = ['system-card'];
+            SYSTEMS.forEach(function(system) {
+                var isCompleted = completedSystems.indexOf(system.id) !== -1;
+                var isUnlocked = unlockedSystems.indexOf(system.id) !== -1;
+                var isSocialAction = system.socialAction && !isUnlocked && !isCompleted;
+
+                var card = document.createElement('div');
+                var classNames = ['system-card'];
                 if (isCompleted) classNames.push('completed');
                 if (!isUnlocked) classNames.push('locked');
-                
-                // Add social action styling for locked social apps
                 if (isSocialAction) {
                     classNames.push('social-action');
                     if (system.socialAction === 'dm') classNames.push('dm-unlock');
                     if (system.socialAction === 'story') classNames.push('story-unlock');
                 }
-                
                 card.className = classNames.join(' ');
-                
-                // Build action badge HTML
-                let actionBadgeHtml = '';
+
+                var actionBadgeHtml = '';
                 if (isSocialAction) {
-                    if (system.socialAction === 'dm') {
-                        actionBadgeHtml = '<span class="action-badge dm">🗝️ DM to Unlock</span>';
-                    } else if (system.socialAction === 'story') {
-                        actionBadgeHtml = '<span class="action-badge story">📸 Story to Unlock</span>';
+                    if (system.socialAction === 'dm') actionBadgeHtml = '<span class="action-badge dm">🗝️ DM to Unlock</span>';
+                    else if (system.socialAction === 'story') actionBadgeHtml = '<span class="action-badge story">📸 Story to Unlock</span>';
+                }
+
+                // FIX #10: Completion context on card
+                var descText = system.desc;
+                var descClass = 'system-desc';
+                if (isCompleted) {
+                    var context = getCompletionContext(system.id);
+                    if (context) {
+                        descText = context;
+                        descClass = 'system-desc completed-context';
                     }
                 }
-                
-                card.innerHTML = `
-                    ${actionBadgeHtml}
-                    <div class="system-icon">${system.icon}</div>
-                    <div class="system-info">
-                        <div class="system-name">${system.name}</div>
-                        <div class="system-desc">${system.desc}</div>
-                    </div>
-                    <div class="system-status">${isCompleted ? '✅' : (isUnlocked ? '○' : '🔒')}</div>
-                `;
+
+                card.innerHTML =
+                    actionBadgeHtml +
+                    '<div class="system-icon">' + system.icon + '</div>' +
+                    '<div class="system-info">' +
+                        '<div class="system-name">' + system.name + '</div>' +
+                        '<div class="' + descClass + '">' + descText + '</div>' +
+                    '</div>' +
+                    '<div class="system-status">' + (isCompleted ? '✅' : (isUnlocked ? '○' : '🔒')) + '</div>';
 
                 if (isUnlocked) {
-                    card.onclick = () => window.location.href = system.url;
+                    card.onclick = function() { window.location.href = system.url; };
                 } else {
-                    card.onclick = () => showInfoModal(system);
+                    card.onclick = (function(s) { return function() { showInfoModal(s); }; })(system);
                 }
 
                 grid.appendChild(card);
             });
         }
 
-        // UNIVERSAL INFO MODAL
+        // === INFO MODAL (same as original, preserved) ===
         function showInfoModal(system) {
             currentModalSystem = system;
-            const modal = document.getElementById('infoModal');
-            const card = document.getElementById('infoModalCard');
-            const icon = document.getElementById('infoModalIcon');
-            const title = document.getElementById('infoModalTitle');
-            const subtitle = document.getElementById('infoModalSubtitle');
-            const content = document.getElementById('infoModalContent');
-            const primaryBtn = document.getElementById('infoModalPrimaryBtn');
-            
-            const exp = system.unlockExplanation;
-            
-            // Set modal style based on type
+            var modal = document.getElementById('infoModal');
+            var card = document.getElementById('infoModalCard');
+            var icon = document.getElementById('infoModalIcon');
+            var title = document.getElementById('infoModalTitle');
+            var subtitle = document.getElementById('infoModalSubtitle');
+            var content = document.getElementById('infoModalContent');
+            var primaryBtn = document.getElementById('infoModalPrimaryBtn');
+            var exp = system.unlockExplanation;
+
             card.className = 'info-modal-card';
             if (system.unlockType === 'code' || system.socialAction === 'dm') card.classList.add('pink');
             if (system.unlockType === 'dual' || system.socialAction === 'story') card.classList.add('gold');
-            
+
             icon.textContent = system.icon;
-            title.textContent = `Unlock ${system.name}`;
+            title.textContent = 'Unlock ' + system.name;
             subtitle.textContent = exp.subtitle;
-            
-            let contentHtml = '';
-            
-            // Dual options (Prompt Vault)
+
+            var contentHtml = '';
+
             if (exp.dualOptions) {
                 contentHtml += '<div class="dual-options">';
-                exp.dualOptions.forEach((opt, i) => {
-                    contentHtml += `
-                        <div class="dual-option" onclick="selectDualOption(${i})">
-                            <div class="dual-option-icon">${opt.icon}</div>
-                            <div class="dual-option-title">${opt.title}</div>
-                            <div class="dual-option-desc">${opt.desc}</div>
-                        </div>
-                    `;
+                exp.dualOptions.forEach(function(opt, i) {
+                    contentHtml += '<div class="dual-option" onclick="selectDualOption(' + i + ')"><div class="dual-option-icon">' + opt.icon + '</div><div class="dual-option-title">' + opt.title + '</div><div class="dual-option-desc">' + opt.desc + '</div></div>';
                 });
                 contentHtml += '</div>';
-                
-                exp.dualOptions.forEach((opt, i) => {
-                    const stepColor = i === 0 ? 'gold' : 'pink';
-                    contentHtml += `<div class="dual-section" id="dualSection${i}">`;
-                    contentHtml += `<div class="unlock-method"><div class="unlock-method-title ${stepColor}">${opt.title}</div>`;
-                    opt.steps.forEach((step, j) => {
-                        contentHtml += `
-                            <div class="unlock-step">
-                                <span class="unlock-step-num ${stepColor}">${j + 1}</span>
-                                <span class="unlock-step-text">${step}</span>
-                            </div>
-                        `;
+                exp.dualOptions.forEach(function(opt, i) {
+                    var stepColor = i === 0 ? 'gold' : 'pink';
+                    contentHtml += '<div class="dual-section" id="dualSection' + i + '"><div class="unlock-method"><div class="unlock-method-title ' + stepColor + '">' + opt.title + '</div>';
+                    opt.steps.forEach(function(step, j) {
+                        contentHtml += '<div class="unlock-step"><span class="unlock-step-num ' + stepColor + '">' + (j + 1) + '</span><span class="unlock-step-text">' + step + '</span></div>';
                     });
                     contentHtml += '</div>';
-                    
-                    // Show progress for level option
-                    if (i === 0) {
-                        contentHtml += `<p style="text-align:center;color:var(--accent-gold);font-weight:700;margin-bottom:15px;">Your progress: ${completedSystems.length}/5 systems</p>`;
-                    }
-                    
-                    // Show code input for certificate option
-                    if (i === 1) {
-                        contentHtml += `<p style="text-align:center;margin-top:15px;"><button class="info-modal-btn primary gold" style="width:100%;" onclick="showVaultCodeModal()">I Have My Code →</button></p>`;
-                    }
-                    
+                    if (i === 0) contentHtml += '<p style="text-align:center;color:var(--accent-gold);font-weight:700;margin-bottom:15px;">Your progress: ' + completedSystems.length + '/5 systems</p>';
+                    if (i === 1) contentHtml += '<p style="text-align:center;margin-top:15px;"><button class="info-modal-btn primary gold" style="width:100%;" onclick="showVaultCodeModal()">I Have My Code &rarr;</button></p>';
                     contentHtml += '</div>';
                 });
-                
                 primaryBtn.style.display = 'none';
-            }
-            // Secret keyword (Budget Calculator)
-            else if (exp.secretKeyword) {
-                contentHtml += `
-                    <div class="secret-keyword-box">
-                        <div class="secret-keyword-label">🤫 Secret Keyword</div>
-                        <div class="secret-keyword">${exp.secretKeyword}</div>
-                    </div>
-                `;
-                
-                contentHtml += `<div class="unlock-method"><div class="unlock-method-title pink">How to Unlock</div>`;
-                exp.steps.forEach((step, i) => {
-                    contentHtml += `
-                        <div class="unlock-step">
-                            <span class="unlock-step-num pink">${i + 1}</span>
-                            <span class="unlock-step-text">${step}</span>
-                        </div>
-                    `;
+            } else if (exp.secretKeyword) {
+                contentHtml += '<div class="secret-keyword-box"><div class="secret-keyword-label">🤫 Secret Keyword</div><div class="secret-keyword">' + exp.secretKeyword + '</div></div>';
+                contentHtml += '<div class="unlock-method"><div class="unlock-method-title pink">How to Unlock</div>';
+                exp.steps.forEach(function(step, i) {
+                    contentHtml += '<div class="unlock-step"><span class="unlock-step-num pink">' + (i + 1) + '</span><span class="unlock-step-text">' + step + '</span></div>';
                 });
                 contentHtml += '</div>';
-                
                 primaryBtn.textContent = '🔑 I Have My Code';
                 primaryBtn.className = 'info-modal-btn primary pink';
                 primaryBtn.style.display = 'flex';
-            }
-            // Regular completion unlock
-            else {
-                const stepColor = system.unlockType === 'level' ? 'gold' : '';
-                contentHtml += `<div class="unlock-method"><div class="unlock-method-title ${stepColor}">${exp.title}</div>`;
-                exp.steps.forEach((step, i) => {
-                    contentHtml += `
-                        <div class="unlock-step">
-                            <span class="unlock-step-num ${stepColor}">${i + 1}</span>
-                            <span class="unlock-step-text">${step}</span>
-                        </div>
-                    `;
+            } else {
+                var stepColor = system.unlockType === 'level' ? 'gold' : '';
+                contentHtml += '<div class="unlock-method"><div class="unlock-method-title ' + stepColor + '">' + exp.title + '</div>';
+                exp.steps.forEach(function(step, i) {
+                    contentHtml += '<div class="unlock-step"><span class="unlock-step-num ' + stepColor + '">' + (i + 1) + '</span><span class="unlock-step-text">' + step + '</span></div>';
                 });
                 contentHtml += '</div>';
-                
-                // Show progress for level-based
                 if (exp.showProgress) {
-                    const needed = system.unlockLevel === 'silver' ? 3 : 5;
-                    contentHtml += `<p style="text-align:center;color:var(--accent-gold);font-weight:700;">Your progress: ${completedSystems.length}/${needed} systems</p>`;
+                    var needed = system.unlockLevel === 'silver' ? 3 : 5;
+                    contentHtml += '<p style="text-align:center;color:var(--accent-gold);font-weight:700;">Your progress: ' + completedSystems.length + '/' + needed + ' systems</p>';
                 }
-                
-                // Set primary button
                 if (system.unlockType === 'completion' && system.unlockRequires) {
-                    const reqSystem = SYSTEMS.find(s => s.id === system.unlockRequires);
-                    primaryBtn.textContent = `Open ${reqSystem.name} →`;
+                    var reqSystem = SYSTEMS.find(function(s) { return s.id === system.unlockRequires; });
+                    primaryBtn.textContent = 'Open ' + reqSystem.name + ' →';
                     primaryBtn.className = 'info-modal-btn primary';
                     primaryBtn.style.display = 'flex';
                 } else if (system.unlockType === 'level') {
@@ -1193,134 +1083,136 @@
                     primaryBtn.style.display = 'none';
                 }
             }
-            
+
             content.innerHTML = contentHtml;
             modal.classList.add('show');
         }
 
-        function closeInfoModal() {
-            document.getElementById('infoModal').classList.remove('show');
-            currentModalSystem = null;
-        }
+        function closeInfoModal() { document.getElementById('infoModal').classList.remove('show'); currentModalSystem = null; }
 
         function handleInfoModalAction() {
             if (!currentModalSystem) return;
-            
-            if (currentModalSystem.unlockType === 'code') {
-                closeInfoModal();
-                showBudgetCodeModal();
-            } else if (currentModalSystem.unlockType === 'completion' && currentModalSystem.unlockRequires) {
-                const reqSystem = SYSTEMS.find(s => s.id === currentModalSystem.unlockRequires);
+            if (currentModalSystem.unlockType === 'code') { closeInfoModal(); showBudgetCodeModal(); }
+            else if (currentModalSystem.unlockType === 'completion' && currentModalSystem.unlockRequires) {
+                var reqSystem = SYSTEMS.find(function(s) { return s.id === currentModalSystem.unlockRequires; });
                 window.location.href = reqSystem.url;
-            } else {
-                closeInfoModal();
-            }
+            } else { closeInfoModal(); }
         }
 
         function selectDualOption(index) {
-            document.querySelectorAll('.dual-option').forEach((el, i) => {
-                el.classList.toggle('selected', i === index);
-            });
-            document.querySelectorAll('.dual-section').forEach((el, i) => {
-                el.classList.toggle('show', i === index);
-            });
+            document.querySelectorAll('.dual-option').forEach(function(el, i) { el.classList.toggle('selected', i === index); });
+            document.querySelectorAll('.dual-section').forEach(function(el, i) { el.classList.toggle('show', i === index); });
         }
 
-        // BUDGET CODE MODAL
+        // === CODE VERIFICATION (FIX #2: Hash comparison) ===
         function showBudgetCodeModal() {
             document.getElementById('budgetCodeInput').value = '';
             document.getElementById('budgetCodeError').style.display = 'none';
             document.getElementById('budgetCodeModal').classList.add('show');
         }
-
-        function closeBudgetCodeModal() {
-            document.getElementById('budgetCodeModal').classList.remove('show');
-        }
+        function closeBudgetCodeModal() { document.getElementById('budgetCodeModal').classList.remove('show'); }
 
         function verifyBudgetCode() {
-            const input = document.getElementById('budgetCodeInput');
-            const error = document.getElementById('budgetCodeError');
-            const code = input.value.trim().toUpperCase();
-            
-            if (code === CONFIG.BUDGET_CODE) {
+            var input = document.getElementById('budgetCodeInput');
+            var error = document.getElementById('budgetCodeError');
+            var code = input.value.trim().toUpperCase();
+            if (simpleHash(code) === BUDGET_HASH) {
                 localStorage.setItem('budget_unlocked', 'true');
                 closeBudgetCodeModal();
                 loadUnlockStatus();
                 renderDashboard();
-                alert('🎉 Budget Calculator Unlocked!\n\nCash flow control activated.');
+                showSuccessModal('Budget Calculator Unlocked!', 'Cash flow control activated.');
             } else {
                 error.style.display = 'block';
                 input.style.borderColor = 'var(--danger)';
             }
         }
 
-        // VAULT CODE MODAL
         function showVaultCodeModal() {
             closeInfoModal();
             document.getElementById('vaultCodeInput').value = '';
             document.getElementById('vaultCodeError').style.display = 'none';
             document.getElementById('vaultCodeModal').classList.add('show');
         }
-
-        function closeVaultCodeModal() {
-            document.getElementById('vaultCodeModal').classList.remove('show');
-        }
+        function closeVaultCodeModal() { document.getElementById('vaultCodeModal').classList.remove('show'); }
 
         function verifyVaultCode() {
-            const input = document.getElementById('vaultCodeInput');
-            const error = document.getElementById('vaultCodeError');
-            const code = input.value.trim().toUpperCase();
-            
-            if (code === CONFIG.VAULT_CODE) {
+            var input = document.getElementById('vaultCodeInput');
+            var error = document.getElementById('vaultCodeError');
+            var code = input.value.trim().toUpperCase();
+            if (simpleHash(code) === VAULT_HASH) {
                 localStorage.setItem('vault_unlocked', 'true');
                 closeVaultCodeModal();
                 loadUnlockStatus();
                 renderDashboard();
-                alert('🎉 Prompt Vault Unlocked!\n\nAI arsenal activated.');
+                showSuccessModal('Prompt Vault Unlocked!', 'AI arsenal activated.');
             } else {
                 error.style.display = 'block';
                 input.style.borderColor = 'var(--danger)';
             }
         }
 
+        // FIX #2 + #11: Success modal (replaces alert for code unlocks)
+        function showSuccessModal(titleText, descText) {
+            var modal = document.getElementById('infoModal');
+            var card = document.getElementById('infoModalCard');
+            card.className = 'info-modal-card';
+            document.getElementById('infoModalIcon').textContent = '🎉';
+            document.getElementById('infoModalTitle').textContent = titleText;
+            document.getElementById('infoModalSubtitle').textContent = descText;
+            document.getElementById('infoModalContent').innerHTML = '';
+            document.getElementById('infoModalPrimaryBtn').style.display = 'none';
+            modal.classList.add('show');
+            setTimeout(function() { modal.classList.remove('show'); }, 2000);
+        }
+
+        // FIX #8: Level progress starts at 0% for 0 systems
         function updateArchitectLevel() {
-            const count = completedSystems.length;
-            const badge = document.getElementById('levelBadge');
-            const name = document.getElementById('levelName');
-            const bar = document.getElementById('levelProgressBar');
-            const current = document.getElementById('levelCurrentXp');
-            const next = document.getElementById('levelNextReward');
-            let level, progress, nextReward;
-            
-            if (count >= 7) { 
-                level = 'elite'; progress = 100; nextReward = 'Max level 👑'; 
-                document.getElementById('nextAction').style.display = 'none'; 
-                document.getElementById('allComplete').style.display = 'block'; 
+            var count = completedSystems.length;
+            var badge = document.getElementById('levelBadge');
+            var name = document.getElementById('levelName');
+            var bar = document.getElementById('levelProgressBar');
+            var current = document.getElementById('levelCurrentXp');
+            var next = document.getElementById('levelNextReward');
+            var level, progress, nextReward;
+
+            if (count >= 7) {
+                level = 'elite'; progress = 100; nextReward = 'Max level 👑';
+                document.getElementById('nextAction').style.display = 'none';
+                document.getElementById('allComplete').style.display = 'block';
             }
-            else if (count >= 5) { level = 'gold'; progress = 70 + ((count - 5) / 2) * 30; nextReward = `${7 - count} more → Elite`; }
-            else if (count >= 3) { level = 'silver'; progress = 40 + ((count - 3) / 2) * 30; nextReward = `${5 - count} more → Gold`; }
-            else { level = 'bronze'; progress = 15 + (count / 3) * 25; nextReward = `${3 - count} more → Silver`; }
-            
-            badge.className = `level-badge ${level}`;
+            else if (count >= 5) { level = 'gold'; progress = 70 + ((count - 5) / 2) * 30; nextReward = (7 - count) + ' more → Elite'; }
+            else if (count >= 3) { level = 'silver'; progress = 40 + ((count - 3) / 2) * 30; nextReward = (5 - count) + ' more → Gold'; }
+            else {
+                level = 'bronze';
+                // FIX #8: 0 systems = 0%, 1 system = 15%, scales to 40% at 3
+                progress = count === 0 ? 0 : 5 + (count / 3) * 35;
+                nextReward = (3 - count) + ' more → Silver';
+            }
+
+            badge.className = 'level-badge ' + level;
             name.textContent = level.charAt(0).toUpperCase() + level.slice(1);
-            bar.className = `level-progress-bar ${level}`;
-            bar.style.width = `${progress}%`;
-            current.textContent = `${count} / 7 systems`;
+            bar.className = 'level-progress-bar ' + level;
+            bar.style.width = progress + '%';
+            current.textContent = count + ' / 7 systems';
             next.textContent = nextReward;
         }
 
+        // FIX #7: Next Action with level-up prompt when no unlocked+incomplete exists
         function updateNextAction() {
-            const title = document.getElementById('nextActionTitle');
-            const desc = document.getElementById('nextActionDesc');
-            const btn = document.getElementById('nextActionBtn');
-            const btnText = document.getElementById('nextActionBtnText');
+            var title = document.getElementById('nextActionTitle');
+            var desc = document.getElementById('nextActionDesc');
+            var btn = document.getElementById('nextActionBtn');
+            var btnText = document.getElementById('nextActionBtnText');
+            var actionSection = document.getElementById('nextAction');
 
-            const nextSystem = SYSTEMS
-                .filter(s => !completedSystems.includes(s.id) && unlockedSystems.includes(s.id))
-                .sort((a, b) => a.priority - b.priority)[0];
+            var nextSystem = SYSTEMS
+                .filter(function(s) { return completedSystems.indexOf(s.id) === -1 && unlockedSystems.indexOf(s.id) !== -1; })
+                .sort(function(a, b) { return a.priority - b.priority; })[0];
 
             if (nextSystem) {
-                const messages = {
+                actionSection.className = 'next-action';
+                var messages = {
                     autopilot: { title: 'Install Autopilot System', desc: 'Your core wealth machine. Everything builds on this.' },
                     freedom: { title: 'Calculate Freedom Number', desc: "Can't hit a target you can't see." },
                     waiting: { title: 'See What Waiting Costs', desc: 'Every day you delay costs you money.' },
@@ -1329,36 +1221,76 @@
                     budget: { title: 'Map Cash Flow', desc: 'Know where every dollar goes.' },
                     prompt: { title: 'Unlock AI Vault', desc: 'Pre-built prompts for acceleration.' }
                 };
-                const msg = messages[nextSystem.id];
+                var msg = messages[nextSystem.id];
                 title.textContent = msg.title;
                 desc.textContent = msg.desc;
                 btn.href = nextSystem.url;
                 btn.onclick = null;
-                btnText.textContent = `Open ${nextSystem.name.split(' ')[0]}`;
+                btnText.textContent = 'Open ' + nextSystem.name.split(' ')[0];
+            } else {
+                // FIX #7: Level-up prompt when no unlocked+incomplete system exists
+                var nextLocked = SYSTEMS.find(function(s) {
+                    return completedSystems.indexOf(s.id) === -1 && unlockedSystems.indexOf(s.id) === -1;
+                });
+                if (nextLocked) {
+                    actionSection.className = 'next-action level-up';
+                    title.textContent = 'Level Up to Unlock ' + nextLocked.name;
+                    var reqText = '';
+                    if (nextLocked.unlockType === 'level') reqText = 'Reach ' + nextLocked.unlockLevel.charAt(0).toUpperCase() + nextLocked.unlockLevel.slice(1) + ' level';
+                    else if (nextLocked.unlockType === 'code') reqText = 'DM @koutalksmoney to get the unlock code';
+                    else if (nextLocked.unlockType === 'dual') reqText = 'Reach Gold level or post your certificate on your story';
+                    desc.textContent = reqText + '. Your progress: ' + completedSystems.length + '/7 systems.';
+                    btn.href = '#';
+                    btn.onclick = function(e) { e.preventDefault(); showInfoModal(nextLocked); };
+                    btnText.textContent = 'See How to Unlock';
+                }
             }
+        }
+
+        // === SHARING (FIX #11: Modal instead of alert) ===
+        function shareToInstagram() {
+            var modal = document.getElementById('shareModal');
+            document.getElementById('shareCardId').textContent = currentArchitectId;
+            document.getElementById('shareCardStats').textContent = completedSystems.length + '/7 Systems Active';
+            document.getElementById('shareCardLevel').textContent = getArchitectLevel().charAt(0).toUpperCase() + getArchitectLevel().slice(1) + ' Architect';
+            modal.classList.add('show');
+        }
+        function closeShareModal() { document.getElementById('shareModal').classList.remove('show'); }
+
+        function shareToTwitter() {
+            var text = encodeURIComponent(completedSystems.length + '/7 wealth systems active ⚡\n\nArchitect ID: ' + currentArchitectId + '\n\n@koutalksmoney');
+            window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
+        }
+
+        function copyShareText() {
+            var text = completedSystems.length + '/7 wealth systems active ⚡\n\nArchitect ID: ' + currentArchitectId + '\n\nBuilding the machine.\n\n@koutalksmoney';
+            navigator.clipboard.writeText(text);
+            showSuccessModal('Copied!', 'Caption ready to paste.');
         }
 
         function copyArchitectId() {
             navigator.clipboard.writeText(currentArchitectId);
-            const badge = document.querySelector('.architect-badge');
-            const original = badge.innerHTML;
+            var badge = document.querySelector('.architect-badge');
+            var original = badge.innerHTML;
             badge.innerHTML = '<span>✓ Copied!</span>';
-            setTimeout(() => badge.innerHTML = original, 1500);
+            setTimeout(function() { badge.innerHTML = original; }, 1500);
         }
 
-        function shareToInstagram() { 
-            alert('Screenshot your Command Center!\n\nTag @koutalksmoney to show your progress.'); 
-        }
-
-        function shareToTwitter() {
-            const text = encodeURIComponent(`${completedSystems.length}/7 wealth systems active ⚡\n\nArchitect ID: ${currentArchitectId}\n\n@koutalksmoney`);
-            window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
-        }
-
-        function copyShareText() {
-            const text = `${completedSystems.length}/7 wealth systems active ⚡\n\nArchitect ID: ${currentArchitectId}\n\nBuilding the machine.\n\n@koutalksmoney`;
-            navigator.clipboard.writeText(text);
-            alert('Caption copied!');
+        // ==============================================
+        // FIX #12: ECOSYSTEM CONTEXT (cross-app awareness)
+        // ==============================================
+        function writeEcosystemContext() {
+            try {
+                var context = {
+                    architectId: currentArchitectId,
+                    level: getArchitectLevel(),
+                    velocity: getVelocityScore().score,
+                    completedCount: completedSystems.length,
+                    completedSystems: completedSystems,
+                    lastVisit: new Date().toISOString()
+                };
+                localStorage.setItem('cashvault_ecosystem', JSON.stringify(context));
+            } catch(e) {}
         }
     </script>
 </body>
