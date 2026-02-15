@@ -468,70 +468,17 @@
                     &darr; Enter your email. Your 70/20/10 blueprint loads instantly.
                 </p>
 
-                <!-- BEEHIIV EMBED (FIX #3: With async script + redirect handler) -->
+                <!-- BEEHIIV EMBED (correct embed code + modal-gated redirect) -->
                 <div class="flex justify-center pb-2">
-                    <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
                     <iframe id="beehiivFrame"
                             src="https://subscribe-forms.beehiiv.com/90d138cb-47b1-4e1c-a5e2-ffd2119b2021" 
                             class="beehiiv-embed" 
                             data-test-id="beehiiv-embed" 
                             frameborder="0" 
                             scrolling="no" 
-                            style="width: 100%; max-width: 400px; height: 320px; margin: 0; border-radius: 16px; background-color: transparent;"></iframe>
+                            style="width: 400px; height: 283px; margin: 0; border-radius: 16px 16px 16px 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
                 </div>
-
-                <!-- BEEHIIV REDIRECT HANDLER (FIX #3) -->
-                <script>
-                (function() {
-                    const REDIRECT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/Kous-Budget-Calculator.html';
-                    let hasRedirected = false;
-
-                    function doRedirect() {
-                        if (hasRedirected) return;
-                        hasRedirected = true;
-                        try {
-                            localStorage.setItem('eightclub_completed', 'true');
-                            localStorage.setItem('eightclub_email', 'true');
-                        } catch(e) {}
-                        window.top.location.href = REDIRECT_URL;
-                    }
-
-                    window.addEventListener('message', function(event) {
-                        if (event.origin && event.origin.includes('beehiiv.com')) {
-                            const data = event.data;
-                            if (typeof data === 'string') {
-                                if (data.includes('subscribed') || data.includes('success') || data.includes('confirmed')) {
-                                    doRedirect();
-                                }
-                            }
-                            if (typeof data === 'object' && data !== null) {
-                                if (data.type === 'beehiiv:subscribe:success' || 
-                                    data.event === 'subscribed' || 
-                                    data.subscribed === true ||
-                                    data.type === 'subscribe_success') {
-                                    doRedirect();
-                                }
-                            }
-                        }
-                    });
-
-                    const iframe = document.getElementById('beehiivFrame');
-                    if (iframe) {
-                        let initialHeight = iframe.style.height;
-                        const heightObserver = new MutationObserver(function(mutations) {
-                            mutations.forEach(function(mutation) {
-                                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                                    const newHeight = iframe.style.height;
-                                    if (newHeight !== initialHeight && initialHeight) {
-                                        setTimeout(doRedirect, 1500);
-                                    }
-                                }
-                            });
-                        });
-                        heightObserver.observe(iframe, { attributes: true, attributeFilter: ['style', 'height'] });
-                    }
-                })();
-                </script>
+                <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
 
                 <!-- "Already submitted?" fallback -->
                 <div class="text-center mt-2 pb-2">
@@ -685,6 +632,10 @@
                 // ===========================
                 // INIT
                 // ===========================
+                _redirectHandler: null,
+                _heightObserver: null,
+                _hasRedirected: false,
+
                 init() {
                     const hasSaved = this.loadProgress();
                     
@@ -695,6 +646,84 @@
                         this.previousStatus = this.statusText;
                         // If they already hit 100%+, don't re-trigger celebration
                         if (this.progress >= 100) this.celebrated = true;
+                    }
+
+                    // MODAL-GATED REDIRECT: Only activate when modal is open
+                    this.$watch('showModal', (isOpen) => {
+                        if (isOpen) {
+                            this.activateRedirectHandler();
+                            // Start fallback link timer
+                            this.showFallbackLink = false;
+                            this._fallbackTimer = setTimeout(() => { this.showFallbackLink = true; }, 15000);
+                        } else {
+                            this.deactivateRedirectHandler();
+                            clearTimeout(this._fallbackTimer);
+                        }
+                    });
+                },
+
+                doBeehiivRedirect() {
+                    if (this._hasRedirected) return;
+                    this._hasRedirected = true;
+                    try {
+                        localStorage.setItem('eightclub_completed', 'true');
+                        localStorage.setItem('eightclub_email', 'true');
+                    } catch(e) {}
+                    window.top.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/Kous-Budget-Calculator.html';
+                },
+
+                activateRedirectHandler() {
+                    const self = this;
+
+                    // Method 1: postMessage listener
+                    this._redirectHandler = function(event) {
+                        if (!self.showModal) return; // Guard: only when modal is open
+                        if (event.origin && event.origin.includes('beehiiv.com')) {
+                            const data = event.data;
+                            if (typeof data === 'string') {
+                                if (data.includes('subscribed') || data.includes('success') || data.includes('confirmed')) {
+                                    self.doBeehiivRedirect();
+                                }
+                            }
+                            if (typeof data === 'object' && data !== null) {
+                                if (data.type === 'beehiiv:subscribe:success' || 
+                                    data.event === 'subscribed' || 
+                                    data.subscribed === true ||
+                                    data.type === 'subscribe_success') {
+                                    self.doBeehiivRedirect();
+                                }
+                            }
+                        }
+                    };
+                    window.addEventListener('message', this._redirectHandler);
+
+                    // Method 2: iframe height change observer (only when modal is open)
+                    const iframe = document.getElementById('beehiivFrame');
+                    if (iframe) {
+                        const initialHeight = iframe.style.height;
+                        this._heightObserver = new MutationObserver(function(mutations) {
+                            if (!self.showModal) return; // Guard: only when modal is open
+                            mutations.forEach(function(mutation) {
+                                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                                    const newHeight = iframe.style.height;
+                                    if (newHeight !== initialHeight && initialHeight) {
+                                        setTimeout(function() { self.doBeehiivRedirect(); }, 1500);
+                                    }
+                                }
+                            });
+                        });
+                        this._heightObserver.observe(iframe, { attributes: true, attributeFilter: ['style', 'height'] });
+                    }
+                },
+
+                deactivateRedirectHandler() {
+                    if (this._redirectHandler) {
+                        window.removeEventListener('message', this._redirectHandler);
+                        this._redirectHandler = null;
+                    }
+                    if (this._heightObserver) {
+                        this._heightObserver.disconnect();
+                        this._heightObserver = null;
                     }
                 },
 
