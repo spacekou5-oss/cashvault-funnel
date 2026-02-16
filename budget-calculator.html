@@ -396,7 +396,7 @@
                         <div class="gate-beehiiv">
                             <iframe id="beehiivFrame" src="https://subscribe-forms.beehiiv.com/e01f8d58-517b-4b46-afbf-78c51d559c90" scrolling="no"></iframe>
                         </div>
-                        <button class="gate-skip" id="gateSkip" onclick="window.location.href='budget-bridge.html'">Already submitted? Click here</button>
+                        <button class="gate-skip" id="gateSkip" onclick="window.location.href='bridge-budget.html'">Already submitted? Click here</button>
                     </div>
                     <div class="dash-preview" id="dashPreview">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -526,7 +526,7 @@
     // 1. CONSTANTS & SYSTEM DATA
     // =========================================
     var AUTOPILOT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html';
-    var BRIDGE_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/budget-bridge.html';
+    var BRIDGE_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/bridge-budget.html';
 
     var SYSTEMS = {
         '50-30-20': {
@@ -651,7 +651,7 @@
     // RETURNING USER CHECK
     // Returns true ONLY if user already completed
     // THIS app's email gate (via bridge page).
-    // budget_unlocked is set by budget-bridge.html
+    // budget_unlocked is set by bridge-budget.html
     // when the user lands there after email submit.
     // =========================================
     function isReturningUser() {
@@ -845,15 +845,22 @@
 
     // =========================================
     // 10. REVEAL + GATE
-    // REMOVED: Upstream email auto-skip.
-    // 800-Club users are NEW to Budget Calculator.
-    // They must sign up on this app's Beehiiv form
-    // for proper segmentation. Only budget_unlocked
-    // (set by bridge page) marks returning users.
+    // =========================================
+    // Gate skip logic:
+    // - Returning users (budget_unlocked): skip gate
+    // - 800-Club upstream users (eightclub_email): skip gate
+    //   to reduce friction. They already gave email upstream.
+    //   Sets budget_unlocked so future visits also skip.
+    // - All other new users: see Beehiiv email gate.
     // =========================================
     function showReveal() {
-        // RETURNING users skip gate entirely and go to dashboard
-        if (isReturningUser()) {
+        // RETURNING users OR 800-Club upstream users skip gate
+        if (isReturningUser() || isFrom800Club()) {
+            if (isFrom800Club() && !isReturningUser()) {
+                // First time 800-Club user completing quiz:
+                // set unlock flag so they never see gate again
+                try { localStorage.setItem('budget_unlocked', 'true'); } catch(e) {}
+            }
             state.isUnlocked = true;
             renderDashboard();
             showSection('s-dashboard');
@@ -862,7 +869,7 @@
             return;
         }
 
-        // ALL new users (including 800-Club) see the gate
+        // All other new users see the gate
         var sys = SYSTEMS[state.selectedSystem];
         $('revealArchetype').textContent = sys.archetype;
         $('revealSystem').textContent = sys.title;
@@ -1107,12 +1114,10 @@
 
     // =========================================
     // 18. INITIALIZATION
-    // REMOVED: Upstream email auto-unlock.
-    // 800-Club users are NEW to Budget Calculator.
-    // They must take the quiz AND sign up on this
-    // app's Beehiiv form for proper segmentation.
-    // Only budget_unlocked (set by bridge page
-    // after email submit) marks returning users.
+    // 800-Club upstream users skip the email gate
+    // (they already gave email on 800-Club). Quiz still
+    // runs. Gate is bypassed. budget_unlocked is set
+    // so subsequent visits also skip.
     // =========================================
     (function init() {
         var quizDone = localStorage.getItem('budget_quiz_completed') === 'true';
@@ -1148,11 +1153,18 @@
         if (state.income > 0) { $('incomeInput').value = state.income; if (autopilotImported) $('incomeImported').style.display = 'inline-block'; }
         if (state.incomePeriod === 'annual') { $('btnAnnual').classList.add('active'); $('btnMonthly').classList.remove('active'); }
 
-        // Personalize for 800-Club upstream users (gate still blocks)
+        // Personalize for 800-Club upstream users
         personalizeForUpstream();
 
         // Route to correct section
         if (quizDone && isUnlocked) {
+            state.isUnlocked = true;
+            renderDashboard();
+            showSection('s-dashboard');
+        } else if (quizDone && !isUnlocked && isFrom800Club()) {
+            // 800-Club user completed quiz but closed before gate:
+            // skip gate, set unlock flag, go to dashboard
+            try { localStorage.setItem('budget_unlocked', 'true'); } catch(e) {}
             state.isUnlocked = true;
             renderDashboard();
             showSection('s-dashboard');
