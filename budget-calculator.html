@@ -222,16 +222,16 @@
         /* ============================== */
         .gate-wrapper{
             position:relative;
-            min-height:480px; /* was 300px, increased for iframe room */
+            min-height:480px;
         }
         .gate-overlay{
             position:absolute;inset:0;z-index:20;
             display:flex;flex-direction:column;align-items:center;
-            justify-content:flex-start; /* was center, changed to prevent vertical squeeze */
+            justify-content:flex-start;
             padding:28px 24px 24px;
             background:linear-gradient(180deg,rgba(15,17,23,0.4) 0%,rgba(15,17,23,0.97) 30%);
             transition:opacity 0.5s ease,transform 0.5s ease;
-            overflow-y:auto; /* allow scroll if content overflows on tiny screens */
+            overflow-y:auto;
             -webkit-overflow-scrolling:touch;
         }
         .gate-overlay.hidden-gate{opacity:0;transform:translateY(-10px);pointer-events:none;}
@@ -253,9 +253,9 @@
         }
         .gate-beehiiv iframe{
             width:100%;
-            height:52vh;       /* responsive viewport height */
-            min-height:380px;  /* absolute minimum so form is never cut */
-            max-height:500px;  /* cap so it doesn't go wild on tall screens */
+            height:52vh;
+            min-height:380px;
+            max-height:500px;
             border:none;
             border-radius:12px;
             background:transparent;
@@ -585,7 +585,6 @@
             border-top:1px solid var(--border-light);
         }
         .footer-privacy{font-size:0.7rem;color:var(--text-muted);margin-bottom:12px;line-height:1.5;}
-        /* Social bar in footer */
         .footer-social{
             display:flex;justify-content:center;align-items:center;gap:20px;
             margin-bottom:14px;flex-wrap:wrap;
@@ -617,7 +616,6 @@
             .id-card{padding:18px;}
             .id-card-archetype{font-size:0.95rem;}
             .card-actions{flex-direction:column;align-items:stretch;}
-            /* Beehiiv iframe mobile fix */
             .gate-beehiiv iframe{
                 min-height:360px;
                 height:56vh;
@@ -806,11 +804,6 @@
             </section>
         </main>
 
-        <!-- ============================== -->
-        <!-- FIX #3: STRATEGIC FOOTER       -->
-        <!-- Social handles moved here with -->
-        <!-- conversion-oriented framing    -->
-        <!-- ============================== -->
         <footer class="footer">
             <div class="footer-privacy">Your data stays on your device. Nothing is sent to our servers.</div>
             <div class="footer-social">
@@ -836,18 +829,6 @@
     // 1. CONSTANTS & SYSTEM DATA
     // =========================================
     var AUTOPILOT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html';
-
-    // =========================================
-    // FIX #2: OPTIMIZED SYSTEMS
-    // =========================================
-    // Changes made:
-    // - Sharpened differentiation between 80/20 and Pay Yourself First
-    //   (80/20 = anti-budget for people who want ZERO mental load,
-    //    PYF = automation-first for people who want wealth on autopilot)
-    // - Adjusted Envelope to 50/30/15/5 structure (more realistic allocation)
-    // - Tightened descriptions to be anti-wallpaper
-    // - Made Wealth Builder more aggressive (30% invest) to separate from PYF
-    // =========================================
 
     var SYSTEMS = {
         '50-30-20': {
@@ -921,8 +902,6 @@
     // =========================================
     // 2. QUIZ QUESTIONS (6)
     // =========================================
-    // FIX #2 continued: Tightened scoring weights to reduce ties
-    // and better differentiate 80/20 vs PYF routing
     var QUESTIONS = [
         {
             text: 'What is your #1 money goal for the next 12 months?',
@@ -996,7 +975,7 @@
         income: 0,
         incomePeriod: 'monthly',
         isUnlocked: false,
-        envelopeOverrides: null  // { 0: 1500, 1: 450, ... } custom dollar amounts per segment index
+        envelopeOverrides: null
     };
 
     // =========================================
@@ -1017,6 +996,17 @@
     }
     function getMonthly() {
         return state.incomePeriod === 'annual' ? state.income / 12 : state.income;
+    }
+
+    // =========================================
+    // UPSTREAM EMAIL CHECK HELPER
+    // Returns true if user already gave email
+    // via 800-Club (the upstream app for Budget Calc)
+    // =========================================
+    function hasUpstreamEmail() {
+        try {
+            return localStorage.getItem('eightclub_email') === 'true';
+        } catch(e) { return false; }
     }
 
     // =========================================
@@ -1146,6 +1136,22 @@
     // 10. REVEAL + GATE
     // =========================================
     function showReveal() {
+        // ==========================================
+        // PATCH: UPSTREAM EMAIL SKIP
+        // If user already gave email via 800-Club,
+        // skip the gate entirely and go to dashboard.
+        // ==========================================
+        if (hasUpstreamEmail()) {
+            localStorage.setItem('budget_unlocked', 'true');
+            localStorage.setItem('budget_completed', 'true');
+            state.isUnlocked = true;
+            renderDashboard();
+            showSection('s-dashboard');
+            var banner = $('dashBanner');
+            if (banner) { banner.classList.add('visible'); }
+            return;
+        }
+
         var sys = SYSTEMS[state.selectedSystem];
         $('revealArchetype').textContent = sys.archetype;
         $('revealSystem').textContent = sys.title;
@@ -1248,8 +1254,6 @@
     // =========================================
     // 13. CSS DOUGHNUT CHART + LEGEND
     // =========================================
-
-    // Initialize envelope overrides for EDITABLE segments only
     function initEnvelopeDefaults() {
         var sys = SYSTEMS['envelope'];
         var monthly = getMonthly();
@@ -1267,7 +1271,6 @@
         }
     }
 
-    // Get total of ALL envelope amounts (editable overrides + locked percentages)
     function getEnvelopeTotal() {
         var sys = SYSTEMS['envelope'];
         var monthly = getMonthly();
@@ -1302,7 +1305,6 @@
         var monthly = getMonthly();
         var total = getEnvelopeTotal();
 
-        // Build conic gradient: editable from overrides, locked from percentages
         var stops = [];
         var cum = 0;
         sys.segments.forEach(function(seg, i) {
@@ -1316,7 +1318,6 @@
             stops.push(seg.color + ' ' + cum + '% ' + (cum + pct) + '%');
             cum += pct;
         });
-        // Fill remaining with dark if under 100%
         if (cum < 100) {
             stops.push('rgba(100,116,139,0.2) ' + cum + '% 100%');
         }
@@ -1351,7 +1352,7 @@
         if (monthly <= 0) return;
         var sys = SYSTEMS['envelope'];
         sys.segments.forEach(function(seg, i) {
-            if (!seg.editable) return; // skip locked segments
+            if (!seg.editable) return;
             var badge = document.getElementById('envPct_' + i);
             var input = document.getElementById('envInput_' + i);
             if (!badge || !input) return;
@@ -1377,20 +1378,15 @@
 
         var isEnvelope = state.selectedSystem === 'envelope';
 
-        // ---- ENVELOPE SYSTEM: mixed editable + locked ----
         if (isEnvelope && monthly > 0) {
             initEnvelopeDefaults();
-
-            // Build doughnut from overrides (editable) + percentages (locked)
             updateEnvelopeDoughnut();
 
-            // Build legend: editable inputs for editable segments, static for locked
             legend.innerHTML = '';
             sys.segments.forEach(function(seg, i) {
                 var el = document.createElement('div');
 
                 if (seg.editable) {
-                    // EDITABLE: dollar input + live percentage badge
                     var amt = state.envelopeOverrides[i] || 0;
                     var pct = Math.round((amt / monthly) * 100);
                     el.className = 'doughnut-legend-item editable';
@@ -1406,7 +1402,6 @@
                         '</div>';
                     legend.appendChild(el);
 
-                    // Attach handler after DOM insert
                     (function(idx) {
                         setTimeout(function() {
                             var inp = document.getElementById('envInput_' + idx);
@@ -1418,7 +1413,6 @@
                         }, 0);
                     })(i);
                 } else {
-                    // LOCKED: static dual-format display (dollar + locked percentage)
                     var lockedAmt = Math.round(monthly * seg.pct / 100);
                     el.className = 'doughnut-legend-item';
                     el.innerHTML =
@@ -1431,13 +1425,11 @@
                 }
             });
 
-            // Unallocated indicator
             var unalloc = document.createElement('div');
             unalloc.id = 'envelopeUnallocated';
             legend.appendChild(unalloc);
             updateEnvelopeUnallocated();
 
-            // Hint text
             var hint = document.createElement('div');
             hint.className = 'envelope-hint';
             hint.textContent = 'Edit Fixed Expenses and Groceries. Other categories are locked percentages.';
@@ -1446,14 +1438,10 @@
             return;
         }
 
-        // ---- ALL OTHER SYSTEMS (or envelope with no income) ----
-
-        // Reset envelope overrides when switching away
         if (!isEnvelope) {
             state.envelopeOverrides = null;
         }
 
-        // Build conic gradient from percentages
         var stops = [];
         var cum = 0;
         sys.segments.forEach(function(seg) {
@@ -1462,7 +1450,6 @@
         });
         ring.style.background = 'conic-gradient(' + stops.join(', ') + ')';
 
-        // Center text
         if (monthly > 0) {
             centerVal.textContent = fmt(monthly);
             centerLbl.textContent = 'Monthly';
@@ -1471,7 +1458,6 @@
             centerLbl.textContent = sys.title;
         }
 
-        // Legend with dual format: "$X,XXX (50%)" when income entered
         legend.innerHTML = '';
         sys.segments.forEach(function(seg) {
             var el = document.createElement('div');
@@ -1523,7 +1509,6 @@
         $('cardArchetype').textContent = sys.archetype;
 
         if (isEnvelope && state.envelopeOverrides) {
-            // Show actual percentages on card (custom for editable, fixed for locked)
             var pcts = sys.segments.map(function(seg, i) {
                 if (seg.editable && state.envelopeOverrides[i] !== undefined) {
                     return Math.round((state.envelopeOverrides[i] / monthly) * 100) + '%';
@@ -1606,7 +1591,6 @@
         var val = parseFloat(e.target.value);
         state.income = isNaN(val) ? 0 : val;
         localStorage.setItem('budget_income', state.income.toString());
-        // Reset envelope overrides so they recalculate from new income defaults
         state.envelopeOverrides = null;
         localStorage.removeItem('budget_envelope_overrides');
         updateChartAndLegend();
@@ -1619,7 +1603,6 @@
         localStorage.setItem('budget_income_period', p);
         $('btnMonthly').classList.toggle('active', p === 'monthly');
         $('btnAnnual').classList.toggle('active', p === 'annual');
-        // Reset envelope overrides since base amount changed
         state.envelopeOverrides = null;
         localStorage.removeItem('budget_envelope_overrides');
         updateChartAndLegend();
@@ -1699,6 +1682,17 @@
         if (state.incomePeriod === 'annual') {
             $('btnAnnual').classList.add('active');
             $('btnMonthly').classList.remove('active');
+        }
+
+        // ==========================================
+        // PATCH: UPSTREAM EMAIL SKIP (init routing)
+        // If user completed quiz AND has 800-Club
+        // email, auto-unlock without showing gate.
+        // ==========================================
+        if (hasUpstreamEmail() && quizDone && !isUnlocked) {
+            localStorage.setItem('budget_unlocked', 'true');
+            localStorage.setItem('budget_completed', 'true');
+            isUnlocked = true;
         }
 
         // Route to correct section
