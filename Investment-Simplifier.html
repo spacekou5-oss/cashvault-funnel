@@ -1291,6 +1291,33 @@
             if (costOfInactionInterval) { cancelAnimationFrame(costOfInactionInterval); costOfInactionInterval = null; }
         }
 
+        // === UPSTREAM WELCOME-BACK PERSONALIZATION ===
+        // Detects users arriving from Freedom Calculator or Cost of Waiting.
+        // Swaps Welcome Gate copy to acknowledge their journey and frame Investment Simplifier as Step 2.
+        // Gate still requires email signup. This is purely psychological: continuity > cold start.
+        function personalizeWelcomeGate() {
+            const fromFreedom = localStorage.getItem('freedom_email') === 'true';
+            const fromCostOfWaiting = localStorage.getItem('cost_of_waiting_email') === 'true';
+            if (!fromFreedom && !fromCostOfWaiting) return;
+
+            const badge = document.querySelector('.welcome-badge span');
+            const title = document.querySelector('.welcome-title');
+            const subtitle = document.querySelector('.welcome-subtitle');
+            const btn = document.querySelector('.welcome-btn');
+
+            if (fromFreedom) {
+                badge.textContent = 'Step 2 of 2 \u2022 Welcome Back';
+                title.innerHTML = 'You Know Your Number.<br>Now Build the Machine.';
+                subtitle.textContent = 'Your Freedom Number showed you the destination. This builds the portfolio that gets you there. 60 seconds. Exact tickers. Exact percentages.';
+                btn.textContent = 'Build My Portfolio \u2192';
+            } else if (fromCostOfWaiting) {
+                badge.textContent = 'Step 2 of 2 \u2022 Welcome Back';
+                title.innerHTML = 'You Saw What Waiting Costs.<br>Now Stop the Bleeding.';
+                subtitle.textContent = 'Every day without a portfolio is money evaporating. This gives you the exact ETFs, percentages, and a 30-year projection in 60 seconds.';
+                btn.textContent = 'Build My Portfolio Now \u2192';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             portfolioId = generatePortfolioId();
             initGeoSocialProof();
@@ -1305,6 +1332,10 @@
             // Freedom Calc and Cost of Waiting users are NEW to Investment Simplifier.
             // They must sign up on this app's Beehiiv form for proper segmentation.
             // Only investmentSimplifier_bridge_email (set by THIS app's form) unlocks the gate.
+
+            // UPSTREAM WELCOME-BACK: Personalize the Welcome Gate for users arriving from other apps.
+            // Gate still blocks. Email still captures. But the copy acknowledges their journey.
+            personalizeWelcomeGate();
             
             const savedState = checkSavedState();
             if (savedState) {
