@@ -1293,20 +1293,10 @@
             initGeoSocialProof();
             setupEmailUnlockListener();
             
-            // Check if already unlocked (direct bridge email)
+            // Check if already unlocked
             const bridgeEmail = localStorage.getItem('investmentSimplifier_bridge_email');
             if (bridgeEmail) {
                 unlockPortfolio();
-            }
-
-            // UPSTREAM EMAIL SKIP: User already gave email via Freedom Calculator or Cost of Waiting
-            // No need to gate them again. Auto-unlock.
-            if (!bridgeEmail) {
-                const upstreamEmail = localStorage.getItem('freedom_email') || localStorage.getItem('cost_of_waiting_email');
-                if (upstreamEmail) {
-                    localStorage.setItem('investmentSimplifier_bridge_email', 'true');
-                    unlockPortfolio();
-                }
             }
             
             // Check for saved state (OPTIMIZATION: Progress Persistence)
