@@ -59,6 +59,15 @@
         .reinforcement p { font-size: 0.9rem; color: var(--accent-green); font-weight: 600; }
         .reinforcement .subtext { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; margin-top: 4px; }
 
+        /* Upstream Badge */
+        .upstream-badge {
+            display: none; margin: 0 auto 16px; padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.08));
+            border: 1px solid rgba(99,102,241,0.3); border-radius: 20px;
+            font-size: 0.8rem; font-weight: 600; color: var(--accent-indigo);
+            width: fit-content; animation: fadeInUp 0.5s ease-out;
+        }
+
         /* Portfolio Card */
         .portfolio-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 32px; margin-bottom: 24px; animation: fadeInUp 0.6s ease-out 0.1s backwards; }
         .portfolio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-subtle); }
@@ -262,8 +271,10 @@
             <div class="success-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
             </div>
-            <h1>Portfolio Unlocked</h1>
-            <p>Your personalized ETF allocation is ready.</p>
+            <!-- Upstream Badge: visible only for Freedom Calc / Cost of Waiting users -->
+            <div class="upstream-badge" id="upstreamBadge"></div>
+            <h1 id="bridgeHeadline">Portfolio Unlocked</h1>
+            <p id="bridgeSubline">Your personalized ETF allocation is ready.</p>
             <div class="reinforcement">
                 <p id="reinforcement-text">You just did what 90% of people never do: built an actual plan.</p>
                 <p class="subtext" id="reinforcement-sub"></p>
@@ -511,10 +522,42 @@
             return null;
         }
 
+        // =========================================
+        // UPSTREAM PERSONALIZATION
+        // Detects Freedom Calculator or Cost of Waiting users.
+        // Swaps header copy to acknowledge their journey.
+        // Read-only. Touches zero data, zero flags, zero gate logic.
+        // =========================================
+        function personalizeForUpstream() {
+            var fromFreedom = false;
+            var fromCostOfWaiting = false;
+            try { fromFreedom = localStorage.getItem('freedom_email') === 'true'; } catch(e) {}
+            try { fromCostOfWaiting = localStorage.getItem('cost_of_waiting_email') === 'true'; } catch(e) {}
+            if (!fromFreedom && !fromCostOfWaiting) return;
+
+            var badge = document.getElementById('upstreamBadge');
+            var headline = document.getElementById('bridgeHeadline');
+            var subline = document.getElementById('bridgeSubline');
+            var reinforcement = document.getElementById('reinforcement-text');
+
+            if (fromFreedom) {
+                if (badge) { badge.style.display = 'block'; badge.textContent = 'Phase 2 Complete \u2022 Freedom Number + Portfolio Built'; }
+                if (headline) { headline.textContent = 'Freedom Number Mapped. Portfolio Built.'; }
+                if (subline) { subline.textContent = 'You calculated the destination. Now you have the vehicle. Both phases done.'; }
+                if (reinforcement) { reinforcement.textContent = 'Most people guess. You calculated your Freedom Number AND built the portfolio to hit it.'; }
+            } else if (fromCostOfWaiting) {
+                if (badge) { badge.style.display = 'block'; badge.textContent = 'Phase 2 Complete \u2022 The Bleeding Stopped'; }
+                if (headline) { headline.textContent = 'The Leak is Plugged. Portfolio Live.'; }
+                if (subline) { subline.textContent = 'You saw what waiting costs. Now the money has somewhere to go. Both phases done.'; }
+                if (reinforcement) { reinforcement.textContent = 'You stopped calculating the damage and started building the fix. That is rare.'; }
+            }
+        }
+
         function loadPortfolio() {
             const portfolio = loadPortfolioData();
             if (!portfolio) { showError(); return; }
             localStorage.setItem('investmentSimplifier_bridge_email', 'true');
+            personalizeForUpstream();
             renderPortfolio(portfolio);
             generateBookmarkURL(portfolio);
             setTimeout(() => {
@@ -540,9 +583,9 @@
 
             const reinforcementSub = document.getElementById('reinforcement-sub');
             if (p.age && p.age < 30) {
-                reinforcementSub.textContent = `The average American has $0 invested at ${p.age}. You're now ahead of 80% of your generation.`;
+                reinforcementSub.textContent = 'The average American has $0 invested at ' + p.age + '. You are now ahead of 80% of your generation.';
             } else {
-                reinforcementSub.textContent = `Most people never build a portfolio. You just did it in 60 seconds.`;
+                reinforcementSub.textContent = 'Most people never build a portfolio. You just did it in 60 seconds.';
             }
 
             renderStrategyExplainer(p);
@@ -558,20 +601,8 @@
             p.etfs.forEach(etf => {
                 const meta = etfMeta[etf.ticker] || { expense: 'N/A', type: 'Fund' };
                 const card = document.createElement('div');
-                card.className = `etf-card ${etf.type}`;
-                card.innerHTML = `
-                    <div class="etf-info">
-                        <span class="etf-ticker">${etf.ticker}</span>
-                        <span class="etf-name">${etf.name}</span>
-                        ${etf.description ? `<span class="etf-desc">${etf.description}</span>` : ''}
-                        <div class="etf-meta">
-                            <span class="etf-meta-tag expense">${meta.expense} fee</span>
-                            <span class="etf-meta-tag type">${meta.type}</span>
-                        </div>
-                    </div>
-                    <div>
-                        <span class="etf-percent">${etf.percent}%</span>
-                    </div>`;
+                card.className = 'etf-card ' + etf.type;
+                card.innerHTML = '<div class="etf-info"><span class="etf-ticker">' + etf.ticker + '</span><span class="etf-name">' + etf.name + '</span>' + (etf.description ? '<span class="etf-desc">' + etf.description + '</span>' : '') + '<div class="etf-meta"><span class="etf-meta-tag expense">' + meta.expense + ' fee</span><span class="etf-meta-tag type">' + meta.type + '</span></div></div><div><span class="etf-percent">' + etf.percent + '%</span></div>';
                 etfGrid.appendChild(card);
             });
 
@@ -580,9 +611,9 @@
             const previewEl = document.getElementById('autopilot-preview');
             if (coreEtf) {
                 const coreMonthly = Math.round(monthly * coreEtf.percent / 100);
-                previewEl.textContent = `${coreEtf.ticker} at ${coreEtf.percent}% = $${coreMonthly}/month on autopilot`;
+                previewEl.textContent = coreEtf.ticker + ' at ' + coreEtf.percent + '% = $' + coreMonthly + '/month on autopilot';
             }
-            document.getElementById('autopilot-btn').href = `https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html?source=bridge&monthly=${monthly}&suggested_etf=${coreEtf?.ticker || 'VTI'}`;
+            document.getElementById('autopilot-btn').href = 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html?source=bridge&monthly=' + monthly + '&suggested_etf=' + (coreEtf?.ticker || 'VTI');
 
             renderPersonalizedSteps(p);
             startCostTicker(p.projections.year30);
@@ -592,20 +623,7 @@
             const desc = styleDescriptions[p.style] || styleDescriptions.balanced;
             document.getElementById('strategyExplainerText').textContent = desc.summary;
             const details = document.getElementById('strategyDetails');
-            details.innerHTML = `
-                <div class="strategy-detail-item">
-                    <div class="strategy-detail-label">Risk Level</div>
-                    <div class="strategy-detail-value">${desc.riskLevel}</div>
-                </div>
-                <div class="strategy-detail-item">
-                    <div class="strategy-detail-label">Best Held For</div>
-                    <div class="strategy-detail-value">${desc.timeHorizon}</div>
-                </div>
-                <div class="strategy-detail-item">
-                    <div class="strategy-detail-label">Best For</div>
-                    <div class="strategy-detail-value">${desc.bestFor}</div>
-                </div>
-            `;
+            details.innerHTML = '<div class="strategy-detail-item"><div class="strategy-detail-label">Risk Level</div><div class="strategy-detail-value">' + desc.riskLevel + '</div></div><div class="strategy-detail-item"><div class="strategy-detail-label">Best Held For</div><div class="strategy-detail-value">' + desc.timeHorizon + '</div></div><div class="strategy-detail-item"><div class="strategy-detail-label">Best For</div><div class="strategy-detail-value">' + desc.bestFor + '</div></div>';
         }
 
         function renderPersonalizedSteps(p) {
@@ -613,14 +631,14 @@
             let step2Detail = '';
             p.etfs.forEach((etf, i) => {
                 const amount = Math.round(lumpSum * etf.percent / 100);
-                step2Detail += `<span class="step-etf-detail">${etf.ticker}</span> \u2192 Search "${etf.ticker}" in your brokerage, buy $${amount.toLocaleString()} worth (that's ${etf.percent}% of $${lumpSum.toLocaleString()})`;
+                step2Detail += '<span class="step-etf-detail">' + etf.ticker + '</span> \u2192 Search "' + etf.ticker + '" in your brokerage, buy $' + amount.toLocaleString() + ' worth (that is ' + etf.percent + '% of $' + lumpSum.toLocaleString() + ')';
                 if (i < p.etfs.length - 1) step2Detail += '<br><br>';
             });
-            document.getElementById('step2-detail').innerHTML = `<strong>Your exact buy list with $${lumpSum.toLocaleString()} to start:</strong><br><br>${step2Detail}`;
+            document.getElementById('step2-detail').innerHTML = '<strong>Your exact buy list with $' + lumpSum.toLocaleString() + ' to start:</strong><br><br>' + step2Detail;
 
             const monthly = p.monthlyInvestment || 500;
-            document.getElementById('step3-title').textContent = `Set Up Automatic $${monthly.toLocaleString()}/Month Buys`;
-            document.getElementById('step3-text').textContent = `In your brokerage, look for "Recurring Investments" or "Automatic Investments." Set each ETF to buy automatically every month on the same day (like payday). Your $${monthly.toLocaleString()}/month gets split across your ETFs based on the percentages above.`;
+            document.getElementById('step3-title').textContent = 'Set Up Automatic $' + monthly.toLocaleString() + '/Month Buys';
+            document.getElementById('step3-text').textContent = 'In your brokerage, look for "Recurring Investments" or "Automatic Investments." Set each ETF to buy automatically every month on the same day (like payday). Your $' + monthly.toLocaleString() + '/month gets split across your ETFs based on the percentages above.';
         }
 
         function generateBookmarkURL(p) {
@@ -676,7 +694,7 @@
             const data = loadPortfolioData();
             if (!data) return;
             const multiplier = (data.projections.year30 / 87000).toFixed(1);
-            const caption = `I just found out I could be ${multiplier}x richer than the average American by retirement.\n\nBuilt my portfolio in 60 seconds. What's your number?\n\n${data.stockPercent}% Stocks / ${data.bondPercent}% Bonds\n30-Year Projection: ${formatCurrency(data.projections.year30)}\n\nBuild yours free \u2193\n@koutalksmoney\n\n#moneytok #investingforbeginners #etfportfolio #buildwealth #financialliteracy`;
+            const caption = 'I just found out I could be ' + multiplier + 'x richer than the average American by retirement.\n\nBuilt my portfolio in 60 seconds. What is your number?\n\n' + data.stockPercent + '% Stocks / ' + data.bondPercent + '% Bonds\n30-Year Projection: ' + formatCurrency(data.projections.year30) + '\n\nBuild yours free \u2193\n@koutalksmoney\n\n#moneytok #investingforbeginners #etfportfolio #buildwealth #financialliteracy';
             navigator.clipboard.writeText(caption).then(() => {
                 const btn = event.target.closest('.btn');
                 const original = btn.innerHTML;
