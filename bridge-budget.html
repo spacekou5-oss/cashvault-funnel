@@ -93,6 +93,26 @@
         }
         .header-sub{font-size:0.95rem;color:var(--text-secondary);}
 
+        /* =========================================
+           FIX #2: Upstream badge for 800-Club users
+           Pure CSS addition. No existing styles touched.
+           ========================================= */
+        .upstream-badge{
+            display:none;
+            margin:0 auto 12px;
+            padding:6px 14px;
+            background:rgba(0,240,255,0.06);
+            border:1px solid rgba(0,240,255,0.2);
+            border-radius:20px;
+            font-family:'JetBrains Mono',monospace;
+            font-size:0.6rem;
+            color:rgba(0,240,255,0.8);
+            text-transform:uppercase;
+            letter-spacing:0.1em;
+            font-weight:700;
+            width:fit-content;
+        }
+
         /* Main Card */
         .main-card{
             background:var(--bg-secondary);
@@ -428,6 +448,8 @@
     <div class="container">
         <header class="header">
             <div class="header-brand"><a href="https://instagram.com/koutalksmoney" target="_blank">Built by Kou. Tested with real money.</a></div>
+            <!-- FIX #2: Upstream badge for 800-Club users (hidden by default, shown via JS) -->
+            <div class="upstream-badge" id="upstreamBadge"></div>
             <h1 class="header-title">Your Financial DNA</h1>
             <p class="header-sub">Your personalized financial blueprint.</p>
         </header>
@@ -556,7 +578,8 @@
                 </a>
             </div>
             <div class="footer-links">
-                <a href="https://spacekou5-oss.github.io/cashvault-funnel/Kous-Budget-Calculator.html" class="footer-link">Retake Quiz</a>
+                <!-- FIX #1: Corrected from Kous-Budget-Calculator.html to budget-calculator.html -->
+                <a href="https://spacekou5-oss.github.io/cashvault-funnel/budget-calculator.html" class="footer-link">Retake Quiz</a>
                 <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="footer-link">Autopilot System</a>
                 <a href="https://spacekou5-oss.github.io/cashvault-funnel/800-club.html" class="footer-link">800-Club</a>
                 <a href="https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" class="footer-link">Freedom Calculator</a>
@@ -690,6 +713,29 @@
     }
 
     // =========================================
+    // FIX #3: 800-Club upstream personalization
+    // Read-only. Does NOT touch any gate logic.
+    // Purely visual continuity for users who
+    // completed 800-Club before arriving here.
+    // =========================================
+    function personalizeForUpstream() {
+        var from800Club = false;
+        try { from800Club = localStorage.getItem('eightclub_email') === 'true'; } catch(e) {}
+        if (!from800Club) return;
+
+        var badge = $('upstreamBadge');
+        if (badge) {
+            badge.style.display = 'block';
+            badge.textContent = 'Phase 2 Complete \u2022 Credit + Cash Flow Mapped';
+        }
+
+        var banner = $('dashBanner');
+        if (banner) {
+            banner.innerHTML = '&#10003; Both phases complete. Credit protocol handled. Cash flow blueprint ready below.';
+        }
+    }
+
+    // =========================================
     // DATA HYDRATION
     // =========================================
     function hydrateData() {
@@ -816,7 +862,6 @@
         var total = getEnvelopeTotal();
         var diff = monthly - total;
 
-        // Only show when there IS unallocated money
         if (diff < 1) {
             el.innerHTML = '';
             return;
@@ -827,19 +872,16 @@
         var msg = '';
 
         if (diff >= monthly * 0.10) {
-            // Large surplus (10%+ of income): split recommendation
             var half = Math.round(diff / 2);
             msg = '<span class="envelope-suggestion-icon">&#9889;</span>' +
                 '<div>You have <strong>' + fmt(diff) + '/mo</strong> (' + pct + '%) unallocated. ' +
                 'Move it to <strong>Savings & Debt</strong>. That is an extra <span class="env-yearly">' + fmt(yearly) + '/year</span> compounding in your favor. ' +
                 'Or split it: <strong>' + fmt(half) + '</strong> to Savings, <strong>' + fmt(diff - half) + '</strong> to Buffer for extra protection.</div>';
         } else if (diff >= 20) {
-            // Moderate surplus: direct to savings
             msg = '<span class="envelope-suggestion-icon">&#9889;</span>' +
                 '<div>You have <strong>' + fmt(diff) + '/mo</strong> left over. ' +
                 'Route it to <strong>Savings & Debt</strong>. That is <span class="env-yearly">' + fmt(yearly) + '/year</span> your future self will thank you for.</div>';
         } else {
-            // Micro surplus: acknowledge it
             msg = '<span class="envelope-suggestion-icon">&#10004;</span>' +
                 '<div><strong>' + fmt(diff) + '/mo</strong> surplus. Healthy micro-buffer. No action needed.</div>';
         }
@@ -968,7 +1010,7 @@
             btn.innerHTML = sys.archetype.replace('THE ', '') + scoreText;
             btn.onclick = function() {
                 selectedSystem = key;
-                envelopeOverrides = null; // reset when switching
+                envelopeOverrides = null;
                 localStorage.removeItem('budget_envelope_overrides');
                 localStorage.setItem('budget_selected_system', key);
                 renderDashboard();
@@ -990,7 +1032,6 @@
 
         var isEnvelope = selectedSystem === 'envelope';
 
-        // ---- ENVELOPE: mixed editable + locked ----
         if (isEnvelope && monthly > 0) {
             initEnvelopeDefaults();
             updateEnvelopeDoughnut();
@@ -1043,7 +1084,6 @@
             legend.appendChild(unalloc);
             updateEnvelopeUnallocated();
 
-            // Smart suggestion for unallocated funds
             var suggestion = document.createElement('div');
             suggestion.id = 'envelopeSuggestion';
             legend.appendChild(suggestion);
@@ -1056,7 +1096,6 @@
             return;
         }
 
-        // ---- ALL OTHER SYSTEMS ----
         if (!isEnvelope) { envelopeOverrides = null; }
 
         var stops = [];
@@ -1237,6 +1276,9 @@
         } else {
             showRecovery();
         }
+
+        // FIX #3: Upstream personalization (800-Club visual continuity)
+        personalizeForUpstream();
     })();
     </script>
 </body>
