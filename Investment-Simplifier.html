@@ -997,11 +997,12 @@
             return id;
         }
 
-        // PATCH 2: Upstream email detection helper
-        // Returns true if user already submitted email through Freedom Calc or Cost of Waiting
-        function isUpstreamEmailUser() {
-            return localStorage.getItem('freedom_email') === 'true' || 
-                   localStorage.getItem('cost_of_waiting_email') === 'true';
+        // PATCH 2: Returning user detection
+        // Returns true ONLY if user already completed Investment Simplifier's own email gate.
+        // Upstream email users (Freedom Calc / Cost of Waiting) are NEW to this app.
+        // They must sign up here too. Each app captures its own segment.
+        function isReturningUser() {
+            return localStorage.getItem('investmentSimplifier_bridge_email') === 'true';
         }
 
         // === GEO SOCIAL PROOF ===
@@ -1237,12 +1238,12 @@
                         progressFill.style.width = '15%';
                         calculatePortfolio();
                         
-                        // PATCH 3: Upstream email users go straight to the Bridge success page.
-                        // They already gave their email in Freedom Calc or Cost of Waiting.
-                        // No reason to show them the inline results with a hidden gate.
-                        // The Bridge page has confetti, share card, brokerage explainer, next steps.
+                        // PATCH 3: RETURNING users skip inline results and go to Bridge.
+                        // They already gave their email on a previous visit.
+                        // Bridge page shows confetti, share card, brokerage explainer, next steps.
                         // Data is already saved to localStorage by calculatePortfolio() -> saveForBridgePage().
-                        if (isUpstreamEmailUser()) {
+                        // NEW users (including those from Freedom Calc / Cost of Waiting) see the email gate.
+                        if (isReturningUser()) {
                             window.location.href = CONFIG.BRIDGE_URL;
                             return;
                         }
@@ -1300,14 +1301,10 @@
                 unlockPortfolio();
             }
 
-            // UPSTREAM EMAIL SKIP: User already gave email via Freedom Calculator or Cost of Waiting
-            if (!bridgeEmail) {
-                const upstreamEmail = localStorage.getItem('freedom_email') || localStorage.getItem('cost_of_waiting_email');
-                if (upstreamEmail) {
-                    localStorage.setItem('investmentSimplifier_bridge_email', 'true');
-                    unlockPortfolio();
-                }
-            }
+            // REMOVED: Upstream email auto-unlock.
+            // Freedom Calc and Cost of Waiting users are NEW to Investment Simplifier.
+            // They must sign up on this app's Beehiiv form for proper segmentation.
+            // Only investmentSimplifier_bridge_email (set by THIS app's form) unlocks the gate.
             
             const savedState = checkSavedState();
             if (savedState) {
