@@ -139,7 +139,6 @@
 
         [x-cloak] { display: none !important; }
 
-        /* FIX #6: How-to hint styles */
         .hint-panel {
             background: rgba(0, 240, 255, 0.04);
             border-left: 2px solid rgba(0, 240, 255, 0.3);
@@ -169,7 +168,6 @@
         }
         .hint-toggle:hover { color: #00F0FF; border-color: #00F0FF; }
 
-        /* Returning user banner */
         .returning-banner {
             background: linear-gradient(135deg, rgba(0,240,255,0.06), rgba(0,240,255,0.02));
             border: 1px solid rgba(0,240,255,0.25);
@@ -238,7 +236,7 @@
 
         <div class="w-full max-w-lg mx-auto">
             
-            <!-- RETURNING USER BANNER (FIX #5) -->
+            <!-- RETURNING USER BANNER -->
             <div x-show="isReturningUser && !onboarding" class="returning-banner" x-cloak>
                 <div>
                     <div class="b-text">&#x1F504; Your progress is loaded.</div>
@@ -260,7 +258,6 @@
                              ]"
                              x-text="statusText">
                         </div>
-                        <!-- FIX #11: Status subtext -->
                         <p class="text-[10px] text-stealth-text font-mono" x-text="statusSubtext"></p>
                     </div>
                     <div class="text-3xl font-black font-mono transition-transform" 
@@ -268,7 +265,6 @@
                          x-text="progress + '%'"></div>
                 </div>
 
-                <!-- FIX #2: Honest progress bar (no +15% inflation) -->
                 <div class="w-full h-3 bg-stealth-card rounded-full overflow-hidden border border-stealth-border relative">
                     <div class="absolute top-0 left-0 h-full bg-stealth-blue transition-all duration-500 ease-out"
                          :style="'width: ' + Math.min(100, progress) + '%'">
@@ -279,7 +275,6 @@
                     </div>
                 </div>
 
-                <!-- FIX #7: Bonus teaser at 85%+ -->
                 <p x-show="progress >= 80 && !bonus.checked && !onboarding" x-cloak
                    class="text-[10px] text-stealth-gold font-mono mt-2 text-center animate-pulse">
                     &darr; Secret hack below: unlock GOD MODE (110%)
@@ -288,7 +283,6 @@
 
             <div class="px-4 mt-6 space-y-3 pb-40" :class="{ 'gold-mode': progress > 100 }">
                 
-                <!-- FIX #6: Checklist items with how-to hints -->
                 <template x-for="item in items" :key="item.id">
                     <div class="bg-stealth-card border border-stealth-border rounded-xl overflow-hidden hover:border-stealth-blue/30 transition-colors group">
                         <label class="flex items-center gap-4 p-4 cursor-pointer">
@@ -304,7 +298,6 @@
                                 <p class="text-[10px] text-stealth-text mt-0.5" x-text="item.desc"></p>
                             </div>
                         </label>
-                        <!-- Expandable how-to hint -->
                         <div x-show="item.showHint" x-cloak class="hint-panel mx-4 mb-3">
                             <p x-text="item.hint"></p>
                         </div>
@@ -337,7 +330,7 @@
                     </div>
                 </div>
 
-                <!-- LOCKED LEVEL 2 PREVIEW (FIX #8: Tappable) -->
+                <!-- LOCKED LEVEL 2 PREVIEW -->
                 <div class="mt-12 relative pt-6 pb-6">
                     <div class="absolute inset-0 z-20 flex flex-col items-center justify-center"
                          @click="progress >= 70 ? showModal = true : null"
@@ -372,14 +365,13 @@
             </div>
         </div>
 
-        <!-- CTA BAR (FIX #9: Active progress indicator when locked) -->
+        <!-- CTA BAR -->
         <div class="fixed bottom-0 left-0 w-full z-50 p-4 bg-stealth-bg/90 backdrop-blur-md border-t border-stealth-border"
              x-show="!onboarding"
              x-transition:enter="transition ease-out duration-1000"
              x-transition:enter-start="translate-y-full"
              x-transition:enter-end="translate-y-0">
             
-            <!-- UNLOCKED STATE: CTA button -->
             <button x-show="progress >= 70" 
                     @click="showModal = true"
                     class="flex items-center justify-center gap-3 w-full max-w-lg mx-auto py-4 rounded-xl font-black uppercase text-center transition-all duration-500 bg-stealth-gold text-black shadow-[0_0_20px_#FFD700] hover:scale-[1.02] animate-pulse-fast cursor-pointer">
@@ -387,7 +379,6 @@
                <span>BECOME A WEALTH ARCHITECT</span>
             </button>
 
-            <!-- LOCKED STATE: Progress indicator (FIX #9) -->
             <div x-show="progress < 70" class="w-full max-w-lg mx-auto text-center py-2">
                 <p class="text-xs text-stealth-text font-mono mb-2">
                     <span class="text-stealth-blue font-bold" x-text="Math.max(0, 70 - progress) + '%'"></span> to unlock Level 2: Wealth Architect
@@ -463,12 +454,11 @@
                     </div>
                 </div>
 
-                <!-- Context line above form -->
                 <p class="text-xs text-center text-stealth-gold font-bold mb-2">
                     &darr; Enter your email. Your 70/20/10 blueprint loads instantly.
                 </p>
 
-                <!-- BEEHIIV EMBED (correct embed code + modal-gated redirect) -->
+                <!-- BEEHIIV EMBED -->
                 <div class="flex justify-center pb-2">
                     <iframe id="beehiivFrame"
                             src="https://subscribe-forms.beehiiv.com/90d138cb-47b1-4e1c-a5e2-ffd2119b2021" 
@@ -487,7 +477,8 @@
                     </p>
                     <div x-show="showFallbackLink" x-cloak>
                         <p class="text-[10px] text-gray-400 mb-2">Already submitted your email?</p>
-                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/Kous-Budget-Calculator.html" 
+                        <!-- FIX #1: Corrected URL (was Kous-Budget-Calculator.html) -->
+                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/budget-calculator.html" 
                            class="inline-block text-[11px] font-bold text-stealth-gold hover:text-white transition-colors uppercase tracking-widest">
                             Open Wealth Blueprint &rarr;
                         </a>
@@ -513,14 +504,11 @@
                 isReturningUser: false,
                 lastVisitLabel: '',
                 
-                // FIX #10: Auto-pop guard
                 modalAutoTriggered: false,
                 
-                // Fallback link timer
                 showFallbackLink: false,
                 _fallbackTimer: null,
                 
-                // FIX #6: Items with how-to hints
                 items: [
                     { id: 1, title: 'The Spy', desc: 'Download Credit Karma / Experian app.', 
                       hint: 'Download Credit Karma (free, App Store or Google Play). It shows your TransUnion and Equifax scores. Then download Experian (also free) for your third score. Check both weekly. The numbers update every 7-14 days.', 
@@ -569,7 +557,7 @@
                 celebrated: false,
 
                 // ===========================
-                // FIX #1: localStorage PERSISTENCE
+                // localStorage PERSISTENCE
                 // ===========================
                 saveProgress() {
                     try {
@@ -579,8 +567,6 @@
                             timestamp: new Date().toISOString()
                         };
                         localStorage.setItem('credit_protocol_state', JSON.stringify(state));
-                        
-                        // FIX #4: Command Center keys
                         localStorage.setItem('credit_protocol_score', String(this.progress));
                         if (this.progress >= 70) {
                             localStorage.setItem('eightclub_completed', 'true');
@@ -640,19 +626,15 @@
                     const hasSaved = this.loadProgress();
                     
                     if (hasSaved && this.progress > 0) {
-                        // FIX #5: Skip onboarding for returning users
                         this.isReturningUser = true;
                         this.onboarding = false;
                         this.previousStatus = this.statusText;
-                        // If they already hit 100%+, don't re-trigger celebration
                         if (this.progress >= 100) this.celebrated = true;
                     }
 
-                    // MODAL-GATED REDIRECT: Only activate when modal is open
                     this.$watch('showModal', (isOpen) => {
                         if (isOpen) {
                             this.activateRedirectHandler();
-                            // Start fallback link timer
                             this.showFallbackLink = false;
                             this._fallbackTimer = setTimeout(() => { this.showFallbackLink = true; }, 15000);
                         } else {
@@ -662,6 +644,7 @@
                     });
                 },
 
+                // FIX #2: Corrected URL (was Kous-Budget-Calculator.html)
                 doBeehiivRedirect() {
                     if (this._hasRedirected) return;
                     this._hasRedirected = true;
@@ -669,7 +652,7 @@
                         localStorage.setItem('eightclub_completed', 'true');
                         localStorage.setItem('eightclub_email', 'true');
                     } catch(e) {}
-                    window.top.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/Kous-Budget-Calculator.html';
+                    window.top.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/budget-calculator.html';
                 },
 
                 activateRedirectHandler() {
@@ -677,7 +660,7 @@
 
                     // Method 1: postMessage listener
                     this._redirectHandler = function(event) {
-                        if (!self.showModal) return; // Guard: only when modal is open
+                        if (!self.showModal) return;
                         if (event.origin && event.origin.includes('beehiiv.com')) {
                             const data = event.data;
                             if (typeof data === 'string') {
@@ -697,12 +680,19 @@
                     };
                     window.addEventListener('message', this._redirectHandler);
 
-                    // Method 2: iframe height change observer (only when modal is open)
+                    // Method 2: iframe height change observer
+                    // FIX #3: Added 3s cooldown to prevent false trigger from
+                    // Beehiiv embed.js initial resize on load. The async script
+                    // resizes the iframe on render, which was triggering redirect
+                    // before the user typed anything. Now we ignore height changes
+                    // for the first 3 seconds after the modal opens.
                     const iframe = document.getElementById('beehiivFrame');
                     if (iframe) {
                         const initialHeight = iframe.style.height;
+                        const observerActivatedAt = Date.now();
                         this._heightObserver = new MutationObserver(function(mutations) {
-                            if (!self.showModal) return; // Guard: only when modal is open
+                            if (!self.showModal) return;
+                            if (Date.now() - observerActivatedAt < 3000) return;
                             mutations.forEach(function(mutation) {
                                 if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                                     const newHeight = iframe.style.height;
@@ -740,8 +730,6 @@
                     return score;
                 },
 
-                // FIX #2: Removed +15% inflation. Clean math.
-
                 get statusText() {
                     const p = this.progress;
                     if (p >= 110) return "STATUS: GOD MODE";
@@ -751,7 +739,6 @@
                     return "STATUS: GHOST";
                 },
 
-                // FIX #11: Status subtexts
                 get statusSubtext() {
                     const p = this.progress;
                     if (p >= 110) return "Banks compete for your business.";
@@ -774,7 +761,6 @@
                         this.previousStatus = newStatus;
                     }
 
-                    // FIX #10: Celebration + auto-pop modal at 100%
                     const currentProgress = this.progress;
                     if (currentProgress >= 100 && !this.celebrated) {
                         this.celebrated = true;
@@ -789,7 +775,6 @@
                         this.modalAutoTriggered = false;
                     }
 
-                    // FIX #1: Save on every change
                     this.saveProgress();
                 },
 
