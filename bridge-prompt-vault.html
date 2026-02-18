@@ -30,14 +30,145 @@
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; line-height: 1.6; }
         .bg-pattern { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.04) 0%, transparent 50%); pointer-events: none; z-index: 0; }
         .container { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; padding: 40px 20px; }
-        .success-header { text-align: center; margin-bottom: 32px; animation: fadeInUp 0.6s ease-out; }
+
+        /* ============================================
+           ACTIVATION SEQUENCE (New Users Only)
+           ============================================ */
+        .activation-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--bg-primary);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 30px 20px;
+            opacity: 1; transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        .activation-overlay.fade-out {
+            opacity: 0; visibility: hidden; pointer-events: none;
+        }
+        .activation-glow {
+            position: absolute; width: 600px; height: 600px; border-radius: 50%;
+            filter: blur(180px); opacity: 0; pointer-events: none;
+            transition: opacity 1.5s ease;
+        }
+        .activation-glow.g1 { top: -200px; left: -100px; background: var(--accent-indigo); }
+        .activation-glow.g2 { bottom: -200px; right: -100px; background: var(--accent-purple); }
+        .activation-overlay.active .activation-glow { opacity: 0.12; }
+
+        .activation-content { position: relative; z-index: 1; text-align: center; max-width: 480px; width: 100%; }
+        .activation-icon {
+            width: 72px; height: 72px;
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
+            border-radius: 16px; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 28px; box-shadow: 0 0 60px rgba(99, 102, 241, 0.35);
+            animation: activation-icon-pulse 2s ease-in-out infinite;
+        }
+        .activation-icon svg { width: 36px; height: 36px; color: #fff; }
+        @keyframes activation-icon-pulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.3); }
+            50% { box-shadow: 0 0 70px rgba(99, 102, 241, 0.5), 0 0 100px rgba(139, 92, 246, 0.2); }
+        }
+
+        .activation-title {
+            font-size: 1.6rem; font-weight: 800; margin-bottom: 6px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, #cbd5e1 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .activation-subtitle { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 36px; }
+
+        .activation-steps { text-align: left; margin-bottom: 36px; }
+        .activation-step {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 16px; margin-bottom: 6px;
+            border-radius: 10px; border: 1px solid transparent;
+            transition: all 0.4s ease;
+            opacity: 0.25;
+        }
+        .activation-step.active {
+            opacity: 1; background: rgba(99, 102, 241, 0.06);
+            border-color: rgba(99, 102, 241, 0.15);
+        }
+        .activation-step.complete { opacity: 0.5; }
+        .activation-step.complete .step-dot { background: var(--accent-green); box-shadow: 0 0 12px rgba(16, 185, 129, 0.5); }
+        .activation-step.complete .step-dot svg { display: block; }
+        .activation-step.complete .step-dot .dot-inner { display: none; }
+
+        .step-dot {
+            width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+            background: var(--bg-card); border: 2px solid var(--border-subtle);
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .activation-step.active .step-dot {
+            border-color: var(--accent-indigo);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+            background: var(--accent-indigo);
+        }
+        .dot-inner { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); transition: background 0.3s; }
+        .activation-step.active .dot-inner { background: #fff; animation: dot-pulse 1s ease-in-out infinite; }
+        @keyframes dot-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
+        .step-dot svg { width: 14px; height: 14px; color: #fff; display: none; }
+
+        .step-label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; transition: color 0.3s; }
+        .activation-step.active .step-label { color: var(--text-primary); font-weight: 600; }
+
+        .activation-progress-track {
+            width: 100%; height: 4px; background: rgba(99, 102, 241, 0.1);
+            border-radius: 2px; overflow: hidden;
+        }
+        .activation-progress-bar {
+            height: 100%; width: 0%; border-radius: 2px;
+            background: linear-gradient(90deg, var(--accent-indigo), var(--accent-purple));
+            transition: width 0.3s ease;
+        }
+
+        /* Particle burst on completion */
+        .activation-particles { position: fixed; inset: 0; pointer-events: none; z-index: 10000; overflow: hidden; }
+        .a-particle {
+            position: absolute; border-radius: 50%;
+            animation: a-particle-burst 1.5s ease-out forwards;
+        }
+        @keyframes a-particle-burst {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+        }
+
+        /* ============================================
+           MAIN CONTENT
+           ============================================ */
+        .main-content { opacity: 0; transform: translateY(15px); transition: opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s; }
+        .main-content.visible { opacity: 1; transform: translateY(0); }
+
+        .success-header { text-align: center; margin-bottom: 32px; }
         .vault-icon-wrap { width: 80px; height: 80px; background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple)); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; box-shadow: 0 0 50px rgba(99, 102, 241, 0.3); animation: glow 3s ease-in-out infinite; position: relative; }
         .vault-icon-wrap::before { content: ''; position: absolute; inset: -2px; background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple), var(--accent-indigo)); border-radius: 18px; z-index: -1; opacity: 0.5; }
         .vault-icon-wrap svg { width: 40px; height: 40px; color: #fff; }
-        .success-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; background: linear-gradient(135deg, var(--accent-gold), var(--accent-amber)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* VALUE REFRAME HEADER (replaces generic "Vault Access Granted") */
+        .success-header h1 {
+            font-size: 1.85rem; font-weight: 800; margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-amber));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
         .success-header p { color: var(--text-secondary); font-size: 1rem; }
+
+        /* SYSTEM SCOPE BANNER (Value Reframe) */
+        .scope-banner {
+            display: flex; align-items: center; gap: 14px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.04) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 14px; padding: 16px 20px; margin-bottom: 28px;
+            animation: fadeInUp 0.6s ease-out 0.15s backwards;
+        }
+        .scope-icon { width: 42px; height: 42px; background: rgba(99, 102, 241, 0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .scope-icon svg { width: 22px; height: 22px; color: var(--accent-indigo); }
+        .scope-text { flex: 1; }
+        .scope-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-indigo); margin-bottom: 3px; }
+        .scope-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45; }
+        .scope-desc strong { color: var(--text-primary); font-weight: 700; }
+
         .category-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 30px; font-size: 0.85rem; font-weight: 600; color: var(--accent-indigo); margin-bottom: 24px; }
         .category-badge .dot { width: 8px; height: 8px; background: var(--accent-indigo); border-radius: 50%; animation: pulse-dot 2s ease-in-out infinite; }
+
         .prompt-card { background: var(--bg-card); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 16px; overflow: hidden; margin-bottom: 24px; animation: fadeInUp 0.6s ease-out 0.1s backwards; box-shadow: 0 0 40px rgba(99, 102, 241, 0.1); }
         .prompt-header { padding: 20px 24px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), transparent); border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; }
         .prompt-title-wrap { display: flex; flex-direction: column; gap: 4px; }
@@ -53,6 +184,7 @@
         .copy-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 24px; background: linear-gradient(135deg, var(--accent-gold), var(--accent-amber)); border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; color: #000; cursor: pointer; transition: all 0.2s ease; }
         .copy-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-gold-glow); }
         .copy-btn.copied { background: var(--accent-green); }
+
         .tips-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 24px; margin-bottom: 24px; animation: fadeInUp 0.6s ease-out 0.2s backwards; }
         .tips-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
         .tips-header h3 { font-size: 1rem; font-weight: 700; }
@@ -60,22 +192,67 @@
         .tip-item { display: flex; gap: 12px; align-items: flex-start; }
         .tip-number { width: 24px; height: 24px; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: var(--accent-indigo); flex-shrink: 0; }
         .tip-text { font-size: 0.9rem; color: var(--text-secondary); }
+
+        /* ============================================
+           COMMAND CENTER CARD (Loop Injection)
+           ============================================ */
+        .command-center-card {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.06) 0%, rgba(99, 102, 241, 0.04) 100%);
+            border: 2px solid rgba(34, 197, 94, 0.25);
+            border-radius: 16px; padding: 24px; margin-bottom: 16px;
+            animation: fadeInUp 0.6s ease-out 0.25s backwards;
+            position: relative; overflow: hidden;
+        }
+        .command-center-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.03), transparent);
+            animation: cc-shimmer 4s infinite;
+        }
+        @keyframes cc-shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+        .cc-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; position: relative; z-index: 1; }
+        .cc-icon {
+            width: 44px; height: 44px; background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .cc-icon svg { width: 22px; height: 22px; color: var(--accent-green); }
+        .cc-title-wrap { flex: 1; }
+        .cc-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-green); margin-bottom: 2px; }
+        .cc-title { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
+        .cc-badge {
+            display: flex; align-items: center; gap: 6px; padding: 5px 12px;
+            background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 20px; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem; font-weight: 700; color: var(--accent-green);
+        }
+        .cc-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px; position: relative; z-index: 1; }
+        .cc-progress-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; position: relative; z-index: 1; }
+        .cc-progress-track { flex: 1; height: 6px; background: rgba(34, 197, 94, 0.1); border-radius: 3px; overflow: hidden; }
+        .cc-progress-fill { height: 100%; width: 14%; background: var(--accent-green); border-radius: 3px; transition: width 0.6s ease; position: relative; }
+        .cc-progress-fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); animation: cc-shimmer 2s infinite; }
+        .cc-progress-label { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700; color: var(--accent-green); white-space: nowrap; }
+        .cc-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 14px 24px;
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
+            border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700;
+            color: #fff; cursor: pointer; transition: all 0.2s ease;
+            text-decoration: none; position: relative; z-index: 1;
+        }
+        .cc-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4); }
+
         .actions { display: grid; gap: 12px; margin-bottom: 32px; animation: fadeInUp 0.6s ease-out 0.3s backwards; }
         .btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 24px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s ease; text-decoration: none; }
         .btn-primary { background: linear-gradient(135deg, var(--accent-indigo), #8b5cf6); color: white; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4); }
         .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-subtle); }
         .btn-secondary:hover { border-color: var(--accent-indigo); background: var(--bg-card-hover); }
+
         .more-prompts { background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary)); border: 1px dashed rgba(99, 102, 241, 0.3); border-radius: 16px; padding: 32px; text-align: center; animation: fadeInUp 0.6s ease-out 0.4s backwards; }
         .more-prompts h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: var(--accent-indigo); }
         .more-prompts p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px; }
         .prompt-count { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(99, 102, 241, 0.1); border-radius: 30px; font-size: 0.85rem; color: var(--accent-indigo); margin-bottom: 20px; }
-        .footer { text-align: center; padding: 32px 0; color: var(--text-muted); font-size: 0.85rem; }
-        .footer a { color: var(--accent-gold); text-decoration: none; }
-        .error-state { text-align: center; padding: 60px 20px; }
-        .error-state h2 { font-size: 1.5rem; margin-bottom: 12px; }
-        .error-state p { color: var(--text-secondary); margin-bottom: 24px; }
-        .error-recovery { display: grid; gap: 12px; max-width: 400px; margin: 0 auto; }
 
         /* Saved count banner */
         .saved-banner { background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.25); border-radius: 12px; padding: 14px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; animation: fadeInUp 0.4s ease; }
@@ -83,6 +260,14 @@
         .saved-banner-text { flex: 1; font-size: 0.85rem; color: var(--text-secondary); }
         .saved-banner-text strong { color: var(--accent-gold); font-weight: 700; }
         .saved-banner-count { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 800; color: var(--accent-gold); }
+
+        .footer { text-align: center; padding: 32px 0; color: var(--text-muted); font-size: 0.85rem; }
+        .footer a { color: var(--accent-gold); text-decoration: none; }
+
+        .error-state { text-align: center; padding: 60px 20px; }
+        .error-state h2 { font-size: 1.5rem; margin-bottom: 12px; }
+        .error-state p { color: var(--text-secondary); margin-bottom: 24px; }
+        .error-recovery { display: grid; gap: 12px; max-width: 400px; margin: 0 auto; }
 
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes glow { 0%, 100% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.25); } 50% { box-shadow: 0 0 60px rgba(99, 102, 241, 0.35), 0 0 80px rgba(139, 92, 246, 0.15); } }
@@ -97,7 +282,9 @@
             .prompt-card { border-radius: 12px; }
             .prompt-header { flex-direction: column; gap: 12px; align-items: flex-start; }
             .prompt-text { font-size: 0.85rem; padding: 16px; }
-            .success-header h1 { font-size: 1.6rem; }
+            .success-header h1 { font-size: 1.5rem; }
+            .activation-title { font-size: 1.3rem; }
+            .scope-banner { flex-direction: column; text-align: center; }
         }
     </style>
 </head>
@@ -105,6 +292,54 @@
     <div class="bg-pattern"></div>
     <div class="particle-container" id="particle-container"></div>
 
+    <!-- ================================================
+         ACTIVATION SEQUENCE (New Users Only)
+         Fires once. Never again. Reframes the exchange.
+         ================================================ -->
+    <div class="activation-overlay" id="activationOverlay" style="display:none;">
+        <div class="activation-glow g1"></div>
+        <div class="activation-glow g2"></div>
+        <div class="activation-content">
+            <div class="activation-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <h1 class="activation-title">Activating Your System</h1>
+            <p class="activation-subtitle">One email. Full ecosystem access.</p>
+
+            <div class="activation-steps">
+                <div class="activation-step" id="aStep0">
+                    <div class="step-dot"><div class="dot-inner"></div><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+                    <span class="step-label">Verifying access credentials...</span>
+                </div>
+                <div class="activation-step" id="aStep1">
+                    <div class="step-dot"><div class="dot-inner"></div><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+                    <span class="step-label">Decrypting your custom prompt...</span>
+                </div>
+                <div class="activation-step" id="aStep2">
+                    <div class="step-dot"><div class="dot-inner"></div><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+                    <span class="step-label">Unlocking Vault. All pending prompts activated.</span>
+                </div>
+                <div class="activation-step" id="aStep3">
+                    <div class="step-dot"><div class="dot-inner"></div><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+                    <span class="step-label">Syncing with Command Center...</span>
+                </div>
+                <div class="activation-step" id="aStep4">
+                    <div class="step-dot"><div class="dot-inner"></div><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+                    <span class="step-label">System live. Welcome to the machine.</span>
+                </div>
+            </div>
+
+            <div class="activation-progress-track">
+                <div class="activation-progress-bar" id="activationProgressBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================
+         MAIN CONTENT
+         ================================================ -->
     <div class="container" id="main-content">
         <div class="success-header">
             <div class="vault-icon-wrap">
@@ -112,8 +347,21 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
             </div>
-            <h1>Vault Access Granted</h1>
-            <p>Your prompt has been decrypted and unlocked.</p>
+            <h1 id="main-headline">Your System Is Live</h1>
+            <p id="main-subheadline">1 email. 7 tools. 21 prompts. Your financial command system, activated.</p>
+        </div>
+
+        <!-- VALUE REFRAME: Scope Banner -->
+        <div class="scope-banner" id="scopeBanner">
+            <div class="scope-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+            </div>
+            <div class="scope-text">
+                <div class="scope-title">Full Access Granted</div>
+                <div class="scope-desc">You unlocked <strong>21 AI prompt templates</strong> across Career, Venture, and Wealth. Plus <strong>7 financial tools</strong> and your personal <strong>Command Center</strong> to track everything.</div>
+            </div>
         </div>
 
         <div style="text-align: center;">
@@ -169,6 +417,39 @@
             </div>
         </div>
 
+        <!-- ============================================
+             COMMAND CENTER CARD (Loop Injection Point)
+             ============================================ -->
+        <div class="command-center-card" id="commandCenterCard">
+            <div class="cc-header">
+                <div class="cc-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 3a3 3 0 00-3 3v12a3 3 0 003 3 3 3 0 003-3 3 3 0 00-3-3H6a3 3 0 00-3 3 3 3 0 003 3 3 3 0 003-3V6a3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3h12a3 3 0 003-3 3 3 0 00-3-3z"/>
+                    </svg>
+                </div>
+                <div class="cc-title-wrap">
+                    <div class="cc-label">Your Dashboard</div>
+                    <div class="cc-title">Command Center</div>
+                </div>
+                <div class="cc-badge" id="ccBadge">
+                    <span id="ccBadgeCount">1/7</span>
+                </div>
+            </div>
+            <p class="cc-desc">Track your progress across all 7 financial tools. See what you have completed, what is unlocked next, and level up your Architect rank as you build.</p>
+            <div class="cc-progress-row">
+                <div class="cc-progress-track">
+                    <div class="cc-progress-fill" id="ccProgressFill"></div>
+                </div>
+                <span class="cc-progress-label" id="ccProgressLabel">1 of 7 activated</span>
+            </div>
+            <a href="https://spacekou5-oss.github.io/cashvault-funnel/command-center.html" class="cc-btn" onclick="persistState()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 3a3 3 0 00-3 3v12a3 3 0 003 3 3 3 0 003-3 3 3 0 00-3-3H6a3 3 0 00-3 3 3 3 0 003 3 3 3 0 003-3V6a3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3h12a3 3 0 003-3 3 3 0 00-3-3z"/>
+                </svg>
+                Open Command Center
+            </a>
+        </div>
+
         <div class="actions">
             <a href="https://chat.openai.com" target="_blank" class="btn btn-primary" onclick="persistState()">
                 <span>&#128640;</span> Open ChatGPT and Paste This
@@ -198,6 +479,7 @@
         </div>
     </div>
 
+    <!-- ERROR STATE -->
     <div class="container error-state" id="error-state" style="display: none;">
         <div style="font-size: 3rem; margin-bottom: 20px;">&#128275;</div>
         <h2>Your Access is Confirmed</h2>
@@ -206,8 +488,8 @@
             <a href="https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" class="btn btn-primary" onclick="persistAndReturnToVault(); return false;">
                 <span>&#128452;&#65039;</span> Return to The Vault (Unlocked)
             </a>
-            <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" class="btn btn-secondary" onclick="persistState()">
-                <span>&#128202;</span> Try Investment Simplifier
+            <a href="https://spacekou5-oss.github.io/cashvault-funnel/command-center.html" class="btn btn-secondary" onclick="persistState()">
+                <span>&#128202;</span> Open Command Center
             </a>
             <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="btn btn-secondary" onclick="persistState()">
                 <span>&#9881;&#65039;</span> Try Autopilot System
@@ -216,8 +498,12 @@
     </div>
 
     <script>
+        /* ================================================
+           CONFIGURATION
+           ================================================ */
         var STORAGE_KEY = 'promptVault_unlocked';
         var VAULT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html';
+        var COMMAND_CENTER_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/command-center.html';
 
         var CATEGORY_TIPS = {
             'Career': [
@@ -246,41 +532,50 @@
             'Wealth': { text: 'Open Freedom Calculator', icon: '&#128522;', link: 'https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html' }
         };
 
-        var categoryIcons = {
-            'career': '&#128188;', 'venture': '&#128640;', 'wealth': '&#128176;',
-            'default': '&#9889;'
-        };
+        /* ================================================
+           NEW USER DETECTION
+           This MUST run before persistState() to detect
+           whether this is the first email capture event.
+           ================================================ */
+        var isNewUser = !localStorage.getItem('vault_email_captured');
+        var activationShown = localStorage.getItem('vault_activation_shown') === 'true';
 
         /* ================================================
            CORE: Persist state to localStorage.
-           This is the lock that keeps the user's identity
-           and progress alive across ALL navigation.
-           Called BEFORE every outbound click.
            ================================================ */
         function persistState() {
             localStorage.setItem('vault_email_captured', 'true');
             localStorage.setItem('vault_user_email', 'verified_via_bridge');
             localStorage.setItem('vault_first_visit_complete', 'true');
+            // Signal to Command Center: Prompt Vault has been used
+            syncWithCommandCenter();
         }
 
-        /* Navigate to an external ecosystem tool.
-           Persist first, then go. */
+        /* ================================================
+           COMMAND CENTER SYNC
+           Writes the flags Command Center reads.
+           ================================================ */
+        function syncWithCommandCenter() {
+            // Mark Prompt Vault as completed for Command Center
+            localStorage.setItem('prompt_completed', 'true');
+            // Also ensure vault_saved_prompts exists so CC's fallback detection works
+            try {
+                var existing = JSON.parse(localStorage.getItem('vault_saved_prompts') || '[]');
+                if (existing.length > 0) {
+                    localStorage.setItem('prompt_completed', 'true');
+                }
+            } catch(e) {}
+        }
+
         function persistAndNavigate(el) {
             persistState();
             var href = el.getAttribute('href');
-            if (href && href !== '#') {
-                window.location.href = href;
-            }
+            if (href && href !== '#') { window.location.href = href; }
         }
 
-        /* Special handler: Return to vault with full handshake.
-           Sets the bridge_email flag so the vault recognizes
-           a returning verified user and opens their vault. */
         function persistAndReturnToVault() {
             persistState();
             localStorage.setItem('promptVault_bridge_email', 'verified');
-
-            // Convert any pending prompts to unlocked before return
             try {
                 var saved = JSON.parse(localStorage.getItem('vault_saved_prompts') || '[]');
                 var updated = saved.map(function(p) {
@@ -289,31 +584,158 @@
                 });
                 localStorage.setItem('vault_saved_prompts', JSON.stringify(updated));
             } catch(e) {}
-
             window.location.href = VAULT_URL;
         }
 
+        /* ================================================
+           ACTIVATION SEQUENCE ENGINE
+           Only fires for brand-new users who have never
+           seen it. Stored via vault_activation_shown flag.
+           ================================================ */
+        function runActivationSequence(onComplete) {
+            var overlay = document.getElementById('activationOverlay');
+            var progressBar = document.getElementById('activationProgressBar');
+            overlay.style.display = 'flex';
+
+            // Trigger glow animation
+            setTimeout(function() { overlay.classList.add('active'); }, 100);
+
+            var stepTimings = [800, 1800, 2800, 3800, 5000]; // cumulative ms
+            var totalDuration = 6000;
+
+            stepTimings.forEach(function(time, index) {
+                setTimeout(function() {
+                    // Deactivate previous steps
+                    for (var i = 0; i < index; i++) {
+                        var prev = document.getElementById('aStep' + i);
+                        prev.classList.remove('active');
+                        prev.classList.add('complete');
+                    }
+                    // Activate current step
+                    var current = document.getElementById('aStep' + index);
+                    current.classList.add('active');
+
+                    // Update progress bar
+                    var pct = ((index + 1) / 5) * 100;
+                    progressBar.style.width = pct + '%';
+
+                    // Last step: mark complete after brief delay
+                    if (index === stepTimings.length - 1) {
+                        setTimeout(function() {
+                            current.classList.remove('active');
+                            current.classList.add('complete');
+                        }, 800);
+                    }
+                }, time);
+            });
+
+            // Completion: particle burst + fade out
+            setTimeout(function() {
+                triggerActivationParticles();
+                localStorage.setItem('vault_activation_shown', 'true');
+
+                setTimeout(function() {
+                    overlay.classList.add('fade-out');
+                    setTimeout(function() {
+                        overlay.style.display = 'none';
+                        if (onComplete) onComplete();
+                    }, 600);
+                }, 800);
+            }, totalDuration);
+        }
+
+        function triggerActivationParticles() {
+            var container = document.createElement('div');
+            container.className = 'activation-particles';
+            document.body.appendChild(container);
+            var colors = ['#6366f1', '#8b5cf6', '#10b981', '#fbbf24', '#a78bfa'];
+            var cx = window.innerWidth / 2;
+            var cy = window.innerHeight / 2;
+
+            for (var i = 0; i < 40; i++) {
+                (function(idx) {
+                    setTimeout(function() {
+                        var p = document.createElement('div');
+                        p.className = 'a-particle';
+                        p.style.left = cx + 'px';
+                        p.style.top = cy + 'px';
+                        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+                        var size = (Math.random() * 10 + 4) + 'px';
+                        p.style.width = size;
+                        p.style.height = size;
+                        var angle = Math.random() * Math.PI * 2;
+                        var dist = 80 + Math.random() * 200;
+                        p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+                        p.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+                        container.appendChild(p);
+                    }, idx * 25);
+                })(i);
+            }
+            setTimeout(function() { container.remove(); }, 2500);
+        }
+
+        /* ================================================
+           COMMAND CENTER CARD: Dynamic Progress
+           Reads ecosystem data to show real progress.
+           ================================================ */
+        function updateCommandCenterCard() {
+            var completedCount = 1; // At minimum, Prompt Vault is now active
+            try {
+                var eco = JSON.parse(localStorage.getItem('cashvault_ecosystem') || 'null');
+                if (eco && eco.completedCount) {
+                    completedCount = Math.max(eco.completedCount, 1);
+                } else {
+                    // Manual count from individual flags
+                    var keys = ['autopilot_completed', 'freedom_completed', 'waiting_completed',
+                                'investment_completed', 'eightclub_completed', 'budget_completed', 'prompt_completed'];
+                    completedCount = 0;
+                    keys.forEach(function(k) {
+                        if (localStorage.getItem(k) === 'true') completedCount++;
+                    });
+                    completedCount = Math.max(completedCount, 1);
+                }
+            } catch(e) {}
+
+            var pct = Math.round((completedCount / 7) * 100);
+            document.getElementById('ccBadgeCount').textContent = completedCount + '/7';
+            document.getElementById('ccProgressFill').style.width = pct + '%';
+            document.getElementById('ccProgressLabel').textContent = completedCount + ' of 7 activated';
+        }
+
+        /* ================================================
+           LOAD PROMPT (Main Logic)
+           ================================================ */
         function loadPrompt() {
-            /* ================================================
-               WRITE UNLOCK FLAGS IMMEDIATELY.
-               The user gave their email. That fact is permanent.
-               This runs before anything else on the page.
-               ================================================ */
+            // Persist IMMEDIATELY (user verified)
             persistState();
 
             var data = localStorage.getItem(STORAGE_KEY);
-
-            if (!data) {
-                showError();
-                return;
-            }
+            if (!data) { showError(); return; }
 
             try {
                 var prompt = JSON.parse(data);
                 renderPrompt(prompt);
                 autoSaveToVault(prompt);
                 showSavedCount();
-                triggerParticles();
+                updateCommandCenterCard();
+
+                // Decide: Activation Sequence or direct reveal
+                if (isNewUser && !activationShown) {
+                    // Hide main content, run sequence, then reveal
+                    document.getElementById('main-content').style.display = 'none';
+                    runActivationSequence(function() {
+                        document.getElementById('main-content').style.display = 'block';
+                        // Small delay then trigger visible class for fade-in
+                        setTimeout(function() {
+                            document.getElementById('main-content').classList.add('visible');
+                        }, 50);
+                        triggerParticles();
+                    });
+                } else {
+                    // Returning user: instant reveal
+                    document.getElementById('main-content').classList.add('visible');
+                    triggerParticles();
+                }
             } catch (e) {
                 console.error('Failed to parse prompt data:', e);
                 showError();
@@ -357,7 +779,6 @@
                     existing.push(newPrompt);
                     localStorage.setItem('vault_saved_prompts', JSON.stringify(existing));
                 }
-                // Also convert any remaining pending prompts to unlocked
                 var updated = existing.map(function(p) {
                     if (p.status === 'pending') p.status = 'unlocked';
                     return p;
@@ -382,12 +803,13 @@
         function showError() {
             document.getElementById('main-content').style.display = 'none';
             document.getElementById('error-state').style.display = 'block';
+            // Still persist and sync even on error
+            persistState();
         }
 
         function copyPrompt() {
             var data = JSON.parse(localStorage.getItem(STORAGE_KEY));
             if (!data) return;
-
             navigator.clipboard.writeText(data.fullPrompt).then(function() {
                 var btn = document.getElementById('copy-btn');
                 btn.classList.add('copied');
