@@ -140,6 +140,40 @@
             border-color: var(--accent-gold); background: var(--accent-gold-dim);
         }
 
+        /* WELCOME BANNER (NEW - Fix #3) */
+        .welcome-banner {
+            display: none; position: relative; overflow: hidden;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(251, 191, 36, 0.08) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            border-radius: 14px; padding: 18px 20px; margin-bottom: 20px;
+        }
+        .welcome-banner.show { display: flex; align-items: center; gap: 16px; }
+        .welcome-banner::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.04), transparent);
+            animation: shimmer 4s infinite;
+        }
+        .welcome-banner-icon { font-size: 1.8rem; flex-shrink: 0; position: relative; z-index: 1; }
+        .welcome-banner-content { flex: 1; position: relative; z-index: 1; }
+        .welcome-banner-title {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-purple); margin-bottom: 4px;
+        }
+        .welcome-banner-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+        .welcome-banner-desc strong { color: var(--text-primary); }
+        .welcome-banner-btn {
+            flex-shrink: 0; position: relative; z-index: 1;
+            display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px;
+            background: var(--accent-purple); color: #fff; border: none; border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700;
+            cursor: pointer; transition: all 0.2s; text-decoration: none; white-space: nowrap;
+        }
+        .welcome-banner-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); }
+        @media (max-width: 700px) {
+            .welcome-banner.show { flex-direction: column; text-align: center; }
+            .welcome-banner-btn { width: 100%; justify-content: center; }
+        }
+
         /* HERO STATS */
         .hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
         .hero-stat {
@@ -534,6 +568,16 @@
             </div>
         </div>
 
+        <!-- WELCOME BANNER (NEW - Fix #3: Bridge User Onboarding) -->
+        <div class="welcome-banner" id="welcomeBanner">
+            <div class="welcome-banner-icon">⚡</div>
+            <div class="welcome-banner-content">
+                <div class="welcome-banner-title" id="welcomeBannerTitle">System Online</div>
+                <div class="welcome-banner-desc" id="welcomeBannerDesc">Loading next directive...</div>
+            </div>
+            <a href="#" class="welcome-banner-btn" id="welcomeBannerBtn"><span id="welcomeBannerBtnText">Next Tool</span> <span>&rarr;</span></a>
+        </div>
+
         <div class="hero-stats">
             <div class="hero-stat primary">
                 <div class="hero-stat-label">Tools Active</div>
@@ -636,11 +680,10 @@
             for (var i = 0; i < str.length; i++) {
                 var ch = str.charCodeAt(i);
                 hash = ((hash << 5) - hash) + ch;
-                hash = hash & hash; // Convert to 32bit integer
+                hash = hash & hash;
             }
             return hash;
         }
-        // Pre-computed: simpleHash('CASHFLOW') and simpleHash('CERTIFIED')
         var BUDGET_HASH = simpleHash('CASHFLOW');
         var VAULT_HASH = simpleHash('CERTIFIED');
 
@@ -685,7 +728,6 @@
                 fallbackKey: 'vault_saved_prompts',
                 logic: function(p, f) {
                     if (p === 'true') return true;
-                    // FIX #4: Check both categories and saved prompts
                     try {
                         var categories = JSON.parse(localStorage.getItem('prompt_vault_categories_used') || '[]');
                         var savedPrompts = JSON.parse(localStorage.getItem(f) || '[]');
@@ -702,7 +744,6 @@
             return config.logic(primary, config.fallbackKey);
         }
 
-        // FIX #10: Get completion context for system cards
         function getCompletionContext(systemId) {
             try {
                 switch(systemId) {
@@ -755,15 +796,52 @@
         var currentModalSystem = null;
 
         // ==============================================
-        // FIX #1: ACCESS GATE
+        // TEMP ID GENERATOR (Bridge Users: KOU-TXXXXX)
+        // ==============================================
+        function generateTempArchitectId() {
+            var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            var id = 'KOU-T';
+            for (var i = 0; i < 5; i++) {
+                id += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return id;
+        }
+
+        function isBridgeUser() {
+            return localStorage.getItem('vault_email_captured') === 'true';
+        }
+
+        function isTempId(id) {
+            return id && id.length === 10 && id.substring(0, 5) === 'KOU-T';
+        }
+
+        // ==============================================
+        // FIX #1: ACCESS GATE (with bridge bypass)
         // ==============================================
         function checkAccess() {
+            // Path A: Has a real Architect ID from Autopilot
             var architectId = localStorage.getItem('cashvault_architect_id') || localStorage.getItem('command_center_architect_id');
             if (architectId) {
                 document.getElementById('mainDashboard').style.display = 'block';
                 document.getElementById('accessGate').classList.remove('show');
                 return true;
             }
+
+            // Path B: Bridge user (email verified via Prompt Vault bridge)
+            if (isBridgeUser()) {
+                var tempId = localStorage.getItem('command_center_temp_id');
+                if (!tempId) {
+                    tempId = generateTempArchitectId();
+                    localStorage.setItem('command_center_temp_id', tempId);
+                }
+                // Store as command_center_architect_id (NOT cashvault_architect_id)
+                localStorage.setItem('command_center_architect_id', tempId);
+                document.getElementById('mainDashboard').style.display = 'block';
+                document.getElementById('accessGate').classList.remove('show');
+                return true;
+            }
+
+            // Path C: No access. Show gate.
             document.getElementById('mainDashboard').style.display = 'none';
             document.getElementById('accessGate').classList.add('show');
             return false;
@@ -788,7 +866,6 @@
             }
         }
 
-        // Gate input formatting
         document.getElementById('gateIdInput').addEventListener('input', function(e) {
             var value = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
             if (value.length > 0 && !value.startsWith('KOU-') && !value.startsWith('KOU') && !value.startsWith('KO') && !value.startsWith('K')) {
@@ -817,12 +894,15 @@
             loadUnlockStatus();
             renderDashboard();
             trackStartDate();
-            writeEcosystemContext(); // FIX #12
+            updateWelcomeBanner();
+            writeEcosystemContext();
         }
 
         function loadArchitectId() {
+            // Priority: real ID > temp ID > fallback
             currentArchitectId = localStorage.getItem('cashvault_architect_id') ||
                                 localStorage.getItem('command_center_architect_id') ||
+                                localStorage.getItem('command_center_temp_id') ||
                                 'KOU-??????';
         }
 
@@ -848,15 +928,13 @@
             }
         }
 
-        // FIX #3: Completed systems auto-unlock regardless of sequence
         function loadUnlockStatus() {
             unlockedSystems = ['autopilot'];
 
             SYSTEMS.forEach(function(system) {
-                // FIX #3: Self-completed = auto-unlocked (regardless of prerequisite)
                 if (completedSystems.indexOf(system.id) !== -1) {
                     if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
-                    return; // Skip further checks, already unlocked
+                    return;
                 }
 
                 if (system.unlockType === 'completion' && system.unlockRequires) {
@@ -891,14 +969,69 @@
             return 'bronze';
         }
 
-        // FIX #6A: Velocity with narrative copy
+        // ==============================================
+        // FIX #2: VELOCITY WITH 1.1x TIER (kill dead zone)
+        // ==============================================
         function getVelocityScore() {
             var count = completedSystems.length;
             if (count >= 7) return { score: '2.0x', desc: 'Maximum velocity. All tools operational. You are the machine.', label: 'elite' };
             if (count >= 5) return { score: '1.5x', desc: 'High velocity. Two more tools to max. Do not lose momentum.', label: 'high' };
             if (count >= 3) return { score: '1.25x', desc: "You're accelerating. The compound effect is kicking in.", label: 'mid' };
+            if (count >= 2) return { score: '1.1x', desc: 'Second system online. Velocity climbing. Keep stacking.', label: 'rising' };
             if (count >= 1) return { score: '1.0x', desc: 'Engine started. Each tool you complete compounds the last.', label: 'low' };
             return { score: '1.0x', desc: 'Complete your first tool to start building velocity.', label: 'zero' };
+        }
+
+        // ==============================================
+        // FIX #3: WELCOME BANNER (Bridge User Onboarding)
+        // ==============================================
+        function updateWelcomeBanner() {
+            var banner = document.getElementById('welcomeBanner');
+            var titleEl = document.getElementById('welcomeBannerTitle');
+            var descEl = document.getElementById('welcomeBannerDesc');
+            var btnEl = document.getElementById('welcomeBannerBtn');
+            var btnTextEl = document.getElementById('welcomeBannerBtnText');
+
+            // Only show for bridge users who haven't completed all tools
+            if (!isBridgeUser()) { banner.classList.remove('show'); return; }
+
+            // Record entry snapshot on first visit
+            if (!localStorage.getItem('bridge_entry_tool_count')) {
+                localStorage.setItem('bridge_entry_tool_count', String(completedSystems.length));
+            }
+
+            var entryCount = parseInt(localStorage.getItem('bridge_entry_tool_count') || '0', 10);
+
+            // Hide banner once they've completed at least one MORE tool since entering CC
+            if (completedSystems.length > entryCount && completedSystems.length >= 2) {
+                banner.classList.remove('show');
+                return;
+            }
+
+            // Find the next uncompleted + unlocked system to direct them to
+            var nextSystem = SYSTEMS
+                .filter(function(s) { return completedSystems.indexOf(s.id) === -1 && unlockedSystems.indexOf(s.id) !== -1; })
+                .sort(function(a, b) { return a.priority - b.priority; })[0];
+
+            if (!nextSystem) { banner.classList.remove('show'); return; }
+
+            // Dynamic copy based on how many tools they have
+            var count = completedSystems.length;
+            titleEl.textContent = count + '/7 tools active';
+
+            if (count === 0) {
+                descEl.innerHTML = 'You are inside the machine. Zero tools running. <strong>' + nextSystem.name + '</strong> is your ignition switch.';
+            } else if (count === 1) {
+                descEl.innerHTML = 'First system online. <strong>' + nextSystem.name + '</strong> is the next piece. Each one compounds the last.';
+            } else {
+                descEl.innerHTML = count + ' systems running. <strong>' + nextSystem.name + '</strong> is next. Do not stop building.';
+            }
+
+            btnTextEl.textContent = 'Open ' + nextSystem.name.split(' ')[0];
+            btnEl.href = nextSystem.url;
+            btnEl.onclick = null;
+
+            banner.classList.add('show');
         }
 
         function renderDashboard() {
@@ -927,7 +1060,6 @@
             document.getElementById('velocityScore').textContent = velocity.score;
             document.getElementById('velocityDesc').textContent = velocity.desc;
 
-            // FIX #6B: Write velocity to localStorage for cross-app use
             try {
                 localStorage.setItem('cashvault_velocity', JSON.stringify({
                     score: velocity.score,
@@ -942,7 +1074,8 @@
             renderSystemsGrid();
             updateArchitectLevel();
             updateNextAction();
-            writeEcosystemContext(); // FIX #12
+            updateWelcomeBanner();
+            writeEcosystemContext();
         }
 
         function goToFreedomCalc() {
@@ -980,7 +1113,6 @@
                     else if (system.socialAction === 'story') actionBadgeHtml = '<span class="action-badge story">📸 Story to Unlock</span>';
                 }
 
-                // FIX #10: Completion context on card
                 var descText = system.desc;
                 var descClass = 'system-desc';
                 if (isCompleted) {
@@ -1010,7 +1142,6 @@
             });
         }
 
-        // === INFO MODAL (same as original, preserved) ===
         function showInfoModal(system) {
             currentModalSystem = system;
             var modal = document.getElementById('infoModal');
@@ -1105,7 +1236,6 @@
             document.querySelectorAll('.dual-section').forEach(function(el, i) { el.classList.toggle('show', i === index); });
         }
 
-        // === CODE VERIFICATION (FIX #2: Hash comparison) ===
         function showBudgetCodeModal() {
             document.getElementById('budgetCodeInput').value = '';
             document.getElementById('budgetCodeError').style.display = 'none';
@@ -1153,7 +1283,6 @@
             }
         }
 
-        // FIX #2 + #11: Success modal (replaces alert for code unlocks)
         function showSuccessModal(titleText, descText) {
             var modal = document.getElementById('infoModal');
             var card = document.getElementById('infoModalCard');
@@ -1167,7 +1296,6 @@
             setTimeout(function() { modal.classList.remove('show'); }, 2000);
         }
 
-        // FIX #8: Level progress starts at 0% for 0 systems
         function updateArchitectLevel() {
             var count = completedSystems.length;
             var badge = document.getElementById('levelBadge');
@@ -1186,7 +1314,6 @@
             else if (count >= 3) { level = 'silver'; progress = 40 + ((count - 3) / 2) * 30; nextReward = (5 - count) + ' more → Gold'; }
             else {
                 level = 'bronze';
-                // FIX #8: 0 systems = 0%, 1 system = 15%, scales to 40% at 3
                 progress = count === 0 ? 0 : 5 + (count / 3) * 35;
                 nextReward = (3 - count) + ' more → Silver';
             }
@@ -1199,7 +1326,6 @@
             next.textContent = nextReward;
         }
 
-        // FIX #7: Next Action with level-up prompt when no unlocked+incomplete exists
         function updateNextAction() {
             var title = document.getElementById('nextActionTitle');
             var desc = document.getElementById('nextActionDesc');
@@ -1229,7 +1355,6 @@
                 btn.onclick = null;
                 btnText.textContent = 'Open ' + nextSystem.name.split(' ')[0];
             } else {
-                // FIX #7: Level-up prompt when no unlocked+incomplete system exists
                 var nextLocked = SYSTEMS.find(function(s) {
                     return completedSystems.indexOf(s.id) === -1 && unlockedSystems.indexOf(s.id) === -1;
                 });
@@ -1248,7 +1373,6 @@
             }
         }
 
-        // === SHARING (FIX #11: Modal instead of alert) ===
         function shareToInstagram() {
             var modal = document.getElementById('shareModal');
             document.getElementById('shareCardId').textContent = currentArchitectId;
@@ -1277,13 +1401,12 @@
             setTimeout(function() { badge.innerHTML = original; }, 1500);
         }
 
-        // ==============================================
-        // FIX #12: ECOSYSTEM CONTEXT (cross-app awareness)
-        // ==============================================
         function writeEcosystemContext() {
             try {
                 var context = {
                     architectId: currentArchitectId,
+                    isTempId: isTempId(currentArchitectId),
+                    isBridgeUser: isBridgeUser(),
                     level: getArchitectLevel(),
                     velocity: getVelocityScore().score,
                     completedCount: completedSystems.length,
