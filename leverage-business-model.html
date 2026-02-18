@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE LEVERAGE BUSINESS MODEL // Kou Talks Money</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f; --bg2: #111119; --bg3: #18182a; --border: #1e1e2e; --border2: #2a2a3e;
+  --blue: #3b82f6; --electric: #60a5fa; --cyan: #22d3ee; --green: #10b981;
+  --amber: #f59e0b; --red: #ef4444; --purple: #c084fc; --orange: #f97316;
+  --text: #f0f0f5; --text2: #8888a0; --text3: #55556a;
+  --mono: 'Space Mono', monospace; --display: 'Outfit', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--display); min-height: 100vh; }
+.page { max-width: 940px; margin: 0 auto; padding: 28px 20px 100px; }
+
+/* TAPE */
+.tape {
+  background: linear-gradient(135deg, #1e3a6e, #2d5bb9, #3b82f6);
+  border-radius: 2px; padding: 16px 24px; margin-bottom: 28px;
+  transform: rotate(-0.3deg); box-shadow: 0 4px 24px rgba(59,130,246,0.2);
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+}
+.tape-label { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+.tape-num { font-family: var(--mono); font-size: 28px; font-weight: 700; color: #fff; }
+.tape-num span { font-size: 12px; opacity: 0.6; margin-left: 6px; }
+
+/* HEADER */
+.model-header {
+  text-align: center; margin-bottom: 28px; padding: 32px 24px;
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: 14px;
+  position: relative; overflow: hidden;
+}
+.model-header::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(59,130,246,0.08), transparent 70%);
+  pointer-events: none;
+}
+.model-header .badge { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; position: relative; }
+.model-header h1 { font-size: 28px; font-weight: 900; color: var(--text); position: relative; margin-bottom: 8px; }
+.model-header .sub { font-size: 13px; color: var(--text2); font-weight: 300; position: relative; line-height: 1.6; max-width: 600px; margin: 0 auto; }
+
+/* CORE LOOP */
+.core-loop {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+  gap: 6px; padding: 20px; margin: 20px 0 28px;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+}
+.loop-node {
+  padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  border: 1px solid transparent; white-space: nowrap;
+}
+.loop-arrow { color: var(--text3); font-size: 16px; }
+
+/* NAV */
+.nav {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px;
+  padding: 12px 14px; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(12px);
+}
+.nav-btn {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 6px 10px; border-radius: 4px; border: 1px solid var(--border2);
+  background: transparent; color: var(--text2); cursor: pointer; transition: all 0.2s;
+}
+.nav-btn:hover, .nav-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+/* SECTION */
+.section {
+  margin-bottom: 24px; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.section-head {
+  padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between;
+  align-items: center; transition: background 0.2s;
+}
+.section-head:hover { background: var(--bg3); }
+.section-head .sh-left { display: flex; align-items: center; gap: 12px; }
+.section-num {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  background: var(--blue); color: #fff; width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; flex-shrink: 0;
+}
+.section-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.section-tag { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 1px; }
+.chevron { color: var(--text3); transition: transform 0.3s; font-size: 18px; }
+.section.open .chevron { transform: rotate(180deg); }
+.section-body { display: none; padding: 0 20px 20px; }
+.section.open .section-body { display: block; }
+
+/* BLOCKS */
+.block {
+  margin-bottom: 16px; padding: 16px 20px; background: var(--bg3);
+  border: 1px solid var(--border); border-radius: 10px;
+}
+.block-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--blue); margin-bottom: 8px;
+}
+.block p { font-size: 13px; color: var(--text2); line-height: 1.7; font-weight: 300; margin-bottom: 8px; }
+.block p:last-child { margin-bottom: 0; }
+.block strong { font-weight: 600; color: var(--text); }
+.hl { color: var(--electric); }
+
+/* CALLOUT */
+.callout {
+  padding: 16px 20px; border-radius: 10px; margin: 16px 0;
+  border-left: 3px solid var(--blue);
+}
+.callout.blue { background: rgba(59,130,246,0.06); border-color: var(--blue); }
+.callout.green { background: rgba(16,185,129,0.06); border-color: var(--green); }
+.callout.red { background: rgba(239,68,68,0.06); border-color: var(--red); }
+.callout.amber { background: rgba(245,158,11,0.06); border-color: var(--amber); }
+.callout.purple { background: rgba(192,132,252,0.06); border-color: var(--purple); }
+.callout p { font-size: 13px; color: var(--text); line-height: 1.6; }
+.callout strong { font-weight: 700; }
+
+/* DATA TABLE */
+.dtable {
+  width: 100%; border-collapse: collapse; margin: 12px 0;
+  background: var(--bg3); border-radius: 8px; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.dtable th {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+  color: rgba(255,255,255,0.6); padding: 10px 14px; text-align: left;
+  background: var(--dark, #1a1a2e); border-bottom: 1px solid var(--border);
+}
+.dtable td {
+  font-size: 12px; padding: 9px 14px; border-bottom: 1px solid var(--border);
+  color: var(--text2); line-height: 1.5;
+}
+.dtable tr:last-child td { border-bottom: none; }
+.dtable .val { font-weight: 600; color: var(--blue); font-family: var(--mono); font-size: 12px; }
+.dtable .val-green { font-weight: 600; color: var(--green); font-family: var(--mono); }
+.dtable .val-amber { font-weight: 600; color: var(--amber); font-family: var(--mono); }
+.dtable .val-red { font-weight: 600; color: var(--red); font-family: var(--mono); }
+.dtable .highlight { background: rgba(59,130,246,0.06); }
+
+/* PHASE CARD */
+.phase-card {
+  margin: 12px 0; border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.phase-head {
+  padding: 12px 18px; display: flex; justify-content: space-between;
+  align-items: center; cursor: pointer;
+}
+.phase-head h3 { font-size: 14px; font-weight: 700; color: #fff; }
+.phase-head .phase-rev { font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,0.7); }
+.phase-body { padding: 16px 18px; background: var(--bg3); display: none; }
+.phase-card.open .phase-body { display: block; }
+.phase-body p { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 8px; }
+.phase-body strong { color: var(--text); font-weight: 600; }
+.phase-body .metric-row {
+  display: flex; justify-content: space-between; padding: 6px 0;
+  border-bottom: 1px solid var(--border); font-size: 12px;
+}
+.phase-body .metric-row:last-child { border-bottom: none; }
+.phase-body .metric-label { color: var(--text2); }
+.phase-body .metric-val { font-weight: 600; color: var(--text); font-family: var(--mono); }
+
+/* FUNNEL STAGE */
+.funnel-stage {
+  padding: 14px 18px; margin: 8px 0; border-radius: 8px;
+  background: var(--bg3); border-left: 3px solid var(--blue);
+}
+.funnel-stage .fs-num {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 4px;
+}
+.funnel-stage h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.funnel-stage p { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 4px; }
+.funnel-stage .fs-metric { font-family: var(--mono); font-size: 11px; color: var(--green); }
+
+/* MOAT */
+.moat-card {
+  padding: 14px 18px; margin: 8px 0; border-radius: 8px;
+  background: var(--bg3); border: 1px solid var(--border);
+}
+.moat-card .moat-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.moat-card p { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+/* FLYWHEEL */
+.flywheel-step {
+  display: flex; gap: 12px; padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.flywheel-step:last-child { border-bottom: none; }
+.fw-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  color: #fff; flex-shrink: 0;
+}
+.fw-content { flex: 1; }
+.fw-content strong { font-size: 13px; color: var(--text); }
+.fw-content p { font-size: 12px; color: var(--text2); line-height: 1.5; margin-top: 2px; }
+
+/* PRINCIPLE */
+.principle {
+  padding: 14px 18px; margin: 8px 0; border-radius: 8px;
+  background: var(--bg3); border-left: 3px solid var(--purple);
+}
+.principle h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.principle p { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+/* REVENUE MAP */
+.rev-map { width: 100%; border-collapse: collapse; margin: 12px 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.rev-map th { font-family: var(--mono); font-size: 8px; letter-spacing: 1px; text-transform: uppercase; padding: 8px 10px; background: #1a1a2e; color: rgba(255,255,255,0.5); text-align: center; border-bottom: 1px solid var(--border); }
+.rev-map th:first-child { text-align: left; }
+.rev-map td { font-size: 11px; padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: center; color: var(--text3); }
+.rev-map td:first-child { text-align: left; color: var(--text2); font-weight: 500; }
+.rev-map .active { color: var(--green); font-weight: 600; }
+.rev-map .launch { color: var(--green); font-weight: 700; }
+
+
+/* GOAL EVOLUTION */
+.goal-map { margin: 16px 0; overflow-x: auto; }
+.goal-map table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.goal-map th { font-family: var(--mono); font-size: 8px; letter-spacing: 1px; text-transform: uppercase; padding: 8px 10px; background: #1a1a2e; color: rgba(255,255,255,0.5); text-align: center; border-bottom: 1px solid var(--border); }
+.goal-map th:first-child { text-align: left; min-width: 100px; }
+.goal-map td { font-size: 10px; padding: 7px 8px; border-bottom: 1px solid var(--border); text-align: center; color: var(--text2); line-height: 1.4; vertical-align: top; }
+.goal-map td:first-child { text-align: left; font-weight: 600; color: var(--text); font-size: 11px; }
+.goal-map .gm-rank { font-family: var(--mono); font-size: 9px; font-weight: 700; display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 3px; color: #fff; margin-right: 4px; }
+.goal-map .gm-score { font-family: var(--mono); font-size: 9px; opacity: 0.7; }
+
+.goal-header {
+  margin: 12px 0; padding: 12px 16px; background: rgba(59,130,246,0.04);
+  border: 1px solid var(--border); border-radius: 8px;
+}
+.goal-header .gh-title {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 8px;
+}
+.gh-grid { display: flex; flex-direction: column; gap: 6px; }
+.gh-row {
+  display: flex; align-items: center; gap: 8px; padding: 4px 8px;
+  border-radius: 4px; background: var(--bg3);
+}
+.gh-rank {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+  border-radius: 4px; color: #fff; flex-shrink: 0;
+}
+.gh-info { flex: 1; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.gh-name { font-size: 11px; font-weight: 600; color: var(--text); white-space: nowrap; }
+.gh-score { font-family: var(--mono); font-size: 9px; color: var(--text3); }
+.gh-desc { font-size: 11px; color: var(--text2); }
+@media (max-width: 640px) {
+  .gh-row { flex-wrap: wrap; }
+  .goal-map td { font-size: 9px; padding: 5px 4px; }
+}
+
+/* BOTTOM */
+.bottom {
+  margin-top: 40px; padding: 28px; background: var(--bg2);
+  border: 1px solid rgba(59,130,246,0.2); border-radius: 14px;
+  text-align: center;
+}
+.bottom p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.bottom .final { font-size: 15px; font-weight: 600; color: var(--electric); margin-top: 12px; }
+
+@media (max-width: 640px) {
+  .core-loop { flex-direction: column; }
+  .loop-arrow { transform: rotate(90deg); }
+  .nav { position: static; }
+  .nav-btn { font-size: 8px; padding: 5px 7px; }
+  .phase-head { flex-direction: column; gap: 4px; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- TAPE -->
+<div class="tape">
+  <div>
+    <div class="tape-label">Blue Tape // Days to $1M</div>
+    <div class="tape-num" id="days">---<span>DAYS</span></div>
+  </div>
+  <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.5);text-align:right;letter-spacing:1px;">BUSINESS MODEL<br>v1.0</div>
+</div>
+
+<!-- HEADER -->
+<div class="model-header">
+  <div class="badge">Full Roadmap // Validation to Scale</div>
+  <h1>THE LEVERAGE BUSINESS MODEL</h1>
+  <div class="sub">Free tools attract attention. Content drives traffic. Tools capture email. Email builds trust. Trust converts to revenue. Revenue funds better content. The machine compounds.</div>
+</div>
+
+<!-- CORE LOOP -->
+<div class="core-loop">
+  <div class="loop-node" style="background:rgba(59,130,246,0.12);border-color:rgba(59,130,246,0.3);color:var(--blue);">Content</div>
+  <div class="loop-arrow">&#8594;</div>
+  <div class="loop-node" style="background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.3);color:var(--green);">Free Tool</div>
+  <div class="loop-arrow">&#8594;</div>
+  <div class="loop-node" style="background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.3);color:var(--amber);">Email Capture</div>
+  <div class="loop-arrow">&#8594;</div>
+  <div class="loop-node" style="background:rgba(192,132,252,0.12);border-color:rgba(192,132,252,0.3);color:var(--purple);">Trust Sequence</div>
+  <div class="loop-arrow">&#8594;</div>
+  <div class="loop-node" style="background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.3);color:var(--red);">Paid Product</div>
+  <div class="loop-arrow">&#8594;</div>
+  <div class="loop-node" style="background:rgba(34,211,238,0.12);border-color:rgba(34,211,238,0.3);color:var(--cyan);">Revenue</div>
+  <div class="loop-arrow">&#8635;</div>
+</div>
+
+<!-- NAV -->
+<div class="nav" id="nav">
+  <button class="nav-btn active" data-target="s1">Baseline</button>
+  <button class="nav-btn" data-target="s2">Value Engine</button>
+  <button class="nav-btn" data-target="sGoals">Goal Map</button>
+  <button class="nav-btn" data-target="s3">Product Ladder</button>
+  <button class="nav-btn" data-target="s4">Funnel</button>
+  <button class="nav-btn" data-target="s5">Unit Economics</button>
+  <button class="nav-btn" data-target="s6">Costs</button>
+  <button class="nav-btn" data-target="s7">Moat</button>
+  <button class="nav-btn" data-target="s8">Flywheel</button>
+  <button class="nav-btn" data-target="s9">$1M Path</button>
+  <button class="nav-btn" data-target="s10">Revenue Map</button>
+  <button class="nav-btn" data-target="s11">Principles</button>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S1: CURRENT STATE BASELINE -->
+<!-- ═══════════════════════════════════ -->
+<div class="section open" id="s1">
+  <div class="section-head" onclick="toggleSection(this)">
+    <div class="sh-left">
+      <div class="section-num">01</div>
+      <div><div class="section-title">Current State Baseline</div><div class="section-tag">Where we are. No fiction.</div></div>
+    </div>
+    <div class="chevron">&#9662;</div>
+  </div>
+  <div class="section-body">
+    <table class="dtable">
+      <tr><th>Metric</th><th>Current</th><th>Context</th></tr>
+      <tr><td>Monthly Revenue</td><td class="val-red">$0</td><td>Pre-revenue. No validated paid product yet.</td></tr>
+      <tr><td>Email Subscribers</td><td class="val">&lt;100</td><td>Beehiiv. No automated welcome sequence active.</td></tr>
+      <tr><td>Instagram Followers</td><td class="val">&lt;500</td><td>Largest platform. Organic only, no ad spend.</td></tr>
+      <tr><td>Validated Product</td><td class="val-red">None</td><td>Free tools exist. No paid offer tested.</td></tr>
+      <tr><td>Weekly Hours</td><td class="val-amber">5-8 hrs</td><td>College + $18/hr job. Non-negotiable constraint.</td></tr>
+      <tr><td>Existing Assets</td><td class="val-green">6 Web Apps</td><td>Free tools on GitHub Pages. Functional and branded.</td></tr>
+      <tr><td>Capital Available</td><td class="val-red">$0</td><td>No ad budget. Organic-only growth.</td></tr>
+      <tr><td>Business Phase</td><td class="val-amber">VALIDATION</td><td>Not scaling. Proving someone will pay.</td></tr>
+    </table>
+    <div class="callout red">
+      <p><strong>The honest assessment:</strong> You have built impressive tools and a distinctive brand identity, but you have not yet confirmed that anyone will pay you for anything. This model is designed to answer that question first, then scale what works.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S2: THE VALUE ENGINE -->
+<!-- ═══════════════════════════════════ -->
+<div class="section" id="s2">
+  <div class="section-head" onclick="toggleSection(this)">
+    <div class="sh-left">
+      <div class="section-num">02</div>
+      <div><div class="section-title">The Value Engine</div><div class="section-tag">3 layers. Remove one, the machine breaks.</div></div>
+    </div>
+    <div class="chevron">&#9662;</div>
+  </div>
+  <div class="section-body">
+    <div class="block">
+      <div class="block-label" style="color:var(--blue);">Layer 1: Attention (Content)</div>
+      <p><strong>Function:</strong> Generate new eyeballs. Pull strangers into the ecosystem. Content does not sell. Content creates awareness and curiosity.</p>
+      <p><strong>Format:</strong> 30-60 second vertical videos filmed from The Cockpit. Raw, unpolished, proof-based. Every video addresses a symptom ("why saving feels impossible") and reveals a tool as the mechanism (Trojan Horse Rule). Every video ends with ONE keyword CTA.</p>
+      <p><strong>Channels:</strong> Instagram Reels (primary), YouTube Shorts (secondary). No Twitter/X.</p>
+      <p><strong>Output:</strong> 2 videos per week. Batch recorded in 2-hour sessions biweekly.</p>
+    </div>
+    <div class="block">
+      <div class="block-label" style="color:var(--green);">Layer 2: Trust (Free Tools + Email)</div>
+      <p><strong>Function:</strong> Convert anonymous attention into identified relationships. Free tools give immediate, personalized value (your Freedom Number, your cost of waiting, your credit roadmap). This earns trust generic content cannot.</p>
+      <p><strong>Tool Ecosystem:</strong> Freedom Calculator (MYNUMBER), Cost of Waiting (LEAK), 800-Club Checklist (ELITE800), Autopilot Map (AUTOPILOT), Prompt Vault (CHEAT), Investment Simplifier (BUILD50), Budget Calculator (PAYDAY).</p>
+      <p><strong>Trust Sequence:</strong> 3-email automated welcome in Beehiiv. Email 1 (immediate): deliver result + insight. Email 2 (Day 2): deeper math. Email 3 (Day 5): relationship bridge or soft offer. Runs on autopilot forever.</p>
+    </div>
+    <div class="block">
+      <div class="block-label" style="color:var(--red);">Layer 3: Revenue (Paid Products)</div>
+      <p><strong>Function:</strong> Convert trust into transactions. Paid products deliver outcomes free tools cannot: done-for-you systems, personalized guidance, step-by-step execution paths.</p>
+      <p><strong>Key distinction:</strong> The free tool shows the WHAT (your number, your cost, your score). The paid product delivers the HOW (exact steps to fix it).</p>
+      <p><strong>Pricing:</strong> Target audience is Gen Z (19-23) making $12-22/hr. Impulse buy threshold: $9-29. First product lives here.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════ -->
+<!-- GOAL EVOLUTION MAP -->
+<!-- ═══════════════════════════════════ -->
+<div class="section" id="sGoals">
+  <div class="section-head" onclick="toggleSection(this)">
+    <div class="sh-left">
+      <div class="section-num" style="background:var(--purple);">GM</div>
+      <div><div class="section-title">Goal Evolution Map</div><div class="section-tag">4 goals. 5 phases. Priority shifts as the business evolves.</div></div>
+    </div>
+    <div class="chevron">&#9662;</div>
+  </div>
+  <div class="section-body">
+    <div class="block">
+      <div class="block-label">The 4 Validated Goals (Ranked by Leverage Score)</div>
+      <p>These 4 goals were validated through a 10-factor leverage analysis scoring Impact, Compounding, Time-to-Value, Reversibility, Dependency, Alignment, Risk, Simplicity, Measurability, and Opportunity Cost. They do not change. They <strong>evolve</strong>. The same goal means different things at different scales. The priority ranking shifts based on what creates the most leverage in each phase.</p>
+      <p style="margin-top:8px;">
+        <strong style="color:#ef4444;">G1: PMF Validation (34/40)</strong> - Does anyone want this enough to pay?<br>
+        <strong style="color:#3b82f6;">G2: Email Capture Infrastructure (32/40)</strong> - Can we own the relationship?<br>
+        <strong style="color:#f59e0b;">G3: Content-to-Capture Engine (32/40)</strong> - Can we turn attention into subscribers?<br>
+        <strong style="color:#10b981;">G4: Automation Layer (30/40)</strong> - Can we remove the founder from repeatable tasks?
+      </p>
+    </div>
+
+    <div class="block">
+      <div class="block-label">How Goals Evolve Across 5 Phases</div>
+      
+    <div class="goal-map">
+      <table>
+        <tr><th>Goal</th><th>Ph 1: Validation</th><th>Ph 2: Foundation</th><th>Ph 3: Scale</th><th>Ph 4: Leverage</th><th>Ph 5: Compound</th></tr>
+        <tr><td style="border-left:3px solid #ef4444;">G1: PMF Validation</td><td><span class="gm-rank" style="background:#ef4444;">P1</span> <span class="gm-score">34/40</span><br>Prove someone will pay $19 for your product</td><td><span class="gm-rank" style="background:#ef4444;">P3</span> <span class="gm-score">33/40</span><br>Validate Silver tier ($49) upsell demand</td><td><span class="gm-rank" style="background:#ef4444;">P3</span> <span class="gm-score">34/40</span><br>Validate Gold tier ($149) and first brand deal</td><td><span class="gm-rank" style="background:#ef4444;">P4</span> <span class="gm-score">33/40</span><br>Validate recurring revenue model (community MRR)</td><td><span class="gm-rank" style="background:#ef4444;">P4</span> <span class="gm-score">34/40</span><br>New revenue stream validation (licensing, speaking, affiliates)</td></tr>
+<tr><td style="border-left:3px solid #3b82f6;">G2: Email Capture</td><td><span class="gm-rank" style="background:#3b82f6;">P2</span> <span class="gm-score">32/40</span><br>Build capture infrastructure from zero</td><td><span class="gm-rank" style="background:#3b82f6;">P2</span> <span class="gm-score">35/40</span><br>Scale list to 2,000+, segment subscribers, re-engage inactive</td><td><span class="gm-rank" style="background:#3b82f6;">P4</span> <span class="gm-score">33/40</span><br>A/B test funnels, optimize every conversion point</td><td><span class="gm-rank" style="background:#3b82f6;">P2</span> <span class="gm-score">36/40</span><br>Leverage 10,000+ list for community launch and consulting</td><td><span class="gm-rank" style="background:#3b82f6;">P3</span> <span class="gm-score">35/40</span><br>25,000+ list growing passively from content library</td></tr>
+<tr><td style="border-left:3px solid #f59e0b;">G3: Content Engine</td><td><span class="gm-rank" style="background:#f59e0b;">P3</span> <span class="gm-score">32/40</span><br>Find voice, test hooks, drive MVO traffic</td><td><span class="gm-rank" style="background:#f59e0b;">P1</span> <span class="gm-score">36/40</span><br>Systematize winning formula, build the content library</td><td><span class="gm-rank" style="background:#f59e0b;">P1</span> <span class="gm-score">38/40</span><br>Authority content, collaborations, multi-platform output</td><td><span class="gm-rank" style="background:#f59e0b;">P3</span> <span class="gm-score">35/40</span><br>Community-driven content, thought leadership positioning</td><td><span class="gm-rank" style="background:#f59e0b;">P2</span> <span class="gm-score">37/40</span><br>Creative director mode, legacy content architecture</td></tr>
+<tr><td style="border-left:3px solid #10b981;">G4: Automation Layer</td><td><span class="gm-rank" style="background:#10b981;">P4</span> <span class="gm-score">30/40</span><br>Basic scheduling, ManyChat, weekly operating rhythm</td><td><span class="gm-rank" style="background:#10b981;">P4</span> <span class="gm-score">32/40</span><br>Evergreen Bronze funnel, automated upsell sequences</td><td><span class="gm-rank" style="background:#10b981;">P2</span> <span class="gm-score">36/40</span><br>Full product ladder automated, all SOPs documented</td><td><span class="gm-rank" style="background:#10b981;">P1</span> <span class="gm-score">38/40</span><br>Community platform, consulting booking, financial operations</td><td><span class="gm-rank" style="background:#10b981;">P1</span> <span class="gm-score">40/40</span><br>Team operations, passive systems, investment pipeline</td></tr>
+
+      </table>
+    </div>
+    <div class="callout blue" style="margin-top:12px;">
+      <p><strong>How to read this map:</strong> P1 = highest leverage priority for that phase. Scores shift as business context changes. In Phase 1, PMF is everything because nothing matters without it. By Phase 4, Automation is P1 because the founder's time is the bottleneck. Goals do not disappear. They evolve. The same goal (Email Capture) means "build popups" in Phase 1 and "leverage 10,000+ list for community launch" in Phase 4.</p>
+    </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Why Priority Shifts</div>
+      <p><strong style="color:#ef4444;">Phase 1:</strong> PMF is P1 because nothing else matters if nobody pays. Email and Content are infrastructure that supports the validation test.</p>
+      <p><strong style="color:#f59e0b;">Phase 2-3:</strong> Content Engine rises to P1 because PMF is proven and growth becomes the primary lever. More content = more traffic = more subscribers = more revenue. The engine IS the business.</p>
+      <p><strong style="color:#10b981;">Phase 4-5:</strong> Automation becomes P1 because the founder's 5-8 hours/week is the ceiling. Recurring revenue systems (community), delegation, and passive infrastructure break through the time constraint. Without automation, revenue plateaus at whatever one person can manually produce.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S3: PRODUCT LADDER (5 PHASES) -->
+<!-- ═══════════════════════════════════ -->
+<div class="section" id="s3">
+  <div class="section-head" onclick="toggleSection(this)">
+    <div class="sh-left">
+      <div class="section-num">03</div>
+      <div><div class="section-title">The Product Ladder (5 Phases)</div><div class="section-tag">Each phase unlocks the next. Data, not ambition.</div></div>
+    </div>
+    <div class="chevron">&#9662;</div>
+  </div>
+  <div class="section-body">
+
+    <!-- PHASE 1 -->
+    <div class="phase-card open">
+      <div class="phase-head" style="background:linear-gradient(135deg,#7f1d1d,#b91c1c);" onclick="this.parentElement.classList.toggle('open')">
+        <h3>Phase 1: Validation (Months 1-3)</h3>
+        <div class="phase-rev">Target: First $100</div>
+      </div>
+      <div class="phase-body">
+    <div class="goal-header">
+      <div class="gh-title">Goal Priority Ranking // Phase 1</div>
+      <div class="gh-grid">
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#ef4444;">P1</div>
+        <div class="gh-info">
+          <span class="gh-name">G1: PMF Validation</span>
+          <span class="gh-score">34/40</span>
+          <span class="gh-desc">Prove someone will pay $19 for your product</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#3b82f6;">P2</div>
+        <div class="gh-info">
+          <span class="gh-name">G2: Email Capture</span>
+          <span class="gh-score">32/40</span>
+          <span class="gh-desc">Build capture infrastructure from zero</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#f59e0b;">P3</div>
+        <div class="gh-info">
+          <span class="gh-name">G3: Content Engine</span>
+          <span class="gh-score">32/40</span>
+          <span class="gh-desc">Find voice, test hooks, drive MVO traffic</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#10b981;">P4</div>
+        <div class="gh-info">
+          <span class="gh-name">G4: Automation Layer</span>
+          <span class="gh-score">30/40</span>
+          <span class="gh-desc">Basic scheduling, ManyChat, weekly operating rhythm</span>
+        </div>
+      </div>
+      </div>
+    </div>
+        <p><strong>Objective:</strong> Confirm someone will pay. First revenue.</p>
+        <p><strong>Product:</strong> ONE validated digital product at $19. Whichever MVO concept wins the 3-week test.</p>
+        <p><strong>Concepts being tested:</strong></p>
+        <p>Concept A: <strong>Autopilot Money Kit ($19)</strong> - Pre-built budget spreadsheet + automation guide + credit checklist.</p>
+        <p>Concept B: <strong>Investment Simplifier Pro ($29)</strong> - Premium version with personalized recommendations + 5-day email mini-course.</p>
+        <p>Concept C: <strong>Capital Blueprint ($24)</strong> - Comprehensive guide (ebook + toolkit + 3 video walkthroughs).</p>
+        <div class="metric-row"><span class="metric-label">Revenue target</span><span class="metric-val" style="color:var(--green);">First $100 from a stranger</span></div>
+        <div class="metric-row"><span class="metric-label">Advancement trigger</span><span class="metric-val">5+ sales from organic traffic</span></div>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase-card">
+      <div class="phase-head" style="background:linear-gradient(135deg,#78350f,#b45309);" onclick="this.parentElement.classList.toggle('open')">
+        <h3>Phase 2: Foundation (Months 4-9)</h3>
+        <div class="phase-rev">Target: $500-2,000/mo</div>
+      </div>
+      <div class="phase-body">
+    <div class="goal-header">
+      <div class="gh-title">Goal Priority Ranking // Phase 2</div>
+      <div class="gh-grid">
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#f59e0b;">P1</div>
+        <div class="gh-info">
+          <span class="gh-name">G3: Content Engine</span>
+          <span class="gh-score">36/40</span>
+          <span class="gh-desc">Systematize winning formula, build the content library</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#3b82f6;">P2</div>
+        <div class="gh-info">
+          <span class="gh-name">G2: Email Capture</span>
+          <span class="gh-score">35/40</span>
+          <span class="gh-desc">Scale list to 2,000+, segment subscribers, re-engage inactive</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#ef4444;">P3</div>
+        <div class="gh-info">
+          <span class="gh-name">G1: PMF Validation</span>
+          <span class="gh-score">33/40</span>
+          <span class="gh-desc">Validate Silver tier ($49) upsell demand</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#10b981;">P4</div>
+        <div class="gh-info">
+          <span class="gh-name">G4: Automation Layer</span>
+          <span class="gh-score">32/40</span>
+          <span class="gh-desc">Evergreen Bronze funnel, automated upsell sequences</span>
+        </div>
+      </div>
+      </div>
+    </div>
+        <p><strong>Objective:</strong> Establish repeatable revenue. Introduce second tier.</p>
+        <p><strong>Bronze ($19):</strong> Validated Phase 1 product, optimized from buyer feedback. Entry point for new customers.</p>
+        <p><strong>Silver ($49):</strong> Deeper system built from buyer feedback. Hands-on walkthrough with screen recordings, templates, 7-day email implementation course. Solves the next problem Bronze buyers hit.</p>
+        <p><strong>Revenue streams:</strong> Product sales (primary) + YouTube AdSense (begins ~Month 6-9).</p>
+        <div class="metric-row"><span class="metric-label">Revenue target</span><span class="metric-val" style="color:var(--green);">$500-2,000/month by Month 9</span></div>
+        <div class="metric-row"><span class="metric-label">Email list target</span><span class="metric-val">2,000 subscribers</span></div>
+        <div class="metric-row"><span class="metric-label">Advancement trigger</span><span class="metric-val">50+ total sales + 3 unsolicited testimonials</span></div>
+      </div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase-card">
+      <div class="phase-head" style="background:linear-gradient(135deg,#1e3a8a,#2563eb);" onclick="this.parentElement.classList.toggle('open')">
+        <h3>Phase 3: Scale (Months 10-18)</h3>
+        <div class="phase-rev">Target: $2,000-5,000/mo</div>
+      </div>
+      <div class="phase-body">
+    <div class="goal-header">
+      <div class="gh-title">Goal Priority Ranking // Phase 3</div>
+      <div class="gh-grid">
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#f59e0b;">P1</div>
+        <div class="gh-info">
+          <span class="gh-name">G3: Content Engine</span>
+          <span class="gh-score">38/40</span>
+          <span class="gh-desc">Authority content, collaborations, multi-platform output</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#10b981;">P2</div>
+        <div class="gh-info">
+          <span class="gh-name">G4: Automation Layer</span>
+          <span class="gh-score">36/40</span>
+          <span class="gh-desc">Full product ladder automated, all SOPs documented</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#ef4444;">P3</div>
+        <div class="gh-info">
+          <span class="gh-name">G1: PMF Validation</span>
+          <span class="gh-score">34/40</span>
+          <span class="gh-desc">Validate Gold tier ($149) and first brand deal</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#3b82f6;">P4</div>
+        <div class="gh-info">
+          <span class="gh-name">G2: Email Capture</span>
+          <span class="gh-score">33/40</span>
+          <span class="gh-desc">A/B test funnels, optimize every conversion point</span>
+        </div>
+      </div>
+      </div>
+    </div>
+        <p><strong>Objective:</strong> Full product ladder live. Multiple revenue streams compounding.</p>
+        <p><strong>Bronze ($19):</strong> Entry product. Optimized landing page with social proof from Phase 2.</p>
+        <p><strong>Silver ($49):</strong> Mid-tier system, refined from Phase 2 feedback.</p>
+        <p><strong>Gold ($149):</strong> Premium tier. Comprehensive video course with live Q&A, cohort program ("Build Your Machine in 30 Days"), or all-access bundle + community for one year. Only built when 30%+ of Silver buyers ask for more.</p>
+        <p><strong>Streams:</strong> Product sales + YouTube AdSense (growing) + first brand deals ($500-2,000/deal).</p>
+        <div class="metric-row"><span class="metric-label">Revenue target</span><span class="metric-val" style="color:var(--green);">$2,000-5,000/month</span></div>
+        <div class="metric-row"><span class="metric-label">Email list target</span><span class="metric-val">5,000 subscribers</span></div>
+        <div class="metric-row"><span class="metric-label">Advancement trigger</span><span class="metric-val">$3,000+/mo consistent + 5k avg views</span></div>
+      </div>
+    </div>
+
+    <!-- PHASE 4 -->
+    <div class="phase-card">
+      <div class="phase-head" style="background:linear-gradient(135deg,#064e3b,#059669);" onclick="this.parentElement.classList.toggle('open')">
+        <h3>Phase 4: Leverage (Months 18-36)</h3>
+        <div class="phase-rev">Target: $5,000-15,000/mo</div>
+      </div>
+      <div class="phase-body">
+    <div class="goal-header">
+      <div class="gh-title">Goal Priority Ranking // Phase 4</div>
+      <div class="gh-grid">
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#10b981;">P1</div>
+        <div class="gh-info">
+          <span class="gh-name">G4: Automation Layer</span>
+          <span class="gh-score">38/40</span>
+          <span class="gh-desc">Community platform, consulting booking, financial operations</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#3b82f6;">P2</div>
+        <div class="gh-info">
+          <span class="gh-name">G2: Email Capture</span>
+          <span class="gh-score">36/40</span>
+          <span class="gh-desc">Leverage 10,000+ list for community launch and consulting</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#f59e0b;">P3</div>
+        <div class="gh-info">
+          <span class="gh-name">G3: Content Engine</span>
+          <span class="gh-score">35/40</span>
+          <span class="gh-desc">Community-driven content, thought leadership positioning</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#ef4444;">P4</div>
+        <div class="gh-info">
+          <span class="gh-name">G1: PMF Validation</span>
+          <span class="gh-score">33/40</span>
+          <span class="gh-desc">Validate recurring revenue model (community MRR)</span>
+        </div>
+      </div>
+      </div>
+    </div>
+        <p><strong>Objective:</strong> Add recurring revenue and high-ticket. Reduce content dependency.</p>
+        <p><strong>Community Membership ($19-29/month):</strong> Private community (Skool/Discord). Weekly live sessions, accountability, exclusive tools. Only viable at 5,000+ email subs (critical mass for active community).</p>
+        <p><strong>Consulting ($150-500/session):</strong> 1:1 personalized financial system setup. Limited to 5-10 clients/month to protect time. Highest per-hour revenue but does not scale beyond your time.</p>
+        <p><strong>Brand Partnerships ($2,000-10,000/deal):</strong> Selective fintech partnerships. Only brands that align with anti-guru ethos. One bad partnership destroys 18 months of trust.</p>
+        <div class="metric-row"><span class="metric-label">Revenue target</span><span class="metric-val" style="color:var(--green);">$5,000-15,000/month</span></div>
+        <div class="metric-row"><span class="metric-label">Email list target</span><span class="metric-val">10,000+ subscribers</span></div>
+        <div class="metric-row"><span class="metric-label">Advancement trigger</span><span class="metric-val">MRR from community >$2,000 + total >$8,000/mo</span></div>
+      </div>
+    </div>
+
+    <!-- PHASE 5 -->
+    <div class="phase-card">
+      <div class="phase-head" style="background:linear-gradient(135deg,#581c87,#9333ea);" onclick="this.parentElement.classList.toggle('open')">
+        <h3>Phase 5: Compound (Months 36-57)</h3>
+        <div class="phase-rev">Target: $15,000-30,000+/mo</div>
+      </div>
+      <div class="phase-body">
+    <div class="goal-header">
+      <div class="gh-title">Goal Priority Ranking // Phase 5</div>
+      <div class="gh-grid">
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#10b981;">P1</div>
+        <div class="gh-info">
+          <span class="gh-name">G4: Automation Layer</span>
+          <span class="gh-score">40/40</span>
+          <span class="gh-desc">Team operations, passive systems, investment pipeline</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#f59e0b;">P2</div>
+        <div class="gh-info">
+          <span class="gh-name">G3: Content Engine</span>
+          <span class="gh-score">37/40</span>
+          <span class="gh-desc">Creative director mode, legacy content architecture</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#3b82f6;">P3</div>
+        <div class="gh-info">
+          <span class="gh-name">G2: Email Capture</span>
+          <span class="gh-score">35/40</span>
+          <span class="gh-desc">25,000+ list growing passively from content library</span>
+        </div>
+      </div>
+      <div class="gh-row">
+        <div class="gh-rank" style="background:#ef4444;">P4</div>
+        <div class="gh-info">
+          <span class="gh-name">G1: PMF Validation</span>
+          <span class="gh-score">34/40</span>
+          <span class="gh-desc">New revenue stream validation (licensing, speaking, affiliates)</span>
+        </div>
+      </div>
+      </div>
+    </div>
+        <p><strong>Objective:</strong> Multiple compounding streams. Machine runs with minimal daily intervention.</p>
+        <p><strong>Active streams:</strong> Product ladder (evergreen funnels), community membership (recurring), YouTube AdSense (growing), brand partnerships (selective, premium), consulting (limited), potential: licensed tool suite, affiliate revenue, speaking engagements.</p>
+        <div class="metric-row"><span class="metric-label">Revenue target</span><span class="metric-val" style="color:var(--green);">$15,000-30,000+/month</span></div>
+        <div class="metric-row"><span class="metric-label">Email list target</span><span class="metric-val">25,000+ subscribers</span></div>
+        <div class="metric-row"><span class="metric-label">The $1M path</span><span class="metric-val" style="color:var(--electric);">This phase produces ~70% of cumulative revenue</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S4: FUNNEL ARCHITECTURE -->
+<!-- ═══════════════════════════════════ -->
+<div class="section" id="s4">
+  <div class="section-head" onclick="toggleSection(this)">
+    <div class="sh-left">
+      <div class="section-num">04</div>
+      <div><div class="section-title">The Funnel Architecture</div><div class="section-tag">6 stages from stranger to repeat buyer.</div></div>
+    </div>
+    <div class="chevron">&#9662;</div>
+  </div>
+  <div class="section-body">
+    <div class="funnel-stage" style="border-color:var(--blue);">
+      <div class="fs-num" style="color:var(--blue);">Stage 1</div>
+      <h4>Discovery (Stranger to Viewer)</h4>
+      <p><strong>Mechanism:</strong> Algorithm-served vertical video. Pattern interrupt from The Cockpit. Hook stops them. Content holds them.</p>
+      <p class="fs-metric">Target: 30%+ completion rate</p>
+    </div>
+    <div class="funnel-stage" style="border-color:var(--green);">
+      <div class="fs-num" style="color:var(--green);">Stage 2</div>
+      <h4>Engagement (Viewer to Tool User)</h4>
+      <p><strong>Mechanism:</strong> Keyword CTA ("DM me MYNUMBER"). ManyChat auto-responds with tool link. Viewer lands on free tool, enters their data.</p>
+      <p class="fs-metric">Target: 3-5% of viewers click through</p>
+    </div>
+    <div class="funnel-stage" style="border-color:var(--amber);">
+      <div class="fs-num" style="color:var(--amber);">Stage 3</div>
+      <h4>Capture (Tool User to Subscriber)</h4>
+      <p><strong>Mechanism:</strong> Tool delivers result FIRST. After result, email popup fires: "Want the full breakdown?" Button: "Send My Report." Progress bar starts at 15%.</p>
+      <p class="fs-metric">Target: 20-30% of tool users</p>
+    </div>
+    <div class="funnel-stage" style="border-color:var(--purple);">
+      <div class="fs-num" style="color:var(--purple);">Stage 4</div>
+      <h4>Nurture (Subscriber to Warm Lead)</h4>
+      <p><strong>Mechanism:</strong> 3-email automated welcome. Email 1: deliver value. Email 2 (Day 2): show the work. Email 3 (Day 5): bridge to offer. Then: weekly relationship email.</p>
+      <p class="fs-metric">Target: 40%+ open rate, 5%+ reply rate</p>
+    </div>
+    <div class="funnel-stage" style="border-color:var(--red);">
+      <div class="fs-num" style="color:var(--red);">Stage 5</div>
+      <h4>Conversion (Warm Lead to Buyer)</h4>
+      <p><strong>Mechanism:</strong> After 3-7 touchpoints, targeted offer via email. Connected to their specific entry pain. Not a generic blast: a specific bridge from known pain to paid solution.</p>
+      <p class="fs-metric">Target: 3-5% of list per promotion</p>
+    </div>
+    <div class="funnel-stage" style="border-color:var(--cyan);">
+      <div class="fs-num" style="color:var(--cyan);">Stage 6</div>
+      <h4>Ascension (Buyer to Repeat Buyer)</h4>
+      <p><strong>Mechanism:</strong> Post-purchase sequence. After 14-30 days, upsell to next tier. Bronze sees Silver. Silver sees Gold. Framed as the next logical step.</p>
+      <p class="fs-metric">Target: 15-25% upsell rate</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S5: UNIT ECONOMICS -->
+<!-- ═══════════════════════════════════ -->
+<div class="section" id="s5">
+  <div class="section-head" onclick="toggleSection(this)">
+    <div class="sh-left">
+      <div class="section-num">05</div>
+      <div><div class="section-title">Unit Economics (Real Math)</div><div class="section-tag">Your actual numbers. No inflated projections.</div></div>
+    </div>
+    <div class="chevron">&#9662;</div>
+  </div>
+  <div class="section-body">
+    <div class="block">
+      <div class="block-label">Subscriber Acquisition Math</div>
+      <table class="dtable">
+        <tr><th>Metric</th><th>Value</th></tr>
+        <tr><td>Videos per week</td><td class="val">2</td></tr>
+        <tr><td>Avg views per video (realistic at &lt;500 followers)</td><td class="val">300-500</td></tr>
+        <tr><td>Bio/link click-through rate</td><td class="val">3-5%</td></tr>
+        <tr><td>Tool-to-email conversion rate</td><td class="val">20-30%</td></tr>
+        <tr><td>New subscribers per week (conservative)</td><td class="val-green">4-8</td></tr>
+        <tr><td>New subscribers per week (target after 60 days)</td><td class="val-green">15+</td></tr>
+      </table>
+      <p style="font-size:12px;color:var(--text2);margin-top:10px;line-height:1.6;"><strong style="color:var(--text);">Conservative math:</strong> 2 videos/week x 400 views x 4% CTR x 25% capture = 8 new subs/week. At 8/week: 500 subscribers by ~Week 62.</p>
+      <p style="font-size:12px;color:var(--text2);line-height:1.6;"><strong style="color:var(--text);">Target math:</strong> 2 videos/week x 800 views x 5% CTR x 30% capture = 24 new subs/week. At 24/week: 500 subscribers by ~Week 20.</p>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Phase 1 Revenue: First Launch</div>
+      <table class="dtable">
+        <tr><th>Metric</th><th>Value</th></tr>
+        <tr><td>Email list at first launch</td><td class="val">150-300 subs</td></tr>
+        <tr><td>Offer price</td><td class="val">$19</td></tr>
+        <tr><td>Email-to-purchase rate (warm list)</td><td class="val">3-5%</td></tr>
+        <tr><td>Expected buyers (200 subs x 3%)</td><td class="val-green">6 buyers</td></tr>
+        <tr><td>Gross revenue</td><td class="val-green">$114</td></tr>
+        <tr><td>Platform fees (~7%)</td><td>~$8</td></tr>
+        <tr class="highlight"><td><strong>Net revenue</strong></td><td class="val-green"><strong>~$106</strong></td></tr>
+      </table>
+      <div class="callout green" style="margin-top:12px;">
+        <p><strong>$106 is not impressive. It is transformational.</strong> It proves a stranger found your content, used your tool, trusted your emails, and paid. The machine works. Everything after is optimization and volume.</p>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Phase 2 Revenue: Month 9 Estimate</div>
+      <table class="dtable">
+        <tr><th>Stream</th><th>Monthly</th></tr>
+        <tr><td>Bronze ($19) - ~5-8 new buyers/month</td><td class="val">$95-152</td></tr>
+        <tr><td>Silver ($49) - quarterly promo to 1,500 subs</td><td class="val">~$735/mo equivalent</td></tr>
+        <tr><td>YouTube AdSense (est.)</td><td class="val">$50-200</td></tr>
+        <tr class="highlight"><td><strong>Total monthly (Month 9)</strong></td><td class="val-green"><strong>$880-1,087</strong></td></tr>
+      </table>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Phase 3-4 Revenue: Month 18-36</div>
+      <table class="dtable">
+        <tr><th>Stream</th><th>Month 18</th><th>Month 36</th></tr>
+        <tr><td>Product sales (all tiers)</td><td class="val">$1,200-3,900</td><td class="val">$2,000-4,000</td></tr>
+        <tr><td>Community ($29/mo)</td><td>-</td><td class="val">$5,800-14,500</td></tr>
+        <tr><td>AdSense</td><td class="val">$200-500</td><td class="val">$500-2,000</td></tr>
+        <tr><td>Brand deals</td><td class="val">$500-2,000</td><td class="val">$833-3,333</td></tr>
+        <tr><td>Consulting</td><td>-</td><td class="val">$1,500</td></tr>
+        <tr class="highlight"><td><strong>Total monthly</strong></td><td class="val-green"><strong>$2,000-5,000</strong></td><td class="val-green"><strong>$10,000-25,000</strong></td></tr>
+      </table>
+    </div>
+
+    <div class="callout amber">
+      <p><strong>The variable is hook quality.</strong> The difference between 8 subs/week and 24 subs/week is not more time. Same 2 videos. Same hours. The difference is skill that improves with reps. This is why 60% of weekly hours go to content creation.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S6: COST STRUCTURE -->
+<!-- ═══════════════════════════════════ -->
+<div class="section" id="s6">
+  <div class="section-head" onclick="toggleSection(this)">
+    <div class="sh-left">
+      <div class="section-num">06</div>
+      <div><div class="section-title">Cost Structure</div><div class="section-tag">Near-zero operating costs. Margin IS the model.</div></div>
+    </div>
+    <div class="chevron">&#9662;</div>
+  </div>
+  <div class="section-body">
+    <table class="dtable">
+      <tr><th>Expense</th><th>Monthly</th><th>Notes</th></tr>
+      <tr><td>GitHub Pages hosting</td><td class="val-green">$0</td><td>Free tier covers everything</td></tr>
+      <tr><td>Beehiiv (email)</td><td class="val-green">$0</td><td>Free up to 2,500 subs</td></tr>
+      <tr><td>ManyChat</td><td class="val-green">$0</td><td>Free tier for IG automation</td></tr>
+      <tr><td>Content tools (CapCut, Canva)</td><td class="val-green">$0</td><td>Free tiers sufficient</td></tr>
+      <tr><td>Domain (optional)</td><td>$1</td><td>Not required for GitHub Pages</td></tr>
+      <tr><td>Payment processor</td><td>5-8%</td><td>Per transaction, no fixed cost</td></tr>
+      <tr class="highlight"><td><strong>Total Fixed Costs</strong></td><td class="val-green"><strong>$0-1/mo</strong></td><td></td></tr>
+    </table>
+    <div class="callout green" style="margin-top:12px;">
+      <p><strong>At $0/month in fixed costs, your break-even is ONE sale.</strong> Every dollar after that is margin. This is the structural advantage of a digital product business with free tool infrastructure. The marginal cost of serving one more customer is effectively $0.</p>
+    </div>
+    <p style="font-size:12px;color:var(--text2);margin-top:12px;line-height:1.5;"><strong style="color:var(--text);">When costs increase:</strong> Beehiiv paid plan at 2,500+ subs (~$49/mo). ManyChat Pro for advanced flows (~$15/mo). These only trigger when revenue already justifies them.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S7: MOAT ARCHITECTURE -->
+<!-- ═══════════════════════════════════ -->
+<div class="section" id="s7">
+  <div class="section-head" onclick="toggleSection(this)">
+    <div class="sh-left">
+      <div class="section-num">07</div>
+      <div><div class="section-title">The Moat Architecture</div><div class="section-tag">5 defenses being built from Day 1.</div></div>
+    </div>
+    <div class="chevron">&#9662;</div>
+  </div>
+  <div class="section-body">
+    <div class="moat-card" style="border-left:3px solid var(--blue);">
+      <div class="moat-name" style="color:var(--blue);">Moat 1: Trust at Scale</div>
+      <p>18+ months of documented journey, real portfolio performance, and the Blue Tape countdown cannot be copied. Someone can clone your tools in a weekend. They cannot clone 500 days of verifiable commitment.</p>
+    </div>
+    <div class="moat-card" style="border-left:3px solid var(--green);">
+      <div class="moat-name" style="color:var(--green);">Moat 2: Owned Audience (Email)</div>
+      <p>A 10,000+ email list of subscribers who entered through a value-first funnel cannot be taken by algorithm changes. Higher open rates, higher trust, higher conversions than purchased lists.</p>
+    </div>
+    <div class="moat-card" style="border-left:3px solid var(--amber);">
+      <div class="moat-name" style="color:var(--amber);">Moat 3: Proprietary Tool Ecosystem</div>
+      <p>7 interconnected web apps that work as a financial operating system. Each tool feeds the others. Once a user enters data across multiple tools, leaving means starting over. Switching costs built in.</p>
+    </div>
+    <div class="moat-card" style="border-left:3px solid var(--orange);">
+      <div class="moat-name" style="color:var(--orange);">Moat 4: Identity-Based Brand</div>
+      <p>A person with a public $1M deadline, a car dashboard with blue tape, and a documented obsession. Identity cannot be separated from product. Competitors can build tools but cannot replicate the person or the story.</p>
+    </div>
+    <div class="moat-card" style="border-left:3px solid var(--purple);">
+      <div class="moat-name" style="color:var(--purple);">Moat 5: Content Compounding</div>
+      <p>Every video posted contributes to a library the algorithm serves indefinitely. A video from Month 1 still drives traffic in Month 36. At 2/week for 3 years: 300+ pieces working simultaneously. Library grows while production cost stays constant.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S8: FLYWHEEL -->
+<!-- ═══════════════════════════════════ -->
+<div class="section" id="s8">
+  <div class="section-head" onclick="toggleSection(this)">
+    <div class="sh-left">
+      <div class="section-num">08</div>
+      <div><div class="section-title">The Flywheel</div><div class="section-tag">Self-reinforcing loop. Each turn feeds the next.</div></div>
+    </div>
+    <div class="chevron">&#9662;</div>
+  </div>
+  <div class="section-body">
+    <div class="flywheel-step">
+      <div class="fw-num" style="background:var(--blue);">1</div>
+      <div class="fw-content"><strong>Content creates attention</strong><p>Videos reach new people through the algorithm. More content = more surface area for discovery.</p></div>
+    </div>
+    <div class="flywheel-step">
+      <div class="fw-num" style="background:var(--green);">2</div>
+      <div class="fw-content"><strong>Attention drives tool usage</strong><p>Viewers click through to free tools. Tools deliver personalized value. The user has a positive experience.</p></div>
+    </div>
+    <div class="flywheel-step">
+      <div class="fw-num" style="background:var(--amber);">3</div>
+      <div class="fw-content"><strong>Tool usage captures email</strong><p>After receiving value, users opt in. The email list grows. Distribution becomes owned.</p></div>
+    </div>
+    <div class="flywheel-step">
+      <div class="fw-num" style="background:var(--purple);">4</div>
+      <div class="fw-content"><strong>Email builds trust</strong><p>Automated sequences + weekly emails deepen the relationship. Trust compounds with every touchpoint.</p></div>
+    </div>
+    <div class="flywheel-step">
+      <div class="fw-num" style="background:var(--red);">5</div>
+      <div class="fw-content"><strong>Trust converts to revenue</strong><p>When the offer arrives, the subscriber is ready. They buy because they already trust the person and experienced the value.</p></div>
+    </div>
+    <div class="flywheel-step">
+      <div class="fw-num" style="background:var(--cyan);">6</div>
+      <div class="fw-content"><strong>Revenue funds better content</strong><p>Revenue reinvests into better tools, equipment, and eventually team. Better content reaches more people. The loop accelerates.</p></div>
+    </div>
+    <div class="callout blue" style="margin-top:16px;">
+      <p><strong>The flywheel is slow to start and fast once spinning.</strong> The first 100 subscribers take longer than subscribers 900-1,000. The first $100 takes longer than the next $1,000. Patience in Phase 1 is not optional. It is structural.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S9: $1M PATH -->
+<!-- ═══════════════════════════════════ -->
+<div class="section" id="s9">
+  <div class="section-head" onclick="toggleSection(this)">
+    <div class="sh-left">
+      <div class="section-num">09</div>
+      <div><div class="section-title">The $1M Path</div><div class="section-tag">Reverse-engineered math. 57 months.</div></div>
+    </div>
+    <div class="chevron">&#9662;</div>
+  </div>
+  <div class="section-body">
+    <div class="block">
+      <div class="block-label">Scenario A: $1M Cumulative Revenue</div>
+      <p><strong class="hl">$1,000,000 / 57 months = $17,544/month average.</strong> But revenue does not distribute evenly. Early months produce near-zero. Later months compensate.</p>
+      <table class="dtable" style="margin-top:12px;">
+        <tr><th>Phase</th><th>Months</th><th>Avg/Mo</th><th>Phase Total</th><th>Cumulative</th></tr>
+        <tr><td>1: Validation</td><td>1-3</td><td>$50</td><td>$150</td><td>$150</td></tr>
+        <tr><td>2: Foundation</td><td>4-9</td><td>$750</td><td>$4,500</td><td>$4,650</td></tr>
+        <tr><td>3: Scale</td><td>10-18</td><td>$3,500</td><td>$31,500</td><td>$36,150</td></tr>
+        <tr><td>4: Leverage</td><td>19-36</td><td>$15,000</td><td>$270,000</td><td>$306,150</td></tr>
+        <tr class="highlight"><td><strong>5: Compound</strong></td><td><strong>37-57</strong></td><td><strong>$33,000</strong></td><td><strong>$693,000</strong></td><td class="val-green"><strong>$999,150</strong></td></tr>
+      </table>
+    </div>
+    <div class="callout blue" style="margin-top:12px;">
+      <p><strong>The math works if:</strong> PMF validates in first 3 months, email list grows at 15+/week, product ladder expands on schedule, community launches by Month 18, and the content engine never stops. Each assumption is a variable, not a certainty. The 90-day plan addresses assumptions #1 and #2. The rest follow sequentially.</p>
+    </div>
+    <div class="block" style="margin-top:12px;">
+      <div class="block-label">Scenario B: $1M Net Worth</div>
+      <p>If the target includes investment growth (aligned with the brand mission), the math becomes more favorable. Revenue reinvested into index funds at ~10%/year compounds alongside the business. Practice what you preach. The Blue Tape philosophy demands it.</p>
+    </div>
+    <div class="callout purple" style="margin-top:12px;">
+      <p><strong>Bottom line:</strong> The first 12 months produce less than 5% of the total. The last 21 months produce nearly 70%. The path is not linear. It is exponential. This is the nature of compounding.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S10: REVENUE STREAM MAP -->
+<!-- ═══════════════════════════════════ -->
+<div class="section" id="s10">
+  <div class="section-head" onclick="toggleSection(this)">
+    <div class="sh-left">
+      <div class="section-num">10</div>
+      <div><div class="section-title">Revenue Stream Map</div><div class="section-tag">When each stream activates.</div></div>
+    </div>
+    <div class="chevron">&#9662;</div>
+  </div>
+  <div class="section-body">
+    <div style="overflow-x:auto;">
+    <table class="rev-map">
+      <tr><th>Stream</th><th>Ph 1</th><th>Ph 2</th><th>Ph 3</th><th>Ph 4</th><th>Ph 5</th></tr>
+      <tr><td>Bronze ($19)</td><td class="launch">LAUNCH</td><td class="active">ACTIVE</td><td class="active">ACTIVE</td><td class="active">ACTIVE</td><td class="active">EVERGREEN</td></tr>
+      <tr><td>Silver ($49)</td><td>-</td><td class="launch">LAUNCH</td><td class="active">ACTIVE</td><td class="active">ACTIVE</td><td class="active">EVERGREEN</td></tr>
+      <tr><td>Gold ($149)</td><td>-</td><td>-</td><td class="launch">LAUNCH</td><td class="active">ACTIVE</td><td class="active">EVERGREEN</td></tr>
+      <tr><td>YouTube AdSense</td><td>-</td><td style="color:var(--amber);">BEGIN</td><td class="active">GROWING</td><td class="active">ACTIVE</td><td class="active">ACTIVE</td></tr>
+      <tr><td>Brand Deals</td><td>-</td><td>-</td><td style="color:var(--amber);">FIRST</td><td class="active">ACTIVE</td><td class="active">PREMIUM</td></tr>
+      <tr><td>Community ($29/mo)</td><td>-</td><td>-</td><td>-</td><td class="launch">LAUNCH</td><td class="active">SCALED</td></tr>
+      <tr><td>Consulting ($300/session)</td><td>-</td><td>-</td><td>-</td><td class="launch">LAUNCH</td><td class="active">LIMITED</td></tr>
+    </table>
+    </div>
+    <p style="font-size:12px;color:var(--text2);margin-top:12px;line-height:1.5;"><strong style="color:var(--text);">Key principle:</strong> No stream launches until the previous phase's stream is validated and producing. You do not launch Silver until Bronze is selling. You do not launch Community until the email list can sustain it.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S11: STRATEGIC PRINCIPLES -->
+<!-- ═══════════════════════════════════ -->
+<div class="section" id="s11">
+  <div class="section-head" onclick="toggleSection(this)">
+    <div class="sh-left">
+      <div class="section-num">11</div>
+      <div><div class="section-title">Strategic Principles</div><div class="section-tag">The 7 rules that govern every decision.</div></div>
+    </div>
+    <div class="chevron">&#9662;</div>
+  </div>
+  <div class="section-body">
+    <div class="principle">
+      <h4>1. Validate Before You Build</h4>
+      <p>Never invest more than 5 hours into a product before confirming demand. A landing page with a waitlist button is a $0, 2-hour experiment that saves months of wasted effort.</p>
+    </div>
+    <div class="principle">
+      <h4>2. Give First, Ask Second</h4>
+      <p>The free tool layer is not a marketing gimmick. It is the foundation of trust architecture. You give real, personalized value before asking for anything. This inverts the typical sales funnel and is why conversion rates will be higher than industry averages.</p>
+    </div>
+    <div class="principle">
+      <h4>3. Own the Relationship</h4>
+      <p>Every piece of content must bridge to an owned channel (email). Instagram can change its algorithm tomorrow. YouTube can demonetize. Email cannot be taken from you. The email list is the single most important business asset.</p>
+    </div>
+    <div class="principle">
+      <h4>4. Margin Is the Model</h4>
+      <p>Digital products have near-zero COGS. $19 product costs $0 to replicate. Effective margin: 90%+. 100 buyers/month at $19 with 92% margin = $1,748/month profit. This is not a scale game. It is a trust game.</p>
+    </div>
+    <div class="principle">
+      <h4>5. Compound Everything</h4>
+      <p>Content compounds (old videos generate views). Email compounds (every subscriber stays). Trust compounds (positive interactions increase future conversion). Products compound (Bronze buyers become Silver buyers). Every action contributes to multiple loops simultaneously.</p>
+    </div>
+    <div class="principle">
+      <h4>6. Document, Never Teach</h4>
+      <p>You are not a guru. You are a 19-year-old building a machine and filming it. This distinction is the core trust signal. The moment you shift from documenting to teaching, you lose the proximity advantage. Show the tape. Show the number. Let the proof teach.</p>
+    </div>
+    <div class="principle">
+      <h4>7. Time Is the Constraint, Not Money</h4>
+      <p>At 5-8 hours/week, the bottleneck is never capital. Every task must pass the leverage test: does this create an asset that works without me, or work that requires me? Systems over labor. Automation over discipline. This is not just the brand message. It is the operating principle.</p>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM -->
+<div class="bottom">
+  <p style="font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--text3);margin-bottom:12px;">THE ARCHITECT'S NOTE</p>
+  <p>This is not a prediction. It is a blueprint. The phases will not unfold exactly as written. Products will pivot. Timelines will shift. What will not change is the core loop: content creates attention, tools capture trust, email owns the relationship, products convert trust into revenue, and revenue funds better content.</p>
+  <p class="final">The tape goes on the dashboard. The number goes down. And the only question that matters is: did the machine get better today than it was yesterday?</p>
+</div>
+
+</div><!-- /page -->
+
+<script>
+// Days countdown
+const target = new Date('2030-11-30T00:00:00');
+const now = new Date();
+const diff = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+document.getElementById('days').innerHTML = diff.toLocaleString() + '<span>DAYS</span>';
+
+// Section toggle
+function toggleSection(head) {
+  head.parentElement.classList.toggle('open');
+}
+
+// Nav
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const target = document.getElementById(btn.dataset.target);
+    if (target) {
+      if (!target.classList.contains('open')) target.classList.add('open');
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+</body>
+</html>
