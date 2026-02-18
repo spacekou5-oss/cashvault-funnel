@@ -7,6 +7,8 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- PDF.js for client-side PDF text extraction (Priority 3) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -39,7 +41,11 @@
         .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
         @media (max-width: 768px) { .container { padding: 20px 16px; } }
         h1, h2, h3 { margin: 0; }
+
+        /* === TYPOGRAPHY: 3 TIERS ONLY (Priority 4) === */
         .gradient-text { background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* === GLASS CARD === */
         .glass-card {
             background: linear-gradient(135deg, rgba(26, 31, 58, 0.9) 0%, rgba(21, 25, 51, 0.9) 100%);
             backdrop-filter: blur(10px); border: 1px solid var(--border);
@@ -47,6 +53,8 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
         @media (max-width: 768px) { .glass-card { padding: 20px 16px; border-radius: 16px; } }
+
+        /* === INPUTS === */
         .input-group { margin-bottom: 0; }
         .input-group label { display: block; color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
         .premium-input, .premium-textarea {
@@ -55,6 +63,8 @@
             font-size: 0.95rem; transition: all 0.3s;
         }
         .premium-input:focus, .premium-textarea:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
+
+        /* === BUTTONS === */
         .btn-primary {
             background: var(--accent-gradient); color: white; border: none; padding: 16px;
             border-radius: 12px; font-weight: 700; text-transform: uppercase;
@@ -63,6 +73,8 @@
         }
         .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5); }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* === NAV PILLS === */
         .nav-pill {
             background: transparent; border: 1px solid var(--border); color: var(--text-secondary);
             padding: 10px 20px; border-radius: 50px; cursor: pointer; transition: all 0.3s;
@@ -71,15 +83,20 @@
         .nav-pill.active { background: var(--accent-gradient); color: white; border-color: transparent; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
         @media (max-width: 768px) { .nav-pill { padding: 8px 14px; font-size: 0.75rem; } }
 
+        /* === SUB TABS (Priority 2: with badges + show more) === */
         .sub-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
         .sub-tab {
             background: rgba(10, 14, 39, 0.6); border: 1px solid var(--border); color: var(--text-secondary);
             padding: 6px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s;
-            font-size: 0.75rem; font-weight: 600; white-space: nowrap;
+            font-size: 0.75rem; font-weight: 600; white-space: nowrap; position: relative;
         }
         .sub-tab.active { background: rgba(99, 102, 241, 0.15); border-color: var(--accent-primary); color: var(--accent-primary); }
         .sub-tab:hover:not(.active) { border-color: var(--text-muted); color: var(--text-primary); }
+        .sub-tab-badge { position: absolute; top: -6px; right: -6px; background: var(--success); color: white; font-size: 0.5rem; padding: 2px 5px; border-radius: 6px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1; }
+        .show-more-btn { background: none; border: 1px dashed var(--border); color: var(--text-muted); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 0.7rem; font-weight: 600; transition: all 0.2s; }
+        .show-more-btn:hover { border-color: var(--accent-primary); color: var(--text-secondary); }
 
+        /* === PROGRESS BAR === */
         .progress-container { background: rgba(10, 14, 39, 0.6); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; border: 1px solid var(--border); }
         .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .progress-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); font-weight: 600; }
@@ -89,6 +106,7 @@
         .progress-bar-fill::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); animation: shimmer 2s infinite; }
         @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
+        /* === TRANSPARENCY PANEL === */
         .transparency-panel { background: rgba(10, 14, 39, 0.8); border: 1px solid var(--border); border-radius: 12px; margin-top: 16px; overflow: hidden; }
         .transparency-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; cursor: pointer; background: rgba(99, 102, 241, 0.05); border-bottom: 1px solid var(--border); }
         .transparency-header:hover { background: rgba(99, 102, 241, 0.1); }
@@ -106,6 +124,7 @@
         .step-text { font-size: 0.8rem; color: var(--text-secondary); }
         .transparency-step.active .step-text { color: var(--text-primary); }
 
+        /* === BLUR GATE === */
         .blur-gate-container { position: relative; margin-top: 20px; }
         .blur-gate-preview { background: #0f1221; border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; min-height: 350px; }
         .blur-gate-visible { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #e2e8f0; white-space: pre-wrap; line-height: 1.6; word-break: break-word; margin-bottom: 4px; }
@@ -121,6 +140,7 @@
         .blur-gate-trust { display: flex; justify-content: center; gap: 12px; margin-top: 12px; font-size: 0.65rem; color: var(--text-muted); }
         .beehiiv-gate-container { width: 100%; max-width: 400px; margin: 0 auto; }
 
+        /* === OUTPUT BOX === */
         .output-box { background: #0f1221; border: 1px solid var(--success); border-radius: 12px; padding: 20px; margin-top: 20px; position: relative; animation: peakGlow 0.6s ease-out; }
         @keyframes peakGlow { 0% { box-shadow: 0 0 0 rgba(16, 185, 129, 0); transform: scale(0.98); opacity: 0; } 50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.4), 0 0 80px rgba(99, 102, 241, 0.2); } 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); transform: scale(1); opacity: 1; } }
         .output-code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #e2e8f0; white-space: pre-wrap; line-height: 1.6; word-break: break-word; }
@@ -140,20 +160,21 @@
         .save-btn.saved-flash { background: var(--success); border-color: var(--success); color: white; animation: saveFlash 0.3s ease-out forwards; }
         @keyframes saveFlash { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
+        /* === LOADING === */
         .loading-container { text-align: center; padding: 30px 20px; }
         .loading-spinner { width: 48px; height: 48px; border: 3px solid var(--border); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { font-size: 0.85rem; color: var(--accent-primary); font-weight: 600; margin-bottom: 4px; }
         .loading-subtext { font-size: 0.75rem; color: var(--text-secondary); }
 
-        /* Vault panel */
+        /* === VAULT PANEL === */
         .vault-container { margin-bottom: 25px; }
         .vault-card { background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(245, 158, 11, 0.04) 100%); border: 2px solid rgba(251, 191, 36, 0.3); border-radius: 20px; overflow: hidden; transition: all 0.3s; }
         .vault-card.expanded { border-color: rgba(251, 191, 36, 0.5); box-shadow: 0 0 40px rgba(251, 191, 36, 0.15); }
         .vault-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; cursor: pointer; transition: background 0.3s; }
         .vault-header:hover { background: rgba(251, 191, 36, 0.05); }
         .vault-header-left { display: flex; align-items: center; gap: 14px; }
-        .vault-icon { font-size: 1.8rem; }
+        .vault-icon { width: 32px; height: 32px; }
         .vault-title { font-size: 1.1rem; font-weight: 800; color: var(--gold); margin: 0; }
         .vault-subtitle { font-size: 0.75rem; color: var(--text-secondary); margin: 0; }
         .vault-badge { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(251, 191, 36, 0.15); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 20px; font-size: 0.7rem; color: var(--gold); font-weight: 700; }
@@ -186,7 +207,7 @@
         .vault-prompt-preview { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-secondary); white-space: pre-wrap; word-break: break-word; line-height: 1.5; cursor: pointer; }
         .vault-prompt-expand { font-size: 0.7rem; color: var(--accent-primary); font-weight: 600; margin-top: 8px; cursor: pointer; }
 
-        /* Vault pointer */
+        /* === VAULT POINTER === */
         .vault-pointer { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%); border: 2px solid var(--success); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; animation: pointerPulse 2s ease-in-out infinite, fadeSlideIn 0.5s ease; }
         @keyframes pointerPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 50% { box-shadow: 0 0 20px 4px rgba(16, 185, 129, 0.2); } }
         @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -196,15 +217,14 @@
         .vault-pointer-subtitle { color: var(--text-secondary); font-size: 0.75rem; }
         .vault-pointer-dismiss { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; padding: 4px; line-height: 1; }
 
-        /* Welcome back banner */
+        /* === WELCOME BACK === */
         .welcome-back-banner { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%); border: 2px solid var(--success); border-radius: 16px; padding: 20px 24px; margin-bottom: 25px; display: flex; align-items: center; gap: 16px; animation: fadeSlideIn 0.5s ease; }
-        .welcome-back-icon { font-size: 2rem; }
         .welcome-back-content { flex: 1; }
         .welcome-back-title { color: var(--success); font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
         .welcome-back-subtitle { color: var(--text-secondary); font-size: 0.85rem; }
         .welcome-back-dismiss { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.5rem; padding: 4px; line-height: 1; }
 
-        /* Cross-app bridge */
+        /* === CROSS-APP BRIDGE === */
         .cross-bridge { background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 12px; padding: 16px 20px; margin-top: 16px; display: flex; align-items: center; gap: 14px; animation: fadeSlideIn 0.4s ease; }
         .cross-bridge-icon { font-size: 1.5rem; }
         .cross-bridge-content { flex: 1; }
@@ -212,21 +232,90 @@
         .cross-bridge-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; color: var(--accent-primary); text-decoration: none; transition: color 0.2s; }
         .cross-bridge-link:hover { color: #8b5cf6; }
 
-        /* OPS Explainer (one-time) */
-        .ops-explainer { background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.04) 100%); border: 2px solid rgba(99, 102, 241, 0.25); border-radius: 16px; padding: 24px; margin-bottom: 25px; animation: fadeSlideIn 0.5s ease; }
-        .ops-explainer-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-        .ops-explainer-title { font-size: 1.05rem; font-weight: 800; color: var(--accent-primary); }
-        .ops-explainer-sub { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
-        .ops-explainer-dismiss { background: none; border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; font-size: 0.7rem; padding: 6px 12px; border-radius: 8px; font-weight: 600; transition: all 0.2s; white-space: nowrap; }
-        .ops-explainer-dismiss:hover { border-color: var(--accent-primary); color: white; }
-        .ops-explainer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-        @media (max-width: 640px) { .ops-explainer-grid { grid-template-columns: 1fr; gap: 10px; } }
-        .ops-card { background: rgba(10, 14, 39, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
-        .ops-card-icon { font-size: 1.6rem; margin-bottom: 8px; }
-        .ops-card-name { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
-        .ops-card-desc { font-size: 0.72rem; color: var(--text-secondary); line-height: 1.5; }
+        /* === PRIORITY 1: FIRST-USE ONBOARDING === */
+        .onboarding-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 14, 39, 0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.4s ease; }
+        .onboarding-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; max-width: 520px; width: 100%; padding: 40px 32px; text-align: center; animation: fadeSlideIn 0.5s ease; }
+        @media (max-width: 640px) { .onboarding-card { padding: 32px 20px; } }
+        .onboarding-step-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 28px; }
+        .onboarding-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all 0.3s; }
+        .onboarding-dot.active { background: var(--accent-primary); width: 24px; border-radius: 4px; }
+        .onboarding-dot.complete { background: var(--success); }
+        .onboarding-icon-wrap { width: 64px; height: 64px; border-radius: 16px; background: rgba(99, 102, 241, 0.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .onboarding-icon-wrap svg { width: 32px; height: 32px; }
+        .onboarding-heading { font-size: 1.3rem; font-weight: 800; color: var(--text-primary); margin-bottom: 12px; }
+        .onboarding-body { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 28px; }
+        .onboarding-body strong { color: var(--text-primary); }
+        .onboarding-steps-visual { display: flex; flex-direction: column; gap: 12px; text-align: left; margin-bottom: 28px; }
+        .onboarding-step-row { display: flex; align-items: flex-start; gap: 14px; }
+        .onboarding-step-num { width: 28px; height: 28px; border-radius: 8px; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; color: white; flex-shrink: 0; }
+        .onboarding-step-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; padding-top: 3px; }
+        .onboarding-step-text strong { color: var(--text-primary); }
+        .onboarding-btn { background: var(--accent-gradient); color: white; border: none; padding: 14px 32px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
+        .onboarding-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5); }
+        .onboarding-skip { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.75rem; margin-top: 16px; font-weight: 600; }
+        .onboarding-ai-logos { display: flex; gap: 16px; justify-content: center; margin-bottom: 20px; }
+        .onboarding-ai-logo { padding: 10px 18px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); }
 
-        /* Mobile progress bar */
+        /* === PRIORITY 1: PROMPT META TAGS === */
+        .prompt-meta-strip { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+        .prompt-meta-tag { font-size: 0.65rem; padding: 4px 10px; border-radius: 6px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+        .prompt-meta-tag.best-for { background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.25); color: var(--gold); }
+        .prompt-meta-tag.you-get { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); color: var(--success); }
+        .prompt-meta-tag.works-with { background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.25); color: var(--accent-primary); }
+
+        /* === PRIORITY 1: HOW IT WORKS (redesigned) === */
+        .how-it-works-strip { display: flex; gap: 0; margin-bottom: 16px; border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 10px; overflow: hidden; background: rgba(10, 14, 39, 0.4); }
+        .hiw-step { flex: 1; padding: 10px 12px; text-align: center; border-right: 1px solid rgba(16, 185, 129, 0.1); position: relative; }
+        .hiw-step:last-child { border-right: none; }
+        .hiw-step-num { font-size: 0.6rem; font-weight: 800; color: var(--success); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 2px; }
+        .hiw-step-text { font-size: 0.7rem; color: var(--text-secondary); line-height: 1.3; }
+        .hiw-step-text strong { color: var(--text-primary); font-weight: 600; }
+        .hiw-arrow { position: absolute; right: -6px; top: 50%; transform: translateY(-50%); color: var(--success); font-size: 0.6rem; z-index: 1; }
+        @media (max-width: 640px) {
+            .how-it-works-strip { flex-direction: column; gap: 0; }
+            .hiw-step { border-right: none; border-bottom: 1px solid rgba(16, 185, 129, 0.1); padding: 8px 12px; text-align: left; display: flex; align-items: center; gap: 10px; }
+            .hiw-step:last-child { border-bottom: none; }
+            .hiw-arrow { display: none; }
+            .hiw-step-num { margin-bottom: 0; min-width: 50px; }
+        }
+
+        /* === PRIORITY 1: PROMPT EXPLAINER === */
+        .prompt-explainer { background: rgba(99, 102, 241, 0.06); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; animation: fadeSlideIn 0.3s ease; }
+        .prompt-explainer-text { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.55; }
+
+        /* === PRIORITY 3: PDF UPLOAD ZONE === */
+        .pdf-upload-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 8px; position: relative; }
+        .pdf-upload-zone:hover, .pdf-upload-zone.drag-over { border-color: var(--accent-primary); background: rgba(99, 102, 241, 0.05); }
+        .pdf-upload-zone.processing { border-color: var(--gold); background: rgba(251, 191, 36, 0.05); pointer-events: none; }
+        .pdf-upload-zone.success { border-color: var(--success); background: rgba(16, 185, 129, 0.05); }
+        .pdf-upload-icon { margin-bottom: 8px; }
+        .pdf-upload-icon svg { width: 28px; height: 28px; }
+        .pdf-upload-text { font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; }
+        .pdf-upload-hint { font-size: 0.65rem; color: var(--text-muted); margin-top: 4px; }
+        .pdf-upload-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .pdf-upload-progress { display: flex; align-items: center; gap: 10px; justify-content: center; }
+        .pdf-mini-spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+        /* === NEXT STEP CARD === */
+        .next-step-card { background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(99, 102, 241, 0.06) 100%); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 12px; padding: 20px; margin-top: 16px; animation: fadeSlideIn 0.4s ease; }
+        .next-step-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--success); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .next-step-subtitle { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.5; }
+        .next-step-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        .ai-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; text-decoration: none; border: 1px solid var(--border); background: rgba(10, 14, 39, 0.6); color: var(--text-primary); }
+        .ai-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .ai-btn.chatgpt { border-color: rgba(16, 163, 127, 0.4); }
+        .ai-btn.chatgpt:hover { background: rgba(16, 163, 127, 0.15); border-color: rgba(16, 163, 127, 0.6); }
+        .ai-btn.claude { border-color: rgba(204, 128, 71, 0.4); }
+        .ai-btn.claude:hover { background: rgba(204, 128, 71, 0.15); border-color: rgba(204, 128, 71, 0.6); }
+        .ai-btn.gemini { border-color: rgba(66, 133, 244, 0.4); }
+        .ai-btn.gemini:hover { background: rgba(66, 133, 244, 0.15); border-color: rgba(66, 133, 244, 0.6); }
+        .ai-btn .rec-tag { font-size: 0.5rem; background: var(--success); color: white; padding: 2px 5px; border-radius: 4px; font-weight: 800; text-transform: uppercase; }
+        @media (max-width: 640px) {
+            .next-step-buttons { flex-direction: column; }
+            .ai-btn { justify-content: center; }
+        }
+
+        /* === MOBILE PROGRESS === */
         .mobile-progress { display: none; }
         @media (max-width: 1024px) {
             .mobile-progress { display: flex; justify-content: space-around; padding: 10px 16px; background: rgba(26, 31, 58, 0.9); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 16px; font-size: 0.7rem; }
@@ -236,19 +325,18 @@
             .sidebar-desktop { display: none; }
         }
 
-        /* Vault guide inline */
+        /* === VAULT GUIDE INLINE === */
         .vault-guide-inline { display: flex; align-items: flex-start; gap: 12px; margin-top: 14px; padding: 14px 16px; background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(251, 191, 36, 0.03) 100%); border: 1px solid rgba(251, 191, 36, 0.25); border-radius: 10px; animation: fadeSlideIn 0.4s ease; }
-        .vault-guide-icon { font-size: 1.2rem; flex-shrink: 0; }
         .vault-guide-content { flex: 1; }
         .vault-guide-title { font-size: 0.8rem; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
         .vault-guide-text { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.55; }
         .vault-guide-text strong { color: var(--text-primary); font-weight: 600; }
 
-        /* Sidebar */
+        /* === SIDEBAR === */
         .sidebar-link { display: block; width: 100%; text-align: center; padding: 14px; border-radius: 12px; border: 1px solid var(--border); color: #cbd5e1; font-size: 0.9rem; font-weight: 600; transition: all 0.3s; text-decoration: none; background: rgba(255, 255, 255, 0.02); }
         .sidebar-link:hover { border-color: var(--accent-primary); color: white; background: rgba(99, 102, 241, 0.1); box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); transform: translateY(-2px); }
 
-        /* Grid */
+        /* === GRID === */
         .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
         @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; gap: 12px; } }
         .main-grid { display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
@@ -276,7 +364,37 @@
 <body>
     <div id="root"></div>
     <script type="text/babel">
-        const { useState, useEffect, useRef, useMemo } = React;
+        const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+        /* =============================================
+           SVG ICON SYSTEM (Priority 4: replaces emojis)
+           ============================================= */
+        const ICONS = {
+            vault: (color = '#fbbf24') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="7" y="7" width="10" height="10" rx="1"/><circle cx="12" cy="12" r="2"/><line x1="12" y1="10" x2="12" y2="7"/></svg>,
+            save: (color = '#fbbf24') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>,
+            search: (color = '#6366f1') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+            lock: (color = '#fbbf24') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>,
+            unlock: (color = '#10b981') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 019.9-1"/></svg>,
+            file: (color = '#94a3b8') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
+            upload: (color = '#6366f1') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
+            check: (color = '#10b981') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+            target: (color = '#10b981') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+            zap: (color = '#fbbf24') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+            arrowRight: (color = '#6366f1') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
+            copy: (color = '#94a3b8') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:14,height:14}}><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>,
+            trash: (color = '#94a3b8') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:14,height:14}}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>,
+            chevronDown: (color = '#94a3b8') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:16,height:16}}><polyline points="6 9 12 15 18 9"/></svg>,
+            briefcase: (color = '#6366f1') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>,
+            rocket: (color = '#8b5cf6') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/></svg>,
+            coins: (color = '#fbbf24') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1110.34 18"/><line x1="7" y1="6" x2="7.01" y2="6"/><line x1="16" y1="18" x2="16.01" y2="18"/></svg>,
+            sparkle: (color = '#6366f1') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>,
+            command: (color = '#6366f1') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 3a3 3 0 00-3 3v12a3 3 0 003 3 3 3 0 003-3 3 3 0 00-3-3H6a3 3 0 00-3 3 3 3 0 003 3 3 3 0 003-3V6a3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3h12a3 3 0 003-3 3 3 0 00-3-3z"/></svg>,
+            x: (color = '#64748b') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:18,height:18}}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+            mail: (color = '#94a3b8') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>,
+            globe: (color = '#94a3b8') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>,
+            star: (color = '#fbbf24') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+            award: (color = '#10b981') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
+        };
 
         const CONFIG = {
             BEEHIIV_EMBED_URL: "https://subscribe-forms.beehiiv.com/0eaa449a-fbba-4cff-96e5-88b3f0b82849",
@@ -284,6 +402,8 @@
             LINKS: {
                 INSTAGRAM: "https://instagram.com/koutalksmoney",
                 CHATGPT: "https://chat.openai.com",
+                CLAUDE: "https://claude.ai",
+                GEMINI: "https://gemini.google.com",
                 AUTOPILOT: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html",
                 INVESTMENT: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html",
                 FREEDOM: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html",
@@ -292,40 +412,49 @@
             }
         };
 
-        /* ========================================
-           PROMPT TEMPLATES: 21 TOTAL (7 PER CAT)
-           ======================================== */
+        /* =========================================================
+           PROMPT TEMPLATES: 21 TOTAL (7 PER CATEGORY)
+           NOW WITH: meta.bestFor, meta.youGet, meta.outputType,
+                     meta.worksFor, meta.whatIsThis (Priority 1)
+                     recommended flag (Priority 2)
+           ========================================================= */
         const PROMPT_DB = {
             CAREER: [
-                { id: 'RESUME', name: 'Resume Rewriter', icon: '\u{1F4C4}',
+                { id: 'RESUME', name: 'Resume Rewriter', recommended: true,
+                  desc: 'Turns your existing resume into an interview-winning document. Paste your resume (or upload a PDF), add the job posting, and the AI rewrites every bullet with metrics and impact.',
+                  meta: { bestFor: 'Before applying to any job', youGet: 'A fully rewritten, ATS-optimized resume you can copy and use immediately', outputType: 'Written document', worksFor: 'Any industry, any experience level' },
                   fields: [
                       { key: 'role', label: 'Target Role', type: 'input', placeholder: 'e.g. Product Manager', required: true, grid: true },
                       { key: 'company', label: 'Target Company', type: 'input', placeholder: 'e.g. Google', required: true, grid: true },
-                      { key: 'resume', label: 'Paste Your Current Resume', type: 'textarea', placeholder: 'Paste your full resume text here...', required: true },
-                      { key: 'jobDesc', label: 'Job Description', type: 'textarea', placeholder: 'Paste the job posting requirements...', required: true }
+                      { key: 'resume', label: 'Your Current Resume', type: 'textarea', placeholder: 'Paste your full resume text here...', required: true, pdfUpload: true },
+                      { key: 'jobDesc', label: 'Job Description (paste from the listing)', type: 'textarea', placeholder: 'Paste the job posting requirements...', required: true }
                   ],
                   template: `You are an executive resume writer who has placed candidates at Fortune 500 companies.\nI'm applying for a {role} position at {company}. Here is my current resume:\n{resume}\n\nYour task:\n1. Rewrite every bullet point using the "Action Verb + Metric + Impact" formula\n2. Remove weak words like "responsible for," "helped with," "assisted"\n3. Add quantifiable results wherever possible (even estimated)\n4. Optimize for ATS by including keywords from this job description:\n{jobDesc}\n\nOutput the new resume in a clean, copyable format.`,
                   conditions: [
                       { check: d => d.resume && d.resume.length < 200, inject: 'IMPORTANT: The resume provided is very short. Expand each bullet point with 2-3 estimated metrics and quantifiable outcomes. Prioritize showing impact over listing responsibilities.' },
                       { check: d => d.jobDesc && /leader|manage|direct|team/i.test(d.jobDesc), inject: 'NOTE: This job description emphasizes leadership. Highlight team management, stakeholder communication, and cross-functional collaboration in every relevant section.' }
                   ],
-                  bridge: { icon: '\u{1F4CA}', text: 'Building wealth starts with income. See what your paycheck could become over 30 years.', cta: 'Open Investment Simplifier \u2192', link: CONFIG.LINKS.INVESTMENT }
+                  bridge: { text: 'Building wealth starts with income. See what your paycheck could become over 30 years.', cta: 'Open Investment Simplifier', link: CONFIG.LINKS.INVESTMENT }
                 },
-                { id: 'COLD_EMAIL', name: 'Cold Email / Cover Letter', icon: '\u2709\uFE0F',
+                { id: 'COLD_EMAIL', name: 'Cold Outreach Email',
+                  desc: 'A short, direct email to someone who does not know you yet. Designed to get a reply, not close a sale. Use it for hiring managers, recruiters, potential clients, or networking contacts.',
+                  meta: { bestFor: 'Reaching out to someone who does not know you', youGet: 'A 3-paragraph email ready to send, plus follow-up templates', whatIsThis: 'A "cold email" is a message to someone you have never spoken to. It is the digital equivalent of walking up and introducing yourself.', outputType: 'Written email draft' },
                   fields: [
                       { key: 'role', label: 'Target Role', type: 'input', placeholder: 'e.g. Marketing Analyst', required: true, grid: true },
                       { key: 'company', label: 'Target Company', type: 'input', placeholder: 'e.g. Nike', required: true, grid: true },
-                      { key: 'jobDesc', label: 'Job Description', type: 'textarea', placeholder: 'Key requirements from the listing...', required: true },
-                      { key: 'skills', label: 'Top 3 Skills / Achievements', type: 'input', placeholder: 'e.g. SQL, led $2M campaign, 40% conversion lift', required: true },
-                      { key: 'reason', label: 'Why This Job (Real Talk)', type: 'input', placeholder: 'Your authentic, non-generic reason', required: true }
+                      { key: 'jobDesc', label: 'Job Description (or what they do)', type: 'textarea', placeholder: 'Key requirements from the listing or a description of what the person/company does...', required: true },
+                      { key: 'skills', label: 'Your Top 3 Skills or Achievements', type: 'input', placeholder: 'e.g. SQL, led $2M campaign, 40% conversion lift', required: true },
+                      { key: 'reason', label: 'Why This Job (your real reason, not generic)', type: 'input', placeholder: 'e.g. "I use your product daily and spotted 3 UX fixes"', required: true }
                   ],
                   template: `You are a copywriter who specializes in persuasive cold outreach that gets responses.\nI'm applying for {role} at {company}. I need a cover letter that makes them want to meet me.\n\nJob description: {jobDesc}\nMy top 3 relevant skills/achievements: {skills}\nWhy I actually want this job: {reason}\n\nWrite a 3-paragraph cover letter that:\n1. Opens with a hook (not "I'm excited to apply...")\n2. Proves I can solve their problem with a specific example\n3. Ends with a confident ask for an interview\nKeep it under 200 words. Make it sound human, not robotic.`,
                   conditions: [
                       { check: d => d.skills && d.skills.split(',').length < 3, inject: 'NOTE: Fewer than 3 skills were provided. Ask the user to identify additional transferable skills from their experience that align with the job requirements.' }
                   ],
-                  bridge: { icon: '\u{1F4CA}', text: 'Building wealth starts with income. See what your paycheck becomes over 30 years.', cta: 'Open Investment Simplifier \u2192', link: CONFIG.LINKS.INVESTMENT }
+                  bridge: { text: 'Building wealth starts with income. See what your paycheck becomes over 30 years.', cta: 'Open Investment Simplifier', link: CONFIG.LINKS.INVESTMENT }
                 },
-                { id: 'LINKEDIN', name: 'LinkedIn Optimizer', icon: '\u{1F310}',
+                { id: 'LINKEDIN', name: 'LinkedIn Optimizer',
+                  desc: 'Rewrites your LinkedIn headline, about section, and experience bullets so recruiters actually find you. Uses the keywords hiring managers search for in your target role.',
+                  meta: { bestFor: 'When your profile gets views but no messages from recruiters', youGet: '3 headline options, a rewritten About section, optimized experience bullets, and connection request templates', outputType: 'Written profile sections' },
                   fields: [
                       { key: 'currentHeadline', label: 'Current LinkedIn Headline', type: 'input', placeholder: 'e.g. "Student at State University"', required: true },
                       { key: 'targetRole', label: 'Target Role / Industry', type: 'input', placeholder: 'e.g. Product Management in SaaS', required: true },
@@ -336,38 +465,44 @@
                   conditions: [
                       { check: d => d.experienceSummary && d.experienceSummary.length < 100, inject: 'NOTE: Experience summary is brief. This person is likely early-career. Focus on potential, side projects, coursework, and transferable skills rather than years of experience. Frame everything around capability, not tenure.' }
                   ],
-                  bridge: { icon: '\u2709\uFE0F', text: 'Profile optimized? Now write the outreach email that gets responses.', cta: 'Generate Cold Email Prompt \u2192', link: null, internal: 'COLD_EMAIL' }
+                  bridge: { text: 'Profile optimized? Now write the outreach email that gets responses.', cta: 'Generate Cold Outreach Email', link: null, internal: 'COLD_EMAIL' }
                 },
-                { id: 'INTERVIEW', name: 'Interview Prep (STAR)', icon: '\u{1F3AF}',
+                { id: 'INTERVIEW', name: 'Interview Prep (STAR Method)',
+                  desc: 'Generates written answers to the most likely interview questions for your specific role. Uses the STAR method: Situation, Task, Action, Result. This is the answer format that top companies like Google, Amazon, and McKinsey expect in behavioral interviews.',
+                  meta: { bestFor: 'After getting an interview, before the actual meeting', youGet: '7 predicted questions with pre-written STAR answers, an elevator pitch, and smart questions to ask them (all written, not interactive)', whatIsThis: 'STAR stands for Situation, Task, Action, Result. It is a structured way to answer "Tell me about a time when..." questions. Interviewers at top companies are trained to listen for this format.', outputType: 'Written playbook (not interactive Q&A)' },
                   fields: [
-                      { key: 'role', label: 'Role You\'re Interviewing For', type: 'input', placeholder: 'e.g. Data Analyst at Spotify', required: true },
+                      { key: 'role', label: 'Role You Are Interviewing For', type: 'input', placeholder: 'e.g. Data Analyst at Spotify', required: true },
                       { key: 'company', label: 'Company Name', type: 'input', placeholder: 'e.g. Spotify', required: true },
-                      { key: 'topAchievements', label: 'Your Top 3 Achievements', type: 'textarea', placeholder: 'Describe 3 things you accomplished that you\'re proud of...', required: true },
-                      { key: 'biggestChallenge', label: 'Biggest Professional Challenge', type: 'input', placeholder: 'A time you overcame something difficult', required: true }
+                      { key: 'topAchievements', label: 'Your Top 3 Achievements', type: 'textarea', placeholder: 'Describe 3 things you accomplished that you are proud of...', required: true },
+                      { key: 'biggestChallenge', label: 'Biggest Professional Challenge You Overcame', type: 'input', placeholder: 'A time you overcame something difficult at work or school', required: true }
                   ],
                   template: `You are an interview coach who has prepped candidates for top companies.\n\nI'm interviewing for {role} at {company}.\n\nMy top 3 achievements:\n{topAchievements}\n\nMy biggest professional challenge:\n{biggestChallenge}\n\nPrepare me for the interview:\n1. Generate the 7 most likely behavioral questions for this role\n2. For each question, write a STAR-format answer (Situation, Task, Action, Result) using my actual experience above\n3. Include 3 smart questions I should ask THEM (specific to {company}, not generic)\n4. Give me a 60-second "elevator pitch" that summarizes why I'm the right hire\n\nMake the answers sound natural, not rehearsed. Include specific numbers where possible.`,
                   conditions: [
                       { check: d => d.role && /manager|lead|director|vp/i.test(d.role), inject: 'NOTE: This is a leadership-level role. Add 3 additional leadership-specific behavioral questions: conflict resolution, team motivation, and strategic decision-making. Frame STAR answers to emphasize people management and business impact.' },
                       { check: d => d.topAchievements && d.topAchievements.length < 150, inject: 'NOTE: Achievements section is brief. Ask the user to expand each achievement with: what they did, the measurable result, and what they learned. Sparse input leads to generic STAR answers.' }
                   ],
-                  bridge: { icon: '\u{1F4C4}', text: 'Use these STAR stories to strengthen your resume bullets too.', cta: 'Generate Resume Prompt \u2192', link: null, internal: 'RESUME' }
+                  bridge: { text: 'Use these STAR stories to strengthen your resume bullets too.', cta: 'Generate Resume Prompt', link: null, internal: 'RESUME' }
                 },
-                { id: 'SALARY', name: 'Salary Negotiation Script', icon: '\u{1F4B0}',
+                { id: 'SALARY', name: 'Salary Negotiation Script',
+                  desc: 'Generates word-for-word scripts, counter-offer emails, and non-salary items to negotiate. Best used AFTER you receive an offer but BEFORE you accept. Also works for raise conversations with your current employer.',
+                  meta: { bestFor: 'After receiving a job offer (before accepting) or before asking your current employer for a raise', youGet: 'Word-for-word negotiation scripts, 3 counter-offer email templates, and a list of non-salary items to negotiate', outputType: 'Written scripts and emails' },
                   fields: [
                       { key: 'offeredSalary', label: 'Offered Salary ($)', type: 'input', placeholder: 'e.g. 75000', required: true, grid: true },
                       { key: 'targetSalary', label: 'Target Salary ($)', type: 'input', placeholder: 'e.g. 90000', required: true, grid: true },
                       { key: 'role', label: 'Role Title', type: 'input', placeholder: 'e.g. Software Engineer', required: true },
                       { key: 'company', label: 'Company', type: 'input', placeholder: 'e.g. Stripe', required: true },
-                      { key: 'leverage', label: 'Your Leverage (competing offers, unique skills)', type: 'textarea', placeholder: 'e.g. "I have a competing offer from Company X at $85K" or "I\'m the only candidate with Python + SQL + Tableau"', required: true }
+                      { key: 'leverage', label: 'Your Leverage (what gives you negotiating power)', type: 'textarea', placeholder: 'e.g. "I have a competing offer from Company X at $85K" or "I am the only candidate with Python + SQL + Tableau"', required: true }
                   ],
                   template: `You are a salary negotiation expert who has coached 500+ professionals to earn more.\n\nOffer details:\n- Role: {role} at {company}\n- Offered: ${'{offeredSalary}'}/year\n- My target: ${'{targetSalary}'}/year\n- My leverage: {leverage}\n\nGenerate a complete negotiation playbook:\n1. A word-for-word script for the salary conversation (what to say when they give the number)\n2. 3 counter-offer email templates (grateful but firm, evidence-based, competing offer leverage)\n3. A list of non-salary items to negotiate if they can't move on base (signing bonus, equity, PTO, remote days, title)\n4. The exact phrases to AVOID (and what to say instead)\n5. A "walk-away" framework: at what number should I decline?\n\nTone: confident, professional, zero desperation.`,
                   conditions: [
                       { check: d => d.offeredSalary && d.targetSalary && (parseInt(d.targetSalary) / parseInt(d.offeredSalary) > 1.3), inject: 'REALITY CHECK: Your target is 30%+ above the offer. This is a large ask. The script will include a tiered approach: lead with total compensation (base + bonus + equity), not just base salary. Include market data justification and be prepared for a middle-ground counter.' },
                       { check: d => d.leverage && /offer|competing/i.test(d.leverage), inject: 'LEVERAGE DETECTED: Competing offer mentioned. The script will use the "I want to work here, but I need to be fair to myself" framework. Never bluff. Only reference real competing offers.' }
                   ],
-                  bridge: { icon: '\u{1F4CA}', text: 'You just negotiated more money. See what that extra income becomes over 30 years of compounding.', cta: 'Open Investment Simplifier \u2192', link: CONFIG.LINKS.INVESTMENT }
+                  bridge: { text: 'You just negotiated more money. See what that extra income becomes over 30 years of compounding.', cta: 'Open Investment Simplifier', link: CONFIG.LINKS.INVESTMENT }
                 },
-                { id: 'JOB_SEARCH', name: '30-Day Job Search Plan', icon: '\u{1F5D3}\uFE0F',
+                { id: 'JOB_SEARCH', name: '30-Day Job Search Plan',
+                  desc: 'A day-by-day action plan customized to your situation, target role, and available hours. Every task is specific enough to execute immediately.',
+                  meta: { bestFor: 'When you are actively looking for work (employed, unemployed, or graduating)', youGet: 'A week-by-week plan with daily tasks, scripts, and templates you can copy-paste', worksFor: 'Any industry, any experience level, any type of work (corporate, creative, trades, niche fields)', outputType: 'Written action plan' },
                   fields: [
                       { key: 'currentStatus', label: 'Current Status', type: 'input', placeholder: 'employed, unemployed, or student', required: true, grid: true },
                       { key: 'targetRole', label: 'Target Role', type: 'input', placeholder: 'e.g. UX Designer', required: true, grid: true },
@@ -379,13 +514,15 @@
                       { check: d => d.currentStatus && /unemploy/i.test(d.currentStatus), inject: 'URGENCY MODE: You are currently unemployed. The plan will frontload high-impact activities in Week 1. Daily task load increases. Add a financial buffer strategy: estimate how many weeks of runway you have, and set a decision deadline for accepting offers vs. holding out.' },
                       { check: d => d.currentStatus && /student/i.test(d.currentStatus), inject: 'STUDENT MODE: You are a student. The plan will focus on internship-to-hire pipelines, campus recruiting timelines, portfolio building, and leveraging professors/alumni networks. Applications should target companies with structured new-grad programs.' }
                   ],
-                  bridge: { icon: '\u{1F680}', text: 'While you search, start generating income on the side.', cta: 'Generate Side Hustle Prompt \u2192', link: null, internalTab: 'VENTURE' }
+                  bridge: { text: 'While you search, start generating income on the side.', cta: 'Explore Side Hustle Finder', link: null, internalTab: 'VENTURE' }
                 },
-                { id: 'PERFORMANCE', name: 'Performance Review Self-Assessment', icon: '\u{1F4CB}',
+                { id: 'PERFORMANCE', name: 'Performance Review Self-Assessment',
+                  desc: 'The written self-evaluation your manager reads before deciding your raise or promotion. This generates one built on evidence and metrics, not feelings and filler words.',
+                  meta: { bestFor: 'Before your annual or quarterly performance review meeting', youGet: 'A complete self-assessment document with metrics-driven accomplishments and a subtle case for promotion or raise', whatIsThis: 'Most companies require you to write a self-assessment before your review. What you write directly influences your raise or promotion. Most people write vague summaries. This prompt writes one that makes your case with evidence.', outputType: 'Written self-assessment document' },
                   fields: [
                       { key: 'role', label: 'Your Current Role', type: 'input', placeholder: 'e.g. Marketing Coordinator', required: true },
                       { key: 'keyProjects', label: 'Key Projects This Period', type: 'textarea', placeholder: 'List your top 3-5 projects and what you contributed...', required: true },
-                      { key: 'metrics', label: 'Measurable Results', type: 'textarea', placeholder: 'Any numbers: revenue, users, time saved, % improvements...', required: true },
+                      { key: 'metrics', label: 'Measurable Results (any numbers you have)', type: 'textarea', placeholder: 'Any numbers: revenue, users, time saved, % improvements...', required: true },
                       { key: 'goalForNextYear', label: 'Goal for Next Review Period', type: 'input', placeholder: 'e.g. Get promoted to Senior, lead a cross-functional team', required: true }
                   ],
                   template: `You are a career coach who helps professionals write self-assessments that lead to promotions.\n\nMy details:\n- Current role: {role}\n- Key projects: {keyProjects}\n- Measurable results: {metrics}\n- Goal for next period: {goalForNextYear}\n\nWrite my performance review self-assessment:\n1. Executive Summary (3 sentences max, framing my overall impact)\n2. Key Accomplishments (rewrite each project using "Challenge, Action, Result" format with specific metrics)\n3. Areas of Growth (frame 1-2 development areas as strengths-in-progress, not weaknesses)\n4. Forward-Looking Goals (align my {goalForNextYear} with company objectives)\n5. The "Ask" (a subtle but clear case for promotion/raise based on evidence above)\n\nTone: factual, evidence-heavy, confident without arrogance. No filler words.`,
@@ -393,11 +530,13 @@
                       { check: d => d.metrics && d.metrics.length < 80, inject: 'NOTE: Metrics section is sparse. Estimate impact where exact numbers are unavailable. Use ranges: "saved approximately 10-15 hours/week" or "contributed to a ~20% improvement in team velocity." Estimated metrics beat no metrics.' },
                       { check: d => d.goalForNextYear && /promot|senior|lead|manag/i.test(d.goalForNextYear), inject: 'PROMOTION TRACK: Your goal signals a move to the next level. Frame every accomplishment as evidence of already operating at that level. Use phrases like "took ownership of," "drove cross-functional alignment," and "mentored junior team members."' }
                   ],
-                  bridge: { icon: '\u{1F4B0}', text: 'Now use this evidence in your raise conversation.', cta: 'Generate Salary Negotiation Script \u2192', link: null, internal: 'SALARY' }
+                  bridge: { text: 'Now use this evidence in your raise conversation.', cta: 'Generate Salary Negotiation Script', link: null, internal: 'SALARY' }
                 }
             ],
             VENTURE: [
-                { id: 'SIDE_HUSTLE', name: 'Side Hustle Finder', icon: '\u{1F680}',
+                { id: 'SIDE_HUSTLE', name: 'Side Hustle Finder', recommended: true,
+                  desc: 'Analyzes skills you already have and matches them to income opportunities. Not generic suggestions like "start a blog." Specific services with pricing, target customers, and a 30-day client acquisition plan.',
+                  meta: { bestFor: 'When you want to earn money outside your job but do not know where to start', youGet: '3 specific side hustle ideas with pricing, ideal customers, and a step-by-step plan to land your first paying client in 30 days', outputType: 'Written analysis and action plan' },
                   fields: [
                       { key: 'friendsAsk', label: 'What do friends ask you for help with?', type: 'input', placeholder: 'e.g. Travel planning, Excel help, outfit advice', required: true },
                       { key: 'easyTask', label: 'What is easy for you but hard for others?', type: 'input', placeholder: 'e.g. Organizing files, public speaking, cooking', required: true },
@@ -406,9 +545,11 @@
                   ],
                   template: `You are a business strategist who helps people turn existing skills into income.\n\nMy skill audit:\n1. Friends ask me for help with: {friendsAsk}\n2. Tasks easy for me but hard for others: {easyTask}\n3. Free time interests: {interests}\n4. Recent problem I solved: {problemSolved}\n\nGive me 3 side hustle ideas based on my answers. For each:\n- Name the service\n- Define the ideal customer\n- Estimate pricing ($)\n- Outline a 3-step plan to land the first paying client in 30 days\n- Estimate monthly income potential at 5 clients vs. 20 clients\n\nBe specific. No "start a blog" or "become a freelancer" generics.`,
                   conditions: [],
-                  bridge: { icon: '\u{1F4B0}', text: 'Ready to automate your new income? Install the money machine.', cta: 'Open Autopilot System \u2192', link: CONFIG.LINKS.AUTOPILOT }
+                  bridge: { text: 'Ready to automate your new income? Install the money machine.', cta: 'Open Autopilot System', link: CONFIG.LINKS.AUTOPILOT }
                 },
-                { id: 'CLIENT_OUTREACH', name: 'Client Outreach Script', icon: '\u{1F4E9}',
+                { id: 'CLIENT_OUTREACH', name: 'Client Outreach Script',
+                  desc: 'Generates the exact DM, email, follow-up sequence, and objection-handling scripts to land paying clients this week. Works for ANY service you sell: design, tutoring, cleaning, photography, coding, consulting, or anything else.',
+                  meta: { bestFor: 'When you have a service to sell and need to find paying customers', youGet: 'A cold DM script, cold email template, 3-message follow-up sequence, discovery call questions, and objection-handling responses', worksFor: 'Any service in any industry (not just marketing)', outputType: 'Written scripts and templates' },
                   fields: [
                       { key: 'service', label: 'Your Service', type: 'input', placeholder: 'e.g. Social media management for restaurants', required: true },
                       { key: 'targetClient', label: 'Ideal Client', type: 'input', placeholder: 'e.g. Local restaurant owners with <1000 Instagram followers', required: true },
@@ -419,9 +560,11 @@
                   conditions: [
                       { check: d => d.pricing && parseInt(d.pricing.replace(/[^0-9]/g, '')) < 50, inject: 'PRICING ALERT: Your price point is very low. Consider value-based pricing. The outreach script will include a "price anchor" technique: mention the cost of NOT solving their problem before revealing your price.' }
                   ],
-                  bridge: { icon: '\u{1F4B5}', text: 'New income coming in? See how it changes your budget.', cta: 'Open Budget Calculator \u2192', link: CONFIG.LINKS.BUDGET }
+                  bridge: { text: 'New income coming in? See how it changes your budget.', cta: 'Open Budget Calculator', link: CONFIG.LINKS.BUDGET }
                 },
-                { id: 'LANDING_PAGE', name: 'Landing Page Copy', icon: '\u{1F4BB}',
+                { id: 'LANDING_PAGE', name: 'Landing Page Copy',
+                  desc: 'Generates all the words for a single webpage designed to sell one thing. If you freelance, sell a product, or offer a service, this is the page people read before they buy or sign up.',
+                  meta: { bestFor: 'When you need a webpage that converts visitors into customers or subscribers', youGet: 'Complete copy for every section: headline, problem/solution, social proof, pricing, FAQ, and call-to-action', whatIsThis: 'A "landing page" is a single webpage with one goal: get the visitor to take action (buy, sign up, book a call). The "copy" is the words on that page. Good copy = more sales.', outputType: 'Written website copy sections' },
                   fields: [
                       { key: 'service', label: 'Service / Product', type: 'input', placeholder: 'e.g. Logo design for startups', required: true },
                       { key: 'targetAudience', label: 'Target Audience', type: 'input', placeholder: 'e.g. Pre-seed startup founders who need branding fast', required: true },
@@ -430,9 +573,11 @@
                   ],
                   template: `You are a conversion copywriter who writes landing pages that sell.\n\nService: {service}\nTarget audience: {targetAudience}\nMain benefit: {mainBenefit}\nPricing: {pricing}\n\nWrite the complete copy for a single-page website:\n1. Hero section: Headline (10 words max) + Subheadline + CTA button text\n2. Problem section: 3 pain points my audience feels (use their language)\n3. Solution section: How my service solves each pain point\n4. Social proof section: A testimonial template I can fill in + 3 trust signals\n5. Pricing section: Present the price with an anchor (show what they'd pay elsewhere)\n6. FAQ section: 5 objections disguised as questions, with confident answers\n7. Final CTA: urgency-driven close\n\nWrite like a human, not a marketing textbook. Short sentences. No jargon.`,
                   conditions: [],
-                  bridge: { icon: '\u{1F4E9}', text: 'Page is ready. Now write the outreach to drive traffic to it.', cta: 'Generate Client Outreach Script \u2192', link: null, internal: 'CLIENT_OUTREACH' }
+                  bridge: { text: 'Page is ready. Now write the outreach to drive traffic to it.', cta: 'Generate Client Outreach Script', link: null, internal: 'CLIENT_OUTREACH' }
                 },
-                { id: 'PRICING', name: 'Pricing Strategy', icon: '\u{1F3F7}\uFE0F',
+                { id: 'PRICING', name: 'Pricing Strategy',
+                  desc: 'Calculates your minimum viable rate, creates tiered packages, and gives you the exact words to say when someone asks "why so expensive?" Shows the math, not just feelings.',
+                  meta: { bestFor: 'When you are setting prices for a new service or think you might be undercharging', youGet: 'Your minimum rate calculation, 3 pricing tiers with justification, and word-for-word scripts for price objections', outputType: 'Written pricing strategy with math' },
                   fields: [
                       { key: 'service', label: 'Your Service', type: 'input', placeholder: 'e.g. Website design for local businesses', required: true },
                       { key: 'hoursPerClient', label: 'Hours Per Client', type: 'input', placeholder: 'e.g. 15', required: true, grid: true },
@@ -443,9 +588,11 @@
                   conditions: [
                       { check: d => d.hoursPerClient && d.targetMonthlyIncome && (parseInt(d.targetMonthlyIncome) / (parseInt(d.hoursPerClient) * 4) < 25), inject: 'WARNING: At your current hours and target income, your effective hourly rate is under $25. The strategy will include a "scope reduction" plan to increase your rate without losing clients. Underpricing kills side hustles.' }
                   ],
-                  bridge: { icon: '\u{1F522}', text: 'At this price, how fast do you hit financial freedom?', cta: 'Open Freedom Calculator \u2192', link: CONFIG.LINKS.FREEDOM }
+                  bridge: { text: 'At this price, how fast do you hit financial freedom?', cta: 'Open Freedom Calculator', link: CONFIG.LINKS.FREEDOM }
                 },
-                { id: 'CONTENT_CAL', name: 'Content Calendar (30 Days)', icon: '\u{1F4C5}',
+                { id: 'CONTENT_CAL', name: 'Content Calendar (30 Days)',
+                  desc: 'A complete month of posts with hooks, outlines, CTAs, and hashtags. Customized to your platform, niche, and posting frequency.',
+                  meta: { bestFor: 'When you know you need to post consistently but do not know what to say', youGet: '30 days of content ideas with hooks, outlines, CTAs, and hashtags for each post', outputType: 'Written content calendar' },
                   fields: [
                       { key: 'platform', label: 'Primary Platform', type: 'input', placeholder: 'Instagram, TikTok, LinkedIn, or Twitter', required: true, grid: true },
                       { key: 'niche', label: 'Your Niche', type: 'input', placeholder: 'e.g. Personal finance for Gen Z', required: true, grid: true },
@@ -457,9 +604,11 @@
                       { check: d => d.platform && /tiktok/i.test(d.platform), inject: 'TIKTOK MODE: Every post should be a short-form video concept. Include: opening hook (first 2 seconds), visual structure, trending sound suggestions, and text overlay copy. Prioritize "hook-first" scripts where the payoff is in the last 3 seconds.' },
                       { check: d => d.platform && /linkedin/i.test(d.platform), inject: 'LINKEDIN MODE: Prioritize text posts with strong opening lines. Use the "curiosity gap" format: bold claim in line 1, story in the middle, lesson at the end. Include 2-3 carousel post concepts for complex topics. Avoid hashtags over 5 (LinkedIn penalizes hashtag stuffing).' }
                   ],
-                  bridge: { icon: '\u2699\uFE0F', text: 'Content brings audience. Now automate the income it generates.', cta: 'Open Autopilot System \u2192', link: CONFIG.LINKS.AUTOPILOT }
+                  bridge: { text: 'Content brings audience. Now automate the income it generates.', cta: 'Open Autopilot System', link: CONFIG.LINKS.AUTOPILOT }
                 },
-                { id: 'PROPOSAL', name: 'Freelance Proposal Template', icon: '\u{1F4DD}',
+                { id: 'PROPOSAL', name: 'Freelance Proposal Template',
+                  desc: 'The document you send to close a deal. Generates scope, timeline, pricing breakdown, and a "why me" section that makes saying yes feel obvious.',
+                  meta: { bestFor: 'After a discovery call or inquiry when you need to send a formal proposal', youGet: 'A complete proposal document with executive summary, scope of work, timeline, pricing breakdown, and next steps', outputType: 'Written proposal document' },
                   fields: [
                       { key: 'clientName', label: 'Client / Company Name', type: 'input', placeholder: 'e.g. Bloom Coffee Co.', required: true },
                       { key: 'projectScope', label: 'Project Scope (what they need)', type: 'textarea', placeholder: 'e.g. Redesign their website, create a brand guide, and set up email marketing', required: true },
@@ -470,9 +619,11 @@
                   conditions: [
                       { check: d => d.timeline && parseInt(d.timeline) <= 2, inject: 'SPRINT PROJECT: Short timeline detected. Structure the proposal as a "rapid sprint" with daily check-ins and a single revision round. Include a rush fee justification if applicable.' }
                   ],
-                  bridge: { icon: '\u{1F4B5}', text: 'Project income incoming. See how it fits your financial plan.', cta: 'Open Budget Calculator \u2192', link: CONFIG.LINKS.BUDGET }
+                  bridge: { text: 'Project income incoming. See how it fits your financial plan.', cta: 'Open Budget Calculator', link: CONFIG.LINKS.BUDGET }
                 },
-                { id: 'VALIDATE', name: 'Business Idea Validator', icon: '\u{1F9EA}',
+                { id: 'VALIDATE', name: 'Business Idea Validator',
+                  desc: 'Stress-tests your idea before you invest time or money. Gets a viability score, risk analysis, and a 7-day validation test you can run for under $50.',
+                  meta: { bestFor: 'Before spending time or money on a new business idea', youGet: 'A viability score (1-10), risk analysis, a 7-day validation test under $50, and a Go/No-Go recommendation', outputType: 'Written analysis' },
                   fields: [
                       { key: 'idea', label: 'Your Business Idea (1-2 sentences)', type: 'input', placeholder: 'e.g. A subscription box of healthy snacks for office workers', required: true },
                       { key: 'targetCustomer', label: 'Who Would Buy This?', type: 'input', placeholder: 'e.g. Remote workers aged 25-35 who want healthy options', required: true },
@@ -483,77 +634,13 @@
                   conditions: [
                       { check: d => d.budget && parseInt(d.budget.replace(/[^0-9]/g, '')) < 200, inject: 'BOOTSTRAP MODE: Very limited budget. Focus the validation test on zero-cost methods: social media polls, DM outreach to potential customers, waitlist landing page (free tools only). Every dollar must be justified.' }
                   ],
-                  bridge: { icon: '\u{1F680}', text: 'Idea validated? Now find clients for it.', cta: 'Generate Client Outreach Script \u2192', link: null, internal: 'CLIENT_OUTREACH' }
+                  bridge: { text: 'Idea validated? Now find clients for it.', cta: 'Generate Client Outreach Script', link: null, internal: 'CLIENT_OUTREACH' }
                 }
             ],
             WEALTH: [
-                { id: 'FIRE_CALC', name: 'FIRE Calculator Prompt', icon: '\u{1F525}',
-                  fields: [
-                      { key: 'age', label: 'Current Age', type: 'input', placeholder: '25', required: true, grid: true },
-                      { key: 'retireAge', label: 'Target Retirement Age', type: 'input', placeholder: '40', required: true, grid: true },
-                      { key: 'expenses', label: 'Annual Expenses ($)', type: 'input', placeholder: '50000', required: true },
-                      { key: 'invested', label: 'Current Invested Assets ($)', type: 'input', placeholder: '10000', required: true, grid: true },
-                      { key: 'monthlyInvest', label: 'Monthly Investment ($)', type: 'input', placeholder: '500', required: true, grid: true }
-                  ],
-                  template: `You are a financial independence advisor.\n\nMy info:\n- Current age: {age}\n- Target retirement age: {retireAge}\n- Annual expenses: ${'{expenses}'}\n- Current invested assets: ${'{invested}'}\n- Monthly investment: ${'{monthlyInvest}'}\n- Expected return: 8%\n\nCalculate:\n1. My FIRE number (total needed to live off 4% withdrawal)\n2. Years until I hit that number at current savings rate\n3. If I want to retire by {retireAge}, how much must I invest monthly?\n4. What happens if I increase income by 20% and invest it all?\n\nShow the math in simple terms. Give me hope, but be realistic.`,
-                  conditions: [],
-                  bridge: { icon: '\u{1F522}', text: 'Compute your exact Freedom Number with real math.', cta: 'Open Freedom Calculator \u2192', link: CONFIG.LINKS.FREEDOM }
-                },
-                { id: 'DEBT_PAYOFF', name: 'Debt Payoff Strategy', icon: '\u{1F4C9}',
-                  fields: [
-                      { key: 'debts', label: 'List Your Debts (name, balance, interest rate, minimum payment)', type: 'textarea', placeholder: 'e.g.\nStudent Loan: $25,000, 6.5%, $280/mo\nCredit Card: $3,200, 22%, $90/mo\nCar Loan: $12,000, 4.5%, $350/mo', required: true },
-                      { key: 'extraMonthly', label: 'Extra Monthly Amount Above Minimums ($)', type: 'input', placeholder: 'e.g. 200', required: true }
-                  ],
-                  template: `You are a debt strategist who helps people become debt-free.\n\nMy debts:\n{debts}\n\nExtra I can put toward debt each month (above minimums): ${'{extraMonthly}'}\n\nCreate my payoff plan:\n1. Avalanche Method (highest interest first): show the order, monthly payments, and total interest saved\n2. Snowball Method (smallest balance first): show the order, monthly payments, and psychological wins timeline\n3. Compare both: which saves more money vs. which keeps me motivated\n4. Give me the EXACT payoff date for each debt under your recommended method\n5. Calculate total interest paid under each strategy\n6. "Quick wins": any debts I can eliminate in the next 90 days?\n\nShow me a month-by-month table for the first 6 months. I need to SEE the progress.`,
-                  conditions: [
-                      { check: d => d.debts && /2[0-9]%|3[0-9]%/i.test(d.debts), inject: 'HIGH INTEREST ALERT: You have debt over 20% APR. This is a financial emergency. The plan will prioritize this debt aggressively. Consider balance transfer options (0% APR cards) before paying down principal. Every month at 20%+ costs you real money.' },
-                      { check: d => d.debts && d.debts.split('\n').filter(l => l.trim()).length <= 2, inject: 'LIGHT DEBT LOAD: With only 1-2 debts, the strategy simplifies. Focus all extra payments on the highest-rate debt. You could be debt-free faster than you think.' }
-                  ],
-                  bridge: { icon: '\u{1F4B3}', text: 'As debt drops, your credit score climbs. Track your path to 800.', cta: 'Open 800-Club Checklist \u2192', link: CONFIG.LINKS.CLUB800 }
-                },
-                { id: 'EMERGENCY', name: 'Emergency Fund Plan', icon: '\u{1F6E1}\uFE0F',
-                  fields: [
-                      { key: 'monthlyExpenses', label: 'Monthly Expenses ($)', type: 'input', placeholder: 'e.g. 2500', required: true, grid: true },
-                      { key: 'currentSavings', label: 'Current Emergency Savings ($)', type: 'input', placeholder: 'e.g. 800', required: true, grid: true },
-                      { key: 'incomeStability', label: 'Income Type', type: 'input', placeholder: 'stable salary, variable (commission), or freelance', required: true },
-                      { key: 'dependents', label: 'Number of Dependents', type: 'input', placeholder: '0', required: true }
-                  ],
-                  template: `You are a financial planner specializing in emergency preparedness.\n\nMy situation:\n- Monthly expenses: ${'{monthlyExpenses}'}\n- Current emergency savings: ${'{currentSavings}'}\n- Income type: {incomeStability}\n- Dependents: {dependents}\n\nBuild my emergency fund plan:\n1. Calculate my target emergency fund (based on income stability and dependents)\n2. Gap analysis: how much more do I need?\n3. Monthly savings target to reach the goal in 6 months vs. 12 months\n4. Where to keep the fund (HYSA recommendations with current APY ranges)\n5. "Save $1,000 in 30 days" challenge: specific daily/weekly micro-actions\n6. What counts as a real emergency vs. what doesn't (decision framework)\n\nMake it actionable. I want exact dollar amounts and a timeline I can follow.`,
-                  conditions: [
-                      { check: d => d.incomeStability && /freelance|variable|commission/i.test(d.incomeStability), inject: 'VARIABLE INCOME: Your income fluctuates. Target 6 months of expenses (not 3). Include a "feast month" strategy: when income exceeds average, auto-transfer the surplus to your emergency fund.' },
-                      { check: d => d.dependents && parseInt(d.dependents) > 0, inject: 'DEPENDENTS: You have people counting on you. Add a "family emergency tier" above the standard fund: medical deductibles, childcare disruption buffer, and 1 month of mortgage/rent as a separate category.' }
-                  ],
-                  bridge: { icon: '\u{1F4B5}', text: 'See exactly where to cut spending to fund your safety net.', cta: 'Open Budget Calculator \u2192', link: CONFIG.LINKS.BUDGET }
-                },
-                { id: 'PORTFOLIO', name: 'Investment Portfolio Builder', icon: '\u{1F4CA}',
-                  fields: [
-                      { key: 'age', label: 'Current Age', type: 'input', placeholder: '22', required: true, grid: true },
-                      { key: 'riskTolerance', label: 'Risk Tolerance', type: 'input', placeholder: 'conservative, moderate, or aggressive', required: true, grid: true },
-                      { key: 'monthlyInvestment', label: 'Monthly Investment ($)', type: 'input', placeholder: '300', required: true },
-                      { key: 'existingInvestments', label: 'Current Holdings (if any)', type: 'input', placeholder: 'e.g. $5K in VOO, $2K in savings', required: false },
-                      { key: 'goals', label: 'Investment Goals', type: 'input', placeholder: 'e.g. Retire by 45, buy a house in 5 years, passive income', required: true }
-                  ],
-                  template: `You are an investment advisor who builds portfolios for beginners.\n\nMy profile:\n- Age: {age}\n- Risk tolerance: {riskTolerance}\n- Monthly investment: ${'{monthlyInvestment}'}\n- Current holdings: {existingInvestments}\n- Goals: {goals}\n\nBuild my portfolio:\n1. Asset allocation (stocks vs. bonds vs. alternatives) with percentages and reasoning\n2. Specific ETF/index fund recommendations with ticker symbols\n3. Dollar amounts: exactly how much goes into each fund monthly\n4. 10-year and 30-year projected growth (at 7% and 10% returns)\n5. Rebalancing schedule: when and how to adjust\n6. "Hands-off" setup instructions: which brokerage, how to automate purchases\n7. What NOT to do (3 common mistakes for my risk profile)\n\nPlain English only. No financial jargon without an explanation.`,
-                  conditions: [
-                      { check: d => d.age && parseInt(d.age) < 25 && d.riskTolerance && /conservative/i.test(d.riskTolerance), inject: 'AGE-RISK MISMATCH: You are under 25 with a conservative risk tolerance. Your biggest asset is TIME. The portfolio will include an explanation of why young investors can afford more stock exposure, along with the conservative allocation you requested. You decide.' }
-                  ],
-                  bridge: { icon: '\u{1F4CA}', text: 'Now build this exact portfolio with our visual tool. See the 30-year projection.', cta: 'Open Investment Simplifier \u2192', link: CONFIG.LINKS.INVESTMENT }
-                },
-                { id: 'CREDIT', name: 'Credit Score Repair Plan', icon: '\u{1F4B3}',
-                  fields: [
-                      { key: 'currentScore', label: 'Current Credit Score', type: 'input', placeholder: 'e.g. 620', required: true, grid: true },
-                      { key: 'negativeItems', label: 'Negative Items on Report', type: 'textarea', placeholder: 'e.g. 2 late payments (2023), 1 collection ($450), high utilization on Chase card', required: true },
-                      { key: 'creditAge', label: 'Oldest Account Age', type: 'input', placeholder: 'e.g. 3 years', required: true, grid: true },
-                      { key: 'creditUtilization', label: 'Current Utilization %', type: 'input', placeholder: 'e.g. 45%', required: true, grid: true }
-                  ],
-                  template: `You are a credit repair specialist who helps people reach 800+ scores.\n\nMy credit profile:\n- Current score: {currentScore}\n- Negative items: {negativeItems}\n- Oldest account: {creditAge}\n- Current utilization: {creditUtilization}\n\nBuild my credit repair plan:\n1. Score analysis: what's hurting me most (rank by impact)\n2. 30-day quick wins: actions I can take THIS MONTH to boost my score\n3. Dispute strategy: which negative items to dispute first, with letter templates\n4. Utilization optimization: exact dollar amounts to pay down for maximum impact\n5. Account strategy: should I open new accounts, become an authorized user, or wait?\n6. 6-month roadmap with monthly milestones (target score at each checkpoint)\n7. The "800 Club" habits: daily/weekly/monthly routines to maintain a high score\n\nBe specific. "Pay down debt" is not a plan. "Pay Chase card from $2,100 to $630 by March 15" is a plan.`,
-                  conditions: [
-                      { check: d => d.currentScore && parseInt(d.currentScore) < 580, inject: 'REBUILD MODE: Score is below 580. This requires a "rebuild from scratch" approach. Focus on secured credit cards, becoming an authorized user on a family member\'s old account, and disputing ALL negative items (some will fall off). Timeline: 12-18 months to 700+.' },
-                      { check: d => d.currentScore && parseInt(d.currentScore) >= 700, inject: '800-CLUB ACCELERATION: Your score is already good. The plan will focus on optimization: perfect payment timing, strategic credit limit increases, and ideal utilization ratios. You are 6-12 months from 800+ with the right moves.' }
-                  ],
-                  bridge: { icon: '\u2705', text: 'Track every step of this plan with our interactive checklist.', cta: 'Open 800-Club Checklist \u2192', link: CONFIG.LINKS.CLUB800 }
-                },
-                { id: 'AUTOPILOT_SETUP', name: 'Autopilot Money Setup', icon: '\u2699\uFE0F',
+                { id: 'AUTOPILOT_SETUP', name: 'Autopilot Money Setup', recommended: true,
+                  desc: 'Builds an automation system so bills, savings, and investments happen without you touching anything. Set it up once. Check it 5 minutes per month.',
+                  meta: { bestFor: 'When you want your money to manage itself so you stop thinking about it', youGet: 'A complete account structure, automation schedule with exact dates and amounts, and a 5-minute monthly checklist', outputType: 'Written setup guide' },
                   fields: [
                       { key: 'monthlyIncome', label: 'Monthly Take-Home Pay ($)', type: 'input', placeholder: 'e.g. 3500', required: true },
                       { key: 'bankName', label: 'Primary Bank', type: 'input', placeholder: 'e.g. Chase, Capital One, Ally', required: true, grid: true },
@@ -565,9 +652,87 @@
                   conditions: [
                       { check: d => d.numAccounts && parseInt(d.numAccounts) === 1, inject: 'SINGLE ACCOUNT: You only have 1 bank account. The plan will include a sub-account strategy: open 2-3 additional accounts (most online banks are free) to create a visual separation between spending, bills, and savings. This is the foundation of automation.' }
                   ],
-                  bridge: { icon: '\u2699\uFE0F', text: 'Now install this exact automation with our visual builder.', cta: 'Open Autopilot System \u2192', link: CONFIG.LINKS.AUTOPILOT }
+                  bridge: { text: 'Now install this exact automation with our visual builder.', cta: 'Open Autopilot System', link: CONFIG.LINKS.AUTOPILOT }
                 },
-                { id: 'TAX_OPTIMIZE', name: 'Tax Optimization Checklist', icon: '\u{1F4C8}',
+                { id: 'FIRE_CALC', name: 'FIRE Calculator Prompt',
+                  desc: 'Calculates your exact "freedom number" and how long it takes to reach it at your current savings rate. Then shows you how to accelerate.',
+                  meta: { bestFor: 'When you want to know exactly how much you need to never work again', youGet: 'Your FIRE number, years to reach it, required monthly investment, and acceleration scenarios', whatIsThis: 'FIRE stands for Financial Independence, Retire Early. Your "FIRE number" is the total amount invested where you can live off 4% withdrawals indefinitely. It is a math problem, not a dream.', outputType: 'Written financial analysis with calculations' },
+                  fields: [
+                      { key: 'age', label: 'Current Age', type: 'input', placeholder: '25', required: true, grid: true },
+                      { key: 'retireAge', label: 'Target Retirement Age', type: 'input', placeholder: '40', required: true, grid: true },
+                      { key: 'expenses', label: 'Annual Expenses ($)', type: 'input', placeholder: '50000', required: true },
+                      { key: 'invested', label: 'Current Invested Assets ($)', type: 'input', placeholder: '10000', required: true, grid: true },
+                      { key: 'monthlyInvest', label: 'Monthly Investment ($)', type: 'input', placeholder: '500', required: true, grid: true }
+                  ],
+                  template: `You are a financial independence advisor.\n\nMy info:\n- Current age: {age}\n- Target retirement age: {retireAge}\n- Annual expenses: ${'{expenses}'}\n- Current invested assets: ${'{invested}'}\n- Monthly investment: ${'{monthlyInvest}'}\n- Expected return: 8%\n\nCalculate:\n1. My FIRE number (total needed to live off 4% withdrawal)\n2. Years until I hit that number at current savings rate\n3. If I want to retire by {retireAge}, how much must I invest monthly?\n4. What happens if I increase income by 20% and invest it all?\n\nShow the math in simple terms. Give me hope, but be realistic.`,
+                  conditions: [],
+                  bridge: { text: 'Compute your exact Freedom Number with real math.', cta: 'Open Freedom Calculator', link: CONFIG.LINKS.FREEDOM }
+                },
+                { id: 'DEBT_PAYOFF', name: 'Debt Payoff Strategy',
+                  desc: 'Compares two proven methods using YOUR actual debts. Gives exact payoff dates and a month-by-month progress table.',
+                  meta: { bestFor: 'When you have multiple debts and want the fastest, cheapest way out', youGet: 'A side-by-side comparison of two strategies, exact payoff dates for each debt, and a 6-month progress table', outputType: 'Written payoff plan with tables' },
+                  fields: [
+                      { key: 'debts', label: 'List Your Debts (name, balance, interest rate, minimum payment)', type: 'textarea', placeholder: 'e.g.\nStudent Loan: $25,000, 6.5%, $280/mo\nCredit Card: $3,200, 22%, $90/mo\nCar Loan: $12,000, 4.5%, $350/mo', required: true },
+                      { key: 'extraMonthly', label: 'Extra Monthly Amount Above Minimums ($)', type: 'input', placeholder: 'e.g. 200', required: true }
+                  ],
+                  template: `You are a debt strategist who helps people become debt-free.\n\nMy debts:\n{debts}\n\nExtra I can put toward debt each month (above minimums): ${'{extraMonthly}'}\n\nCreate my payoff plan:\n1. Avalanche Method (highest interest first): show the order, monthly payments, and total interest saved\n2. Snowball Method (smallest balance first): show the order, monthly payments, and psychological wins timeline\n3. Compare both: which saves more money vs. which keeps me motivated\n4. Give me the EXACT payoff date for each debt under your recommended method\n5. Calculate total interest paid under each strategy\n6. "Quick wins": any debts I can eliminate in the next 90 days?\n\nShow me a month-by-month table for the first 6 months. I need to SEE the progress.`,
+                  conditions: [
+                      { check: d => d.debts && /2[0-9]%|3[0-9]%/i.test(d.debts), inject: 'HIGH INTEREST ALERT: You have debt over 20% APR. This is a financial emergency. The plan will prioritize this debt aggressively. Consider balance transfer options (0% APR cards) before paying down principal. Every month at 20%+ costs you real money.' },
+                      { check: d => d.debts && d.debts.split('\n').filter(l => l.trim()).length <= 2, inject: 'LIGHT DEBT LOAD: With only 1-2 debts, the strategy simplifies. Focus all extra payments on the highest-rate debt. You could be debt-free faster than you think.' }
+                  ],
+                  bridge: { text: 'As debt drops, your credit score climbs. Track your path to 800.', cta: 'Open 800-Club Checklist', link: CONFIG.LINKS.CLUB800 }
+                },
+                { id: 'EMERGENCY', name: 'Emergency Fund Plan',
+                  desc: 'Calculates your target emergency fund based on income stability and dependents. Includes a "Save $1,000 in 30 days" challenge with specific daily actions.',
+                  meta: { bestFor: 'When you have less than 3 months of expenses saved', youGet: 'Your target fund amount, a monthly savings schedule, and a 30-day savings challenge with daily actions', outputType: 'Written savings plan' },
+                  fields: [
+                      { key: 'monthlyExpenses', label: 'Monthly Expenses ($)', type: 'input', placeholder: 'e.g. 2500', required: true, grid: true },
+                      { key: 'currentSavings', label: 'Current Emergency Savings ($)', type: 'input', placeholder: 'e.g. 800', required: true, grid: true },
+                      { key: 'incomeStability', label: 'Income Type', type: 'input', placeholder: 'stable salary, variable (commission), or freelance', required: true },
+                      { key: 'dependents', label: 'Number of Dependents', type: 'input', placeholder: '0', required: true }
+                  ],
+                  template: `You are a financial planner specializing in emergency preparedness.\n\nMy situation:\n- Monthly expenses: ${'{monthlyExpenses}'}\n- Current emergency savings: ${'{currentSavings}'}\n- Income type: {incomeStability}\n- Dependents: {dependents}\n\nBuild my emergency fund plan:\n1. Calculate my target emergency fund (based on income stability and dependents)\n2. Gap analysis: how much more do I need?\n3. Monthly savings target to reach the goal in 6 months vs. 12 months\n4. Where to keep the fund (HYSA recommendations with current APY ranges)\n5. "Save $1,000 in 30 days" challenge: specific daily/weekly micro-actions\n6. What counts as a real emergency vs. what doesn't (decision framework)\n\nMake it actionable. I want exact dollar amounts and a timeline I can follow.`,
+                  conditions: [
+                      { check: d => d.incomeStability && /freelance|variable|commission/i.test(d.incomeStability), inject: 'VARIABLE INCOME: Your income fluctuates. Target 6 months of expenses (not 3). Include a "feast month" strategy: when income exceeds average, auto-transfer the surplus to your emergency fund.' },
+                      { check: d => d.dependents && parseInt(d.dependents) > 0, inject: 'DEPENDENTS: You have people counting on you. Add a "family emergency tier" above the standard fund: medical deductibles, childcare disruption buffer, and 1 month of mortgage/rent as a separate category.' }
+                  ],
+                  bridge: { text: 'See exactly where to cut spending to fund your safety net.', cta: 'Open Budget Calculator', link: CONFIG.LINKS.BUDGET }
+                },
+                { id: 'PORTFOLIO', name: 'Investment Portfolio Builder',
+                  desc: 'Builds a specific portfolio with exact ETF ticker symbols, dollar amounts, and automation instructions. Customized to your age, risk tolerance, and goals. Plain English, no jargon.',
+                  meta: { bestFor: 'When you want to start investing but do not know what to buy', youGet: 'Specific ETF recommendations with ticker symbols, exact dollar allocations, 10-year and 30-year projections, and step-by-step automation setup', outputType: 'Written portfolio plan' },
+                  fields: [
+                      { key: 'age', label: 'Current Age', type: 'input', placeholder: '22', required: true, grid: true },
+                      { key: 'riskTolerance', label: 'Risk Tolerance', type: 'input', placeholder: 'conservative, moderate, or aggressive', required: true, grid: true },
+                      { key: 'monthlyInvestment', label: 'Monthly Investment ($)', type: 'input', placeholder: '300', required: true },
+                      { key: 'existingInvestments', label: 'Current Holdings (if any)', type: 'input', placeholder: 'e.g. $5K in VOO, $2K in savings', required: false },
+                      { key: 'goals', label: 'Investment Goals', type: 'input', placeholder: 'e.g. Retire by 45, buy a house in 5 years, passive income', required: true }
+                  ],
+                  template: `You are an investment advisor who builds portfolios for beginners.\n\nMy profile:\n- Age: {age}\n- Risk tolerance: {riskTolerance}\n- Monthly investment: ${'{monthlyInvestment}'}\n- Current holdings: {existingInvestments}\n- Goals: {goals}\n\nBuild my portfolio:\n1. Asset allocation (stocks vs. bonds vs. alternatives) with percentages and reasoning\n2. Specific ETF/index fund recommendations with ticker symbols\n3. Dollar amounts: exactly how much goes into each fund monthly\n4. 10-year and 30-year projected growth (at 7% and 10% returns)\n5. Rebalancing schedule: when and how to adjust\n6. "Hands-off" setup instructions: which brokerage, how to automate purchases\n7. What NOT to do (3 common mistakes for my risk profile)\n\nPlain English only. No financial jargon without an explanation.`,
+                  conditions: [
+                      { check: d => d.age && parseInt(d.age) < 25 && d.riskTolerance && /conservative/i.test(d.riskTolerance), inject: 'AGE-RISK MISMATCH: You are under 25 with a conservative risk tolerance. Your biggest asset is TIME. The portfolio will include an explanation of why young investors can afford more stock exposure, along with the conservative allocation you requested. You decide.' }
+                  ],
+                  bridge: { text: 'Now build this exact portfolio with our visual tool. See the 30-year projection.', cta: 'Open Investment Simplifier', link: CONFIG.LINKS.INVESTMENT }
+                },
+                { id: 'CREDIT', name: 'Credit Score Repair Plan',
+                  desc: 'A specific, dated action plan to raise your score. Not "pay down debt." More like "Pay Chase card from $2,100 to $630 by March 15." Includes dispute letter templates.',
+                  meta: { bestFor: 'When your credit score is below where you want it', youGet: 'A ranked list of what is hurting your score most, 30-day quick wins, dispute letter templates, and a 6-month roadmap with monthly milestones', outputType: 'Written action plan' },
+                  fields: [
+                      { key: 'currentScore', label: 'Current Credit Score', type: 'input', placeholder: 'e.g. 620', required: true, grid: true },
+                      { key: 'negativeItems', label: 'Negative Items on Report', type: 'textarea', placeholder: 'e.g. 2 late payments (2023), 1 collection ($450), high utilization on Chase card', required: true },
+                      { key: 'creditAge', label: 'Oldest Account Age', type: 'input', placeholder: 'e.g. 3 years', required: true, grid: true },
+                      { key: 'creditUtilization', label: 'Current Utilization %', type: 'input', placeholder: 'e.g. 45%', required: true, grid: true }
+                  ],
+                  template: `You are a credit repair specialist who helps people reach 800+ scores.\n\nMy credit profile:\n- Current score: {currentScore}\n- Negative items: {negativeItems}\n- Oldest account: {creditAge}\n- Current utilization: {creditUtilization}\n\nBuild my credit repair plan:\n1. Score analysis: what's hurting me most (rank by impact)\n2. 30-day quick wins: actions I can take THIS MONTH to boost my score\n3. Dispute strategy: which negative items to dispute first, with letter templates\n4. Utilization optimization: exact dollar amounts to pay down for maximum impact\n5. Account strategy: should I open new accounts, become an authorized user, or wait?\n6. 6-month roadmap with monthly milestones (target score at each checkpoint)\n7. The "800 Club" habits: daily/weekly/monthly routines to maintain a high score\n\nBe specific. "Pay down debt" is not a plan. "Pay Chase card from $2,100 to $630 by March 15" is a plan.`,
+                  conditions: [
+                      { check: d => d.currentScore && parseInt(d.currentScore) < 580, inject: 'REBUILD MODE: Score is below 580. This requires a "rebuild from scratch" approach. Focus on secured credit cards, becoming an authorized user on a family member\'s old account, and disputing ALL negative items (some will fall off). Timeline: 12-18 months to 700+.' },
+                      { check: d => d.currentScore && parseInt(d.currentScore) >= 700, inject: '800-CLUB ACCELERATION: Your score is already good. The plan will focus on optimization: perfect payment timing, strategic credit limit increases, and ideal utilization ratios. You are 6-12 months from 800+ with the right moves.' }
+                  ],
+                  bridge: { text: 'Track every step of this plan with our interactive checklist.', cta: 'Open 800-Club Checklist', link: CONFIG.LINKS.CLUB800 }
+                },
+                { id: 'TAX_OPTIMIZE', name: 'Tax Optimization Checklist',
+                  desc: 'Finds deductions and credits you are probably missing. Includes side hustle tax guides, retirement account strategy, and an estimate of how much less you would pay.',
+                  meta: { bestFor: 'Before tax season or when you start earning side income', youGet: 'A list of deductions you are missing, retirement account strategy, and an estimated tax savings amount', outputType: 'Written tax checklist (educational, not tax advice)' },
                   fields: [
                       { key: 'income', label: 'Annual Income ($)', type: 'input', placeholder: 'e.g. 55000', required: true, grid: true },
                       { key: 'filingStatus', label: 'Filing Status', type: 'input', placeholder: 'single, married, head of household', required: true, grid: true },
@@ -578,38 +743,40 @@
                   conditions: [
                       { check: d => d.incomeType && /1099|freelance|side/i.test(d.incomeType), inject: 'SELF-EMPLOYMENT INCOME: You have 1099/freelance income. This unlocks additional deductions: home office, equipment, software, mileage, health insurance premiums. The checklist will include a quarterly estimated tax payment schedule so you avoid the April surprise.' }
                   ],
-                  bridge: { icon: '\u{1F4B5}', text: 'Tax savings = more to invest. See what those extra dollars become.', cta: 'Open Investment Simplifier \u2192', link: CONFIG.LINKS.INVESTMENT }
+                  bridge: { text: 'Tax savings = more to invest. See what those extra dollars become.', cta: 'Open Investment Simplifier', link: CONFIG.LINKS.INVESTMENT }
                 }
             ]
         };
 
-        const CATEGORY_LABELS = { 'CAREER': '\u{1F4BC} Career', 'VENTURE': '\u{1F680} Venture', 'WEALTH': '\u{1F4B0} Wealth' };
+        const CATEGORY_LABELS = { 'CAREER': 'Career', 'VENTURE': 'Venture', 'WEALTH': 'Wealth' };
+        const CATEGORY_ICONS = { 'CAREER': ICONS.briefcase, 'VENTURE': ICONS.rocket, 'WEALTH': ICONS.coins };
 
         const TIPS = {
             CAREER: [
-                "\u{1F4A1} After ChatGPT rewrites your resume, ask: 'Now make every bullet start with a stronger action verb.'",
-                "\u{1F4A1} Paste the job description AND your resume together. The AI finds gaps you can't see.",
-                "\u{1F4A1} Ask for 3 versions: conservative, balanced, and aggressive. Pick the one that sounds like you on a good day."
+                "After the AI rewrites your resume, ask: 'Now make every bullet start with a stronger action verb.'",
+                "Paste the job description AND your resume together. The AI finds gaps you cannot see.",
+                "Ask for 3 versions: conservative, balanced, and aggressive. Pick the one that sounds like you on a good day."
             ],
             VENTURE: [
-                "\u{1F4A1} After getting side hustle ideas, ask: 'Which one can generate $500 in the first 30 days?'",
-                "\u{1F4A1} Ask ChatGPT to role-play as your ideal customer and critique each idea.",
-                "\u{1F4A1} Follow up with: 'Write me a DM script to land my first client this week.'"
+                "After getting side hustle ideas, ask: 'Which one can generate $500 in the first 30 days?'",
+                "Ask the AI to role-play as your ideal customer and critique each idea.",
+                "Follow up with: 'Write me a DM script to land my first client this week.'"
             ],
             WEALTH: [
-                "\u{1F4A1} If the FIRE number feels impossible, ask: 'What if I increase my income by 20% and invest it all?'",
-                "\u{1F4A1} Run the prompt twice with different return rates (7% and 10%) to see the range of outcomes.",
-                "\u{1F4A1} After getting your number, ask: 'Give me the 3 highest-impact moves to get there faster.'"
+                "If the FIRE number feels impossible, ask: 'What if I increase my income by 20% and invest it all?'",
+                "Run the prompt twice with different return rates (7% and 10%) to see the range of outcomes.",
+                "After getting your number, ask: 'Give me the 3 highest-impact moves to get there faster.'"
             ]
         };
 
+        /* === UTILITY FUNCTIONS === */
         function getDynamicSteps(data) {
             const filledCount = Object.values(data).filter(v => v && v.trim()).length;
             return [
                 { id: 1, text: `Reading your ${filledCount} input field${filledCount !== 1 ? 's' : ''}...` },
                 { id: 2, text: "Injecting your data into prompt template..." },
                 { id: 3, text: "Applying conditional logic for your profile..." },
-                { id: 4, text: "Formatting for ChatGPT paste-ready output..." },
+                { id: 4, text: "Formatting for AI paste-ready output..." },
                 { id: 5, text: "Ready. Prompt built from your data." }
             ];
         }
@@ -620,9 +787,7 @@
                 result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), data[key] || `[INSERT ${key.toUpperCase()}]`);
             });
             if (promptConfig.conditions) {
-                promptConfig.conditions.forEach(({ check, inject }) => {
-                    if (check(data)) result += '\n\n' + inject;
-                });
+                promptConfig.conditions.forEach(({ check, inject }) => { if (check(data)) result += '\n\n' + inject; });
             }
             return result;
         }
@@ -632,33 +797,19 @@
             localStorage.setItem('promptVault_unlocked', JSON.stringify(data));
         }
 
-        /* ================================================
-           AUTO-SAVE: Save prompt to vault on generation.
-           Status = 'pending' (pre-email) or 'unlocked'.
-           Bridge converts all pending to unlocked on return.
-           ================================================ */
         function autoSaveToVault(promptText, category, status) {
             try {
                 const existing = JSON.parse(localStorage.getItem('vault_saved_prompts') || '[]');
-                const newPrompt = { prompt: promptText, category: category.toUpperCase(), timestamp: Date.now(), status: status };
-                const isDuplicate = existing.some(p => p.prompt === newPrompt.prompt);
-                if (!isDuplicate) {
-                    existing.push(newPrompt);
-                    localStorage.setItem('vault_saved_prompts', JSON.stringify(existing));
-                    return existing;
-                }
+                const newPrompt = { prompt: promptText, category: category.toUpperCase(), timestamp: Date.now(), status };
+                if (!existing.some(p => p.prompt === newPrompt.prompt)) { existing.push(newPrompt); localStorage.setItem('vault_saved_prompts', JSON.stringify(existing)); }
                 return existing;
             } catch(e) { return []; }
         }
 
-        /* Convert all pending prompts to unlocked */
         function unlockAllPending() {
             try {
                 const saved = JSON.parse(localStorage.getItem('vault_saved_prompts') || '[]');
-                const updated = saved.map(p => {
-                    if (p.status === 'pending') return { ...p, status: 'unlocked' };
-                    return p;
-                });
+                const updated = saved.map(p => p.status === 'pending' ? { ...p, status: 'unlocked' } : p);
                 localStorage.setItem('vault_saved_prompts', JSON.stringify(updated));
                 return updated;
             } catch(e) { return []; }
@@ -666,30 +817,171 @@
 
         function getVisiblePortion(text) {
             if (!text) return { blurredStart: '', visible: '', blurredEnd: '' };
-            const len = text.length;
-            const visibleSize = Math.floor(len * 0.20);
-            const startAt = Math.floor(len * 0.30);
-            return {
-                blurredStart: text.substring(0, startAt),
-                visible: text.substring(startAt, startAt + visibleSize),
-                blurredEnd: text.substring(startAt + visibleSize)
-            };
+            const len = text.length; const visibleSize = Math.floor(len * 0.20); const startAt = Math.floor(len * 0.30);
+            return { blurredStart: text.substring(0, startAt), visible: text.substring(startAt, startAt + visibleSize), blurredEnd: text.substring(startAt + visibleSize) };
         }
 
         function getTimeAgo(ts) {
             const s = Math.floor((Date.now() - ts) / 1000);
             if (s < 60) return 'Just now';
-            const m = Math.floor(s / 60);
-            if (m < 60) return `${m}m ago`;
-            const h = Math.floor(m / 60);
-            if (h < 24) return `${h}h ago`;
+            const m = Math.floor(s / 60); if (m < 60) return `${m}m ago`;
+            const h = Math.floor(m / 60); if (h < 24) return `${h}h ago`;
             return `${Math.floor(h / 24)}d ago`;
         }
 
-        /* ==================
-           COMPONENTS
-           ================== */
+        /* =============================================
+           PRIORITY 3: PDF UPLOAD COMPONENT
+           ============================================= */
+        function PdfUploadZone({ onTextExtracted }) {
+            const [state, setState] = useState('idle'); // idle, processing, success, error
+            const [fileName, setFileName] = useState('');
 
+            const extractText = async (file) => {
+                setState('processing');
+                setFileName(file.name);
+                try {
+                    if (typeof pdfjsLib === 'undefined') { throw new Error('PDF.js not loaded'); }
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    let fullText = '';
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        const pageText = content.items.map(item => item.str).join(' ');
+                        fullText += pageText + '\n\n';
+                    }
+                    const cleaned = fullText.trim();
+                    if (cleaned.length < 50) { throw new Error('Could not extract meaningful text'); }
+                    onTextExtracted(cleaned);
+                    setState('success');
+                    setTimeout(() => setState('idle'), 3000);
+                } catch (err) {
+                    console.error('PDF extraction error:', err);
+                    setState('error');
+                    setTimeout(() => setState('idle'), 4000);
+                }
+            };
+
+            const handleFile = (e) => {
+                const file = e.target.files?.[0];
+                if (file && file.type === 'application/pdf') { extractText(file); }
+            };
+
+            const handleDrop = (e) => {
+                e.preventDefault();
+                const file = e.dataTransfer.files?.[0];
+                if (file && file.type === 'application/pdf') { extractText(file); }
+            };
+
+            return (
+                <div
+                    className={`pdf-upload-zone ${state === 'processing' ? 'processing' : state === 'success' ? 'success' : ''}`}
+                    onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }}
+                    onDragLeave={(e) => { e.currentTarget.classList.remove('drag-over'); }}
+                    onDrop={handleDrop}
+                >
+                    {state === 'idle' && <>
+                        <div className="pdf-upload-icon">{ICONS.upload()}</div>
+                        <p className="pdf-upload-text">Drop your resume PDF here, or click to upload</p>
+                        <p className="pdf-upload-hint">We extract the text automatically. Your file never leaves your device.</p>
+                        <input type="file" accept=".pdf" onChange={handleFile} className="pdf-upload-input" />
+                    </>}
+                    {state === 'processing' && <div className="pdf-upload-progress">
+                        <div className="pdf-mini-spinner"></div>
+                        <span className="pdf-upload-text">Reading {fileName}...</span>
+                    </div>}
+                    {state === 'success' && <>
+                        <div className="pdf-upload-icon">{ICONS.check()}</div>
+                        <p className="pdf-upload-text" style={{color: 'var(--success)'}}>Resume extracted. Check the text below.</p>
+                    </>}
+                    {state === 'error' && <>
+                        <div className="pdf-upload-icon">{ICONS.file('#ef4444')}</div>
+                        <p className="pdf-upload-text" style={{color: '#ef4444'}}>Could not read this PDF. Please paste your resume text below instead.</p>
+                        <input type="file" accept=".pdf" onChange={handleFile} className="pdf-upload-input" />
+                    </>}
+                </div>
+            );
+        }
+
+        /* =============================================
+           PRIORITY 1: ONBOARDING FLOW (3 steps)
+           ============================================= */
+        function OnboardingFlow({ onComplete }) {
+            const [step, setStep] = useState(0);
+
+            const steps = [
+                {
+                    icon: ICONS.command('#6366f1'),
+                    heading: 'This App Builds Custom AI Instructions',
+                    body: <div>
+                        <p style={{marginBottom: 16}}>The Vault creates <strong>custom prompts</strong> (instructions) that you paste into a free AI tool. The AI then generates professional-quality results personalized to your exact situation.</p>
+                        <p><strong>Think of it like this:</strong> The Vault writes the recipe. The AI does the cooking. You get the meal.</p>
+                    </div>,
+                    btnText: 'Next: Which AI Tools Work?'
+                },
+                {
+                    icon: ICONS.sparkle('#10b981'),
+                    heading: 'Works With Any Free AI Tool',
+                    body: <div>
+                        <p style={{marginBottom: 16}}>Copy your prompt from The Vault and paste it into <strong>any</strong> of these free tools. All three produce excellent results.</p>
+                        <div className="onboarding-ai-logos">
+                            <div className="onboarding-ai-logo" style={{borderColor:'rgba(16,163,127,0.4)'}}>ChatGPT</div>
+                            <div className="onboarding-ai-logo" style={{borderColor:'rgba(204,128,71,0.4)'}}>Claude</div>
+                            <div className="onboarding-ai-logo" style={{borderColor:'rgba(66,133,244,0.4)'}}>Gemini</div>
+                        </div>
+                        <p style={{fontSize:'0.8rem',color:'var(--text-muted)'}}>Do not have an account? All three are free to sign up. ChatGPT is the most popular starting point.</p>
+                    </div>,
+                    btnText: 'Next: What Will I Get?'
+                },
+                {
+                    icon: ICONS.target('#fbbf24'),
+                    heading: 'What You Will Walk Away With',
+                    body: <div className="onboarding-steps-visual">
+                        <div className="onboarding-step-row">
+                            <div className="onboarding-step-num">1</div>
+                            <div className="onboarding-step-text"><strong>Pick a tool</strong> from 21 templates across Career, Venture, and Wealth</div>
+                        </div>
+                        <div className="onboarding-step-row">
+                            <div className="onboarding-step-num">2</div>
+                            <div className="onboarding-step-text"><strong>Fill in your details.</strong> The more specific you are, the better the output.</div>
+                        </div>
+                        <div className="onboarding-step-row">
+                            <div className="onboarding-step-num">3</div>
+                            <div className="onboarding-step-text"><strong>Copy the custom prompt</strong> and paste it into ChatGPT, Claude, or Gemini</div>
+                        </div>
+                        <div className="onboarding-step-row">
+                            <div className="onboarding-step-num">4</div>
+                            <div className="onboarding-step-text"><strong>Get your result in 60 seconds:</strong> a rewritten resume, negotiation script, business plan, investment portfolio, or more</div>
+                        </div>
+                    </div>,
+                    btnText: 'Start Building'
+                }
+            ];
+
+            const current = steps[step];
+
+            return (
+                <div className="onboarding-overlay">
+                    <div className="onboarding-card">
+                        <div className="onboarding-step-dots">
+                            {steps.map((_, i) => (
+                                <div key={i} className={`onboarding-dot ${i === step ? 'active' : i < step ? 'complete' : ''}`}></div>
+                            ))}
+                        </div>
+                        <div className="onboarding-icon-wrap">{current.icon}</div>
+                        <h2 className="onboarding-heading">{current.heading}</h2>
+                        <div className="onboarding-body">{current.body}</div>
+                        <button className="onboarding-btn" onClick={() => { if (step < steps.length - 1) setStep(step + 1); else onComplete(); }}>
+                            {current.btnText}
+                        </button>
+                        <button className="onboarding-skip" onClick={onComplete}>Skip intro</button>
+                    </div>
+                </div>
+            );
+        }
+
+        /* === GATEKEEPER (loading screen) === */
         function Gatekeeper({ onUnlock }) {
             const [progress, setProgress] = useState(0);
             useEffect(() => {
@@ -702,7 +994,7 @@
                 <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#0a0e27',padding:'20px'}}>
                     <div style={{textAlign:'center'}}>
                         <h1 className="gradient-text" style={{fontSize:'2rem',fontWeight:800,marginBottom:'12px'}}>THE VAULT</h1>
-                        <p style={{color:'#6366f1',fontSize:'0.7rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.15em',marginBottom:'24px'}}>Premium Access Verification</p>
+                        <p style={{color:'#6366f1',fontSize:'0.7rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.15em',marginBottom:'24px'}}>AI Command Console</p>
                         <div style={{width:'240px',height:'4px',background:'#1a1f3a',borderRadius:'2px',overflow:'hidden',margin:'0 auto'}}>
                             <div style={{height:'100%',background:'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',transition:'width 0.1s',width:`${progress}%`}}></div>
                         </div>
@@ -712,46 +1004,13 @@
             );
         }
 
-        /* OPS EXPLAINER: One-time card for new users */
-        function OpsExplainer({ onDismiss }) {
-            return (
-                <div className="ops-explainer animate-fade-in">
-                    <div className="ops-explainer-header">
-                        <div>
-                            <div className="ops-explainer-title">{"\u{1F9ED}"} How The Vault Works</div>
-                            <div className="ops-explainer-sub">21 AI prompt templates across 3 operating modes. Pick one, fill in your details, get a paste-ready prompt.</div>
-                        </div>
-                        <button className="ops-explainer-dismiss" onClick={onDismiss}>Got it</button>
-                    </div>
-                    <div className="ops-explainer-grid">
-                        <div className="ops-card">
-                            <div className="ops-card-icon">{"\u{1F4BC}"}</div>
-                            <div className="ops-card-name">Career Ops</div>
-                            <div className="ops-card-desc">Get hired, get paid more, get promoted. Resumes, cover letters, interview prep, salary negotiation, LinkedIn, performance reviews.</div>
-                        </div>
-                        <div className="ops-card">
-                            <div className="ops-card-icon">{"\u{1F680}"}</div>
-                            <div className="ops-card-name">Venture Ops</div>
-                            <div className="ops-card-desc">Turn skills into income. Side hustle discovery, client outreach, landing page copy, pricing strategy, content calendars, proposals.</div>
-                        </div>
-                        <div className="ops-card">
-                            <div className="ops-card-icon">{"\u{1F4B0}"}</div>
-                            <div className="ops-card-name">Wealth Ops</div>
-                            <div className="ops-card-desc">Build the machine that compounds while you sleep. FIRE planning, debt payoff, credit repair, portfolio building, automation, tax strategy.</div>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-
-        /* Extracted component: hooks are safe here (not inside .map) */
+        /* === VAULT COMPONENTS === */
         function VaultPromptItem({ item, index, isUnlocked, onDelete, isNewest }) {
             const [copied, setCopied] = useState(false);
             const [expanded, setExpanded] = useState(false);
             const isPending = item.status === 'pending';
             const cardRef = useRef(null);
 
-            /* Scroll into view + pulse when flagged as newest */
             useEffect(() => {
                 if (isNewest && cardRef.current) {
                     cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -774,18 +1033,18 @@
                     <div className="vault-prompt-header">
                         <div className="vault-prompt-meta">
                             <span className="vault-prompt-category">{CATEGORY_LABELS[item.category] || item.category}</span>
-                            {isPending && !isUnlocked && <span className="vault-prompt-status pending-status">{"\u{1F512}"} Pending</span>}
-                            {(!isPending || isUnlocked) && <span className="vault-prompt-status unlocked">{"\u{1F513}"} Unlocked</span>}
+                            {isPending && !isUnlocked && <span className="vault-prompt-status pending-status">Pending</span>}
+                            {(!isPending || isUnlocked) && <span className="vault-prompt-status unlocked">Unlocked</span>}
                             <span className="vault-prompt-time">{getTimeAgo(item.timestamp)}</span>
                         </div>
                         <div className="vault-prompt-actions">
-                            <button onClick={handleCopy} className={`vault-prompt-btn ${copied ? 'copied' : ''}`} disabled={isPending && !isUnlocked}>{copied ? '\u2713' : '\u{1F4CB} Copy'}</button>
-                            <button onClick={(e) => { e.stopPropagation(); onDelete(index); }} className="vault-prompt-btn delete">{"\u{1F5D1}\uFE0F"}</button>
+                            <button onClick={handleCopy} className={`vault-prompt-btn ${copied ? 'copied' : ''}`} disabled={isPending && !isUnlocked}>{copied ? 'Copied' : 'Copy'}</button>
+                            <button onClick={(e) => { e.stopPropagation(); onDelete(index); }} className="vault-prompt-btn delete">Delete</button>
                         </div>
                     </div>
                     <div onClick={() => !(isPending && !isUnlocked) && setExpanded(!expanded)}>
                         <pre className="vault-prompt-preview" style={{maxHeight: expanded ? 'none' : '80px', overflow:'hidden', filter: isPending && !isUnlocked ? 'blur(4px)' : 'none'}}>{expanded ? item.prompt : preview}</pre>
-                        {item.prompt.length > 120 && !(isPending && !isUnlocked) && <span className="vault-prompt-expand">{expanded ? '\u25B2 Collapse' : '\u25BC Expand full prompt'}</span>}
+                        {item.prompt.length > 120 && !(isPending && !isUnlocked) && <span className="vault-prompt-expand">{expanded ? 'Collapse' : 'Expand full prompt'}</span>}
                     </div>
                 </div>
             );
@@ -795,7 +1054,6 @@
             const isEmpty = savedPrompts.length === 0;
             const unlockedCount = savedPrompts.filter(p => p.status !== 'pending').length;
             const pendingCount = savedPrompts.filter(p => p.status === 'pending').length;
-            const vaultRef = useRef(null);
             const subtitle = isEmpty
                 ? 'Generate prompts below to fill your vault'
                 : pendingCount > 0 && !isUnlocked
@@ -803,38 +1061,31 @@
                     : `${savedPrompts.length} prompt${savedPrompts.length !== 1 ? 's' : ''} saved on this device`;
 
             return (
-                <div className="vault-container" id="vault-panel" ref={vaultRef}>
+                <div className="vault-container" id="vault-panel">
                     <div className={`vault-card ${isOpen ? 'expanded' : ''}`}>
                         <div className="vault-header" onClick={onToggle}>
                             <div className="vault-header-left">
-                                <span className="vault-icon">{"\u{1F5C4}\uFE0F"}</span>
+                                <span className="vault-icon">{ICONS.vault()}</span>
                                 <div>
                                     <h2 className="vault-title">MY VAULT</h2>
                                     <p className="vault-subtitle">{subtitle}</p>
                                 </div>
                             </div>
                             <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
-                                {!isEmpty && <div className="vault-badge"><span>{"\u{1F4BE}"}</span><span>{savedPrompts.length}</span></div>}
-                                <span className={`vault-toggle ${isOpen ? 'open' : ''}`}>{"\u25BC"}</span>
+                                {!isEmpty && <div className="vault-badge"><span>{ICONS.save('#fbbf24')}</span><span>{savedPrompts.length}</span></div>}
+                                <span className={`vault-toggle ${isOpen ? 'open' : ''}`}>{ICONS.chevronDown('#fbbf24')}</span>
                             </div>
                         </div>
                         <div className={`vault-content ${isOpen ? 'open' : ''}`}>
                             <div className="vault-content-inner">
                                 {isEmpty ? (
                                     <div className="vault-empty">
-                                        <div className="vault-empty-icon">{"\u{1F4ED}"}</div>
+                                        <div className="vault-empty-icon" style={{opacity:0.5}}>{ICONS.file('#64748b')}</div>
                                         <p className="vault-empty-text">Your vault is empty</p>
                                         <p className="vault-empty-hint">Generate a prompt below. It saves automatically.</p>
                                     </div>
                                 ) : savedPrompts.map((item, index) => (
-                                    <VaultPromptItem
-                                        key={item.timestamp + '-' + index}
-                                        item={item}
-                                        index={index}
-                                        isUnlocked={isUnlocked}
-                                        onDelete={onDelete}
-                                        isNewest={index === newestIndex}
-                                    />
+                                    <VaultPromptItem key={item.timestamp + '-' + index} item={item} index={index} isUnlocked={isUnlocked} onDelete={onDelete} isNewest={index === newestIndex} />
                                 ))}
                             </div>
                         </div>
@@ -851,25 +1102,22 @@
             const progressColor = isComplete ? 'var(--success)' : 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)';
             const percentColor = isComplete ? 'var(--success)' : progress === 0 ? 'var(--text-muted)' : '#10b981';
 
-            /* Dynamic whisper: email mention only after 50% investment */
             let label = 'Fill all fields to generate';
             if (isUnlocked) {
-                /* Post-email: straightforward progress */
                 if (isComplete) label = 'Ready to generate';
                 else if (filledCount === 0) label = 'Fill all fields to generate';
                 else label = `${totalFields - filledCount} field${totalFields - filledCount !== 1 ? 's' : ''} remaining`;
             } else {
-                /* Pre-email: the countdown whisper */
-                if (isComplete) label = '\u26A1 Ready. Hit generate. Email delivers the full output to your Vault.';
+                if (isComplete) label = 'Ready. Hit generate.';
                 else if (filledCount === 0) label = 'Fill all fields to generate';
                 else if (progress < 50) label = 'Keep going. Your custom prompt is building.';
-                else label = '\u26A1 Almost there. One email unlocks everything.';
+                else label = 'Almost there.';
             }
 
             return (
                 <div className="progress-container">
                     <div className="progress-header">
-                        <span className="progress-label" style={!isUnlocked && progress >= 50 ? {color: 'var(--gold)', transition: 'color 0.4s'} : {}}>{label}</span>
+                        <span className="progress-label">{label}</span>
                         <span className="progress-percent" style={{color:percentColor}}>{progress}%</span>
                     </div>
                     <div className="progress-bar-track">
@@ -883,8 +1131,8 @@
             return (
                 <div className="transparency-panel">
                     <div className="transparency-header" onClick={onToggle}>
-                        <span className="transparency-title"><span style={{fontSize:'0.9rem'}}>{"\u{1F50D}"}</span>See What's Happening</span>
-                        <span className={`transparency-toggle ${isOpen ? 'open' : ''}`}>{"\u25BC"}</span>
+                        <span className="transparency-title"><span style={{width:16,height:16,display:'inline-flex'}}>{ICONS.search()}</span>See What's Happening</span>
+                        <span className={`transparency-toggle ${isOpen ? 'open' : ''}`}>{ICONS.chevronDown()}</span>
                     </div>
                     <div className={`transparency-content ${isOpen ? 'open' : ''}`}>
                         {steps.map((step, index) => (
@@ -902,18 +1150,35 @@
             if (!bridge || !bridge.link) return null;
             return (
                 <div className="cross-bridge">
-                    <span className="cross-bridge-icon">{bridge.icon}</span>
+                    <span style={{width:24,height:24,display:'inline-flex'}}>{ICONS.arrowRight()}</span>
                     <div className="cross-bridge-content">
                         <p className="cross-bridge-text">{bridge.text}</p>
-                        <a href={bridge.link} target="_blank" className="cross-bridge-link">{bridge.cta}</a>
+                        <a href={bridge.link} target="_blank" className="cross-bridge-link">{bridge.cta} &rarr;</a>
                     </div>
                 </div>
             );
         }
 
-        /* === GENERIC PROMPT MODULE === */
+        function NextStepCard() {
+            return (
+                <div className="next-step-card">
+                    <div className="next-step-title"><span style={{width:18,height:18,display:'inline-flex'}}>{ICONS.target()}</span> Next Step: Paste Into Any AI</div>
+                    <p className="next-step-subtitle">This prompt works with any AI assistant. Copy it above, then open your preferred tool below.</p>
+                    <div className="next-step-buttons">
+                        <a href={CONFIG.LINKS.CHATGPT} target="_blank" className="ai-btn chatgpt">Open ChatGPT <span className="rec-tag">Popular</span></a>
+                        <a href={CONFIG.LINKS.CLAUDE} target="_blank" className="ai-btn claude">Open Claude</a>
+                        <a href={CONFIG.LINKS.GEMINI} target="_blank" className="ai-btn gemini">Open Gemini</a>
+                    </div>
+                </div>
+            );
+        }
+
+        /* === PROMPT MODULE (with all Priority 1-3 upgrades) === */
         function PromptModule({ category, promptList, onGenerated, onSave, userEmail, isUnlocked }) {
-            const [activePrompt, setActivePrompt] = useState(promptList[0].id);
+            const [activePrompt, setActivePrompt] = useState(() => {
+                const rec = promptList.find(p => p.recommended);
+                return rec ? rec.id : promptList[0].id;
+            });
             const [inputs, setInputs] = useState({});
             const [generated, setGenerated] = useState(null);
             const [isProcessing, setIsProcessing] = useState(false);
@@ -921,11 +1186,16 @@
             const [panelOpen, setPanelOpen] = useState(true);
             const [copied, setCopied] = useState(false);
             const [saved, setSaved] = useState(false);
+            const [showAllTabs, setShowAllTabs] = useState(false);
 
             const currentConfig = promptList.find(p => p.id === activePrompt);
             const requiredFields = currentConfig.fields.filter(f => f.required).map(f => f.key);
             const allFilled = requiredFields.every(f => inputs[f] && inputs[f].trim() !== '');
             const steps = useMemo(() => getDynamicSteps(inputs), [inputs]);
+
+            // Priority 2: show first 3 + "more" button
+            const visiblePrompts = showAllTabs ? promptList : promptList.slice(0, 3);
+            const hiddenCount = promptList.length - 3;
 
             const handleTabChange = (id) => { setActivePrompt(id); setInputs({}); setGenerated(null); setCopied(false); setSaved(false); };
             const updateInput = (key, value) => setInputs(prev => ({...prev, [key]: value}));
@@ -936,11 +1206,8 @@
                 setTimeout(() => {
                     const text = buildPrompt(currentConfig, inputs);
                     setGenerated(text); setIsProcessing(false); setCopied(false);
-
-                    // AUTO-SAVE: status depends on unlock state
                     const status = isUnlocked ? 'unlocked' : 'pending';
                     onGenerated(category, text, status);
-
                     if (!isUnlocked) { saveForBridgePage(category, currentConfig.name, text); }
                 }, 3000);
             };
@@ -949,18 +1216,64 @@
             const handleSave = () => { onSave(generated, category); setSaved(true); setTimeout(() => setSaved(false), 2000); };
             const portions = generated ? getVisiblePortion(generated) : null;
 
+            const remainingCount = requiredFields.filter(f => !inputs[f] || !inputs[f].trim()).length;
+            const buttonText = isProcessing
+                ? 'Building Your Prompt...'
+                : !allFilled
+                    ? `Fill ${remainingCount} more field${remainingCount !== 1 ? 's' : ''} to generate`
+                    : 'Build My Custom Prompt';
+
             return (
                 <div>
                     <div className="module-header">
-                        <h2 className="module-title">{CATEGORY_LABELS[category]}</h2>
+                        <h2 className="module-title" style={{display:'flex',alignItems:'center',gap:'10px'}}>
+                            <span style={{width:22,height:22,display:'inline-flex'}}>{CATEGORY_ICONS[category]()}</span>
+                            {CATEGORY_LABELS[category]} Ops
+                        </h2>
                     </div>
 
+                    {/* Sub-tabs with MOST POPULAR badge (Priority 2) */}
                     <div className="sub-tabs">
-                        {promptList.map(p => (
+                        {visiblePrompts.map(p => (
                             <button key={p.id} onClick={() => handleTabChange(p.id)} className={`sub-tab ${activePrompt === p.id ? 'active' : ''}`}>
-                                {p.icon} {p.name}
+                                {p.name}
+                                {p.recommended && <span className="sub-tab-badge">Top Pick</span>}
                             </button>
                         ))}
+                        {!showAllTabs && hiddenCount > 0 && (
+                            <button className="show-more-btn" onClick={() => setShowAllTabs(true)}>+{hiddenCount} more tools</button>
+                        )}
+                    </div>
+
+                    {/* Priority 1: Prompt Explainer */}
+                    {currentConfig.desc && (
+                        <div className="prompt-explainer">
+                            <p className="prompt-explainer-text">{currentConfig.desc}</p>
+                        </div>
+                    )}
+
+                    {/* Priority 1: Meta Tags (BEST FOR, YOU WILL GET, etc.) */}
+                    {currentConfig.meta && (
+                        <div className="prompt-meta-strip">
+                            {currentConfig.meta.bestFor && <span className="prompt-meta-tag best-for">Best for: {currentConfig.meta.bestFor}</span>}
+                            {currentConfig.meta.youGet && <span className="prompt-meta-tag you-get">You get: {currentConfig.meta.youGet}</span>}
+                            {currentConfig.meta.worksFor && <span className="prompt-meta-tag works-with">Works for: {currentConfig.meta.worksFor}</span>}
+                        </div>
+                    )}
+
+                    {/* Priority 1: "What is this?" inline education */}
+                    {currentConfig.meta?.whatIsThis && (
+                        <div style={{background:'rgba(251,191,36,0.06)', border:'1px solid rgba(251,191,36,0.15)', borderRadius:'8px', padding:'10px 14px', marginBottom:'14px', fontSize:'0.75rem', color:'var(--text-secondary)', lineHeight:'1.5'}}>
+                            <strong style={{color:'var(--gold)'}}>What is this?</strong> {currentConfig.meta.whatIsThis}
+                        </div>
+                    )}
+
+                    {/* Priority 1: Redesigned "How it works" (4-step visual) */}
+                    <div className="how-it-works-strip">
+                        <div className="hiw-step"><div className="hiw-step-num">Step 1</div><div className="hiw-step-text"><strong>Fill in</strong> your details</div><span className="hiw-arrow">&rarr;</span></div>
+                        <div className="hiw-step"><div className="hiw-step-num">Step 2</div><div className="hiw-step-text">We <strong>build</strong> your prompt</div><span className="hiw-arrow">&rarr;</span></div>
+                        <div className="hiw-step"><div className="hiw-step-num">Step 3</div><div className="hiw-step-text"><strong>Copy</strong> and paste into AI</div><span className="hiw-arrow">&rarr;</span></div>
+                        <div className="hiw-step"><div className="hiw-step-num">Step 4</div><div className="hiw-step-text">Get result in <strong>60 sec</strong></div></div>
                     </div>
 
                     <GoalGradientBar data={inputs} requiredFields={requiredFields} isUnlocked={isUnlocked} />
@@ -989,9 +1302,7 @@
                     </div>
 
                     <div className="section-divider">
-                        <button onClick={handleGenerate} className="btn-primary" disabled={isProcessing || !allFilled}>
-                            {isProcessing ? 'Processing...' : !allFilled ? `Fill ${requiredFields.length - requiredFields.filter(f => inputs[f] && inputs[f].trim()).length} more field${requiredFields.filter(f => !inputs[f] || !inputs[f].trim()).length !== 1 ? 's' : ''} to generate` : `Generate ${currentConfig.name} Prompt`}
-                        </button>
+                        <button onClick={handleGenerate} className="btn-primary" disabled={isProcessing || !allFilled}>{buttonText}</button>
 
                         {(isProcessing || generated) && <TransparencyPanel steps={steps} isProcessing={isProcessing} currentStep={currentStep} isOpen={panelOpen} onToggle={() => setPanelOpen(!panelOpen)} />}
 
@@ -1010,21 +1321,20 @@
                                     <pre className="blur-gate-visible">{portions.visible}</pre>
                                     <pre className="blur-gate-blurred">{portions.blurredEnd}</pre>
                                     <div className="blur-gate-overlay">
-                                        <div className="blur-gate-lock">{"\u{1F512}"}</div>
+                                        <div style={{width:40,height:40,marginBottom:12}}>{ICONS.lock()}</div>
                                         <h3 className="blur-gate-title">The Rest is Blurred.</h3>
                                         <p className="blur-gate-subtitle">One email unlocks the full prompt and all pending items in your Vault.</p>
                                         <div className="beehiiv-gate-container">
                                             <iframe src={CONFIG.BEEHIIV_EMBED_URL} data-test-id="beehiiv-embed" width="100%" height="262" frameBorder="0" scrolling="no" style={{borderRadius:'16px',background:'transparent',maxWidth:'100%'}}></iframe>
                                         </div>
-                                        <div className="blur-gate-trust"><span>{"\u{1F512}"} Secure</span><span>{"\u2022"}</span><span>No spam</span><span>{"\u2022"}</span><span>Instant access</span></div>
+                                        <div className="blur-gate-trust"><span>Secure</span><span>|</span><span>No spam</span><span>|</span><span>Instant access</span></div>
                                     </div>
                                 </div>
-                                {/* Vault guide for gated users */}
                                 <div className="vault-guide-inline">
-                                    <span className="vault-guide-icon">{"\u{1F4BE}"}</span>
+                                    <span style={{width:20,height:20,flexShrink:0}}>{ICONS.save()}</span>
                                     <div className="vault-guide-content">
                                         <div className="vault-guide-title">Prompt Auto-Saved (Pending)</div>
-                                        <div className="vault-guide-text">This prompt is saved to your Vault with <strong>pending</strong> status. Verify your email to unlock it and all future prompts you generate.</div>
+                                        <div className="vault-guide-text">This prompt is saved to your Vault with <strong>pending</strong> status. Verify your email to unlock it and all future prompts.</div>
                                     </div>
                                 </div>
                             </div>
@@ -1036,12 +1346,13 @@
                                     <div className="output-header">
                                         <span className="output-status">Prompt Unlocked</span>
                                         <div>
-                                            <button onClick={handleCopy} className={`copy-btn ${copied ? 'copied' : ''}`}>{copied ? "\u2713 Copied" : "Copy to Clipboard"}</button>
-                                            <button onClick={handleSave} className={`save-btn ${saved ? 'saved-flash' : ''}`}>{saved ? "\u2713 Found it" : "\u{1F4BE} View in Vault"}</button>
+                                            <button onClick={handleCopy} className={`copy-btn ${copied ? 'copied' : ''}`}>{copied ? "Copied" : "Copy to Clipboard"}</button>
+                                            <button onClick={handleSave} className={`save-btn ${saved ? 'saved-flash' : ''}`}>{saved ? "Found it" : "View in Vault"}</button>
                                         </div>
                                     </div>
                                     <div className="output-scroll"><pre className="output-code">{generated}</pre></div>
                                 </div>
+                                <NextStepCard />
                                 <CrossAppBridge bridge={currentConfig.bridge} />
                             </>
                         )}
@@ -1050,11 +1361,16 @@
             );
         }
 
+        /* Priority 3: renderField now handles pdfUpload flag */
         function renderField(field, inputs, updateInput) {
             if (field.type === 'textarea') {
                 return (
                     <div className="input-group">
                         <label>{field.label}{!field.required && ' (optional)'}</label>
+                        {/* Priority 3: PDF Upload Zone for resume fields */}
+                        {field.pdfUpload && (
+                            <PdfUploadZone onTextExtracted={(text) => updateInput(field.key, text)} />
+                        )}
                         <textarea value={inputs[field.key] || ''} onChange={e => updateInput(field.key, e.target.value)} placeholder={field.placeholder} rows={4} className="premium-textarea" />
                     </div>
                 );
@@ -1075,6 +1391,9 @@
                 const hasVisited = localStorage.getItem('vault_first_visit_complete');
                 return !(hasEmail || hasSaved || hasVisited);
             });
+            const [showOnboarding, setShowOnboarding] = useState(() => {
+                return localStorage.getItem('vault_onboarding_complete') !== 'true';
+            });
             const [activeTab, setActiveTab] = useState('CAREER');
             const [currentTip, setCurrentTip] = useState(0);
             const [savedPrompts, setSavedPrompts] = useState([]);
@@ -1085,15 +1404,11 @@
             const [showVaultPointer, setShowVaultPointer] = useState(false);
             const [showWelcomeBack, setShowWelcomeBack] = useState(false);
             const [newestIndex, setNewestIndex] = useState(-1);
-            const [showExplainer, setShowExplainer] = useState(() => {
-                return localStorage.getItem('vault_explainer_dismissed') !== 'true';
-            });
 
             const tips = TIPS[activeTab] || TIPS.CAREER;
 
             useEffect(() => { setCurrentTip(0); const i = setInterval(() => setCurrentTip(p => (p + 1) % 3), 6000); return () => clearInterval(i); }, [activeTab]);
 
-            // Load saved data + check bridge return
             useEffect(() => {
                 const e = localStorage.getItem('vault_user_email');
                 if (e) { setUserEmail(e); setIsUnlocked(true); }
@@ -1102,47 +1417,29 @@
                 const p = localStorage.getItem('vault_saved_prompts');
                 if (p) { try { setSavedPrompts(JSON.parse(p)); } catch(err) {} }
 
-                // Check bridge return
                 const bridgeEmail = localStorage.getItem('promptVault_bridge_email');
                 const bridgeData = localStorage.getItem('promptVault_unlocked');
                 if (bridgeEmail) {
-                    setUserEmail(bridgeEmail);
-                    localStorage.setItem('vault_user_email', bridgeEmail);
-                    localStorage.setItem('vault_email_captured', 'true');
-                    setIsUnlocked(true);
-                    setShowWelcomeBack(true);
-                    setVaultOpen(true);
-
-                    // Convert all pending to unlocked
-                    const updated = unlockAllPending();
-                    setSavedPrompts(updated);
-
+                    setUserEmail(bridgeEmail); localStorage.setItem('vault_user_email', bridgeEmail); localStorage.setItem('vault_email_captured', 'true');
+                    setIsUnlocked(true); setShowWelcomeBack(true); setVaultOpen(true);
+                    const updated = unlockAllPending(); setSavedPrompts(updated);
                     if (bridgeData) {
                         try {
                             const parsed = JSON.parse(bridgeData);
                             const newPrompt = { prompt: parsed.fullPrompt, category: (parsed.category || 'CAREER').toUpperCase(), timestamp: Date.now(), status: 'unlocked' };
                             const afterSave = [...updated];
-                            if (!afterSave.some(ep => ep.prompt === newPrompt.prompt)) {
-                                afterSave.push(newPrompt);
-                                localStorage.setItem('vault_saved_prompts', JSON.stringify(afterSave));
-                                setSavedPrompts(afterSave);
-                            }
+                            if (!afterSave.some(ep => ep.prompt === newPrompt.prompt)) { afterSave.push(newPrompt); localStorage.setItem('vault_saved_prompts', JSON.stringify(afterSave)); setSavedPrompts(afterSave); }
                         } catch(err) {}
                     }
-                    localStorage.removeItem('promptVault_bridge_email');
-                    localStorage.removeItem('promptVault_unlocked');
+                    localStorage.removeItem('promptVault_bridge_email'); localStorage.removeItem('promptVault_unlocked');
                     setTimeout(() => setShowWelcomeBack(false), 8000);
                 }
 
-                // Cross-tab storage listener
                 const handleStorage = (ev) => {
                     if (ev.key === 'vault_email_captured' && ev.newValue === 'true') {
-                        setIsUnlocked(true);
-                        setUserEmail('verified');
-                        const updated = unlockAllPending();
-                        setSavedPrompts(updated);
-                        setShowWelcomeBack(true);
-                        setVaultOpen(true);
+                        setIsUnlocked(true); setUserEmail('verified');
+                        const updated = unlockAllPending(); setSavedPrompts(updated);
+                        setShowWelcomeBack(true); setVaultOpen(true);
                         setTimeout(() => setShowWelcomeBack(false), 8000);
                     }
                 };
@@ -1150,67 +1447,54 @@
                 return () => window.removeEventListener('storage', handleStorage);
             }, []);
 
-            /* Scroll to vault panel and open it */
             const scrollToVault = () => {
                 setVaultOpen(true);
-                setTimeout(() => {
-                    const el = document.getElementById('vault-panel');
-                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 100);
+                setTimeout(() => { const el = document.getElementById('vault-panel'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
             };
 
             const handleGenerated = (cat, promptText, status) => {
                 setPromptsGenerated(p => ({...p, [cat]: p[cat] + 1}));
                 const updated = autoSaveToVault(promptText, cat, status);
                 setSavedPrompts(updated);
-
-                /* PRE-EMAIL: Silent save. No vault fanfare.
-                   Keep eyes on the blur gate and email form.
-                   POST-EMAIL: Full vault experience. */
                 if (isUnlocked) {
-                    setNewestIndex(updated.length - 1);
-                    setVaultOpen(true);
-                    setShowVaultPointer(true);
+                    setNewestIndex(updated.length - 1); setVaultOpen(true); setShowVaultPointer(true);
                     setTimeout(() => { setShowVaultPointer(false); setNewestIndex(-1); }, 5000);
                 }
             };
 
             const handleSavePrompt = (prompt, category) => {
-                /* Auto-save already persisted this prompt on generation.
-                   This button now scrolls the user to their vault to see it. */
                 scrollToVault();
-                /* Find the matching prompt and pulse it */
                 const matchIdx = savedPrompts.findIndex(p => p.prompt === prompt);
-                if (matchIdx !== -1) {
-                    setNewestIndex(matchIdx);
-                    setTimeout(() => setNewestIndex(-1), 3000);
-                }
+                if (matchIdx !== -1) { setNewestIndex(matchIdx); setTimeout(() => setNewestIndex(-1), 3000); }
             };
 
             const handleDeletePrompt = (index) => {
                 const newSaved = savedPrompts.filter((_, i) => i !== index);
-                setSavedPrompts(newSaved);
-                localStorage.setItem('vault_saved_prompts', JSON.stringify(newSaved));
+                setSavedPrompts(newSaved); localStorage.setItem('vault_saved_prompts', JSON.stringify(newSaved));
             };
 
-            const handleDismissExplainer = () => {
-                setShowExplainer(false);
-                localStorage.setItem('vault_explainer_dismissed', 'true');
+            const handleOnboardingComplete = () => {
+                setShowOnboarding(false);
+                localStorage.setItem('vault_onboarding_complete', 'true');
             };
 
             if (locked) return <Gatekeeper onUnlock={() => { setLocked(false); localStorage.setItem('vault_first_visit_complete', 'true'); }} />;
+
             const totalGenerated = Object.values(promptsGenerated).reduce((a, b) => a + b, 0);
 
             return (
                 <div className="container">
+                    {/* Priority 1: First-use onboarding */}
+                    {showOnboarding && <OnboardingFlow onComplete={handleOnboardingComplete} />}
+
                     {showWelcomeBack && (
                         <div className="welcome-back-banner">
-                            <span className="welcome-back-icon">{"\u{1F389}"}</span>
+                            <span style={{width:32,height:32,flexShrink:0}}>{ICONS.award()}</span>
                             <div className="welcome-back-content">
-                                <p className="welcome-back-title">Welcome Back, Elite Operator!</p>
-                                <p className="welcome-back-subtitle">Your Vault is fully unlocked. All pending prompts are now accessible. Generate unlimited prompts and save them to your collection.</p>
+                                <p className="welcome-back-title">Welcome Back, Elite Operator.</p>
+                                <p className="welcome-back-subtitle">Your Vault is fully unlocked. All pending prompts are now accessible.</p>
                             </div>
-                            <button className="welcome-back-dismiss" onClick={() => setShowWelcomeBack(false)}>{"\u00D7"}</button>
+                            <button className="welcome-back-dismiss" onClick={() => setShowWelcomeBack(false)}>{ICONS.x()}</button>
                         </div>
                     )}
 
@@ -1219,17 +1503,14 @@
                         <p style={{color:'#94a3b8',fontSize:'0.95rem'}}>AI Command Console for High Performers</p>
                     </div>
 
-                    {/* OPS EXPLAINER: One-time for new users */}
-                    {showExplainer && <OpsExplainer onDismiss={handleDismissExplainer} />}
-
                     {showVaultPointer && (
                         <div className="vault-pointer">
-                            <span className="vault-pointer-icon">{"\u261D\uFE0F"}</span>
+                            <span className="vault-pointer-icon" style={{width:24,height:24}}>{ICONS.check()}</span>
                             <div className="vault-pointer-text">
-                                <p className="vault-pointer-title">Prompt Auto-Saved to Your Vault!</p>
+                                <p className="vault-pointer-title">Prompt Auto-Saved to Your Vault</p>
                                 <p className="vault-pointer-subtitle">All your prompts are stored above. Click "MY VAULT" to access them anytime.</p>
                             </div>
-                            <button className="vault-pointer-dismiss" onClick={() => setShowVaultPointer(false)}>{"\u00D7"}</button>
+                            <button className="vault-pointer-dismiss" onClick={() => setShowVaultPointer(false)}>{ICONS.x()}</button>
                         </div>
                     )}
 
@@ -1239,7 +1520,7 @@
                         <div className="mobile-progress-item"><div className="mobile-progress-value" style={{color:'var(--success)'}}>{totalGenerated}</div><div className="mobile-progress-label">Generated</div></div>
                         <div className="mobile-progress-item"><div className="mobile-progress-value" style={{color:'var(--accent-primary)'}}>{Object.values(promptsGenerated).filter(c => c > 0).length}/3</div><div className="mobile-progress-label">Categories</div></div>
                         <div className="mobile-progress-item"><div className="mobile-progress-value" style={{color:'var(--gold)'}}>{savedPrompts.length}</div><div className="mobile-progress-label">Saved</div></div>
-                        <div className="mobile-progress-item"><div className="mobile-progress-value" style={{color: isUnlocked ? 'var(--success)' : 'var(--text-muted)'}}>{isUnlocked ? '\u{1F513}' : '\u{1F512}'}</div><div className="mobile-progress-label">Status</div></div>
+                        <div className="mobile-progress-item"><div className="mobile-progress-value" style={{color: isUnlocked ? 'var(--success)' : 'var(--text-muted)'}}>{isUnlocked ? 'Open' : 'Locked'}</div><div className="mobile-progress-label">Status</div></div>
                     </div>
 
                     <div className="main-grid">
@@ -1255,28 +1536,20 @@
                                 <div className="nav-descriptor">
                                     {activeTab === 'CAREER' && <>
                                         <p className="nav-descriptor-text">Your income is the engine. These prompts tune it.</p>
-                                        <p className="nav-descriptor-sub">7 templates: resume rewriting, cold outreach, LinkedIn optimization, STAR interview prep, salary negotiation, job search strategy, performance reviews</p>
+                                        <p className="nav-descriptor-sub">Resumes, outreach emails, LinkedIn, interview prep, salary negotiation, job search plans, performance reviews</p>
                                     </>}
                                     {activeTab === 'VENTURE' && <>
                                         <p className="nav-descriptor-text">Skills sitting in your head are inventory collecting dust.</p>
-                                        <p className="nav-descriptor-sub">7 templates: side hustle discovery, client outreach scripts, landing page copy, pricing strategy, 30-day content calendars, proposals, idea validation</p>
+                                        <p className="nav-descriptor-sub">Side hustle discovery, client outreach, landing page copy, pricing, content calendars, proposals, idea validation</p>
                                     </>}
                                     {activeTab === 'WEALTH' && <>
                                         <p className="nav-descriptor-text">Income is defense. Compounding is offense. Build both.</p>
-                                        <p className="nav-descriptor-sub">7 templates: FIRE planning, debt payoff strategy, emergency fund, portfolio builder, credit repair, autopilot automation, tax optimization</p>
+                                        <p className="nav-descriptor-sub">Autopilot automation, FIRE planning, debt payoff, emergency fund, portfolio builder, credit repair, tax optimization</p>
                                     </>}
                                 </div>
                             </div>
                             <div className="glass-card animate-fade-in">
-                                <PromptModule
-                                    key={activeTab}
-                                    category={activeTab}
-                                    promptList={PROMPT_DB[activeTab]}
-                                    onGenerated={handleGenerated}
-                                    onSave={handleSavePrompt}
-                                    userEmail={userEmail}
-                                    isUnlocked={isUnlocked}
-                                />
+                                <PromptModule key={activeTab} category={activeTab} promptList={PROMPT_DB[activeTab]} onGenerated={handleGenerated} onSave={handleSavePrompt} userEmail={userEmail} isUnlocked={isUnlocked} />
                             </div>
                         </div>
                         <div className="space-y-6 sidebar-desktop">
@@ -1285,10 +1558,11 @@
                                 <p className="tip-text">{tips[currentTip]}</p>
                             </div>
                             <div className="glass-card">
-                                <h3 className="assets-label">External Assets</h3>
+                                <h3 className="assets-label">Paste Your Prompt Into</h3>
                                 <div className="space-y-4">
-                                    <a href={CONFIG.LINKS.CHATGPT} target="_blank" className="sidebar-link">Open ChatGPT</a>
-                                    <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="sidebar-link">DM @koutalksmoney</a>
+                                    <a href={CONFIG.LINKS.CHATGPT} target="_blank" className="sidebar-link">ChatGPT (Most Popular)</a>
+                                    <a href={CONFIG.LINKS.CLAUDE} target="_blank" className="sidebar-link">Claude</a>
+                                    <a href={CONFIG.LINKS.GEMINI} target="_blank" className="sidebar-link">Gemini</a>
                                 </div>
                             </div>
                             <div className="glass-card">
@@ -1297,18 +1571,22 @@
                                     <div style={{display:'flex',justifyContent:'space-between',marginBottom:'8px'}}><span>Prompts Generated:</span><span style={{color:'var(--success)',fontWeight:700}}>{totalGenerated}</span></div>
                                     <div style={{display:'flex',justifyContent:'space-between',marginBottom:'8px'}}><span>Categories Used:</span><span style={{color:'var(--accent-primary)',fontWeight:700}}>{Object.values(promptsGenerated).filter(c => c > 0).length}/3</span></div>
                                     <div style={{display:'flex',justifyContent:'space-between',marginBottom:'8px'}}><span>Prompts Saved:</span><span style={{color:'var(--gold)',fontWeight:700}}>{savedPrompts.length}</span></div>
-                                    <div style={{display:'flex',justifyContent:'space-between'}}><span>Status:</span><span style={{color: isUnlocked ? 'var(--success)' : 'var(--text-muted)', fontWeight:700}}>{isUnlocked ? '\u{1F513} Unlocked' : '\u{1F512} Locked'}</span></div>
+                                    <div style={{display:'flex',justifyContent:'space-between'}}><span>Status:</span><span style={{color: isUnlocked ? 'var(--success)' : 'var(--text-muted)', fontWeight:700}}>{isUnlocked ? 'Unlocked' : 'Locked'}</span></div>
                                 </div>
                             </div>
                             <div className="glass-card">
                                 <h3 className="assets-label">Ecosystem</h3>
                                 <div className="space-y-4">
-                                    <a href={CONFIG.LINKS.INVESTMENT} target="_blank" className="sidebar-link">{"\u{1F4CA}"} Investment Simplifier</a>
-                                    <a href={CONFIG.LINKS.AUTOPILOT} target="_blank" className="sidebar-link">{"\u2699\uFE0F"} Autopilot System</a>
-                                    <a href={CONFIG.LINKS.CLUB800} target="_blank" className="sidebar-link">{"\u{1F4B3}"} 800-Club</a>
-                                    <a href={CONFIG.LINKS.FREEDOM} target="_blank" className="sidebar-link">{"\u{1F522}"} Freedom Calculator</a>
-                                    <a href={CONFIG.LINKS.BUDGET} target="_blank" className="sidebar-link">{"\u{1F4B5}"} Budget Calculator</a>
+                                    <a href={CONFIG.LINKS.INVESTMENT} target="_blank" className="sidebar-link">Investment Simplifier</a>
+                                    <a href={CONFIG.LINKS.AUTOPILOT} target="_blank" className="sidebar-link">Autopilot System</a>
+                                    <a href={CONFIG.LINKS.CLUB800} target="_blank" className="sidebar-link">800-Club</a>
+                                    <a href={CONFIG.LINKS.FREEDOM} target="_blank" className="sidebar-link">Freedom Calculator</a>
+                                    <a href={CONFIG.LINKS.BUDGET} target="_blank" className="sidebar-link">Budget Calculator</a>
                                 </div>
+                            </div>
+                            <div className="glass-card">
+                                <h3 className="assets-label">Connect</h3>
+                                <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="sidebar-link">DM @koutalksmoney</a>
                             </div>
                         </div>
                     </div>
