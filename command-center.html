@@ -68,27 +68,97 @@
         /* ACCESS GATE           */
         /* ===================== */
         .access-gate {
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 100vh; padding: 40px 20px; position: relative; z-index: 1; text-align: center;
+            display: none; position: relative; z-index: 1;
+            min-height: 100vh; overflow: hidden;
         }
-        .access-gate.show { display: flex; }
-        .gate-icon { font-size: 4rem; margin-bottom: 20px; opacity: 0.8; }
-        .gate-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.02em; }
-        .gate-subtitle { font-size: 1rem; color: var(--text-secondary); line-height: 1.6; max-width: 400px; margin: 0 auto 30px; }
+        .access-gate.show { display: block; }
+
+        /* Blurred dashboard preview (the velvet rope) */
+        .gate-preview {
+            position: absolute; inset: 0; z-index: 0;
+            padding: 30px 20px; max-width: 900px; margin: 0 auto;
+            filter: blur(8px); opacity: 0.25; pointer-events: none;
+            -webkit-user-select: none; user-select: none;
+        }
+        .gp-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .gp-logo { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em; }
+        .gp-logo span { color: var(--accent-green); }
+        .gp-badge { padding: 8px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent-gold); }
+        .gp-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+        .gp-stat { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; text-align: center; }
+        .gp-stat.green { border-color: rgba(34,197,94,0.3); }
+        .gp-stat.gold { border-color: rgba(251,191,36,0.3); }
+        .gp-stat-val { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 800; color: var(--text-primary); }
+        .gp-stat.green .gp-stat-val { color: var(--accent-green); }
+        .gp-stat.gold .gp-stat-val { color: var(--accent-gold); }
+        .gp-stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
+        .gp-velocity { background: var(--bg-card); border: 1px solid rgba(139,92,246,0.3); border-radius: 14px; padding: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .gp-velocity-label { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); }
+        .gp-velocity-score { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 800; color: var(--accent-purple); }
+        .gp-level { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 20px; }
+        .gp-level-bar { height: 6px; background: var(--bg-secondary); border-radius: 6px; overflow: hidden; margin-top: 10px; }
+        .gp-level-fill { height: 100%; width: 60%; background: linear-gradient(90deg, #92400e, #fbbf24); border-radius: 6px; }
+        .gp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .gp-card { display: flex; align-items: center; gap: 10px; padding: 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; }
+        .gp-card.done { border-color: rgba(34,197,94,0.3); }
+        .gp-card-icon { width: 36px; height: 36px; background: var(--bg-secondary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+        .gp-card.done .gp-card-icon { background: var(--accent-green-dim); }
+        .gp-card-text { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
+        .gp-card-status { margin-left: auto; font-size: 1rem; }
+
+        /* Gate overlay (the content on top of blur) */
+        .gate-overlay {
+            position: relative; z-index: 2;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; padding: 40px 20px; text-align: center;
+        }
+
+        /* Gate content for cold visitors */
+        .gate-content { max-width: 420px; width: 100%; }
+        .gate-brand {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent-green);
+            margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .gate-brand-dot { width: 6px; height: 6px; background: var(--accent-green); border-radius: 50%; animation: pulse 1.5s infinite; }
+        .gate-title { font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.03em; line-height: 1.1; }
+        .gate-hook {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 600;
+            color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5;
+        }
+        .gate-hook strong { color: var(--accent-green); }
+        .gate-proof {
+            display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
+            background: var(--accent-green-dim); border: 1px solid rgba(34,197,94,0.25);
+            border-radius: 50px; font-size: 0.75rem; font-weight: 600; color: var(--accent-green);
+            margin-bottom: 28px;
+        }
+        .gate-proof-dot { width: 6px; height: 6px; background: var(--accent-green); border-radius: 50%; animation: pulse 1.5s infinite; }
         .gate-cta {
-            display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px;
-            background: var(--accent-green); color: #000; border: none; border-radius: 10px;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 18px 32px;
+            background: var(--accent-green); color: #000; border: none; border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700;
             text-decoration: none; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.05em;
         }
-        .gate-cta:hover { transform: translateY(-3px); box-shadow: 0 10px 30px var(--accent-green-glow); }
-        .gate-divider { display: flex; align-items: center; gap: 16px; margin: 30px 0; width: 100%; max-width: 350px; color: var(--text-muted); font-size: 0.75rem; }
+        .gate-cta:hover { transform: translateY(-3px); box-shadow: 0 12px 35px var(--accent-green-glow); }
+        .gate-pillars {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+            margin-bottom: 28px; width: 100%;
+        }
+        .gate-pillar {
+            background: rgba(15,15,15,0.8); border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px 8px; text-align: center;
+        }
+        .gate-pillar-icon { font-size: 1.3rem; margin-bottom: 4px; }
+        .gate-pillar-name { font-size: 0.6rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+        .gate-divider { display: flex; align-items: center; gap: 16px; margin: 24px 0; width: 100%; color: var(--text-muted); font-size: 0.7rem; }
         .gate-divider::before, .gate-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-        .gate-id-section { width: 100%; max-width: 350px; }
-        .gate-id-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; text-align: left; }
+        .gate-id-section { width: 100%; }
+        .gate-id-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; text-align: left; }
         .gate-id-input-wrapper { display: flex; gap: 10px; }
         .gate-id-input {
-            flex: 1; background: var(--bg-card); border: 2px solid var(--border); border-radius: 8px;
+            flex: 1; background: rgba(15,15,15,0.8); border: 2px solid var(--border); border-radius: 8px;
             padding: 14px 16px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace;
             font-size: 1rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
             text-align: center; outline: none; transition: all 0.3s;
@@ -102,6 +172,16 @@
         }
         .gate-id-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--accent-gold-glow); }
         .gate-error { color: var(--danger); font-size: 0.75rem; margin-top: 8px; display: none; text-align: left; }
+        .gate-footer { margin-top: 24px; font-size: 0.65rem; color: var(--text-muted); }
+        .gate-footer a { color: var(--accent-green); text-decoration: none; }
+
+        @media (max-width: 700px) {
+            .gate-title { font-size: 1.7rem; }
+            .gate-pillars { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+            .gate-pillar { padding: 10px 6px; }
+            .gp-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .gp-grid { grid-template-columns: 1fr; }
+        }
 
         /* VERIFICATION CEREMONY */
         .gate-verify-state { display: none; width: 100%; max-width: 380px; text-align: center; }
@@ -520,45 +600,109 @@
 
     <!-- ACCESS GATE -->
     <div class="access-gate" id="accessGate">
-        <div class="gate-icon">&#x1F512;</div>
-        <h1 class="gate-title">Command Center</h1>
-        <p class="gate-subtitle">This dashboard requires an Architect ID. Complete the Autopilot Money System to earn yours.</p>
 
-        <!-- VERIFICATION CEREMONY (shown when ID is auto-detected) -->
-        <div class="gate-verify-state" id="gateVerifyState">
-            <div class="gate-verify-id" id="gateVerifyId">KOU-XXXXXX</div>
-            <div class="gate-verify-progress">
-                <div class="gate-verify-bar" id="gateVerifyBar"></div>
+        <!-- BLURRED DASHBOARD PREVIEW (the velvet rope) -->
+        <div class="gate-preview" id="gatePreview" aria-hidden="true">
+            <div class="gp-header">
+                <div class="gp-logo">COMMAND <span>CENTER</span></div>
+                <div class="gp-badge">&#x1F3DB;&#xFE0F; KOU-A7X9R2</div>
             </div>
-            <div class="gate-verify-status" id="gateVerifyStatus">Initializing...</div>
-            <div class="gate-verify-check">
-                <div class="gate-verify-step" id="gvStep1">
-                    <div class="step-dot"></div>
-                    <span>Verifying Architect ID</span>
+            <div class="gp-stats">
+                <div class="gp-stat green"><div class="gp-stat-val">4/7</div><div class="gp-stat-label">Tools Active</div></div>
+                <div class="gp-stat"><div class="gp-stat-val">2031</div><div class="gp-stat-label">Freedom Year</div></div>
+                <div class="gp-stat gold"><div class="gp-stat-val">47</div><div class="gp-stat-label">Days Building</div></div>
+            </div>
+            <div class="gp-velocity">
+                <div class="gp-velocity-label">&#9889; Wealth Velocity</div>
+                <div class="gp-velocity-score">1.5x</div>
+            </div>
+            <div class="gp-level">
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+                    <span style="color:var(--text-secondary);">Architect Level</span>
+                    <span style="color:var(--accent-gold); font-weight:700;">Silver</span>
                 </div>
-                <div class="gate-verify-step" id="gvStep2">
-                    <div class="step-dot"></div>
-                    <span>Loading your systems</span>
-                </div>
-                <div class="gate-verify-step" id="gvStep3">
-                    <div class="step-dot"></div>
-                    <span>Preparing dashboard</span>
-                </div>
+                <div class="gp-level-bar"><div class="gp-level-fill"></div></div>
+            </div>
+            <div class="gp-grid">
+                <div class="gp-card done"><div class="gp-card-icon">&#x1F916;</div><div class="gp-card-text">Autopilot System</div><div class="gp-card-status">&#x2705;</div></div>
+                <div class="gp-card done"><div class="gp-card-icon">&#x1F3AF;</div><div class="gp-card-text">Freedom Calculator</div><div class="gp-card-status">&#x2705;</div></div>
+                <div class="gp-card done"><div class="gp-card-icon">&#x23F0;</div><div class="gp-card-text">Cost of Waiting</div><div class="gp-card-status">&#x2705;</div></div>
+                <div class="gp-card done"><div class="gp-card-icon">&#x1F4CA;</div><div class="gp-card-text">Investment Simplifier</div><div class="gp-card-status">&#x2705;</div></div>
+                <div class="gp-card"><div class="gp-card-icon">&#x1F4B3;</div><div class="gp-card-text">800-Club Protocol</div><div class="gp-card-status">&#x25CB;</div></div>
+                <div class="gp-card"><div class="gp-card-icon">&#x1F4B0;</div><div class="gp-card-text">Budget Calculator</div><div class="gp-card-status">&#x1F512;</div></div>
             </div>
         </div>
 
-        <!-- MANUAL ENTRY (shown when no ID detected) -->
-        <div class="gate-manual-section" id="gateManualSection">
-            <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="gate-cta">Install The System &#8594;</a>
-            <div class="gate-divider">Already have an Architect ID?</div>
-            <div class="gate-id-section">
-                <div class="gate-id-label">Enter your Architect ID</div>
-                <div class="gate-id-input-wrapper">
-                    <input type="text" id="gateIdInput" class="gate-id-input" placeholder="KOU-XXXXXX" maxlength="10" autocomplete="off">
-                    <button class="gate-id-btn" onclick="gateManualEntry()">Enter</button>
+        <!-- GATE OVERLAY -->
+        <div class="gate-overlay" id="gateOverlay">
+
+            <!-- COLD VISITOR CONTENT -->
+            <div class="gate-content" id="gateContent">
+                <div class="gate-brand">
+                    <div class="gate-brand-dot"></div>
+                    <span>@koutalksmoney</span>
                 </div>
-                <p class="gate-error" id="gateError">Invalid ID format. Must be KOU- followed by 6 characters.</p>
+
+                <h1 class="gate-title">Command Center</h1>
+
+                <div class="gate-hook">
+                    <strong>7 tools.</strong> One machine.<br>Zero willpower.
+                </div>
+
+                <div class="gate-proof" id="gateProof">
+                    <div class="gate-proof-dot"></div>
+                    <span id="gateProofText">47 Architects building</span>
+                </div>
+
+                <!-- Pillar preview (what's inside) -->
+                <div class="gate-pillars">
+                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F916;</div><div class="gate-pillar-name">Automate</div></div>
+                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F4CA;</div><div class="gate-pillar-name">Invest</div></div>
+                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F4B3;</div><div class="gate-pillar-name">Credit</div></div>
+                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F3AF;</div><div class="gate-pillar-name">Freedom #</div></div>
+                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F4B0;</div><div class="gate-pillar-name">Cash Flow</div></div>
+                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F9E0;</div><div class="gate-pillar-name">AI Vault</div></div>
+                </div>
+
+                <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="gate-cta" id="gateCta">Start The System &#8594;</a>
+
+                <div class="gate-divider">Already have an Architect ID?</div>
+
+                <div class="gate-id-section">
+                    <div class="gate-id-label">Enter your Architect ID</div>
+                    <div class="gate-id-input-wrapper">
+                        <input type="text" id="gateIdInput" class="gate-id-input" placeholder="KOU-XXXXXX" maxlength="10" autocomplete="off">
+                        <button class="gate-id-btn" onclick="gateManualEntry()">Enter</button>
+                    </div>
+                    <p class="gate-error" id="gateError">Invalid ID format. Must be KOU- followed by 6 characters.</p>
+                </div>
+
+                <div class="gate-footer">Built by <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a></div>
             </div>
+
+            <!-- VERIFICATION CEREMONY (shown when ID is auto-detected) -->
+            <div class="gate-verify-state" id="gateVerifyState">
+                <div class="gate-verify-id" id="gateVerifyId">KOU-XXXXXX</div>
+                <div class="gate-verify-progress">
+                    <div class="gate-verify-bar" id="gateVerifyBar"></div>
+                </div>
+                <div class="gate-verify-status" id="gateVerifyStatus">Initializing...</div>
+                <div class="gate-verify-check">
+                    <div class="gate-verify-step" id="gvStep1">
+                        <div class="step-dot"></div>
+                        <span>Verifying Architect ID</span>
+                    </div>
+                    <div class="gate-verify-step" id="gvStep2">
+                        <div class="step-dot"></div>
+                        <span>Loading your systems</span>
+                    </div>
+                    <div class="gate-verify-step" id="gvStep3">
+                        <div class="step-dot"></div>
+                        <span>Preparing dashboard</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -745,8 +889,25 @@
             BUDGET_CALCULATOR_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/Kous-Budget-Calculator.html',
             PROMPT_VAULT_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html',
             COMMAND_CENTER_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/command-center.html',
-            INSTAGRAM: 'https://instagram.com/koutalksmoney'
+            INSTAGRAM: 'https://instagram.com/koutalksmoney',
+            // Base architect count. Update this manually as your audience grows.
+            // The gate displays this number to create exclusion psychology.
+            ARCHITECT_BASE_COUNT: 47
         };
+
+        // ==============================================
+        // ARCHITECT COUNT (social proof on gate)
+        // ==============================================
+        function updateArchitectCount() {
+            var count = CONFIG.ARCHITECT_BASE_COUNT;
+            // Add small time-based growth (roughly +1 per day since a start date)
+            var launchDate = new Date('2025-06-01');
+            var now = new Date();
+            var daysSinceLaunch = Math.max(0, Math.floor((now - launchDate) / (1000 * 60 * 60 * 24)));
+            count = count + Math.floor(daysSinceLaunch * 0.3);
+            var el = document.getElementById('gateProofText');
+            if (el) el.textContent = count + ' Architects building';
+        }
 
         // ==============================================
         // HASH OBFUSCATION (no plaintext codes)
@@ -899,7 +1060,8 @@
         // ==============================================
         function runVerificationCeremony(architectId) {
             var gate = document.getElementById('accessGate');
-            var manualSection = document.getElementById('gateManualSection');
+            var gateContent = document.getElementById('gateContent');
+            var gatePreview = document.getElementById('gatePreview');
             var verifyState = document.getElementById('gateVerifyState');
             var verifyId = document.getElementById('gateVerifyId');
             var verifyBar = document.getElementById('gateVerifyBar');
@@ -908,9 +1070,10 @@
             var step2 = document.getElementById('gvStep2');
             var step3 = document.getElementById('gvStep3');
 
-            // Show gate in verify mode
+            // Show gate in verify mode (hide cold visitor content + preview)
             gate.classList.add('show');
-            manualSection.classList.add('hidden');
+            gateContent.style.display = 'none';
+            gatePreview.style.display = 'none';
             verifyState.classList.add('show');
             verifyId.textContent = architectId;
 
@@ -1005,11 +1168,13 @@
                 return 'ceremony';
             }
 
-            // PATH D: No access. Show manual gate.
+            // PATH D: No access. Show bio-link gate with blurred preview.
             document.getElementById('mainDashboard').style.display = 'none';
-            document.getElementById('gateManualSection').classList.remove('hidden');
+            document.getElementById('gateContent').style.display = 'block';
+            document.getElementById('gatePreview').style.display = 'block';
             document.getElementById('gateVerifyState').classList.remove('show');
             document.getElementById('accessGate').classList.add('show');
+            updateArchitectCount();
             return 'gate';
         }
 
