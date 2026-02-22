@@ -27,86 +27,90 @@
     </script>
     
     <style>
-        body { font-family: 'JetBrains Mono', monospace; background-color: #0a0a0a; color: #e5e5e5; }
-        .terminal-box { border: 1px solid #333; background: #111; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); }
-        .terminal-input { background: #000; border: 1px solid #333; color: #fff; outline: none; transition: all 0.2s; }
-        .terminal-input:focus { border-color: currentColor; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        .glitch { position: relative; }
-        
+        * { box-sizing: border-box; }
+        body { font-family: 'JetBrains Mono', monospace; background-color: #0a0a0a; color: #e5e5e5; margin: 0; }
+
+        /* === CORE LAYOUT === */
+        .terminal-box { border: 1px solid #1e1e1e; background: linear-gradient(180deg, #111 0%, #0d0d0d 100%); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
+        .terminal-input { background: #0a0a0a; border: 1px solid #2a2a2a; color: #fff; outline: none; transition: all 0.3s; border-radius: 8px; font-family: inherit; }
+        .terminal-input:focus { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.15); }
+
+        /* === ANIMATIONS === */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes shimmer { 0% { background-position: -250% 0; } 100% { background-position: 250% 0; } }
-        .progress-shimmer { position: relative; overflow: hidden; }
-        .progress-shimmer::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); background-size: 200% 100%; animation: shimmer 2s infinite; }
-        .premium-shimmer { background: linear-gradient(105deg, rgba(255,255,255,0) 20%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 80%); background-size: 200% 100%; animation: shimmer 6s infinite linear; }
-        .embossed { text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
-        .card-font { font-family: 'Share Tech Mono', monospace; }
-
-        @keyframes certificateReveal { 0% { opacity: 0; transform: scale(0.9) rotateX(10deg); } 50% { box-shadow: 0 0 60px rgba(255,255,255,0.3), 0 0 120px rgba(34,197,94,0.2); } 100% { opacity: 1; transform: scale(1) rotateX(0deg); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); } }
-        .certificate-reveal { animation: certificateReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.3); } 50% { box-shadow: 0 0 20px 4px rgba(34,197,94,0.15); } }
+        @keyframes countUp { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes certificateReveal { 0% { opacity: 0; transform: scale(0.92) rotateX(8deg); } 50% { box-shadow: 0 0 60px rgba(255,255,255,0.2), 0 0 120px rgba(34,197,94,0.15); } 100% { opacity: 1; transform: scale(1) rotateX(0deg); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); } }
         @keyframes screenshotPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); } 50% { box-shadow: 0 0 0 8px rgba(34,197,94,0); } }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(-20px) translateX(-50%); } to { opacity: 1; transform: translateY(0) translateX(-50%); } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px) translateX(-50%); } }
+
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .progress-shimmer { position: relative; overflow: hidden; }
+        .progress-shimmer::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent); background-size: 200% 100%; animation: shimmer 2s infinite; }
+        .premium-shimmer { background: linear-gradient(105deg, rgba(255,255,255,0) 20%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 80%); background-size: 200% 100%; animation: shimmer 6s infinite linear; }
+        .pulse-glow { animation: pulse-glow 2s infinite; }
+        .certificate-reveal { animation: certificateReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
         .screenshot-pulse { animation: screenshotPulse 2s infinite; }
+        .card-font { font-family: 'Share Tech Mono', monospace; }
+        .embossed { text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
 
-        .transparency-panel { background: rgba(0,0,0,0.8); border: 1px solid #333; border-radius: 4px; margin-top: 16px; overflow: hidden; transition: all 0.3s ease; }
-        .transparency-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; cursor: pointer; background: rgba(255,255,255,0.02); border-bottom: 1px solid #333; }
-        .transparency-header:hover { background: rgba(255,255,255,0.05); }
-        .transparency-content { padding: 0; max-height: 0; overflow: hidden; transition: all 0.3s ease; }
-        .transparency-content.open { padding: 16px; max-height: 400px; }
-        .transparency-step { display: flex; align-items: center; gap: 12px; padding: 6px 0; opacity: 0.3; transition: all 0.3s; }
-        .transparency-step.active { opacity: 1; }
-        .transparency-step.complete { opacity: 0.6; }
-        .step-indicator { width: 20px; height: 20px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #666; flex-shrink: 0; transition: all 0.3s; }
-        .transparency-step.active .step-indicator { background: currentColor; color: #000; box-shadow: 0 0 15px currentColor; }
-        .transparency-step.complete .step-indicator { background: #22c55e; color: #000; }
+        /* === SLIDER STYLES === */
+        input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; background: #1a1a1a; border-radius: 8px; outline: none; cursor: pointer; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; background: #22c55e; border-radius: 50%; cursor: pointer; border: 3px solid #0a0a0a; box-shadow: 0 0 10px rgba(34,197,94,0.4); transition: transform 0.2s; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+        input[type="range"]::-moz-range-thumb { width: 24px; height: 24px; background: #22c55e; border-radius: 50%; cursor: pointer; border: 3px solid #0a0a0a; box-shadow: 0 0 10px rgba(34,197,94,0.4); }
+        input[type="range"].red-slider::-webkit-slider-thumb { background: #ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.4); }
+        input[type="range"].red-slider::-moz-range-thumb { background: #ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.4); }
 
-        .share-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 16px; border-radius: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; cursor: pointer; text-decoration: none; }
+        /* === SPLIT BAR === */
+        .deploy-bar { height: 40px; background: #1a1a1a; border-radius: 8px; overflow: hidden; display: flex; position: relative; }
+        .deploy-segment { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; transition: width 0.5s ease; overflow: hidden; white-space: nowrap; }
+
+        /* === DONUT CHART === */
+        .donut-ring { fill: none; stroke-width: 4; }
+        .donut-segment { fill: none; stroke-width: 4; stroke-linecap: round; transition: stroke-dasharray 0.8s ease; }
+
+        /* === TOAST === */
+        .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 9998; background: #1a1a1a; border: 1px solid #333; padding: 12px 20px; border-radius: 12px; font-size: 13px; animation: toastIn 0.3s ease-out; display: flex; align-items: center; gap: 12px; }
+        .toast.hiding { animation: toastOut 0.3s ease-in forwards; }
+
+        /* === SHARE BUTTONS === */
+        .share-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; cursor: pointer; text-decoration: none; }
         .share-btn:hover { transform: translateY(-2px); }
         .share-btn-instagram { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; border: none; }
         .share-btn-twitter { background: #000; color: white; border: 1px solid #333; }
-        .share-btn-twitter:hover { background: #111; border-color: #555; }
         .share-btn-linkedin { background: #0077B5; color: white; border: none; }
-        .share-btn-copy { background: transparent; color: #888; border: 1px solid #333; }
+        .share-btn-copy { background: transparent; color: #888; border: 1px solid #333; border-radius: 8px; }
         .share-btn-copy:hover { border-color: #22c55e; color: #22c55e; }
         .share-btn-copy.copied { background: #22c55e; border-color: #22c55e; color: #000; }
 
-        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
-        
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #111; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        /* === COLLAPSIBLE === */
+        .collapsible-header { cursor: pointer; transition: background 0.2s; }
+        .collapsible-header:hover { background: rgba(255,255,255,0.03); }
 
-        .profile-card { border: 2px solid #333; background: #0a0a0a; padding: 16px; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; }
-        .profile-card:hover { border-color: #555; background: #111; }
-        .profile-card.selected { border-color: var(--theme-accent, #22c55e); background: rgba(34,197,94,0.05); }
-        .profile-card.selected::before { content: '\2713'; position: absolute; top: 8px; right: 10px; font-size: 14px; font-weight: 900; color: var(--theme-accent, #22c55e); }
-        .profile-icon { font-size: 12px; margin-bottom: 8px; display: flex; width: 28px; height: 28px; align-items: center; justify-content: center; border: 1px solid #555; border-radius: 4px; font-weight: 900; color: #888; background: #1a1a1a; }
-        .profile-card.selected .profile-icon { border-color: var(--theme-accent, #22c55e); color: var(--theme-accent, #22c55e); background: rgba(34,197,94,0.08); }
-        .profile-title { font-size: 13px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; }
-        .profile-desc { font-size: 10px; color: #888; margin-top: 4px; line-height: 1.4; }
-        .profile-pct { font-size: 11px; font-weight: 700; margin-top: 8px; }
-
-        .deploy-bar { height: 32px; background: #1a1a1a; border-radius: 4px; overflow: hidden; display: flex; position: relative; }
-        .deploy-segment { display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; transition: width 0.5s ease; overflow: hidden; white-space: nowrap; }
-
+        /* === BEEHIIV === */
         .beehiiv-container { width: 100%; display: flex; justify-content: center; }
         .beehiiv-container iframe { max-width: 100% !important; border: none !important; }
 
+        /* === IG BANNER === */
         .ig-banner { position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #fbbf24, #f59e0b); color: #000; font-size: 11px; font-weight: 700; text-align: center; padding: 10px 16px; z-index: 10000; display: flex; align-items: center; justify-content: center; gap: 12px; font-family: 'JetBrains Mono', monospace; }
-        .ig-banner-btn { background: #000; color: #fbbf24; border: none; padding: 6px 14px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; font-family: inherit; }
-        .ig-banner-close { background: none; border: none; color: rgba(0,0,0,0.5); font-size: 16px; cursor: pointer; padding: 0 4px; font-family: inherit; }
+        .ig-banner-btn { background: #000; color: #fbbf24; border: none; padding: 6px 14px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; font-family: inherit; }
+        .ig-banner-close { background: none; border: none; color: rgba(0,0,0,0.5); font-size: 16px; cursor: pointer; }
         .ig-banner-active { padding-top: 44px; }
 
-        @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
-        .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 9998; background: #1a1a1a; border: 1px solid #333; padding: 12px 20px; border-radius: 8px; font-size: 12px; animation: toastIn 0.3s ease-out; display: flex; align-items: center; gap: 12px; }
-        .toast.hiding { animation: toastOut 0.3s ease-in forwards; }
+        /* === CONFETTI === */
+        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
 
-        .compare-card { border: 1px solid #333; background: #0d0d0d; padding: 16px; border-radius: 4px; }
-        .compare-card.wrong { border-color: #7f1d1d; }
-        .compare-card.right { border-color: var(--theme-accent, #22c55e); }
+        /* === SCROLLBAR === */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
 
-        @keyframes countUp { from { opacity: 0; } to { opacity: 1; } }
+        /* === DISCLAIMER FOOTER === */
+        .disclaimer-footer { background: #0a0a0a; border-top: 1px solid #1a1a1a; padding: 16px; text-align: center; }
     </style>
 </head>
 <body>
@@ -117,21 +121,9 @@
         const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
         // === PERSISTENT STORAGE ===
-        async function saveToSharedStorage(key, value) {
-            try { if (window.storage) { await window.storage.set(key, JSON.stringify(value), true); return true; } } catch(e) {} return false;
-        }
-        async function getFromSharedStorage(key) {
-            try { if (window.storage) { const r = await window.storage.get(key, true); return r ? JSON.parse(r.value) : null; } } catch(e) {} return null;
-        }
-        async function getArchitectCount() {
-            try {
-                if (window.storage) {
-                    const r = await window.storage.get('architects-recent', true);
-                    if (r) return JSON.parse(r.value).length;
-                }
-            } catch(e) {}
-            return Math.floor(Math.random() * 200) + 47;
-        }
+        async function saveToSharedStorage(key, value) { try { if (window.storage) { await window.storage.set(key, JSON.stringify(value), true); return true; } } catch(e) {} return false; }
+        async function getFromSharedStorage(key) { try { if (window.storage) { const r = await window.storage.get(key, true); return r ? JSON.parse(r.value) : null; } } catch(e) {} return null; }
+        async function getArchitectCount() { try { if (window.storage) { const r = await window.storage.get('architects-recent', true); if (r) return JSON.parse(r.value).length; } } catch(e) {} return Math.floor(Math.random() * 200) + 47; }
         async function saveArchitectToShared(architectId, userData) {
             try {
                 if (!window.storage) return;
@@ -172,7 +164,7 @@
         const CONFIG = {
             TOTAL_MODULES: 7,
             BEEHIIV: { AUTOPILOT_IFRAME_SRC: "https://subscribe-forms.beehiiv.com/bb43aed8-5214-49d9-856a-7dd4bb7a416d" },
-            LINKS: { SOFI: "https://www.sofi.com/", FIDELITY: "https://www.fidelity.com/", INSTAGRAM: "https://instagram.com/koutalksmoney", TWITTER: "https://twitter.com/koutalksmoney", YOUTUBE: "https://youtube.com/@FinanceWithKou", COMMAND_CENTER: "https://spacekou5-oss.github.io/cashvault-funnel/command-center.html", INVESTMENT_SIMPLIFIER: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html", VERIFY_BASE: "https://spacekou5-oss.github.io/cashvault-funnel/verify.html" },
+            LINKS: { SOFI: "https://www.sofi.com/", FIDELITY: "https://www.fidelity.com/", SCHWAB: "https://www.schwab.com/", VANGUARD: "https://www.vanguard.com/", ALLY: "https://www.ally.com/", MARCUS: "https://www.marcus.com/", INSTAGRAM: "https://instagram.com/koutalksmoney", TWITTER: "https://twitter.com/koutalksmoney", YOUTUBE: "https://youtube.com/@FinanceWithKou", COMMAND_CENTER: "https://spacekou5-oss.github.io/cashvault-funnel/command-center.html", INVESTMENT_SIMPLIFIER: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html", VERIFY_BASE: "https://spacekou5-oss.github.io/cashvault-funnel/verify.html", BUDGET_CALC: "https://spacekou5-oss.github.io/cashvault-funnel/budget-calculator.html" },
             THEMES: {
                 DEFAULT: { id: 'default', color: 'text-green-500', bg: 'bg-green-500', border: 'border-green-500', accent: '#22c55e', title: 'SYSTEM ONLINE', hover: 'hover:bg-green-500' },
                 TICKER: { id: 'ticker', color: 'text-red-500', bg: 'bg-red-600', border: 'border-red-600', accent: '#DC2626', title: 'EMERGENCY PROTOCOL', hover: 'hover:bg-red-600' },
@@ -192,12 +184,6 @@
                 { id: 6, text: "Rendering your certificate card...", duration: 500 },
                 { id: 7, text: "Finalizing system configuration...", duration: 600 }
             ],
-            PROFILES: {
-                home: { id: 'home', icon: 'A', title: 'THE NEST', desc: 'Living at home. Phone, subscriptions, small contribution.', pct: 0.12, label: '~12% locked' },
-                renting: { id: 'renting', icon: 'B', title: 'THE GRIND', desc: 'Rent, utilities, phone, insurance. Standard reality.', pct: 0.50, label: '~50% locked' },
-                fullload: { id: 'fullload', icon: 'C', title: 'THE GAUNTLET', desc: 'Rent, car, loans, utilities, insurance.', pct: 0.70, label: '~70% locked' },
-                custom: { id: 'custom', icon: 'D', title: 'I KNOW MY NUMBERS', desc: 'Enter your exact monthly bills.', pct: 0, label: 'Custom' }
-            },
             ANNUAL_RETURN: 0.10
         };
 
@@ -206,37 +192,18 @@
         function getInvest(ud) { return getDeployable(ud) * 0.20; }
         function getSafety(ud) { return getDeployable(ud) * 0.10; }
         function getSpending(ud) { return getDeployable(ud) * 0.70; }
-        function calcFutureValue(monthlyPayment, years) {
-            const r = CONFIG.ANNUAL_RETURN, n = 12;
-            return monthlyPayment * ((Math.pow(1 + r/n, n * years) - 1) / (r/n));
-        }
-        function generateIdFromEmail(email) {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            const n = email.toLowerCase().trim();
-            let h1 = 0, h2 = 5381;
-            for (let i = 0; i < n.length; i++) { const c = n.charCodeAt(i); h1 = ((h1 << 5) - h1) + c; h1 = h1 & h1; h2 = ((h2 << 5) + h2) + c; }
-            const combined = Math.abs(h1) + Math.abs(h2);
-            let id = 'KOU-'; let wh = combined;
-            for (let i = 0; i < 6; i++) { const ci = (wh + (n.charCodeAt(i % n.length) * (i + 1))) % chars.length; id += chars.charAt(Math.abs(ci)); wh = Math.floor(wh / 7) + ci; }
-            return id;
-        }
+        function calcFutureValue(monthlyPayment, years) { const r = CONFIG.ANNUAL_RETURN, n = 12; return monthlyPayment * ((Math.pow(1 + r/n, n * years) - 1) / (r/n)); }
+        function generateIdFromEmail(email) { const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; const n = email.toLowerCase().trim(); let h1 = 0, h2 = 5381; for (let i = 0; i < n.length; i++) { const c = n.charCodeAt(i); h1 = ((h1 << 5) - h1) + c; h1 = h1 & h1; h2 = ((h2 << 5) + h2) + c; } const combined = Math.abs(h1) + Math.abs(h2); let id = 'KOU-'; let wh = combined; for (let i = 0; i < 6; i++) { const ci = (wh + (n.charCodeAt(i % n.length) * (i + 1))) % chars.length; id += chars.charAt(Math.abs(ci)); wh = Math.floor(wh / 7) + ci; } return id; }
         function generateIdFromName(name) { return generateIdFromEmail(name + '@architect.system'); }
 
-        // === URL STATE PERSISTENCE ===
-        function resolveEtfFromTicker(ticker) {
-            if (!ticker) return null;
-            for (const riskLevel of Object.values(CONFIG.ETF_DATA)) {
-                for (const option of Object.values(riskLevel)) { if (option.ticker === ticker) return option; }
-            }
-            return null;
-        }
+        // === URL STATE ===
+        function resolveEtfFromTicker(ticker) { if (!ticker) return null; for (const riskLevel of Object.values(CONFIG.ETF_DATA)) { for (const option of Object.values(riskLevel)) { if (option.ticker === ticker) return option; } } return null; }
         const URLState = {
             encode(moduleNum, userData, architectId) {
                 const p = new URLSearchParams();
                 if (moduleNum > 0) p.set('m', String(moduleNum));
                 if (userData.income) p.set('i', String(userData.income));
                 if (userData.bills) p.set('b', String(userData.bills));
-                if (userData.billsProfile) p.set('bp', userData.billsProfile);
                 if (userData.userName) p.set('n', userData.userName);
                 if (userData.etfChoice) p.set('etf', userData.etfChoice.ticker);
                 if (architectId) p.set('aid', architectId);
@@ -247,25 +214,17 @@
                 return p.toString();
             },
             decode() {
-                const hash = window.location.hash.slice(1);
-                if (!hash) return null;
+                const hash = window.location.hash.slice(1); if (!hash) return null;
                 try {
-                    const p = new URLSearchParams(hash);
-                    if (!p.has('m') && !p.has('ec')) return null;
-                    const result = {
-                        module: parseInt(p.get('m')) || 0,
-                        architectId: p.get('aid') || null,
-                        emailCaptured: p.get('ec') === '1',
-                        userData: { income: p.has('i') ? Number(p.get('i')) : 0, bills: p.has('b') ? Number(p.get('b')) : 0, billsProfile: p.get('bp') || null, userName: p.get('n') ? decodeURIComponent(p.get('n')) : "", userEmail: "", payFreq: "Bi-weekly", etfChoice: resolveEtfFromTicker(p.get('etf')), checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false } }
-                    };
+                    const p = new URLSearchParams(hash); if (!p.has('m') && !p.has('ec')) return null;
+                    const result = { module: parseInt(p.get('m')) || 0, architectId: p.get('aid') || null, emailCaptured: p.get('ec') === '1',
+                        userData: { income: p.has('i') ? Number(p.get('i')) : 0, bills: p.has('b') ? Number(p.get('b')) : 0, userName: p.get('n') ? decodeURIComponent(p.get('n')) : "", userEmail: "", payFreq: "Bi-weekly", etfChoice: resolveEtfFromTicker(p.get('etf')), checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false } } };
                     if (p.has('cl')) { const bits = p.get('cl'); if (bits.length === 5) { result.userData.checklist = { sofiCheck: bits[0]==='1', sofiSave: bits[1]==='1', roth: bits[2]==='1', split: bits[3]==='1', autoInvest: bits[4]==='1' }; } }
                     if (result.emailCaptured) result.module = 6;
                     return result;
                 } catch(e) { return null; }
             },
-            update(moduleNum, userData, architectId) {
-                try { const enc = this.encode(moduleNum, userData, architectId); if (enc) window.history.replaceState(null, '', '#' + enc); } catch(e) {}
-            },
+            update(moduleNum, userData, architectId) { try { const enc = this.encode(moduleNum, userData, architectId); if (enc) window.history.replaceState(null, '', '#' + enc); } catch(e) {} },
             clear() { window.history.replaceState(null, '', window.location.pathname + window.location.search); }
         };
 
@@ -274,26 +233,51 @@
         function InstagramBanner({ isVisible }) {
             const [show, setShow] = useState(isVisible);
             if (!show) return null;
-            return (
-                <div className="ig-banner">
-                    <span>For the best experience</span>
-                    <button className="ig-banner-btn" onClick={() => window.open(window.location.href, '_blank')}>Open in Browser</button>
-                    <button className="ig-banner-close" onClick={() => setShow(false)}>{'\u2715'}</button>
-                </div>
-            );
+            return (<div className="ig-banner"><span>For the best experience</span><button className="ig-banner-btn" onClick={() => window.open(window.location.href, '_blank')}>Open in Browser</button><button className="ig-banner-close" onClick={() => setShow(false)}>{'\u2715'}</button></div>);
         }
 
         function WelcomeToast({ module, onDismiss, onReset }) {
             const [hiding, setHiding] = useState(false);
-            useEffect(() => {
-                const t = setTimeout(() => { setHiding(true); setTimeout(onDismiss, 300); }, 4000);
-                return () => clearTimeout(t);
-            }, []);
+            useEffect(() => { const t = setTimeout(() => { setHiding(true); setTimeout(onDismiss, 300); }, 4000); return () => clearTimeout(t); }, []);
+            return (<div className={`toast ${hiding ? 'hiding' : ''}`}><span className="text-green-500 font-bold">{'\u25B6'}</span><span className="text-gray-300">Resuming from Step {module + 1}</span><button onClick={onReset} className="text-gray-500 hover:text-white text-xs underline ml-2">Start Over</button></div>);
+        }
+
+        // === DONUT CHART COMPONENT ===
+        function DonutChart({ spending, investing, safety, size = 120 }) {
+            const total = spending + investing + safety;
+            if (total === 0) return null;
+            const r = 40; const c = 2 * Math.PI * r;
+            const spendPct = spending / total; const investPct = investing / total; const safetyPct = safety / total;
+            const spendDash = spendPct * c; const investDash = investPct * c; const safetyDash = safetyPct * c;
+            const spendOffset = 0; const investOffset = -spendDash; const safetyOffset = -(spendDash + investDash);
             return (
-                <div className={`toast ${hiding ? 'hiding' : ''}`}>
-                    <span className="text-green-500 font-bold">{'\u25B6'}</span>
-                    <span className="text-gray-300">Resuming from Module {module + 1}</span>
-                    <button onClick={onReset} className="text-gray-500 hover:text-white text-[10px] underline ml-2">Start Over</button>
+                <svg width={size} height={size} viewBox="0 0 100 100" className="transform -rotate-90">
+                    <circle cx="50" cy="50" r={r} className="donut-ring" stroke="#1a1a1a" />
+                    <circle cx="50" cy="50" r={r} className="donut-segment" stroke="#555" strokeDasharray={`${spendDash} ${c - spendDash}`} strokeDashoffset={spendOffset} />
+                    <circle cx="50" cy="50" r={r} className="donut-segment" stroke="#22c55e" strokeDasharray={`${investDash} ${c - investDash}`} strokeDashoffset={investOffset} />
+                    <circle cx="50" cy="50" r={r} className="donut-segment" stroke="#3b82f6" strokeDasharray={`${safetyDash} ${c - safetyDash}`} strokeDashoffset={safetyOffset} />
+                </svg>
+            );
+        }
+
+        // === DISCLAIMER COMPONENT ===
+        function DisclaimerPanel({ expanded, onToggle }) {
+            return (
+                <div className="mt-6 border border-gray-800 rounded-xl overflow-hidden bg-black/40">
+                    <div className="collapsible-header flex justify-between items-center px-4 py-3" onClick={onToggle}>
+                        <span className="text-xs text-gray-500 uppercase tracking-widest font-bold flex items-center gap-2">{'\u2139\uFE0F'} How We Calculate</span>
+                        <span className={`text-gray-500 text-xs transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}>{'\u25BC'}</span>
+                    </div>
+                    {expanded && (
+                        <div className="px-4 pb-4 pt-1 space-y-3 animate-fade-in text-sm text-gray-400 leading-relaxed">
+                            <p><strong className="text-gray-300">Return assumption:</strong> 10% average annual return, based on the S&P 500's historical average since 1957. Actual returns vary significantly year to year.</p>
+                            <p><strong className="text-gray-300">Inflation:</strong> These projections are pre-inflation. Real purchasing power will be lower.</p>
+                            <p><strong className="text-gray-300">Not financial advice.</strong> This is an educational calculator. It does not account for taxes, fees, or individual circumstances. Consult a licensed financial advisor before making investment decisions.</p>
+                            <p><strong className="text-gray-300">Your data:</strong> Everything stays in your browser. Nothing is sent to any server.</p>
+                            <p><strong className="text-gray-300">Currency:</strong> All calculations are in USD.</p>
+                            <p><strong className="text-gray-300">Creator:</strong> Built by <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="text-green-500 underline hover:brightness-125">@koutalksmoney</a></p>
+                        </div>
+                    )}
                 </div>
             );
         }
@@ -308,7 +292,6 @@
                 else { const saved = localStorage.getItem('autopilot_current_module'); module = saved ? parseInt(saved, 10) : 0; }
                 return { module, userData: null, architectId: null, fromUrl: false };
             };
-
             const initialState = getInitialState();
             const [module, setModule] = useState(initialState.module);
             const [context, setContext] = useState(null);
@@ -316,50 +299,27 @@
             const [architectId, setArchitectId] = useState(initialState.architectId);
             const [showIGBanner, setShowIGBanner] = useState(isInstagramBrowser());
             const [showToast, setShowToast] = useState(initialState.fromUrl && initialState.module > 0 && initialState.module < 6);
-            
-            const defaultUserData = { userName: "", userEmail: "", income: 0, bills: 0, billsProfile: null, payFreq: "Bi-weekly", etfChoice: null, checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false } };
+            const defaultUserData = { userName: "", userEmail: "", income: 0, bills: 0, payFreq: "Bi-weekly", etfChoice: null, checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false } };
             const [userData, setUserData] = useState(initialState.userData ? { ...defaultUserData, ...initialState.userData } : defaultUserData);
 
             useEffect(() => { localStorage.setItem('autopilot_current_module', module.toString()); }, [module]);
             useEffect(() => { URLState.update(module, userData, architectId); }, [module, userData, architectId]);
-
-            useEffect(() => {
-                const handler = (e) => {
-                    if (e.key === 'autopilot_email_captured' && e.newValue === 'true') {
-                        setModule(6);
-                    }
-                };
-                window.addEventListener('storage', handler);
-                return () => window.removeEventListener('storage', handler);
-            }, []);
-
-            useEffect(() => {
-                if (!initialState.architectId) {
-                    const existingId = localStorage.getItem('cashvault_architect_id');
-                    if (existingId) setArchitectId(existingId);
-                }
-            }, []);
-
+            useEffect(() => { const handler = (e) => { if (e.key === 'autopilot_email_captured' && e.newValue === 'true') setModule(6); }; window.addEventListener('storage', handler); return () => window.removeEventListener('storage', handler); }, []);
+            useEffect(() => { if (!initialState.architectId) { const existingId = localStorage.getItem('cashvault_architect_id'); if (existingId) setArchitectId(existingId); } }, []);
             useEffect(() => {
                 const savedContext = localStorage.getItem('cashvault_context');
-                if (savedContext) {
-                    const parsed = JSON.parse(savedContext);
-                    setContext(parsed);
-                    if (parsed.source === 'ticker') { setTheme(CONFIG.THEMES.TICKER); if (parsed.monthly) setUserData(prev => ({...prev, income: parsed.monthly * 5})); }
-                    else if (parsed.source === 'score') { setTheme(CONFIG.THEMES.SCORE); }
-                    else if (parsed.source === 'investment_simplifier') { setTheme(CONFIG.THEMES.DEFAULT); if (parsed.monthly) setUserData(prev => ({...prev, income: parsed.monthly * 5, portfolioId: parsed.portfolio_id, coreEtf: parsed.core_etf})); }
-                }
+                if (savedContext) { const parsed = JSON.parse(savedContext); setContext(parsed); if (parsed.source === 'ticker') { setTheme(CONFIG.THEMES.TICKER); if (parsed.monthly) setUserData(prev => ({...prev, income: parsed.monthly * 5})); } else if (parsed.source === 'score') { setTheme(CONFIG.THEMES.SCORE); } else if (parsed.source === 'investment_simplifier') { setTheme(CONFIG.THEMES.DEFAULT); if (parsed.monthly) setUserData(prev => ({...prev, income: parsed.monthly * 5, portfolioId: parsed.portfolio_id, coreEtf: parsed.core_etf})); } }
                 if (!initialState.userData) { const savedData = localStorage.getItem("autopilot_system_data"); if (savedData) setUserData(prev => ({...JSON.parse(savedData), ...prev})); }
             }, []);
-
             useEffect(() => { localStorage.setItem("autopilot_system_data", JSON.stringify(userData)); }, [userData]);
 
             const updateData = (key, value) => setUserData(prev => ({ ...prev, [key]: value }));
             const toggleCheck = (key) => setUserData(prev => ({ ...prev, checklist: { ...prev.checklist, [key]: !prev.checklist[key] } }));
-
             const installationPercent = Math.round(15 + (module / 6) * 85);
 
-            const handleReset = () => { URLState.clear(); localStorage.removeItem('autopilot_current_module'); localStorage.removeItem('autopilot_system_data'); localStorage.removeItem('autopilot_email_captured'); window.location.reload(); };
+            const handleReset = () => { if (!window.confirm('Start completely over? All progress will be cleared.')) return; URLState.clear(); localStorage.removeItem('autopilot_current_module'); localStorage.removeItem('autopilot_system_data'); localStorage.removeItem('autopilot_email_captured'); window.location.reload(); };
+
+            const goToModule = (n) => { if (n <= module || n === module + 1) setModule(n); };
 
             const renderModule = () => {
                 switch(module) {
@@ -374,37 +334,48 @@
                 }
             };
 
+            const moduleLabels = ['\uD83D\uDE80', '\uD83D\uDCCA', '\uD83C\uDFE6', '\u26FD', '\uD83D\uDCC8', '\uD83D\uDD12', '\uD83C\uDFC6'];
+
             return (
-                <div className={`min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors duration-1000 ${showIGBanner ? 'ig-banner-active' : ''}`}>
+                <div className={`min-h-screen flex flex-col items-center justify-start p-4 sm:p-6 relative overflow-hidden transition-colors duration-1000 ${showIGBanner ? 'ig-banner-active' : ''}`}>
                     <InstagramBanner isVisible={showIGBanner} />
                     {showToast && <WelcomeToast module={module} onDismiss={() => setShowToast(false)} onReset={handleReset} />}
+                    
                     {module < 6 && (
-                        <div className="w-full max-w-2xl mb-8 border-b border-gray-800 pb-4">
-                            <div className="flex justify-between items-end mb-3">
+                        <div className="w-full max-w-2xl mb-6 pb-4">
+                            <div className="flex justify-between items-center mb-4">
                                 <div>
-                                    <h1 className="text-xl font-bold tracking-tighter text-white">THE AUTOPILOT MACHINE</h1>
-                                    <p className="text-xs text-gray-500">MODE: <span className={`${theme.color} animate-pulse font-bold uppercase`}>{theme.title}</span></p>
+                                    <h1 className="text-lg sm:text-xl font-bold tracking-tighter text-white flex items-center gap-2">{'\uD83E\uDD16'} THE AUTOPILOT MACHINE</h1>
+                                    <p className="text-xs text-gray-600 mt-0.5">MODE: <span className={`${theme.color} font-bold uppercase`}>{theme.title}</span></p>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-xs text-gray-400">MODULE {module + 1}/7</p>
-                                </div>
+                                <button onClick={handleReset} className="text-xs text-gray-600 hover:text-red-400 border border-gray-800 hover:border-red-800 px-3 py-1.5 rounded-lg transition-all">{'\u21BB'} Restart</button>
                             </div>
-                            <div className="space-y-1">
-                                <div className="flex justify-between items-center text-[10px]">
-                                    <span className="text-gray-500 uppercase tracking-widest">System Installation</span>
-                                    <span className={`${theme.color} font-bold font-mono`}>{installationPercent}%</span>
-                                </div>
-                                <div className="w-full h-1.5 bg-gray-800 rounded-sm overflow-hidden">
-                                    <div className={`h-full ${theme.bg} transition-all duration-500 progress-shimmer`} style={{ width: `${installationPercent}%` }}></div>
-                                </div>
+                            {/* Step indicators */}
+                            <div className="flex gap-1.5 mb-3">
+                                {moduleLabels.map((emoji, i) => (
+                                    <button key={i} onClick={() => goToModule(i)} disabled={i > module + 1} className={`flex-1 h-2 rounded-full transition-all duration-500 ${i < module ? 'bg-green-500' : i === module ? 'bg-green-500 progress-shimmer' : 'bg-gray-800'} ${i <= module ? 'cursor-pointer hover:brightness-125' : 'cursor-not-allowed'}`} title={`Step ${i + 1}`} />
+                                ))}
+                            </div>
+                            <div className="flex justify-between text-xs text-gray-600">
+                                <span>Step {module + 1} of 7</span>
+                                <span className="font-bold" style={{color: theme.accent}}>{installationPercent}% installed</span>
                             </div>
                         </div>
                     )}
+
                     <div className="w-full max-w-2xl min-h-[500px] transition-all duration-300 relative">{renderModule()}</div>
+
                     {module < 6 && (
-                        <div className="w-full max-w-2xl mt-8 flex justify-between text-xs text-gray-600">
-                            <button onClick={() => setModule(m => Math.max(0, m - 1))} className={`hover:text-white ${module === 0 ? 'invisible' : ''}`}>[ BACK ]</button>
-                            <span>SECURE CONNECTION</span>
+                        <div className="w-full max-w-2xl mt-6 flex justify-between text-xs text-gray-700">
+                            <button onClick={() => setModule(m => Math.max(0, m - 1))} className={`hover:text-white transition-colors ${module === 0 ? 'invisible' : ''}`}>{'\u2190'} Back</button>
+                            <span className="flex items-center gap-1.5">{'\uD83D\uDD12'} Your data stays in your browser</span>
+                        </div>
+                    )}
+
+                    {/* Persistent disclaimer footer */}
+                    {module < 6 && (
+                        <div className="w-full max-w-2xl mt-4 text-center">
+                            <p className="text-[10px] text-gray-700">Not financial advice. Educational tool by <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="text-gray-500 underline hover:text-green-500">@koutalksmoney</a></p>
                         </div>
                     )}
                 </div>
@@ -419,82 +390,65 @@
             const isScore = context?.source === 'score';
             const isInvestment = context?.source === 'investment_simplifier';
             const isCold = !context;
-
             return (
-                <div className="terminal-box p-8 rounded-sm animate-fade-in border-t-2 border-b-2 transition-colors duration-500" style={{ borderColor: theme.accent }}>
-                    <div className="text-center space-y-6">
-                        <div className="mb-8 relative py-4 px-2 mx-auto max-w-xs sm:max-w-md">
-                            <div className={`absolute top-0 left-0 w-3 h-3 border-t border-l ${theme.border}`}></div>
-                            <div className={`absolute top-0 right-0 w-3 h-3 border-t border-r ${theme.border}`}></div>
-                            <div className={`absolute bottom-0 left-0 w-3 h-3 border-b border-l ${theme.border}`}></div>
-                            <div className={`absolute bottom-0 right-0 w-3 h-3 border-b border-r ${theme.border}`}></div>
-                            <div className={`${theme.color} font-mono text-center transition-colors duration-500`}>
-                                <p className="text-[10px] sm:text-xs tracking-[0.2em] mb-1 opacity-80 uppercase">
-                                    {isTicker ? 'DATA IMPORTED: FEAR DETECTED' : isScore ? 'DATA IMPORTED: STATUS VERIFIED' : isInvestment ? 'PORTFOLIO DETECTED' : 'THE AUTOPILOT MONEY'}
-                                </p>
-                                <p className="text-lg sm:text-xl font-bold tracking-widest uppercase">
-                                    {isTicker ? 'LEAK CONTAINMENT' : isScore ? 'LEVERAGE ARCHITECTURE' : isInvestment ? 'AUTOMATION MODE' : 'SYSTEM'}
-                                </p>
-                            </div>
+                <div className="terminal-box p-6 sm:p-10 animate-fade-in" style={{ borderTop: `3px solid ${theme.accent}` }}>
+                    <div className="text-center space-y-8">
+                        {/* Header badge */}
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-800 bg-black/50 text-xs">
+                            <span className={`w-2 h-2 rounded-full ${theme.bg} animate-pulse`}></span>
+                            <span className="text-gray-400">{isTicker ? 'Data imported: fear detected' : isScore ? 'Data imported: status verified' : isInvestment ? 'Portfolio detected' : 'Free tool'}</span>
+                            <span className="text-gray-600">|</span>
+                            <span className="text-gray-500">~4 min</span>
                         </div>
 
                         {isCold && (
-                            <div className="space-y-5 animate-fade-in">
-                                <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight">You make money.<br/>Where does it go?</h2>
-                                <p className="text-gray-400 text-sm max-w-md mx-auto leading-relaxed">This tool builds a wealth system in 7 steps. Zero guessing. Zero willpower. Just math and automation.</p>
-                                <div className="text-left bg-black/50 border border-gray-800 rounded p-4 max-w-sm mx-auto space-y-3">
-                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">What you'll build:</p>
+                            <div className="space-y-6 animate-fade-in">
+                                <h2 className="text-2xl sm:text-4xl font-bold text-white leading-tight">You make money.<br/>Where does it go?</h2>
+                                <p className="text-gray-400 text-sm sm:text-base max-w-md mx-auto leading-relaxed">This tool builds your wealth system in 7 steps. Zero guessing. Zero willpower. Just math and automation.</p>
+                                <div className="text-left bg-black/60 border border-gray-800 rounded-xl p-5 sm:p-6 max-w-md mx-auto space-y-4">
+                                    <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">{'\uD83D\uDEE0\uFE0F'} What you'll build:</p>
                                     {[
-                                        'Your real spending number (not the fake one)',
-                                        'Your auto-invest amount, calculated from what you ACTUALLY have',
-                                        'Your ETF selection, matched to your risk tolerance',
-                                        'Your 30-year wealth projection, based on real math'
+                                        { emoji: '\uD83D\uDCB0', text: 'Your real spending number (not the fake one)' },
+                                        { emoji: '\uD83D\uDCC8', text: 'Your auto-invest amount, calculated from what you ACTUALLY have' },
+                                        { emoji: '\u26FD', text: 'Your ETF, matched to your risk level' },
+                                        { emoji: '\uD83D\uDCC9', text: 'Your 30-year wealth projection, based on real math' }
                                     ].map((item, i) => (
                                         <div key={i} className="flex items-start gap-3">
-                                            <span className="text-green-500 font-bold text-xs mt-0.5">{i+1}.</span>
-                                            <span className="text-gray-300 text-xs">{item}</span>
+                                            <span className="text-lg">{item.emoji}</span>
+                                            <span className="text-gray-300 text-sm leading-relaxed">{item.text}</span>
                                         </div>
                                     ))}
                                 </div>
-                                <p className="text-[10px] text-gray-600">Takes about 4 minutes. Free. No login required.</p>
+                                <p className="text-xs text-gray-600">No login required. No data leaves your browser.</p>
                             </div>
                         )}
 
                         {isTicker && (
                             <div className="space-y-4 animate-fade-in">
-                                <h2 className="text-4xl font-bold text-white uppercase glitch">${Number(context.loss).toLocaleString()}</h2>
-                                <p className="text-sm text-red-400 font-mono">WARNING: PROJECTED WEALTH LOSS DETECTED.</p>
-                                <p className="text-gray-400 text-sm max-w-md mx-auto leading-relaxed">You saw the math. The Cost of Waiting is eating your future. The Autopilot is the only way to stop the bleeding.</p>
+                                <h2 className="text-4xl sm:text-5xl font-bold text-white">${Number(context.loss).toLocaleString()}</h2>
+                                <p className="text-sm text-red-400 font-mono">{'\u26A0\uFE0F'} PROJECTED WEALTH LOSS DETECTED</p>
+                                <p className="text-gray-400 text-sm max-w-md mx-auto">You saw the math. The Cost of Waiting is eating your future. The Autopilot is the only way to stop the bleeding.</p>
                             </div>
                         )}
                         {isScore && (
                             <div className="space-y-4 animate-fade-in">
                                 <h2 className="text-4xl font-bold text-white uppercase animate-pulse">{context.status || "BOSS MODE"}</h2>
-                                <p className="text-sm text-yellow-400 font-mono">CREDIT PROTOCOL: 100% COMPLETE.</p>
-                                <p className="text-gray-400 text-sm max-w-md mx-auto leading-relaxed">You dominated the credit game. Now turn that reputation into real wealth. Level 2 is about Assets.</p>
+                                <p className="text-sm text-yellow-400 font-mono">{'\uD83D\uDC51'} CREDIT PROTOCOL COMPLETE</p>
+                                <p className="text-gray-400 text-sm max-w-md mx-auto">You dominated the credit game. Now turn that reputation into real wealth.</p>
                             </div>
                         )}
                         {isInvestment && (
                             <div className="space-y-4 animate-fade-in">
-                                <div className="inline-block bg-green-500/20 border border-green-500/50 rounded-lg px-4 py-2">
-                                    <p className="text-xs text-green-400 uppercase tracking-widest">From Investment Simplifier</p>
-                                    <p className="text-2xl font-bold text-green-500">{context.core_etf?.ticker || 'PORTFOLIO'}</p>
+                                <div className="inline-block bg-green-500/10 border border-green-500/30 rounded-xl px-5 py-3">
+                                    <p className="text-xs text-green-400 uppercase tracking-widest">{'\uD83D\uDD17'} From Investment Simplifier</p>
+                                    <p className="text-3xl font-bold text-green-500 mt-1">{context.core_etf?.ticker || 'PORTFOLIO'}</p>
                                 </div>
-                                <p className="text-gray-400 text-sm max-w-md mx-auto leading-relaxed">You built your ${context.monthly || 500}/mo portfolio. Now automate it so you never miss a deposit.</p>
+                                <p className="text-gray-400 text-sm max-w-md mx-auto">You built your ${context.monthly || 500}/mo portfolio. Now automate it so you never miss a deposit.</p>
                             </div>
                         )}
 
-                        {!isCold && (
-                            <div className="border-t border-gray-800 my-6 pt-6 text-left text-sm text-gray-300 space-y-2 font-mono">
-                                <p>> Initializing financial operating system...</p>
-                                <p>> Importing user context... <span className={theme.color}>SUCCESS</span></p>
-                                {isInvestment && <p>> Portfolio ID: <span className={theme.color}>{context.portfolio_id}</span></p>}
-                                <p>> Loading asset allocation protocols... <span className={theme.color}>READY</span></p>
-                            </div>
-                        )}
-
-                        <button onClick={next} className={`w-full py-4 ${theme.bg} hover:brightness-110 text-black font-bold text-lg rounded-sm transition-all uppercase`}>
-                            [ {isTicker ? 'PLUG THE LEAK' : isScore ? 'ENTER LEVEL 2' : isInvestment ? 'AUTOMATE MY PORTFOLIO' : 'BUILD MY SYSTEM'} ]
+                        <button onClick={next} className="w-full py-4 text-black font-bold text-lg rounded-xl transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]" style={{ background: theme.accent }}>
+                            {isTicker ? '\u26A1 Plug the Leak' : isScore ? '\uD83D\uDE80 Enter Level 2' : isInvestment ? '\uD83E\uDD16 Automate My Portfolio' : '\uD83D\uDE80 Build My System'}
                         </button>
                     </div>
                 </div>
@@ -502,138 +456,137 @@
         }
 
         // ======================================
-        // MODULE 1: CALIBRATOR
+        // MODULE 1: CALIBRATOR (SLIDERS)
         // ======================================
         function ModuleCalibrator({ userData, updateData, theme, next }) {
-            const [showCustom, setShowCustom] = useState(false);
-            const [showComparison, setShowComparison] = useState(false);
-            const profiles = CONFIG.PROFILES;
-
-            const selectProfile = (profileId) => {
-                const profile = profiles[profileId];
-                updateData('billsProfile', profileId);
-                if (profileId === 'custom') { setShowCustom(true); }
-                else { setShowCustom(false); if (userData.income > 0) updateData('bills', Math.round(userData.income * profile.pct)); }
+            const [noBills, setNoBills] = useState(userData.bills === 0 && userData.income > 0);
+            
+            const handleNoBills = () => {
+                const newVal = !noBills;
+                setNoBills(newVal);
+                if (newVal) updateData('bills', 0);
             };
-
-            useEffect(() => {
-                if (userData.billsProfile && userData.billsProfile !== 'custom' && userData.income > 0) {
-                    const profile = profiles[userData.billsProfile];
-                    updateData('bills', Math.round(userData.income * profile.pct));
-                    setShowComparison(true);
-                }
-            }, [userData.income]);
 
             const deployable = getDeployable(userData);
             const invest = getInvest(userData);
             const safety = getSafety(userData);
             const spending = getSpending(userData);
-            const hasProfile = userData.billsProfile !== null;
-            const hasIncome = userData.income > 0;
-            const isReady = hasIncome && hasProfile && deployable > 0;
+            const isReady = userData.income > 0 && deployable > 0;
             const billsPct = userData.income > 0 ? Math.round((userData.bills / userData.income) * 100) : 0;
-            const deployPct = 100 - billsPct;
 
-            const traditionalInvest = userData.income * 0.20;
-            const actualInvest = invest;
+            const presets = [1500, 2500, 4000, 6000];
 
             return (
-                <div className="terminal-box p-6 sm:p-8 rounded-sm animate-fade-in">
-                    <h2 className="text-xl font-bold mb-2 text-white border-b border-gray-800 pb-2">CALIBRATE YOUR MACHINE</h2>
-                    <p className="text-xs text-gray-500 mb-6">Two inputs. That's all we need to build your system.</p>
+                <div className="terminal-box p-6 sm:p-8 animate-fade-in">
+                    <div className="mb-8">
+                        <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">{'\uD83D\uDCCA'} Calibrate Your Machine</h2>
+                        <p className="text-sm text-gray-500 mt-2">Slide to your approximate numbers. No need to be exact.</p>
+                    </div>
                     
-                    <div className="mb-6">
-                        <label className="block text-xs text-gray-500 mb-3 uppercase tracking-widest">{'\u2460'} What's your situation?</label>
-                        <p className="text-[10px] text-gray-600 mb-3">Pick the one that's closest. This determines how much of your income is locked to bills.</p>
-                        <div className="grid grid-cols-2 gap-3" style={{'--theme-accent': theme.accent}}>
-                            {Object.values(profiles).map(p => (
-                                <div key={p.id} className={`profile-card rounded-sm ${userData.billsProfile === p.id ? 'selected' : ''}`} onClick={() => selectProfile(p.id)} style={userData.billsProfile === p.id ? {'--theme-accent': theme.accent, borderColor: theme.accent} : {}}>
-                                    <span className="profile-icon">{p.icon}</span>
-                                    <span className="profile-title">{p.title}</span>
-                                    <span className="profile-desc">{p.desc}</span>
-                                    <span className="profile-pct" style={{color: theme.accent}}>{p.id === 'custom' ? 'You decide' : p.label}</span>
-                                </div>
+                    {/* INCOME SLIDER */}
+                    <div className="mb-8">
+                        <div className="flex justify-between items-baseline mb-3">
+                            <label className="text-sm text-gray-400 font-bold">{'\uD83D\uDCB5'} Monthly Income (after taxes)</label>
+                            <span className="text-2xl font-bold text-white">${(userData.income || 0).toLocaleString()}</span>
+                        </div>
+                        <input type="range" min="500" max="10000" step="100" value={userData.income || 2000} onChange={(e) => updateData('income', Number(e.target.value))} className="w-full mb-3" />
+                        <div className="flex gap-2">
+                            {presets.map(p => (
+                                <button key={p} onClick={() => updateData('income', p)} className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${userData.income === p ? 'border-green-500 text-green-500 bg-green-500/10' : 'border-gray-800 text-gray-600 hover:border-gray-600'}`}>${(p/1000).toFixed(p >= 1000 ? (p % 1000 === 0 ? 0 : 1) : 0)}k</button>
                             ))}
                         </div>
                     </div>
 
-                    {hasProfile && (
-                        <div className="mb-6 animate-fade-in">
-                            <label className="block text-xs text-gray-500 mb-1 uppercase tracking-widest">{'\u2461'} Monthly Income (After Taxes)</label>
-                            <p className="text-[10px] text-gray-600 mb-2">We need this to calculate what's deployable after your {profiles[userData.billsProfile]?.title || ''} bills.</p>
-                            <div className="flex items-center group">
-                                <span className="text-xl mr-2 text-gray-400 group-focus-within:text-white">$</span>
-                                <input type="number" value={userData.income || ''} onChange={(e) => updateData('income', Number(e.target.value))} className="terminal-input w-full p-3 text-lg font-bold" placeholder="3000" />
-                            </div>
+                    {/* BILLS SLIDER */}
+                    <div className="mb-8">
+                        <div className="flex justify-between items-baseline mb-3">
+                            <label className="text-sm text-gray-400 font-bold">{'\uD83D\uDCCB'} Monthly Bills</label>
+                            <span className={`text-2xl font-bold ${noBills ? 'text-green-500' : 'text-red-400'}`}>{noBills ? '$0' : `$${(userData.bills || 0).toLocaleString()}`}</span>
                         </div>
-                    )}
+                        
+                        <button onClick={handleNoBills} className={`w-full mb-3 py-3 text-sm font-bold rounded-lg border transition-all ${noBills ? 'border-green-500 text-green-500 bg-green-500/10' : 'border-gray-800 text-gray-500 hover:border-gray-600'}`}>
+                            {noBills ? '\u2713 I don\'t pay bills (living at home, etc.)' : 'I don\'t pay bills yet'}
+                        </button>
 
-                    {showCustom && hasProfile && (
-                        <div className="mb-6 animate-fade-in">
-                            <label className="block text-xs text-gray-500 mb-1">YOUR TOTAL MONTHLY BILLS</label>
-                            <div className="flex items-center">
-                                <span className="text-xl mr-2 text-gray-400">$</span>
-                                <input type="number" value={userData.bills || ''} onChange={(e) => updateData('bills', Number(e.target.value))} className="terminal-input w-full p-3 text-lg font-bold" placeholder="1500" />
+                        {!noBills && (
+                            <div className="animate-fade-in">
+                                <input type="range" min="0" max="8000" step="50" value={userData.bills || 0} onChange={(e) => updateData('bills', Number(e.target.value))} className="w-full red-slider" />
+                                <p className="text-xs text-gray-600 mt-2">Rent + utilities + car + loans + insurance + subscriptions. Everything non-negotiable.</p>
                             </div>
-                            <p className="text-[10px] text-gray-600 mt-1">Rent + utilities + car + loans + insurance + subscriptions. Everything non-negotiable.</p>
-                        </div>
-                    )}
+                        )}
+                    </div>
 
-                    {hasProfile && hasIncome && deployable > 0 && (
-                        <div className="mb-6 animate-fade-in">
-                            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Why most budgets fail (and yours won't)</p>
-                            <div className="grid grid-cols-2 gap-3" style={{'--theme-accent': theme.accent}}>
-                                <div className="compare-card wrong">
-                                    <p className="text-[10px] text-red-400 uppercase tracking-widest mb-2 font-bold">Traditional Rule</p>
-                                    <p className="text-gray-500 text-[10px] mb-3">"Invest 20% of your income"</p>
-                                    <p className="text-red-400 text-xl font-bold">${traditionalInvest.toFixed(0)}<span className="text-xs text-gray-600">/mo</span></p>
-                                    <p className="text-[10px] text-red-300 mt-2">Ignores your bills exist. Fantasy math.</p>
+                    {/* LIVE RESULTS */}
+                    {userData.income > 0 && deployable > 0 && (
+                        <div className="animate-fade-in-up space-y-6">
+                            {/* Traditional vs Yours comparison */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="bg-black/60 border border-red-900/50 rounded-xl p-4 text-center">
+                                    <p className="text-xs text-red-400 font-bold uppercase tracking-widest mb-1">{'\u274C'} Old Rule</p>
+                                    <p className="text-xs text-gray-600 mb-2">"Invest 20% of income"</p>
+                                    <p className="text-red-400 text-2xl font-bold">${(userData.income * 0.20).toFixed(0)}</p>
+                                    <p className="text-[10px] text-red-300/60 mt-1">Ignores your bills exist</p>
                                 </div>
-                                <div className="compare-card right" style={{borderColor: theme.accent}}>
-                                    <p className="text-[10px] uppercase tracking-widest mb-2 font-bold" style={{color: theme.accent}}>Your Actual Rule</p>
-                                    <p className="text-gray-500 text-[10px] mb-3">"Invest 20% of what's LEFT"</p>
-                                    <p className="text-xl font-bold" style={{color: theme.accent}}>${actualInvest.toFixed(0)}<span className="text-xs text-gray-600">/mo</span></p>
-                                    <p className="text-[10px] text-gray-400 mt-2">Based on ${deployable.toLocaleString()} deployable. Real math.</p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {hasProfile && hasIncome && deployable > 0 && (
-                        <div className="bg-gray-900 p-4 rounded border border-gray-800 mb-6 animate-fade-in">
-                            <div className="mb-4">
-                                <div className="flex justify-between text-[10px] text-gray-500 mb-2 uppercase tracking-widest">
-                                    <span>Your Real Operating Budget</span>
-                                    <span className="text-white font-bold">${userData.income.toLocaleString()}/mo</span>
-                                </div>
-                                <div className="deploy-bar">
-                                    {billsPct > 0 && (<div className="deploy-segment bg-red-900/80 text-red-300 border-r border-red-700" style={{width: `${billsPct}%`}}>{billsPct >= 15 ? `BILLS $${userData.bills.toLocaleString()}` : ''}</div>)}
-                                    <div className="deploy-segment text-black font-bold" style={{width: `${deployPct}%`, background: theme.accent}}>DEPLOY ${deployable.toLocaleString()}</div>
+                                <div className="bg-black/60 border rounded-xl p-4 text-center" style={{borderColor: theme.accent + '50'}}>
+                                    <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{color: theme.accent}}>{'\u2705'} Your Rule</p>
+                                    <p className="text-xs text-gray-600 mb-2">"Invest 20% of what's LEFT"</p>
+                                    <p className="text-2xl font-bold" style={{color: theme.accent}}>${invest.toFixed(0)}</p>
+                                    <p className="text-[10px] text-gray-500 mt-1">From ${deployable.toLocaleString()} deployable</p>
                                 </div>
                             </div>
-                            <div className="border-t border-gray-800 pt-4 space-y-3">
-                                <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Deploying ${deployable.toLocaleString()}/mo {'\u2192'}</p>
-                                <div><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">70% SPENDING</span><span className="text-gray-400">${spending.toFixed(0)}</span></div><div className="h-2 bg-gray-800 rounded overflow-hidden"><div className="h-full bg-gray-500" style={{width: '70%'}}></div></div></div>
-                                <div><div className="flex justify-between text-sm mb-1"><span className="text-white font-bold">20% INVESTING</span><span className="font-bold" style={{color: theme.accent}}>${invest.toFixed(0)}</span></div><div className="h-2 bg-gray-800 rounded overflow-hidden"><div className={`h-full ${theme.bg}`} style={{width: '20%'}}></div></div></div>
-                                <div><div className="flex justify-between text-sm mb-1"><span className="text-white">10% SAFETY</span><span className="text-blue-400">${safety.toFixed(0)}</span></div><div className="h-2 bg-gray-800 rounded overflow-hidden"><div className="h-full bg-blue-500" style={{width: '10%'}}></div></div></div>
-                                <div className="bg-black/50 p-3 rounded border border-gray-700 mt-3">
-                                    <p className="text-[10px] text-gray-400 text-center">
+
+                            {/* Visual split */}
+                            <div className="bg-black/40 border border-gray-800 rounded-xl p-5">
+                                <div className="flex items-center justify-between mb-4">
+                                    <span className="text-xs text-gray-500 uppercase tracking-widest font-bold">{'\uD83C\uDFAF'} Your Money Split</span>
+                                    <span className="text-sm text-white font-bold">${deployable.toLocaleString()}/mo deployable</span>
+                                </div>
+
+                                {/* Donut + Labels */}
+                                <div className="flex items-center gap-6 mb-4">
+                                    <DonutChart spending={spending} investing={invest} safety={safety} size={100} />
+                                    <div className="flex-1 space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gray-500"></div><span className="text-sm text-gray-300">70% Spending</span></div>
+                                            <span className="text-sm text-gray-400 font-bold">${spending.toFixed(0)}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-green-500"></div><span className="text-sm text-white font-bold">20% Investing</span></div>
+                                            <span className="text-sm font-bold" style={{color: theme.accent}}>${invest.toFixed(0)}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-blue-500"></div><span className="text-sm text-gray-300">10% Safety</span></div>
+                                            <span className="text-sm text-blue-400 font-bold">${safety.toFixed(0)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Deploy bar */}
+                                <div className="deploy-bar rounded-lg">
+                                    {billsPct > 0 && <div className="deploy-segment bg-red-900/80 text-red-300 border-r border-red-700/50" style={{width: `${billsPct}%`}}>{billsPct >= 15 ? `Bills` : ''}</div>}
+                                    <div className="deploy-segment text-black font-bold" style={{width: `${100-billsPct}%`, background: theme.accent}}>Deployable ${deployable.toLocaleString()}</div>
+                                </div>
+
+                                <div className="mt-4 bg-black/50 border border-gray-800 rounded-lg p-3 text-center">
+                                    <p className="text-sm text-gray-300">
                                         Your machine invests <strong className="text-white">${invest.toFixed(0)}/mo</strong> automatically.
-                                        {invest >= 200 ? <span className="block mt-1" style={{color: theme.accent}}>That's ${(invest * 12).toLocaleString(undefined,{maximumFractionDigits:0})}/year on autopilot.</span> : <span className="block mt-1 text-yellow-400">Small start? Good. Consistency beats amount. Every time.</span>}
+                                        {invest >= 200 ? <span className="block mt-1" style={{color: theme.accent}}>{'\uD83D\uDD25'} That's ${(invest * 12).toLocaleString(undefined,{maximumFractionDigits:0})}/year on autopilot.</span> : <span className="block mt-1 text-yellow-400">{'\u26A1'} Small start? Good. Consistency beats amount. Every time.</span>}
                                     </p>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {hasProfile && hasIncome && deployable <= 0 && (
-                        <div className="bg-gray-900 p-4 rounded border border-red-900 mb-6 text-center animate-fade-in">
-                            <p className="text-red-400 text-sm font-bold">[!] Your bills exceed your income.</p>
-                            <p className="text-gray-500 text-xs mt-1">Reduce bills or increase income before building the machine.</p>
+                    {userData.income > 0 && deployable <= 0 && (
+                        <div className="bg-black/60 border border-red-900 rounded-xl p-5 text-center animate-fade-in">
+                            <p className="text-red-400 text-base font-bold">{'\u26A0\uFE0F'} Your bills exceed your income.</p>
+                            <p className="text-gray-500 text-sm mt-2">Reduce bills or increase income before building the machine.</p>
                         </div>
                     )}
 
-                    <button onClick={next} disabled={!isReady} className={`w-full py-3 border ${theme.border} ${theme.color} hover:bg-gray-900 font-bold uppercase transition-colors disabled:opacity-30 disabled:cursor-not-allowed`}>[ Lock In These Numbers ]</button>
+                    <button onClick={next} disabled={!isReady} className={`w-full mt-6 py-4 font-bold text-base rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed ${isReady ? 'text-black hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]' : 'bg-gray-800 text-gray-600'}`} style={isReady ? {background: theme.accent} : {}}>
+                        {isReady ? '\uD83D\uDD12 Lock In These Numbers' : 'Slide your income to continue'}
+                    </button>
                 </div>
             );
         }
@@ -647,119 +600,162 @@
             const [whyOpen, setWhyOpen] = useState(false);
             const [method, setMethod] = useState('split');
             const [section, setSection] = useState(1);
+            const [tooltipOpen, setTooltipOpen] = useState(null);
 
             const accountsDone = userData.checklist.sofiCheck && userData.checklist.sofiSave && userData.checklist.roth;
             const allDone = accountsDone && userData.checklist.split;
 
+            const Tooltip = ({ id, children }) => (
+                <span className="relative inline-block">
+                    <button onClick={() => setTooltipOpen(tooltipOpen === id ? null : id)} className="text-gray-500 hover:text-green-500 text-xs ml-1 border border-gray-700 rounded-full w-4 h-4 inline-flex items-center justify-center transition-colors">?</button>
+                    {tooltipOpen === id && <div className="absolute z-50 bottom-full left-0 mb-2 bg-gray-900 border border-gray-700 rounded-lg p-3 text-xs text-gray-300 w-64 shadow-xl animate-fade-in">{children}<button onClick={() => setTooltipOpen(null)} className="block mt-2 text-gray-500 hover:text-white text-[10px]">Got it</button></div>}
+                </span>
+            );
+
             return (
-                <div className="terminal-box p-6 sm:p-8 rounded-sm animate-fade-in">
-                    <h2 className="text-xl font-bold mb-2 text-white">BUILD THE INFRASTRUCTURE</h2>
-                    <p className="text-xs text-gray-500 mb-6">Open three accounts, then wire the money flow. Two steps, one module.</p>
+                <div className="terminal-box p-6 sm:p-8 animate-fade-in">
+                    <h2 className="text-xl sm:text-2xl font-bold mb-2 text-white flex items-center gap-2">{'\uD83C\uDFE6'} Build the Infrastructure</h2>
+                    <p className="text-sm text-gray-500 mb-6">Open three accounts, then wire the money flow.</p>
 
                     <div className="flex gap-2 mb-6">
-                        <button onClick={() => setSection(1)} className={`flex-1 py-2 text-xs font-bold uppercase border transition-all ${section === 1 ? `${theme.border} ${theme.color}` : 'border-gray-700 text-gray-500'}`}>
-                            {'\u2460'} Accounts {accountsDone ? '\u2713' : ''}
+                        <button onClick={() => setSection(1)} className={`flex-1 py-3 text-sm font-bold rounded-lg border transition-all ${section === 1 ? `${theme.border} ${theme.color}` : 'border-gray-800 text-gray-600'}`}>
+                            {'\uD83D\uDCE6'} Accounts {accountsDone ? '\u2713' : ''}
                         </button>
-                        <button onClick={() => setSection(2)} className={`flex-1 py-2 text-xs font-bold uppercase border transition-all ${section === 2 ? `${theme.border} ${theme.color}` : 'border-gray-700 text-gray-500'}`}>
-                            {'\u2461'} Money Flow {userData.checklist.split ? '\u2713' : ''}
+                        <button onClick={() => setSection(2)} className={`flex-1 py-3 text-sm font-bold rounded-lg border transition-all ${section === 2 ? `${theme.border} ${theme.color}` : 'border-gray-800 text-gray-600'}`}>
+                            {'\uD83D\uDD04'} Money Flow {userData.checklist.split ? '\u2713' : ''}
                         </button>
                     </div>
 
                     {section === 1 && (
-                        <div className="animate-fade-in">
-                            <div className="bg-black/50 border border-gray-800 rounded p-4 mb-4">
-                                <p className="text-white text-xs font-bold mb-2">YOU NEED THREE ACCOUNTS:</p>
-                                <div className="space-y-1 text-[11px] text-gray-400">
-                                    <p><span className="text-white">1.</span> A checking hub where income lands</p>
-                                    <p><span className="text-white">2.</span> A high-yield savings buffer (4%+ APY)</p>
-                                    <p><span className="text-white">3.</span> A brokerage with auto-invest capability</p>
+                        <div className="animate-fade-in space-y-4">
+                            <div className="bg-black/60 border border-gray-800 rounded-xl p-5">
+                                <p className="text-white text-sm font-bold mb-3">{'\uD83D\uDCA1'} You need three accounts:</p>
+                                <div className="space-y-2 text-sm text-gray-400">
+                                    <p><span className="text-white font-bold">1.</span> A checking account where your paycheck lands</p>
+                                    <p><span className="text-white font-bold">2.</span> A high-yield savings account (4%+ APY) for your safety fund</p>
+                                    <p><span className="text-white font-bold">3.</span> A Roth IRA for your investments <Tooltip id="roth">A Roth IRA is a special investment account where your money grows tax-free. Think of it as a brokerage account with tax superpowers. You put money in after taxes, but you NEVER pay taxes on the growth. At your age, this is the single best account type to use.</Tooltip></p>
                                 </div>
-                                <p className="text-[10px] text-gray-600 mt-3 border-t border-gray-800 pt-2">Our pick: SoFi for 1 and 2, Fidelity for 3. But Ally, Marcus, Schwab, or Vanguard all work. The STRUCTURE matters. The brand doesn't.</p>
-                                <p className="text-[10px] font-bold mt-2" style={{color: theme.accent}}>We have zero affiliate partnerships. Zero kickbacks. We recommend what we actually use.</p>
+                                <div className="mt-4 bg-green-500/5 border border-green-500/20 rounded-lg p-3">
+                                    <p className="text-xs text-green-400 font-bold">{'\u2705'} Zero affiliate partnerships. Zero kickbacks. We recommend what we actually use.</p>
+                                </div>
                             </div>
 
-                            {['sofiCheck', 'sofiSave', 'roth'].map((id, i) => (
-                                <div key={id} className={`p-4 border ${userData.checklist[id] ? `${theme.border} bg-gray-900` : 'border-gray-700 bg-black'} mb-3 transition-all duration-300`}>
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <h3 className="font-bold text-white text-sm">{i===0?'Checking Account (The Hub)':i===1?`Savings Account ($${safetyAmount}/mo)`:`Roth IRA ($${investAmount}/mo)`}</h3>
-                                            <p className="text-xs text-gray-400 mt-1">{i===0?'All income enters here first.':i===1?'Your emergency fund buffer. 4%+ APY.':'Your investment engine. Tax-free growth.'}</p>
-                                            <a href={i===2 ? CONFIG.LINKS.FIDELITY : CONFIG.LINKS.SOFI} target="_blank" className={`text-[10px] ${theme.color} underline mt-2 inline-block hover:brightness-125`}>[ OPEN ACCOUNT {'\u2192'} ]</a>
+                            {[
+                                { id: 'sofiCheck', emoji: '\uD83D\uDCE5', title: 'Checking Account (The Hub)', desc: 'All income enters here first. This is your money\'s front door.', link: CONFIG.LINKS.SOFI },
+                                { id: 'sofiSave', emoji: '\uD83D\uDEE1\uFE0F', title: `Savings Account ($${safetyAmount}/mo)`, desc: 'Your emergency fund buffer. Earns 4%+ APY while you sleep.', link: CONFIG.LINKS.SOFI },
+                                { id: 'roth', emoji: '\uD83D\uDCC8', title: `Roth IRA ($${investAmount}/mo)`, desc: 'Your investment engine. Tax-free growth for decades.', link: CONFIG.LINKS.FIDELITY }
+                            ].map(({ id, emoji, title, desc, link }) => (
+                                <div key={id} className={`p-5 border rounded-xl transition-all duration-300 ${userData.checklist[id] ? 'border-green-500/50 bg-green-500/5' : 'border-gray-800 bg-black/40'}`}>
+                                    <div className="flex justify-between items-start gap-3">
+                                        <div className="flex-1">
+                                            <h3 className="font-bold text-white text-sm flex items-center gap-2"><span>{emoji}</span> {title}</h3>
+                                            <p className="text-sm text-gray-400 mt-2">{desc}</p>
+                                            <a href={link} target="_blank" className="text-xs mt-2 inline-block underline hover:brightness-125 transition-colors" style={{color: theme.accent}}>Open account {'\u2192'}</a>
                                         </div>
-                                        <input type="checkbox" checked={userData.checklist[id]} onChange={() => toggleCheck(id)} className="w-5 h-5 cursor-pointer" />
+                                        <label className="relative cursor-pointer">
+                                            <input type="checkbox" checked={userData.checklist[id]} onChange={() => toggleCheck(id)} className="sr-only" />
+                                            <div className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${userData.checklist[id] ? 'bg-green-500 border-green-500' : 'border-gray-600 hover:border-gray-400'}`}>
+                                                {userData.checklist[id] && <span className="text-black font-bold text-sm">{'\u2713'}</span>}
+                                            </div>
+                                        </label>
                                     </div>
                                 </div>
                             ))}
 
-                            <div className="border border-gray-800 rounded overflow-hidden mb-4">
-                                <button onClick={() => setWhyOpen(!whyOpen)} className="w-full flex justify-between items-center px-4 py-3 bg-black/50 hover:bg-gray-900/50 transition-colors text-left">
-                                    <span className="text-xs text-gray-400 uppercase tracking-widest font-bold">Why these specific accounts?</span>
+                            {/* Why these accounts (collapsible) */}
+                            <div className="border border-gray-800 rounded-xl overflow-hidden">
+                                <div className="collapsible-header flex justify-between items-center px-5 py-3" onClick={() => setWhyOpen(!whyOpen)}>
+                                    <span className="text-xs text-gray-500 uppercase tracking-widest font-bold">{'\uD83E\uDD14'} Why these accounts? Already have some?</span>
                                     <span className={`text-gray-500 text-xs transition-transform duration-300 ${whyOpen ? 'rotate-180' : ''}`}>{'\u25BC'}</span>
-                                </button>
+                                </div>
                                 {whyOpen && (
-                                    <div className="px-4 pb-4 pt-2 space-y-3 animate-fade-in text-xs">
-                                        <div className="border-l-2 pl-3 py-1" style={{borderColor: theme.accent}}>
+                                    <div className="px-5 pb-5 pt-2 space-y-4 animate-fade-in text-sm">
+                                        <div className="border-l-2 border-green-500 pl-3 py-1">
                                             <p className="text-white font-bold mb-1">SoFi Checking + Savings</p>
-                                            <p className="text-gray-400">No fees. No minimums. 4.5% APY on savings (most banks pay 0.01%). Instant internal transfers.</p>
-                                            <p className="text-gray-500 mt-1"><strong className="text-gray-300">Alternatives:</strong> Ally, Marcus, Capital One 360 all work.</p>
+                                            <p className="text-gray-400">No fees. No minimums. 4.5% APY on savings (most banks pay 0.01%).</p>
+                                            <p className="text-gray-500 mt-1"><strong className="text-gray-300">Alternatives:</strong> Ally, Marcus, Capital One 360.</p>
                                         </div>
-                                        <div className="border-l-2 pl-3 py-1" style={{borderColor: theme.accent}}>
+                                        <div className="border-l-2 border-green-500 pl-3 py-1">
                                             <p className="text-white font-bold mb-1">Fidelity Roth IRA</p>
-                                            <p className="text-gray-400">No minimums. Fractional shares. No commissions on ETFs. Best for beginners.</p>
-                                            <p className="text-gray-500 mt-1"><strong className="text-gray-300">Alternatives:</strong> Schwab, Vanguard both work. Fidelity has the lowest barrier to entry.</p>
+                                            <p className="text-gray-400">No minimums. Fractional shares. No commissions on ETFs.</p>
+                                            <p className="text-gray-500 mt-1"><strong className="text-gray-300">Alternatives:</strong> Schwab, Vanguard.</p>
                                         </div>
-                                        <div className="bg-gray-900/50 border border-gray-700 rounded p-3">
-                                            <p className="text-gray-300 font-bold mb-1">Already have accounts?</p>
-                                            <p className="text-gray-500">Use them. The system works with any accounts. The structure matters, not the brand. Check all three boxes above and move on.</p>
+                                        <div className="bg-black/50 border border-gray-700 rounded-lg p-4">
+                                            <p className="text-gray-300 font-bold mb-1">{'\u2705'} Already have accounts?</p>
+                                            <p className="text-gray-500">Use them. The system works with any accounts. Check the boxes and move on.</p>
+                                        </div>
+                                        <div className="pt-3 border-t border-gray-800">
+                                            <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-3">{'\uD83D\uDD17'} Open any of these:</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {[['SoFi', CONFIG.LINKS.SOFI], ['Fidelity', CONFIG.LINKS.FIDELITY], ['Schwab', CONFIG.LINKS.SCHWAB], ['Vanguard', CONFIG.LINKS.VANGUARD], ['Ally', CONFIG.LINKS.ALLY], ['Marcus', CONFIG.LINKS.MARCUS]].map(([name, url]) => (
+                                                    <a key={name} href={url} target="_blank" className="text-xs border border-gray-700 text-gray-400 hover:text-white hover:border-gray-500 px-3 py-1.5 rounded-lg transition-all">{name} {'\u2192'}</a>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 )}
                             </div>
 
                             {accountsDone && (
-                                <button onClick={() => setSection(2)} className={`w-full py-3 ${theme.bg} text-black font-bold uppercase hover:brightness-110 transition-all animate-fade-in`}>Accounts Ready. Wire the Money Flow {'\u2192'}</button>
+                                <button onClick={() => setSection(2)} className="w-full py-4 text-black font-bold text-sm rounded-xl hover:brightness-110 transition-all animate-fade-in" style={{background: theme.accent}}>Accounts Ready. Wire the Money Flow {'\u2192'}</button>
                             )}
                         </div>
                     )}
 
                     {section === 2 && (
-                        <div className="animate-fade-in">
-                            <p className="text-sm text-gray-400 mb-4">How does money move from your paycheck to your investments?</p>
-                            <div className="flex gap-4 mb-3">
-                                <button onClick={() => setMethod('split')} className={`flex-1 p-3 border transition-colors ${method==='split'?theme.border + ' ' + theme.color: 'border-gray-700 text-gray-500 hover:border-gray-500'}`}><span className="block font-bold text-sm">OPTION A</span><span className="text-xs">Paycheck Split</span></button>
-                                <button onClick={() => setMethod('manual')} className={`flex-1 p-3 border transition-colors ${method==='manual'?theme.border + ' ' + theme.color: 'border-gray-700 text-gray-500 hover:border-gray-500'}`}><span className="block font-bold text-sm">OPTION B</span><span className="text-xs">Bank Transfer</span></button>
+                        <div className="animate-fade-in space-y-4">
+                            <p className="text-sm text-gray-400">How should money move from your paycheck to your investments?</p>
+                            <div className="flex gap-3 mb-3">
+                                <button onClick={() => setMethod('split')} className={`flex-1 p-4 border rounded-xl transition-all ${method==='split' ? theme.border + ' ' + theme.color : 'border-gray-800 text-gray-500 hover:border-gray-600'}`}>
+                                    <span className="block font-bold text-sm">{'\u2B50'} OPTION A</span><span className="text-xs">Paycheck Split</span>
+                                    {method === 'split' && <span className="block text-[10px] mt-1 text-green-400">RECOMMENDED</span>}
+                                </button>
+                                <button onClick={() => setMethod('manual')} className={`flex-1 p-4 border rounded-xl transition-all ${method==='manual' ? theme.border + ' ' + theme.color : 'border-gray-800 text-gray-500 hover:border-gray-600'}`}>
+                                    <span className="block font-bold text-sm">OPTION B</span><span className="text-xs">Bank Transfer</span>
+                                </button>
                             </div>
-                            <div className="mb-4 p-3 bg-black/50 border border-gray-800 rounded text-[11px]">
+                            <div className="p-4 bg-black/40 border border-gray-800 rounded-xl text-sm">
                                 {method === 'split' ? (
-                                    <div className="space-y-1"><p className="font-bold text-white">BEST OPTION. Set once, never touch again.</p><p className="text-gray-400">Your paycheck arrives pre-sorted. Zero willpower required. Money is deployed before you can spend it.</p></div>
+                                    <div><p className="font-bold text-white">{'\uD83D\uDE80'} Best option. Set once, never touch again.</p><p className="text-gray-400 mt-1">Your paycheck arrives pre-sorted. Zero willpower required.</p></div>
                                 ) : (
-                                    <div className="space-y-1"><p className="font-bold text-white">BACKUP OPTION. Still automated, one extra setup step.</p><p className="text-gray-400">All income hits checking first, then recurring auto-transfers move money the day after payday.</p></div>
+                                    <div><p className="font-bold text-white">{'\uD83D\uDD04'} Backup option. Still automated, one extra step.</p><p className="text-gray-400 mt-1">All income hits checking first, then auto-transfers move money the day after payday.</p></div>
                                 )}
                             </div>
-                            <div className="bg-gray-900 p-4 border-l-2 text-sm space-y-3 mb-4" style={{borderColor: theme.accent}}>
-                                <p className="font-bold text-white uppercase text-xs">Execution:</p>
-                                <div className="text-gray-300 space-y-2 text-xs">
+                            <div className="bg-black/40 p-5 border-l-3 rounded-xl space-y-3" style={{borderLeft: `3px solid ${theme.accent}`}}>
+                                <p className="font-bold text-white uppercase text-xs">{'\uD83D\uDCCB'} Steps:</p>
+                                <div className="text-gray-300 space-y-2 text-sm">
                                     {method === 'split' ? (
-                                        <ul className="list-decimal pl-4 space-y-1"><li>Log into your HR/Payroll portal.</li><li>Set Direct Deposit 1: <strong>${investAmount}</strong> to Fidelity.</li><li>Set Direct Deposit 2: <strong>${safetyAmount}</strong> to Savings.</li><li>Remainder goes to Checking.</li></ul>
+                                        <div className="space-y-2">
+                                            <p><strong className="text-white">1.</strong> Open your employer's payroll site <Tooltip id="payroll">This is the website where you see your pay stubs. Companies like ADP, Gusto, Workday, or Paychex run these. Ask HR "where do I set up direct deposit?" and they'll point you there.</Tooltip></p>
+                                            <p><strong className="text-white">2.</strong> Set Direct Deposit 1: <strong style={{color: theme.accent}}>${investAmount}</strong> to Fidelity Roth IRA</p>
+                                            <p><strong className="text-white">3.</strong> Set Direct Deposit 2: <strong className="text-blue-400">${safetyAmount}</strong> to Savings</p>
+                                            <p><strong className="text-white">4.</strong> Remainder goes to Checking (your spending money)</p>
+                                        </div>
                                     ) : (
-                                        <ul className="list-decimal pl-4 space-y-1"><li>Log into your Checking Account.</li><li>Create recurring transfer: <strong>${investAmount}</strong> to Fidelity (day after payday).</li><li>Create recurring transfer: <strong>${safetyAmount}</strong> to Savings (day after payday).</li></ul>
+                                        <div className="space-y-2">
+                                            <p><strong className="text-white">1.</strong> Log into your Checking Account</p>
+                                            <p><strong className="text-white">2.</strong> Create recurring transfer: <strong style={{color: theme.accent}}>${investAmount}</strong> to Fidelity (day after payday)</p>
+                                            <p><strong className="text-white">3.</strong> Create recurring transfer: <strong className="text-blue-400">${safetyAmount}</strong> to Savings (day after payday)</p>
+                                        </div>
                                     )}
                                 </div>
                             </div>
-                            <div className="flex items-center space-x-3 mb-6 bg-black p-3 border border-gray-800">
-                                <input type="checkbox" checked={userData.checklist.split} onChange={() => toggleCheck('split')} className="w-5 h-5" />
-                                <label className="text-sm text-gray-300">I have configured the money flow.</label>
-                            </div>
+                            <label className="flex items-center gap-3 p-4 bg-black/40 border border-gray-800 rounded-xl cursor-pointer hover:border-gray-600 transition-all">
+                                <div className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all ${userData.checklist.split ? 'bg-green-500 border-green-500' : 'border-gray-600'}`}>
+                                    {userData.checklist.split && <span className="text-black font-bold text-sm">{'\u2713'}</span>}
+                                </div>
+                                <input type="checkbox" checked={userData.checklist.split} onChange={() => toggleCheck('split')} className="sr-only" />
+                                <span className="text-sm text-gray-300">I've configured the money flow</span>
+                            </label>
                         </div>
                     )}
 
                     {section === 2 && (
-                        <button onClick={next} disabled={!allDone} className={`w-full py-3 font-bold uppercase transition-all ${allDone ? `${theme.bg} text-black hover:brightness-110` : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>[ Infrastructure Complete ]</button>
+                        <button onClick={next} disabled={!allDone} className={`w-full mt-4 py-4 font-bold text-sm rounded-xl transition-all ${allDone ? 'text-black hover:brightness-110' : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`} style={allDone ? {background: theme.accent} : {}}>
+                            {'\u2705'} Infrastructure Complete
+                        </button>
                     )}
-
-                    <div className="mt-4 text-center">
-                        <span className="text-xs text-gray-500">COMPLETED: {['sofiCheck', 'sofiSave', 'roth', 'split'].filter(k => userData.checklist[k]).length}/4</span>
-                    </div>
+                    <div className="mt-4 text-center"><span className="text-sm text-gray-600">{['sofiCheck', 'sofiSave', 'roth', 'split'].filter(k => userData.checklist[k]).length}/4 completed</span></div>
                 </div>
             );
         }
@@ -773,14 +769,18 @@
             const finish = (choice) => { updateData('etfChoice', choice); setStep(2); };
             
             if (step === 0) return (
-                <div className="terminal-box p-8 rounded-sm text-center animate-fade-in">
-                    <h2 className="text-xl font-bold mb-6 text-white">SELECT YOUR FUEL</h2>
+                <div className="terminal-box p-6 sm:p-8 text-center animate-fade-in">
+                    <h2 className="text-xl sm:text-2xl font-bold mb-2 text-white">{'\u26FD'} Select Your Fuel</h2>
                     <p className="mb-6 text-gray-400 text-sm">How do you feel about market swings?</p>
                     <div className="space-y-3">
-                        {['Conservative', 'Moderate', 'Aggressive'].map(r => (
-                            <button key={r} onClick={() => {setRisk(r); setStep(1)}} className="w-full p-4 border border-gray-700 hover:border-gray-500 hover:bg-gray-900 text-left block transition-all">
-                                <span className="font-bold text-white">{r.toUpperCase()}</span>
-                                <span className="block text-xs text-gray-500 mt-1">{r === 'Conservative' ? 'I hate losing money. Steady wins.' : r === 'Moderate' ? 'I want balanced growth. Some volatility is fine.' : 'I want max growth. I can handle big swings.'}</span>
+                        {[
+                            { r: 'Conservative', emoji: '\uD83D\uDEE1\uFE0F', desc: 'I hate losing money. Steady wins.' },
+                            { r: 'Moderate', emoji: '\u2696\uFE0F', desc: 'Balanced growth. Some volatility is fine.' },
+                            { r: 'Aggressive', emoji: '\uD83D\uDE80', desc: 'Max growth. I can handle big swings.' }
+                        ].map(({ r, emoji, desc }) => (
+                            <button key={r} onClick={() => {setRisk(r); setStep(1)}} className="w-full p-5 border border-gray-800 hover:border-gray-500 hover:bg-white/[0.02] text-left rounded-xl transition-all group">
+                                <span className="font-bold text-white text-base flex items-center gap-2">{emoji} {r.toUpperCase()}</span>
+                                <span className="block text-sm text-gray-500 mt-1">{desc}</span>
                             </button>
                         ))}
                     </div>
@@ -791,68 +791,78 @@
                 const options = risk === 'Conservative' ? CONFIG.ETF_DATA.CONSERVATIVE : risk === 'Moderate' ? CONFIG.ETF_DATA.MODERATE : CONFIG.ETF_DATA.AGGRESSIVE;
                 const keys = Object.keys(options);
                 return (
-                    <div className="terminal-box p-6 sm:p-8 rounded-sm animate-fade-in">
-                        <h2 className="text-xl font-bold mb-2 text-white text-center">COMPARE YOUR OPTIONS</h2>
-                        <p className="mb-6 text-gray-400 text-sm text-center">Both are elite funds. You're choosing your flavor of winning.</p>
+                    <div className="terminal-box p-6 sm:p-8 animate-fade-in">
+                        <h2 className="text-xl sm:text-2xl font-bold mb-2 text-white text-center">{'\uD83C\uDFAF'} Compare Your Options</h2>
+                        <p className="mb-6 text-gray-400 text-sm text-center">Both are elite funds. Pick your flavor of winning.</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                             {keys.map(key => {
                                 const etf = options[key];
                                 return (
-                                    <button key={key} onClick={() => finish(etf)} className="p-5 border border-gray-700 hover:border-gray-400 hover:bg-gray-900 transition-all text-left rounded group">
+                                    <button key={key} onClick={() => finish(etf)} className="p-6 border border-gray-800 hover:border-gray-400 hover:bg-white/[0.02] transition-all text-left rounded-xl group">
                                         <div className="flex justify-between items-start mb-3">
                                             <span className="text-xs text-gray-500 uppercase tracking-widest">{key}</span>
-                                            <span className="text-xs font-bold" style={{color: theme.accent}}>{etf.return}</span>
+                                            <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{color: theme.accent, background: theme.accent + '15'}}>{etf.return}</span>
                                         </div>
-                                        <p className="text-2xl font-bold text-white mb-1">{etf.ticker}</p>
-                                        <p className="text-xs text-gray-400 mb-3">{etf.name}</p>
-                                        <p className="text-[11px] text-gray-500 leading-relaxed">{etf.risk}</p>
-                                        <div className={`mt-4 text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity`} style={{color: theme.accent}}>Select {etf.ticker} {'\u2192'}</div>
+                                        <p className="text-3xl font-bold text-white mb-1">{etf.ticker}</p>
+                                        <p className="text-sm text-gray-400 mb-3">{etf.name}</p>
+                                        <p className="text-sm text-gray-500 leading-relaxed">{etf.risk}</p>
+                                        <div className="mt-4 text-sm font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity" style={{color: theme.accent}}>Select {etf.ticker} {'\u2192'}</div>
                                     </button>
                                 );
                             })}
                         </div>
-                        <button onClick={() => setStep(0)} className="text-xs text-gray-500 underline hover:text-white block mx-auto">Change risk level</button>
+                        <button onClick={() => setStep(0)} className="text-sm text-gray-500 underline hover:text-white block mx-auto">{'\u2190'} Change risk level</button>
                     </div>
                 );
             }
             
             return (
-                <div className="terminal-box p-8 rounded-sm animate-fade-in">
-                    <h2 className="text-xl font-bold mb-2 text-white">TARGET ACQUIRED</h2>
+                <div className="terminal-box p-6 sm:p-8 animate-fade-in">
+                    <h2 className="text-xl sm:text-2xl font-bold mb-2 text-white">{'\u2705'} Target Acquired</h2>
                     <p className="text-sm text-gray-400 mb-6">Your money will automatically buy:</p>
-                    <div className={`border ${theme.border} bg-gray-900 p-6 mb-6 text-center relative overflow-hidden`}>
-                        <div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div>
-                        <h3 className="text-4xl font-bold text-white mb-2 tracking-tighter">{userData.etfChoice.ticker}</h3>
-                        <p className={`${theme.color} font-bold mb-4 uppercase text-xs tracking-widest`}>{userData.etfChoice.name}</p>
+                    <div className="border rounded-xl bg-black/40 p-6 mb-6 text-center relative overflow-hidden" style={{borderColor: theme.accent + '40'}}>
+                        <div className="absolute top-0 left-0 w-full h-1" style={{background: theme.accent}}></div>
+                        <h3 className="text-5xl font-bold text-white mb-2 tracking-tighter">{userData.etfChoice.ticker}</h3>
+                        <p className="font-bold mb-4 uppercase text-xs tracking-widest" style={{color: theme.accent}}>{userData.etfChoice.name}</p>
                         <p className="text-sm text-gray-300">{userData.etfChoice.desc}</p>
-                        <div className="mt-4 text-xs text-gray-500 border-t border-gray-800 pt-2">Avg Return: {userData.etfChoice.return}</div>
+                        <div className="mt-4 text-sm text-gray-500 border-t border-gray-800 pt-3">Avg Return: <strong className="text-white">{userData.etfChoice.return}</strong></div>
                     </div>
-                    <div className="bg-black p-4 border border-gray-800 mb-6">
-                        <p className="text-xs text-white font-bold mb-2">FINAL ACTION:</p>
-                        <p className="text-xs text-gray-400 mb-3">Log into Fidelity {'\u2192'} Enable "Automatic Investments" {'\u2192'} Buy <strong>{userData.etfChoice.ticker}</strong> with the cash that transfers in.</p>
-                        <div className="flex items-center space-x-3"><input type="checkbox" checked={userData.checklist.autoInvest} onChange={() => toggleCheck('autoInvest')} className="w-5 h-5" /><label className="text-sm text-gray-300">I have set the auto-buy.</label></div>
+                    <div className="bg-black/40 p-5 border border-gray-800 rounded-xl mb-6">
+                        <p className="text-sm text-white font-bold mb-3">{'\uD83C\uDFAF'} Final Action:</p>
+                        <p className="text-sm text-gray-400 mb-4">Log into Fidelity {'\u2192'} Enable "Automatic Investments" {'\u2192'} Set it to buy <strong className="text-white">{userData.etfChoice.ticker}</strong> with the cash that transfers in.</p>
+                        <label className="flex items-center gap-3 cursor-pointer">
+                            <div className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all ${userData.checklist.autoInvest ? 'bg-green-500 border-green-500' : 'border-gray-600'}`}>
+                                {userData.checklist.autoInvest && <span className="text-black font-bold text-sm">{'\u2713'}</span>}
+                            </div>
+                            <input type="checkbox" checked={userData.checklist.autoInvest} onChange={() => toggleCheck('autoInvest')} className="sr-only" />
+                            <span className="text-sm text-gray-300">I've set the auto-buy</span>
+                        </label>
                     </div>
-                    <button onClick={next} disabled={!userData.checklist.autoInvest} className={`w-full py-3 font-bold uppercase transition-all ${userData.checklist.autoInvest ? `${theme.bg} text-black hover:brightness-110` : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>[ Activate {userData.etfChoice.ticker} Auto-Buy ]</button>
+                    <button onClick={next} disabled={!userData.checklist.autoInvest} className={`w-full py-4 font-bold text-sm rounded-xl transition-all ${userData.checklist.autoInvest ? 'text-black hover:brightness-110' : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`} style={userData.checklist.autoInvest ? {background: theme.accent} : {}}>
+                        {'\u26A1'} Activate {userData.etfChoice.ticker} Auto-Buy
+                    </button>
                 </div>
             );
         }
 
         // === TRANSPARENCY PANEL ===
-        function TransparencyPanel({ steps, currentStep, isProcessing, isOpen, onToggle, theme }) {
+        function TransparencyPanel({ steps, currentStep, isOpen, onToggle, theme }) {
             return (
-                <div className="transparency-panel">
-                    <div className="transparency-header" onClick={onToggle}>
-                        <span className={`text-xs uppercase tracking-widest ${theme.color} font-bold flex items-center gap-2`}><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> See What's Happening</span>
+                <div className="mt-4 border border-gray-800 rounded-xl overflow-hidden bg-black/40">
+                    <div className="collapsible-header flex justify-between items-center px-4 py-3" onClick={onToggle}>
+                        <span className="text-xs uppercase tracking-widest font-bold flex items-center gap-2" style={{color: theme.accent}}>{'\uD83D\uDD0D'} See What's Happening</span>
                         <span className={`text-gray-500 text-xs transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>{'\u25BC'}</span>
                     </div>
-                    <div className={`transparency-content ${isOpen ? 'open' : ''}`}>
-                        {steps.map((step, index) => (
-                            <div key={step.id} className={`transparency-step ${isProcessing && currentStep === index ? 'active' : currentStep > index ? 'complete' : ''}`} style={{ color: theme.accent }}>
-                                <div className="step-indicator">{currentStep > index ? '\u2713' : step.id}</div>
-                                <span className="text-xs text-gray-400">{step.text}</span>
-                            </div>
-                        ))}
-                    </div>
+                    {isOpen && (
+                        <div className="px-4 pb-4 pt-1 space-y-2 animate-fade-in">
+                            {steps.map((step, index) => (
+                                <div key={step.id} className={`flex items-center gap-3 py-1 transition-all ${currentStep === index ? 'opacity-100' : currentStep > index ? 'opacity-50' : 'opacity-20'}`}>
+                                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${currentStep > index ? 'bg-green-500 text-black' : currentStep === index ? 'text-black' : 'bg-gray-800 text-gray-600'}`} style={currentStep === index ? {background: theme.accent} : {}}>{currentStep > index ? '\u2713' : step.id}</div>
+                                    <span className="text-xs text-gray-400">{step.text}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             );
         }
@@ -861,19 +871,15 @@
             const [currentStep, setCurrentStep] = useState(0);
             const [panelOpen, setPanelOpen] = useState(true);
             const steps = CONFIG.PROCESSING_STEPS;
-            useEffect(() => {
-                if (currentStep < steps.length) { const t = setTimeout(() => setCurrentStep(s => s + 1), steps[currentStep].duration); return () => clearTimeout(t); }
-                else { const t = setTimeout(onComplete, 600); return () => clearTimeout(t); }
-            }, [currentStep]);
+            useEffect(() => { if (currentStep < steps.length) { const t = setTimeout(() => setCurrentStep(s => s + 1), steps[currentStep].duration); return () => clearTimeout(t); } else { const t = setTimeout(onComplete, 600); return () => clearTimeout(t); } }, [currentStep]);
             const progress = ((currentStep) / steps.length) * 100;
             return (
-                <div className="absolute inset-0 z-50 bg-black flex flex-col items-center justify-center font-mono p-8 animate-fade-in">
+                <div className="absolute inset-0 z-50 bg-black flex flex-col items-center justify-center font-mono p-8 animate-fade-in rounded-xl">
                     <div className="w-full max-w-md">
-                        <div className="text-center mb-6"><h2 className="text-xl font-bold text-white mb-2">INSTALLING SYSTEM</h2><p className={`${theme.color} text-xs uppercase tracking-widest`}>{userName ? `FOR: ${userName.toUpperCase()}` : 'GENERATING CREDENTIALS'}</p></div>
-                        <div className="mb-4"><div className="flex justify-between text-[10px] mb-1"><span className="text-gray-500">PROGRESS</span><span className={`${theme.color} font-bold`}>{Math.round(progress)}%</span></div><div className="h-2 bg-gray-900 rounded-sm overflow-hidden"><div className={`h-full ${theme.bg} transition-all duration-300 progress-shimmer`} style={{ width: `${progress}%` }}></div></div></div>
-                        <div className="text-center mb-4"><p className="text-white text-sm font-bold">{currentStep < steps.length ? steps[currentStep].text : 'Complete.'}</p></div>
-                        <TransparencyPanel steps={steps} currentStep={currentStep} isProcessing={currentStep < steps.length} isOpen={panelOpen} onToggle={() => setPanelOpen(!panelOpen)} theme={theme} />
-                        <p className="text-[10px] text-gray-600 text-center mt-4">Computing your unique configuration</p>
+                        <div className="text-center mb-6"><h2 className="text-2xl font-bold text-white mb-2">{'\u2699\uFE0F'} Installing System</h2><p className="text-sm uppercase tracking-widest" style={{color: theme.accent}}>{userName ? `For: ${userName.toUpperCase()}` : 'Generating credentials'}</p></div>
+                        <div className="mb-6"><div className="flex justify-between text-xs mb-2"><span className="text-gray-500">Progress</span><span className="font-bold" style={{color: theme.accent}}>{Math.round(progress)}%</span></div><div className="h-2.5 bg-gray-900 rounded-full overflow-hidden"><div className="h-full transition-all duration-300 progress-shimmer rounded-full" style={{width: `${progress}%`, background: theme.accent}}></div></div></div>
+                        <div className="text-center mb-4"><p className="text-white text-sm font-bold">{currentStep < steps.length ? steps[currentStep].text : '\u2713 Complete.'}</p></div>
+                        <TransparencyPanel steps={steps} currentStep={currentStep} isOpen={panelOpen} onToggle={() => setPanelOpen(!panelOpen)} theme={theme} />
                     </div>
                 </div>
             );
@@ -884,32 +890,54 @@
         // ===============================
         function ModuleProjection({ userData, updateData, theme, next }) {
             const [isProcessing, setIsProcessing] = useState(false);
+            const [disclaimerOpen, setDisclaimerOpen] = useState(false);
             const monthly = getInvest(userData);
             const projections = useMemo(() => ({ yr10: calcFutureValue(monthly, 10), yr20: calcFutureValue(monthly, 20), yr30: calcFutureValue(monthly, 30) }), [monthly]);
             const maxVal = projections.yr30 || 1;
             const handleNext = () => { if (!userData.userName) return; setIsProcessing(true); };
             if (isProcessing) return <ProcessingOverlay theme={theme} userName={userData.userName} onComplete={next} />;
             return (
-                <div className="terminal-box p-8 rounded-sm animate-fade-in relative">
-                    <div className="text-center mb-6"><h2 className="text-2xl font-bold text-white mb-1">SYSTEM ONLINE</h2><p className={`${theme.color} text-sm animate-pulse flex justify-center items-center gap-2`}><span className={`w-2 h-2 rounded-full ${theme.bg}`}></span> WEALTH GENERATION ACTIVE</p></div>
-                    <div className="space-y-6 mb-8 border-t border-b border-gray-800 py-6">
-                        {[{y:10, val: projections.yr10}, {y:20, val: projections.yr20}, {y:30, val: projections.yr30}].map(({y, val}) => (
-                            <div key={y}><div className="flex justify-between text-xs text-gray-400 mb-1"><span>YEAR {y}</span><span className="text-white font-mono font-bold">${val.toLocaleString(undefined, {maximumFractionDigits:0})}</span></div><div className="h-2 bg-gray-800 w-full rounded overflow-hidden"><div className={`h-full ${theme.bg} transition-all duration-1000 ease-out`} style={{width: `${Math.max(5, (val / maxVal) * 100)}%`}}></div></div></div>
+                <div className="terminal-box p-6 sm:p-8 animate-fade-in relative">
+                    <div className="text-center mb-6">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">{'\uD83D\uDCC8'} System Online</h2>
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-green-500/30 bg-green-500/5">
+                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            <span className="text-green-500 text-xs font-bold">WEALTH GENERATION ACTIVE</span>
+                        </div>
+                    </div>
+                    <div className="space-y-5 mb-8 bg-black/40 border border-gray-800 rounded-xl p-5">
+                        <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">{'\uD83D\uDCB0'} Your wealth curve at ${monthly.toFixed(0)}/mo</p>
+                        {[{y:10, val: projections.yr10, emoji: '\uD83C\uDF31'}, {y:20, val: projections.yr20, emoji: '\uD83C\uDF33'}, {y:30, val: projections.yr30, emoji: '\uD83C\uDF32'}].map(({y, val, emoji}) => (
+                            <div key={y}>
+                                <div className="flex justify-between text-sm text-gray-400 mb-1.5"><span>{emoji} Year {y}</span><span className="text-white font-bold text-lg">${val.toLocaleString(undefined, {maximumFractionDigits:0})}</span></div>
+                                <div className="h-3 bg-gray-900 w-full rounded-full overflow-hidden"><div className="h-full rounded-full transition-all duration-1000 ease-out" style={{width: `${Math.max(8, (val / maxVal) * 100)}%`, background: theme.accent}}></div></div>
+                            </div>
                         ))}
-                        <p className="text-[10px] text-gray-500 text-center">Based on ${monthly.toFixed(0)}/mo at ~10% avg annual return (S&P 500 historical avg)</p>
+                        <p className="text-xs text-gray-600 text-center pt-2 border-t border-gray-800">Based on ~10% avg annual return (S&P 500 historical average)</p>
                     </div>
-                    <div className="bg-black border border-gray-800 p-4 mb-6 transition-all focus-within:border-white">
-                        <p className="text-gray-400 text-xs mb-2 uppercase tracking-widest">Identity Protocol</p>
-                        <input type="text" placeholder="ENTER YOUR FULL NAME" value={userData.userName} onChange={(e) => updateData('userName', e.target.value)} className="w-full bg-gray-900 border-b border-gray-700 text-center text-white p-2 outline-none focus:border-white transition-colors uppercase font-bold tracking-widest text-lg placeholder:text-gray-700" />
+
+                    <DisclaimerPanel expanded={disclaimerOpen} onToggle={() => setDisclaimerOpen(!disclaimerOpen)} />
+
+                    {/* Certificate explanation */}
+                    <div className="mt-6 bg-black/40 border border-gray-800 rounded-xl p-5">
+                        <p className="text-sm text-gray-400 mb-1">{'\uD83C\uDFC6'} <strong className="text-white">Next: Your Architect Certificate</strong></p>
+                        <p className="text-sm text-gray-500">A shareable card with your unique system ID, monthly investment, ETF, and 30-year projection. Think of it as your wealth blueprint receipt. Post it, link it, verify it.</p>
                     </div>
-                    <button onClick={handleNext} disabled={!userData.userName} className={`w-full py-3 font-bold uppercase transition-colors shadow-lg shadow-white/10 ${userData.userName ? 'bg-white text-black hover:bg-gray-200' : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>[ Generate Certificate for {userData.userName || '...'} ]</button>
-                    <p className="text-[10px] text-gray-500 text-center mt-3">Next: Save your system configuration</p>
+
+                    <div className="mt-6 bg-black/40 border border-gray-800 rounded-xl p-5">
+                        <p className="text-gray-400 text-sm mb-3">{'\u270D\uFE0F'} Enter your name for the certificate</p>
+                        <input type="text" placeholder="YOUR FULL NAME" value={userData.userName} onChange={(e) => updateData('userName', e.target.value)} className="terminal-input w-full text-center text-white p-4 uppercase font-bold tracking-widest text-lg placeholder:text-gray-700" />
+                    </div>
+
+                    <button onClick={handleNext} disabled={!userData.userName} className={`w-full mt-6 py-4 font-bold text-base rounded-xl transition-all shadow-lg ${userData.userName ? 'bg-white text-black hover:bg-gray-200 hover:scale-[1.02] active:scale-[0.98]' : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>
+                        {'\uD83C\uDFC6'} Generate Certificate for {userData.userName || '...'}
+                    </button>
                 </div>
             );
         }
 
         // ==========================================
-        // MODULE 5: EMAIL GATE (Beehiiv → Bridge handles recovery)
+        // MODULE 5: EMAIL GATE
         // ==========================================
         function ModuleEmailGate({ userData, updateData, theme, architectId, setArchitectId, next }) {
             const [saving, setSaving] = useState(false);
@@ -932,52 +960,62 @@
                 setTimeout(() => next(), 800);
             };
 
-            useEffect(() => {
-                const handler = async (event) => {
-                    if (event.data && event.data.type === 'AUTOPILOT_EMAIL_CAPTURED') { await completeGate(); }
-                };
-                window.addEventListener('message', handler);
-                return () => window.removeEventListener('message', handler);
-            }, []);
+            useEffect(() => { const handler = async (event) => { if (event.data && event.data.type === 'AUTOPILOT_EMAIL_CAPTURED') await completeGate(); }; window.addEventListener('message', handler); return () => window.removeEventListener('message', handler); }, []);
 
             if (saving) return (
-                <div className="terminal-box p-8 rounded-sm animate-fade-in flex flex-col items-center justify-center min-h-[400px]">
-                    <div className={`w-3 h-3 rounded-full ${theme.bg} animate-pulse mb-4`}></div>
-                    <p className="text-white font-bold text-lg mb-2">SYSTEM SAVED</p>
-                    <p className={`${theme.color} text-xs uppercase tracking-widest`}>Generating your Architect Certificate...</p>
+                <div className="terminal-box p-8 animate-fade-in flex flex-col items-center justify-center min-h-[400px] rounded-xl">
+                    <div className="w-4 h-4 rounded-full animate-pulse mb-4" style={{background: theme.accent}}></div>
+                    <p className="text-white font-bold text-xl mb-2">{'\u2705'} System Saved</p>
+                    <p className="text-sm uppercase tracking-widest" style={{color: theme.accent}}>Generating your Architect Certificate...</p>
                 </div>
             );
 
             return (
-                <div className="terminal-box p-6 sm:p-8 rounded-sm animate-fade-in">
+                <div className="terminal-box p-6 sm:p-8 animate-fade-in">
                     <div className="space-y-6">
                         <div className="text-center">
-                            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded border ${theme.border} mb-4`}>
-                                <div className={`w-2 h-2 rounded-full ${theme.bg} animate-pulse`}></div>
-                                <span className={`${theme.color} text-[10px] font-bold uppercase tracking-widest`}>System Built Successfully</span>
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-green-500/30 bg-green-500/5 mb-4">
+                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                <span className="text-green-500 text-xs font-bold uppercase tracking-widest">{'\u2705'} System Built</span>
                             </div>
-                            <h2 className="text-xl font-bold text-white mb-1">SAVE YOUR CONFIGURATION</h2>
-                            <p className="text-sm text-gray-400 max-w-sm mx-auto">Enter your email to lock in your settings and receive your Architect Certificate.</p>
+                            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">{'\uD83D\uDD12'} Save Your Configuration</h2>
+                            <p className="text-sm text-gray-400 max-w-sm mx-auto">Enter your email to lock in your settings and receive your certificate.</p>
                         </div>
-                        <div className="flex justify-center gap-4 text-center">
-                            <div className="bg-black border border-gray-800 p-3 rounded flex-1"><p className="text-white font-bold text-lg">${investAmount.toFixed(0)}<span className="text-gray-500 text-xs">/mo</span></p><p className="text-[10px] text-gray-500">AUTO-INVEST</p></div>
-                            <div className="bg-black border border-gray-800 p-3 rounded flex-1"><p className="font-bold text-lg" style={{color: theme.accent}}>{userData.etfChoice?.ticker || 'ETF'}</p><p className="text-[10px] text-gray-500">TARGET FUND</p></div>
-                            <div className="bg-black border border-gray-800 p-3 rounded flex-1"><p className="text-white font-bold text-lg">${projectedWealth}</p><p className="text-[10px] text-gray-500">30-YR PROJECTION</p></div>
+
+                        <div className="flex justify-center gap-3 text-center">
+                            <div className="bg-black/60 border border-gray-800 p-4 rounded-xl flex-1">
+                                <p className="text-white font-bold text-xl">${investAmount.toFixed(0)}<span className="text-gray-500 text-xs">/mo</span></p>
+                                <p className="text-xs text-gray-500 mt-1">{'\uD83D\uDCB8'} Auto-invest</p>
+                            </div>
+                            <div className="bg-black/60 border border-gray-800 p-4 rounded-xl flex-1">
+                                <p className="font-bold text-xl" style={{color: theme.accent}}>{userData.etfChoice?.ticker || 'ETF'}</p>
+                                <p className="text-xs text-gray-500 mt-1">{'\u26FD'} Target fund</p>
+                            </div>
+                            <div className="bg-black/60 border border-gray-800 p-4 rounded-xl flex-1">
+                                <p className="text-white font-bold text-xl">${projectedWealth}</p>
+                                <p className="text-xs text-gray-500 mt-1">{'\uD83D\uDCC8'} 30-yr value</p>
+                            </div>
                         </div>
-                        <div className="bg-gray-900/50 border border-gray-800 rounded p-4">
-                            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">What you receive instantly:</p>
-                            <div className="space-y-2">
-                                {['Your Architect Certificate with permanent ID', 'Saved system config (income, ETF, allocation)', 'Access to the Command Center dashboard'].map((t, i) => (
-                                    <div key={i} className="flex items-center gap-3 text-xs"><span className={`${theme.color} font-bold`}>{'\u2713'}</span><span className="text-gray-300" dangerouslySetInnerHTML={{__html: t}}></span></div>
+
+                        <div className="bg-black/40 border border-gray-800 rounded-xl p-5">
+                            <p className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-bold">{'\uD83C\uDF81'} What you receive instantly:</p>
+                            <div className="space-y-2.5">
+                                {[
+                                    'Your Architect Certificate with permanent ID',
+                                    'Saved system config (income, ETF, allocation)',
+                                    'Access to the Command Center dashboard'
+                                ].map((t, i) => (
+                                    <div key={i} className="flex items-center gap-3 text-sm"><span style={{color: theme.accent}}>{'\u2713'}</span><span className="text-gray-300">{t}</span></div>
                                 ))}
                             </div>
                         </div>
-                        <div className="beehiiv-container">
+
+                        <div className="beehiiv-container bg-black/30 border border-gray-800 rounded-xl p-4">
                             <iframe src={CONFIG.BEEHIIV.AUTOPILOT_IFRAME_SRC} className="beehiiv-embed" frameBorder="0" scrolling="no" style={{ width: '100%', maxWidth: '600px', height: '260px', margin: '0 auto', borderRadius: '0px', backgroundColor: 'transparent', border: 'none', display: 'block' }} />
                         </div>
 
-                        <div className="flex items-center justify-center gap-4 text-[10px] text-gray-600">
-                            <span className="flex items-center gap-1"><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>Encrypted</span>
+                        <div className="flex items-center justify-center gap-4 text-xs text-gray-600">
+                            <span className="flex items-center gap-1">{'\uD83D\uDD12'} Encrypted</span>
                             <span>{'\u00B7'}</span><span>No spam, ever</span><span>{'\u00B7'}</span><span>Unsubscribe anytime</span>
                         </div>
                     </div>
@@ -986,7 +1024,7 @@
         }
 
         // ==========================================================================
-        // MODULE 6: CERTIFICATE (CHANGED: budget calc link + Command Center mention)
+        // MODULE 6: CERTIFICATE
         // ==========================================================================
         function ModuleCertificate({ userData, theme, architectId }) {
             const [copiedPlatform, setCopiedPlatform] = useState(null);
@@ -1001,33 +1039,11 @@
             const projectedWealthStr = projectedWealth30.toLocaleString(undefined, {maximumFractionDigits:0});
 
             const [displayWealth, setDisplayWealth] = useState(0);
-            useEffect(() => {
-                if (!revealed) return;
-                const target = projectedWealth30;
-                const duration = 2500;
-                const start = Date.now();
-                const tick = () => {
-                    const elapsed = Date.now() - start;
-                    const progress = Math.min(elapsed / duration, 1);
-                    const eased = 1 - Math.pow(1 - progress, 3);
-                    setDisplayWealth(Math.round(target * eased));
-                    if (progress < 1) requestAnimationFrame(tick);
-                };
-                requestAnimationFrame(tick);
-            }, [revealed]);
-
+            useEffect(() => { if (!revealed) return; const target = projectedWealth30; const duration = 2500; const start = Date.now(); const tick = () => { const elapsed = Date.now() - start; const progress = Math.min(elapsed / duration, 1); const eased = 1 - Math.pow(1 - progress, 3); setDisplayWealth(Math.round(target * eased)); if (progress < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick); }, [revealed]);
             useEffect(() => { getArchitectCount().then(c => setArchitectCount(c)); }, []);
-
-            useEffect(() => {
-                const timer = setTimeout(() => {
-                    setRevealed(true);
-                    if (!confettiLaunched.current) { confettiLaunched.current = true; setTimeout(() => MoneyConfetti.launch(3000, 25), 800); }
-                }, 100);
-                return () => clearTimeout(timer);
-            }, []);
+            useEffect(() => { const timer = setTimeout(() => { setRevealed(true); if (!confettiLaunched.current) { confettiLaunched.current = true; setTimeout(() => MoneyConfetti.launch(3000, 25), 800); } }, 100); return () => clearTimeout(timer); }, []);
 
             const verifyUrl = `${CONFIG.LINKS.VERIFY_BASE}?id=${architectId}&n=${encodeURIComponent(userData.userName || '')}&inv=${Math.round(monthlyInvest)}&etf=${userData.etfChoice?.ticker || ''}&w=${Math.round(projectedWealth30)}`;
-
             const shareTemplates = {
                 INSTAGRAM: `I just automated $${Math.round(monthlyInvest)}/mo into ${userData.etfChoice?.ticker || 'ETFs'}. Projected value: $${projectedWealthStr}. Built with @koutalksmoney`,
                 TWITTER: `Just automated $${Math.round(monthlyInvest)}/mo into ${userData.etfChoice?.ticker || 'ETFs'}.\n\nProjected: $${projectedWealthStr} in 30 years.\n\nVerify my system: ${verifyUrl}\n\n@koutalksmoney`,
@@ -1035,186 +1051,175 @@
                 TIKTOK: `POV: You automated $${Math.round(monthlyInvest)}/mo into ${userData.etfChoice?.ticker || 'ETFs'} and your wealth is building itself. Verify: ${verifyUrl} @koutalksmoney`
             };
 
-            const handleDownload = async () => {
-                if (!cardRef.current || downloading) return;
-                setDownloading(true);
-                try {
-                    const canvas = await html2canvas(cardRef.current, { backgroundColor: '#0a0a0a', scale: 3, useCORS: true, logging: false });
-                    const link = document.createElement('a');
-                    link.download = `autopilot-certificate-${architectId}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                } catch(e) { console.error('Download failed:', e); }
-                setDownloading(false);
-            };
-
+            const handleDownload = async () => { if (!cardRef.current || downloading) return; setDownloading(true); try { const canvas = await html2canvas(cardRef.current, { backgroundColor: '#0a0a0a', scale: 3, useCORS: true, logging: false }); const link = document.createElement('a'); link.download = `autopilot-certificate-${architectId}.png`; link.href = canvas.toDataURL('image/png'); link.click(); } catch(e) {} setDownloading(false); };
             const handleCopy = (platform) => { navigator.clipboard.writeText(shareTemplates[platform]); setCopiedPlatform(platform); setTimeout(() => setCopiedPlatform(null), 2000); };
 
-            const shareUrls = {
-                twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTemplates.TWITTER)}`,
-                linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(verifyUrl)}`
-            };
-
+            const shareUrls = { twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTemplates.TWITTER)}`, linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(verifyUrl)}` };
             const linkedInCertUrl = `https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${encodeURIComponent('Autopilot Money System')}&organizationName=${encodeURIComponent('Kou Talks Money')}&certUrl=${encodeURIComponent(verifyUrl)}&certId=${encodeURIComponent(architectId)}`;
-
             const isHighValue = monthlyInvest >= 500;
 
             return (
                 <div className="w-full max-w-md mx-auto animate-fade-in">
-                    <div className="text-center mb-4 flex flex-col items-center gap-2">
-                        <button onClick={handleDownload} disabled={downloading} className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${theme.border} ${theme.color} text-xs font-bold uppercase tracking-widest screenshot-pulse hover:bg-gray-900 transition-colors disabled:opacity-50`}>
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                            {downloading ? 'GENERATING...' : 'DOWNLOAD HIGH-RES CERTIFICATE'}
+                    {/* Header */}
+                    <div className="text-center mb-6">
+                        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">{'\uD83C\uDFC6'} System Installed</h1>
+                        <p className="text-sm text-gray-400">Your wealth machine is live. Here's your proof.</p>
+                    </div>
+
+                    {/* Download button */}
+                    <div className="text-center mb-4">
+                        <button onClick={handleDownload} disabled={downloading} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-green-500/50 text-green-500 text-xs font-bold uppercase tracking-widest screenshot-pulse hover:bg-green-500/10 transition-all disabled:opacity-50">
+                            {'\uD83D\uDCF7'} {downloading ? 'Generating...' : 'Download Certificate'}
                         </button>
                     </div>
 
-                    <div ref={cardRef} id="certificate-card" className={`relative w-full rounded-xl mb-6 shadow-2xl overflow-hidden border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`} style={{willChange: 'transform'}}>
+                    {/* Certificate Card */}
+                    <div ref={cardRef} id="certificate-card" className={`relative w-full rounded-2xl mb-6 shadow-2xl overflow-hidden border border-gray-800 ${revealed ? 'certificate-reveal' : 'opacity-0'}`}>
                         <div className="absolute inset-0 bg-[#0a0a0a]"></div>
                         <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-[#000] to-black opacity-90"></div>
                         <div className="absolute inset-0 premium-shimmer opacity-20 pointer-events-none"></div>
                         <div className="relative p-6 flex flex-col justify-between z-10" style={{minHeight: '280px'}}>
                             <div className="flex justify-between items-start">
-                                <div className="flex items-center gap-2"><div className={`w-8 h-8 rounded-full border-2 ${theme.border} flex items-center justify-center`}><div className={`w-4 h-4 ${theme.bg} rounded-full animate-pulse`}></div></div><span className="font-bold text-white tracking-widest text-sm">AUTOPILOT<span className={theme.color}>ELITE</span></span></div>
-                                <span className="text-[10px] text-gray-500 font-mono border border-gray-700 px-2 py-1 rounded">WEALTH ARCHITECT</span>
+                                <div className="flex items-center gap-2"><div className="w-8 h-8 rounded-full border-2 border-green-500 flex items-center justify-center"><div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div></div><span className="font-bold text-white tracking-widest text-sm">AUTOPILOT<span className="text-green-500">ELITE</span></span></div>
+                                <span className="text-[10px] text-gray-500 font-mono border border-gray-700 px-2 py-1 rounded-md">WEALTH ARCHITECT</span>
                             </div>
                             <div>
-                                <div className="mb-2"><p className="text-[8px] text-gray-500 uppercase tracking-widest mb-1">Architect ID</p><p className={`${theme.color} font-mono text-lg font-bold tracking-widest`}>{architectId}</p></div>
+                                <div className="mb-2"><p className="text-[8px] text-gray-500 uppercase tracking-widest mb-1">Architect ID</p><p className="text-green-500 font-mono text-lg font-bold tracking-widest">{architectId}</p></div>
                                 <div className="w-12 h-9 bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-600 rounded-md mb-3 shadow-sm opacity-90"></div>
                                 <div className="card-font text-gray-300 text-xl tracking-[0.15em] opacity-80 embossed">${displayWealth.toLocaleString()}</div>
                                 <div className="text-[8px] text-gray-500 uppercase tracking-widest mt-1">Projected Net Worth (30yr)</div>
                             </div>
                             <div className="flex justify-between items-end">
                                 <div><p className="text-white font-bold uppercase tracking-widest text-sm embossed card-font">{userData.userName || "AUTHORIZED USER"}</p><p className="text-[8px] text-gray-500 mt-1">MEMBER SINCE {new Date().getFullYear()}</p></div>
-                                <div className="text-right"><div className={`${theme.color} text-xs font-bold`}>{'\u2713'} VERIFIED</div></div>
+                                <div className="text-right"><div className="text-green-500 text-xs font-bold">{'\u2713'} VERIFIED</div></div>
                             </div>
                         </div>
                     </div>
 
-                    <div className={`bg-gradient-to-br from-gray-900 to-black border-2 ${theme.border} p-4 rounded-lg mb-6 flex flex-col sm:flex-row items-center gap-4`}>
+                    {/* What is this? */}
+                    <div className="bg-black/40 border border-gray-800 rounded-xl p-4 mb-6 text-center">
+                        <p className="text-xs text-gray-500 mb-1">{'\u2139\uFE0F'} <strong className="text-gray-400">What is this?</strong></p>
+                        <p className="text-xs text-gray-600 leading-relaxed">Your Architect Certificate is proof you built a real wealth automation system. Your ID (<span className="text-green-500">{architectId}</span>) is permanent. Share it anywhere to verify your system.</p>
+                    </div>
+
+                    {/* Verify link */}
+                    <div className="bg-gradient-to-br from-gray-900 to-black border-2 border-green-500/30 p-4 rounded-xl mb-6 flex flex-col sm:flex-row items-center gap-4">
                         <div className="flex-1 text-center sm:text-left">
-                            <p className="text-white font-bold text-sm">Your Verification Page is Live</p>
-                            <p className="text-gray-400 text-[11px] mt-0.5">Drop this link in your bio, resume, or DMs. Anyone can verify your system.</p>
+                            <p className="text-white font-bold text-sm">{'\uD83D\uDD17'} Your Verification Page is Live</p>
+                            <p className="text-gray-500 text-xs mt-0.5">Drop this link in your bio, resume, or DMs.</p>
                         </div>
                         <div className="flex gap-2 w-full sm:w-auto">
-                            <a href={verifyUrl} target="_blank" className={`flex-1 sm:flex-none py-2.5 px-5 ${theme.bg} text-black font-bold text-xs rounded text-center transition-all hover:opacity-90 uppercase tracking-wider`}>View Page</a>
-                            <button onClick={() => { navigator.clipboard.writeText(verifyUrl); setCopiedPlatform('verify'); setTimeout(() => setCopiedPlatform(null), 2000); }} className={`flex-1 sm:flex-none py-2.5 px-5 border ${copiedPlatform === 'verify' ? `${theme.border} ${theme.color}` : 'border-gray-700 text-gray-400'} font-bold text-xs rounded text-center transition-all uppercase tracking-wider`}>{copiedPlatform === 'verify' ? '\u2713 Copied' : 'Copy Link'}</button>
+                            <a href={verifyUrl} target="_blank" className="flex-1 sm:flex-none py-2.5 px-5 bg-green-500 text-black font-bold text-xs rounded-lg text-center transition-all hover:brightness-110 uppercase">View</a>
+                            <button onClick={() => { navigator.clipboard.writeText(verifyUrl); setCopiedPlatform('verify'); setTimeout(() => setCopiedPlatform(null), 2000); }} className={`flex-1 sm:flex-none py-2.5 px-5 border font-bold text-xs rounded-lg text-center transition-all uppercase ${copiedPlatform === 'verify' ? 'border-green-500 text-green-500' : 'border-gray-700 text-gray-400'}`}>{copiedPlatform === 'verify' ? '\u2713 Copied' : 'Copy'}</button>
                         </div>
                     </div>
 
-                    <div className="bg-gray-900/60 border border-gray-700 p-4 rounded mb-6 text-center">
-                        <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Your Position</p>
-                        <p className="text-white text-2xl font-mono font-bold">Architect #{architectCount !== null ? architectCount + 1 : '...'}</p>
-                        <p className="text-[10px] text-gray-500 mt-1">of {architectCount !== null ? architectCount + 1 : '...'} total systems installed</p>
+                    {/* Position */}
+                    <div className="bg-black/40 border border-gray-800 p-4 rounded-xl mb-6 text-center">
+                        <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">Your Position</p>
+                        <p className="text-white text-3xl font-mono font-bold">Architect #{architectCount !== null ? architectCount + 1 : '...'}</p>
+                        <p className="text-xs text-gray-600 mt-1">of {architectCount !== null ? architectCount + 1 : '...'} total systems installed</p>
                     </div>
 
-                    <div className="space-y-3 mb-6">
-                        <p className="text-[10px] text-gray-500 uppercase tracking-widest text-center">What's Next</p>
-                        <a href={CONFIG.LINKS.COMMAND_CENTER} className="block bg-gray-900 border border-gray-800 hover:border-gray-600 p-4 rounded transition-all group">
-                            <div className="flex justify-between items-center">
-                                <div><p className="text-white font-bold text-sm">Command Center</p><p className="text-gray-500 text-[10px]">Track your system. Monitor your progress.</p></div>
-                                <span className="text-gray-500 group-hover:text-white transition-colors">{'\u2192'}</span>
-                            </div>
-                        </a>
-                        <a href={CONFIG.LINKS.INVESTMENT_SIMPLIFIER} className="block bg-gray-900 border border-gray-800 hover:border-gray-600 p-4 rounded transition-all group">
-                            <div className="flex justify-between items-center">
-                                <div><p className="text-white font-bold text-sm">Investment Simplifier</p><p className="text-gray-500 text-[10px]">Build a custom portfolio beyond a single ETF.</p></div>
-                                <span className="text-gray-500 group-hover:text-white transition-colors">{'\u2192'}</span>
-                            </div>
-                        </a>
-                    </div>
-
-                    <a href={linkedInCertUrl} target="_blank" className="block w-full mb-6 bg-[#0077B5] hover:bg-[#006097] text-white text-center py-3 rounded font-bold text-xs uppercase tracking-widest transition-all">
-                        Add to LinkedIn Profile
+                    {/* Command Center CTA - PRIMARY */}
+                    <a href={CONFIG.LINKS.COMMAND_CENTER} className="block w-full mb-6 p-5 bg-gradient-to-r from-green-500/10 to-green-500/5 border-2 border-green-500/40 rounded-xl text-center hover:border-green-500/70 transition-all group">
+                        <p className="text-white font-bold text-base">{'\uD83D\uDCE1'} Open Your Command Center</p>
+                        <p className="text-gray-400 text-sm mt-1">Track your system. Monitor your progress. Your single hub.</p>
                     </a>
 
-                    <div className="text-center space-y-4 pb-12">
-                        <div className="bg-gray-900 border border-gray-800 p-6 rounded-sm shadow-xl relative overflow-hidden">
-                            <div className={`absolute top-0 left-0 w-full h-1 ${theme.bg}`}></div>
-                            <h3 className="text-white font-bold text-lg mb-1">UNLOCK THE PROMPT VAULT</h3>
-                            <p className="text-gray-500 text-xs mb-6">Choose your path. One gets you the vault. The other gets you everything.</p>
+                    {/* Prompt Vault unlock */}
+                    <div className="bg-black/40 border border-gray-800 p-6 rounded-xl mb-6 shadow-xl relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-green-500"></div>
+                        <h3 className="text-white font-bold text-lg mb-1 text-center">{'\uD83D\uDD13'} Unlock the Prompt Vault</h3>
+                        <p className="text-gray-500 text-sm mb-6 text-center">Choose your path. One gets you the vault. The other gets you everything.</p>
 
-                            <div className="text-left mb-6 space-y-3">
-                                <div className="bg-black rounded border border-gray-800 overflow-hidden">
-                                    <div className="px-4 py-3 border-b border-gray-800 bg-gray-900/50 flex justify-between items-center">
-                                        <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Path A: Quick Claim</p>
-                                        <span className="text-[10px] text-gray-600 border border-gray-700 px-2 py-0.5 rounded">1 REWARD</span>
-                                    </div>
-                                    <div className="p-4">
-                                        <div className="flex gap-3 items-start">
-                                            <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black bg-gray-500">1</div>
-                                            <div><p className="text-white text-sm font-bold">DM "ARCHITECT" to <span style={{color: theme.accent}}>@koutalksmoney</span></p><p className="text-gray-500 text-[11px] mt-1">Instant delivery. ManyChat replies in seconds.</p></div>
+                        <div className="space-y-3 mb-6">
+                            {/* Path A */}
+                            <div className="bg-black/60 rounded-xl border border-gray-800 overflow-hidden">
+                                <div className="px-4 py-3 border-b border-gray-800 flex justify-between items-center">
+                                    <p className="text-xs text-gray-400 uppercase tracking-widest font-bold">Path A: Quick Claim</p>
+                                    <span className="text-[10px] text-gray-600 border border-gray-700 px-2 py-0.5 rounded-md">1 REWARD</span>
+                                </div>
+                                <div className="p-4">
+                                    <p className="text-white text-sm font-bold">{'\uD83D\uDCAC'} DM "ARCHITECT" to <span className="text-green-500">@koutalksmoney</span></p>
+                                    <p className="text-gray-500 text-xs mt-1">Instant delivery via ManyChat.</p>
+                                    <p className="text-xs text-gray-600 mt-2">You get: <span className="text-white font-bold bg-gray-800 px-2 py-0.5 rounded-md">Prompt Vault Cheat Sheet</span></p>
+                                </div>
+                            </div>
+
+                            {/* Path B */}
+                            <div className="bg-black/60 rounded-xl border-2 border-green-500/40 overflow-hidden relative">
+                                <div className="absolute top-0 right-0 px-2 py-0.5 text-[9px] font-bold text-black uppercase tracking-widest bg-green-500 rounded-bl-lg">Recommended</div>
+                                <div className="px-4 py-3 border-b border-gray-800 flex justify-between items-center">
+                                    <p className="text-xs text-green-500 uppercase tracking-widest font-bold">Path B: Full Unlock</p>
+                                    <span className="text-[10px] text-green-500 border border-green-500/40 px-2 py-0.5 rounded-md font-bold">2 REWARDS</span>
+                                </div>
+                                <div className="p-4 space-y-3">
+                                    {[
+                                        {n: 1, t: 'Download your certificate (button above)', s: 'Or screenshot it.'},
+                                        {n: 2, t: <span>Post it to your story and tag <span className="text-green-500">@koutalksmoney</span></span>, s: 'Instagram, X, LinkedIn, or TikTok.'},
+                                        {n: 3, t: <span>DM "ARCHITECT" to <span className="text-green-500">@koutalksmoney</span></span>, s: 'Mention you posted. Both rewards delivered.'}
+                                    ].map(({n, t, s}) => (
+                                        <div key={n} className="flex gap-3 items-start">
+                                            <div className="flex-shrink-0 w-7 h-7 rounded-full bg-green-500 flex items-center justify-center text-xs font-bold text-black">{n}</div>
+                                            <div><p className="text-white text-sm font-bold">{t}</p><p className="text-gray-500 text-xs">{s}</p></div>
                                         </div>
-                                        <div className="mt-3 ml-10 flex items-center gap-2"><span className="text-[10px] text-gray-500">You get:</span><span className="text-[10px] text-white font-bold bg-gray-800 px-2 py-0.5 rounded">Prompt Vault Cheat Sheet</span></div>
-                                    </div>
-                                </div>
-
-                                <div className="rounded border-2 overflow-hidden relative" style={{borderColor: theme.accent}}>
-                                    <div className="absolute top-0 right-0 px-2 py-0.5 text-[9px] font-bold text-black uppercase tracking-widest" style={{background: theme.accent}}>Recommended</div>
-                                    <div className="px-4 py-3 border-b border-gray-800 bg-gray-900/50 flex justify-between items-center">
-                                        <p className="text-[10px] uppercase tracking-widest font-bold" style={{color: theme.accent}}>Path B: Full Unlock</p>
-                                        <span className="text-[10px] border px-2 py-0.5 rounded font-bold" style={{color: theme.accent, borderColor: theme.accent}}>2 REWARDS</span>
-                                    </div>
-                                    <div className="p-4 space-y-3">
-                                        {[
-                                            {n: 1, t: 'Download your certificate (button above)', s: 'Or screenshot it. Both work.'},
-                                            {n: 2, t: <span>Post it to your story and tag <span style={{color: theme.accent}}>@koutalksmoney</span></span>, s: 'Instagram, X, LinkedIn, or TikTok.'},
-                                            {n: 3, t: <span>DM "ARCHITECT" to <span style={{color: theme.accent}}>@koutalksmoney</span></span>, s: 'Mention you posted. Both rewards delivered instantly.'}
-                                        ].map(({n, t, s}) => (
-                                            <div key={n} className="flex gap-3 items-start">
-                                                <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black" style={{background: theme.accent}}>{n}</div>
-                                                <div><p className="text-white text-sm font-bold">{t}</p><p className="text-gray-500 text-[11px]">{s}</p></div>
-                                            </div>
-                                        ))}
-                                        <div className="mt-2 ml-10">
-                                            <div className="flex flex-wrap items-center gap-2">
-                                                <span className="text-[10px] text-gray-500">You get:</span>
-                                                <span className="text-[10px] text-white font-bold bg-gray-800 px-2 py-0.5 rounded">Prompt Vault Cheat Sheet</span>
-                                                <span className="text-[10px] text-gray-600">+</span>
-                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{color: theme.accent, background: `${theme.accent}15`, border: `1px solid ${theme.accent}40`}}>Budget Calculator Secret Code</span>
-                                            </div>
-                                            <p className="text-[10px] text-gray-500 mt-2">Enter the code in your <a href={CONFIG.LINKS.COMMAND_CENTER} className={`${theme.color} underline hover:brightness-125`}>Command Center</a> to activate.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="border-t border-gray-800 pt-4 mb-4">
-                                {isHighValue ? (
-                                    <div className="bg-black border border-yellow-500/30 rounded p-4 text-center">
-                                        <p className="text-yellow-400 text-[10px] uppercase tracking-widest font-bold mb-1">High-Value Architect Detected</p>
-                                        <p className="text-white font-bold text-sm mb-2">Want a personalized portfolio review?</p>
-                                        <p className="text-gray-500 text-[10px] mb-3">You're investing ${Math.round(monthlyInvest)}/mo. That's serious capital. Get a 1-on-1 strategy session.</p>
-                                        <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="inline-block px-6 py-2 bg-yellow-400 text-black font-bold text-xs rounded uppercase hover:bg-yellow-300 transition-colors">DM "STRATEGY" to Book</a>
-                                    </div>
-                                ) : (
-                                    <div className="bg-black border border-gray-800 rounded p-4 text-center">
-                                        <p className="text-gray-400 text-[10px] uppercase tracking-widest font-bold mb-1">Level Up</p>
-                                        <p className="text-white font-bold text-sm mb-2">Want to increase your investable income?</p>
-                                        <p className="text-gray-500 text-[10px] mb-3">The Budget Calculator finds hidden cash in your spending. Most users find $50-$200/mo they didn't know existed.</p>
-                                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/budget-calculator.html" target="_blank" className="inline-block px-6 py-2 border border-gray-600 text-white font-bold text-xs rounded uppercase hover:bg-gray-900 transition-colors">Open Budget Calculator</a>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="border-t border-gray-800 pt-4">
-                                <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Quick Share Links</p>
-                                <div className="grid grid-cols-2 gap-3 mb-4">
-                                    <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="share-btn share-btn-instagram col-span-2">Open Instagram</a>
-                                    <a href={shareUrls.twitter} target="_blank" className="share-btn share-btn-twitter">Open X</a>
-                                    <a href={shareUrls.linkedin} target="_blank" className="share-btn share-btn-linkedin">Open LinkedIn</a>
-                                </div>
-                            </div>
-
-                            <div className="border-t border-gray-800 pt-4 mt-4">
-                                <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Copy Your Personalized Captions</p>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {['INSTAGRAM', 'TWITTER', 'LINKEDIN', 'TIKTOK'].map(platform => (
-                                        <button key={platform} onClick={() => handleCopy(platform)} className={`share-btn share-btn-copy text-[10px] py-2 ${copiedPlatform === platform ? 'copied' : ''}`}>{copiedPlatform === platform ? '\u2713 Copied' : `${platform}`}</button>
                                     ))}
+                                    <div className="mt-2 ml-10 flex flex-wrap items-center gap-2">
+                                        <span className="text-xs text-gray-500">You get:</span>
+                                        <span className="text-[10px] text-white font-bold bg-gray-800 px-2 py-0.5 rounded-md">Prompt Vault</span>
+                                        <span className="text-[10px] text-gray-600">+</span>
+                                        <span className="text-[10px] text-green-500 font-bold px-2 py-0.5 rounded-md bg-green-500/10 border border-green-500/30">Budget Calculator Code</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <p className="text-[10px] text-gray-600 max-w-xs mx-auto">Your Architect ID is permanent. Share it anywhere to prove you built the machine.</p>
+
+                        {/* Level up / high value */}
+                        <div className="border-t border-gray-800 pt-4 mb-4">
+                            {isHighValue ? (
+                                <div className="bg-black/60 border border-yellow-500/30 rounded-xl p-4 text-center">
+                                    <p className="text-yellow-400 text-xs uppercase tracking-widest font-bold mb-1">{'\uD83D\uDC51'} High-Value Architect</p>
+                                    <p className="text-white font-bold text-sm mb-2">Want a personalized portfolio review?</p>
+                                    <p className="text-gray-500 text-xs mb-3">You're investing ${Math.round(monthlyInvest)}/mo. That's serious capital.</p>
+                                    <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="inline-block px-6 py-2.5 bg-yellow-400 text-black font-bold text-xs rounded-lg uppercase hover:brightness-110 transition-all">DM "STRATEGY" to Book</a>
+                                </div>
+                            ) : (
+                                <div className="bg-black/60 border border-gray-800 rounded-xl p-4 text-center">
+                                    <p className="text-gray-400 text-xs uppercase tracking-widest font-bold mb-1">{'\uD83D\uDCA1'} Level Up</p>
+                                    <p className="text-white font-bold text-sm mb-2">Find hidden cash in your spending</p>
+                                    <p className="text-gray-500 text-xs mb-3">Most users find $50-$200/mo they didn't know existed.</p>
+                                    <a href={CONFIG.LINKS.BUDGET_CALC} target="_blank" className="inline-block px-6 py-2.5 border border-gray-600 text-white font-bold text-xs rounded-lg uppercase hover:bg-gray-900 transition-all">Open Budget Calculator</a>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Share links */}
+                        <div className="border-t border-gray-800 pt-4">
+                            <p className="text-xs text-gray-500 uppercase tracking-widest mb-3 text-center">{'\uD83D\uDD17'} Quick Share</p>
+                            <div className="grid grid-cols-2 gap-3 mb-4">
+                                <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="share-btn share-btn-instagram col-span-2">{'\uD83D\uDCF8'} Open Instagram</a>
+                                <a href={shareUrls.twitter} target="_blank" className="share-btn share-btn-twitter">Open X</a>
+                                <a href={shareUrls.linkedin} target="_blank" className="share-btn share-btn-linkedin">Open LinkedIn</a>
+                            </div>
+                        </div>
+
+                        <div className="border-t border-gray-800 pt-4">
+                            <p className="text-xs text-gray-500 uppercase tracking-widest mb-3 text-center">{'\uD83D\uDCCB'} Copy Captions</p>
+                            <div className="grid grid-cols-2 gap-2">
+                                {['INSTAGRAM', 'TWITTER', 'LINKEDIN', 'TIKTOK'].map(platform => (
+                                    <button key={platform} onClick={() => handleCopy(platform)} className={`share-btn share-btn-copy text-xs py-2 ${copiedPlatform === platform ? 'copied' : ''}`}>{copiedPlatform === platform ? '\u2713 Copied' : platform}</button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href={linkedInCertUrl} target="_blank" className="block w-full mb-6 bg-[#0077B5] hover:bg-[#006097] text-white text-center py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">{'\uD83D\uDCBC'} Add to LinkedIn Profile</a>
+
+                    {/* Footer */}
+                    <div className="text-center pb-12 space-y-3">
+                        <p className="text-xs text-gray-700">Your Architect ID is permanent. Share it anywhere.</p>
+                        <p className="text-[10px] text-gray-800">Not financial advice. Educational tool by <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="text-gray-600 underline hover:text-green-500">@koutalksmoney</a></p>
                     </div>
                 </div>
             );
