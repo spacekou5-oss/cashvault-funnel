@@ -73,7 +73,6 @@
         }
         .access-gate.show { display: block; }
 
-        /* Blurred dashboard preview (the velvet rope) */
         .gate-preview {
             position: absolute; inset: 0; z-index: 0;
             padding: 30px 20px; max-width: 900px; margin: 0 auto;
@@ -106,14 +105,12 @@
         .gp-card-text { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
         .gp-card-status { margin-left: auto; font-size: 1rem; }
 
-        /* Gate overlay (the content on top of blur) */
         .gate-overlay {
             position: relative; z-index: 2;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             min-height: 100vh; padding: 40px 20px; text-align: center;
         }
 
-        /* Gate content for cold visitors */
         .gate-content { max-width: 420px; width: 100%; }
         .gate-brand {
             font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700;
@@ -230,9 +227,82 @@
         .gate-verify-step.done .step-dot {
             border-color: var(--accent-green); background: var(--accent-green); color: #000;
         }
-        /* Hide manual entry + CTA during verification */
         .gate-manual-section { transition: opacity 0.3s; }
         .gate-manual-section.hidden { opacity: 0; pointer-events: none; height: 0; overflow: hidden; margin: 0; padding: 0; }
+
+        /* ============================================
+           ECOSYSTEM PROCESSING THEATER
+           Fires for users who completed any app
+           but do NOT have an Architect ID yet.
+           Scans localStorage, shows what they built,
+           assigns temp ID, reveals dashboard.
+           Idleness Aversion + Operational Transparency.
+        ============================================ */
+        .ecosystem-theater {
+            position: fixed; inset: 0; background: var(--bg-primary); z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 30px; text-align: center;
+        }
+        .ecosystem-theater.hidden { display: none; }
+        .eco-theater-icon { width: 72px; height: 72px; margin-bottom: 28px; position: relative; }
+        .eco-theater-ring {
+            width: 72px; height: 72px; border: 3px solid rgba(34,197,94,0.15);
+            border-top-color: var(--accent-green); border-right-color: var(--accent-gold);
+            border-radius: 50%; animation: eco-spin 1s linear infinite;
+            position: absolute; top: 0; left: 0;
+        }
+        .eco-theater-ring-inner {
+            width: 52px; height: 52px; border: 2px solid rgba(139,92,246,0.1);
+            border-bottom-color: var(--accent-purple);
+            border-radius: 50%; animation: eco-spin 1.5s linear infinite reverse;
+            position: absolute; top: 10px; left: 10px;
+        }
+        @keyframes eco-spin { to { transform: rotate(360deg); } }
+        .eco-theater-title {
+            font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 700;
+            color: var(--text-primary); margin-bottom: 6px; min-height: 30px;
+            transition: opacity 0.3s ease;
+        }
+        .eco-theater-step {
+            font-size: 0.82rem; color: var(--text-secondary);
+            margin-bottom: 28px; min-height: 22px;
+            transition: opacity 0.3s ease;
+        }
+        .eco-theater-progress {
+            width: 300px; height: 5px; background: rgba(34,197,94,0.1);
+            border-radius: 3px; overflow: hidden; margin-bottom: 8px;
+        }
+        .eco-theater-progress-fill {
+            height: 100%; border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-gold));
+            background-size: 200% 100%;
+            animation: eco-progress-shimmer 2s ease infinite;
+            transition: width 0.6s ease; width: 10%;
+        }
+        @keyframes eco-progress-shimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .eco-theater-pct {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+            color: var(--text-muted); margin-bottom: 24px;
+        }
+        .eco-theater-value-frame {
+            max-width: 400px; padding: 16px 24px;
+            background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.2);
+            border-radius: 12px; opacity: 0; transform: translateY(8px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .eco-theater-value-frame.show { opacity: 1; transform: translateY(0); }
+        .eco-theater-value-label {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.62rem;
+            color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 0.12em; margin-bottom: 6px;
+        }
+        .eco-theater-value-text {
+            font-size: 0.85rem; color: var(--accent-green); font-weight: 600; line-height: 1.6;
+        }
 
         /* HEADER */
         .header {
@@ -549,7 +619,6 @@
         .dual-section { display: none; }
         .dual-section.show { display: block; }
 
-        /* Share modal */
         .share-modal-content { text-align: center; }
         .share-card-preview {
             background: linear-gradient(135deg, rgba(34,197,94,0.15) 0%, var(--bg-secondary) 100%);
@@ -561,12 +630,10 @@
         .share-card-brand { font-size: 0.7rem; color: var(--text-muted); }
         .share-instructions { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 15px; }
 
-        /* FOOTER */
         .footer { margin-top: 35px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; }
         .footer-brand { font-size: 0.7rem; color: var(--text-muted); }
         .footer-brand a { color: var(--accent-green); text-decoration: none; }
 
-        /* ALL COMPLETE */
         .all-complete {
             background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, var(--bg-card) 100%);
             border: 2px solid var(--accent-gold); border-radius: 16px;
@@ -576,7 +643,6 @@
         .all-complete-title { font-size: 1.2rem; font-weight: 800; color: var(--accent-gold); margin-bottom: 6px; }
         .all-complete-desc { font-size: 0.85rem; color: var(--text-secondary); }
 
-        /* MOBILE */
         @media (max-width: 700px) {
             .hero-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
             .hero-stat { padding: 12px 8px; }
@@ -598,10 +664,8 @@
     <div class="bg-glow bg-glow-1"></div>
     <div class="bg-glow bg-glow-2"></div>
 
-    <!-- ACCESS GATE -->
+    <!-- ACCESS GATE (cold IG traffic only) -->
     <div class="access-gate" id="accessGate">
-
-        <!-- BLURRED DASHBOARD PREVIEW (the velvet rope) -->
         <div class="gate-preview" id="gatePreview" aria-hidden="true">
             <div class="gp-header">
                 <div class="gp-logo">COMMAND <span>CENTER</span></div>
@@ -633,28 +697,20 @@
             </div>
         </div>
 
-        <!-- GATE OVERLAY -->
         <div class="gate-overlay" id="gateOverlay">
-
-            <!-- COLD VISITOR CONTENT -->
             <div class="gate-content" id="gateContent">
                 <div class="gate-brand">
                     <div class="gate-brand-dot"></div>
                     <span>@koutalksmoney</span>
                 </div>
-
                 <h1 class="gate-title">Command Center</h1>
-
                 <div class="gate-hook">
                     <strong>7 tools.</strong> One machine.<br>Zero willpower.
                 </div>
-
                 <div class="gate-proof" id="gateProof">
                     <div class="gate-proof-dot"></div>
                     <span id="gateProofText">47 Architects building</span>
                 </div>
-
-                <!-- Pillar preview (what's inside) -->
                 <div class="gate-pillars">
                     <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F916;</div><div class="gate-pillar-name">Automate</div></div>
                     <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F4CA;</div><div class="gate-pillar-name">Invest</div></div>
@@ -663,11 +719,8 @@
                     <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F4B0;</div><div class="gate-pillar-name">Cash Flow</div></div>
                     <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F9E0;</div><div class="gate-pillar-name">AI Vault</div></div>
                 </div>
-
                 <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="gate-cta" id="gateCta">Start The System &#8594;</a>
-
                 <div class="gate-divider">Already have an Architect ID?</div>
-
                 <div class="gate-id-section">
                     <div class="gate-id-label">Enter your Architect ID</div>
                     <div class="gate-id-input-wrapper">
@@ -676,11 +729,9 @@
                     </div>
                     <p class="gate-error" id="gateError">Invalid ID format. Must be KOU- followed by 6 characters.</p>
                 </div>
-
                 <div class="gate-footer">Built by <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a></div>
             </div>
 
-            <!-- VERIFICATION CEREMONY (shown when ID is auto-detected) -->
             <div class="gate-verify-state" id="gateVerifyState">
                 <div class="gate-verify-id" id="gateVerifyId">KOU-XXXXXX</div>
                 <div class="gate-verify-progress">
@@ -702,7 +753,29 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
+    <!-- ============================================
+         ECOSYSTEM PROCESSING THEATER
+         PATH D: Users who completed any app but
+         do NOT have an Architect ID. Scans their
+         localStorage, shows what they built,
+         assigns temp ID, reveals dashboard.
+         No email gate. No ID input. Straight through.
+    ============================================ -->
+    <div class="ecosystem-theater hidden" id="ecosystemTheater">
+        <div class="eco-theater-icon">
+            <div class="eco-theater-ring"></div>
+            <div class="eco-theater-ring-inner"></div>
+        </div>
+        <p class="eco-theater-title" id="ecoTheaterTitle">Scanning ecosystem...</p>
+        <p class="eco-theater-step" id="ecoTheaterStep">Checking for active tools...</p>
+        <div class="eco-theater-progress"><div class="eco-theater-progress-fill" id="ecoTheaterProgressFill"></div></div>
+        <p class="eco-theater-pct" id="ecoTheaterPct">10%</p>
+        <div class="eco-theater-value-frame" id="ecoTheaterValueFrame">
+            <p class="eco-theater-value-label">Detected</p>
+            <p class="eco-theater-value-text" id="ecoTheaterValueText"></p>
         </div>
     </div>
 
@@ -788,7 +861,6 @@
             </div>
         </div>
 
-        <!-- WELCOME BANNER -->
         <div class="welcome-banner" id="welcomeBanner">
             <div class="welcome-banner-icon">&#x26A1;</div>
             <div class="welcome-banner-content">
@@ -890,17 +962,11 @@
             PROMPT_VAULT_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html',
             COMMAND_CENTER_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/command-center.html',
             INSTAGRAM: 'https://instagram.com/koutalksmoney',
-            // Base architect count. Update this manually as your audience grows.
-            // The gate displays this number to create exclusion psychology.
             ARCHITECT_BASE_COUNT: 47
         };
 
-        // ==============================================
-        // ARCHITECT COUNT (social proof on gate)
-        // ==============================================
         function updateArchitectCount() {
             var count = CONFIG.ARCHITECT_BASE_COUNT;
-            // Add small time-based growth (roughly +1 per day since a start date)
             var launchDate = new Date('2025-06-01');
             var now = new Date();
             var daysSinceLaunch = Math.max(0, Math.floor((now - launchDate) / (1000 * 60 * 60 * 24)));
@@ -909,9 +975,6 @@
             if (el) el.textContent = count + ' Architects building';
         }
 
-        // ==============================================
-        // HASH OBFUSCATION (no plaintext codes)
-        // ==============================================
         function simpleHash(str) {
             var hash = 0;
             for (var i = 0; i < str.length; i++) {
@@ -924,54 +987,14 @@
         var BUDGET_HASH = simpleHash('CASHFLOW');
         var VAULT_HASH = simpleHash('CERTIFIED');
 
-        // === MASTER SYSTEM CONFIGURATION ===
         var SYSTEM_CONFIG = {
-            'autopilot': {
-                primaryKey: 'autopilot_completed',
-                fallbackKey: 'cashvault_architect_id',
-                logic: function(p, f) { return p === 'true' || !!localStorage.getItem(f); }
-            },
-            'freedom': {
-                primaryKey: 'freedom_completed',
-                fallbackKey: 'freedom_calculator_result',
-                logic: function(p, f) { return p === 'true' || !!localStorage.getItem(f); }
-            },
-            'waiting': {
-                primaryKey: 'waiting_completed',
-                fallbackKey: 'cost_of_waiting_data',
-                logic: function(p, f) { return p === 'true' || !!localStorage.getItem(f); }
-            },
-            'investment': {
-                primaryKey: 'investment_completed',
-                fallbackKey: 'investment_simplifier_completed',
-                logic: function(p, f) { return p === 'true' || localStorage.getItem(f) === 'true'; }
-            },
-            '800club': {
-                primaryKey: 'eightclub_completed',
-                fallbackKey: 'credit_protocol_score',
-                logic: function(p, f) {
-                    if (p === 'true') return true;
-                    var score = parseInt(localStorage.getItem(f) || '0', 10);
-                    return !isNaN(score) && score > 0;
-                }
-            },
-            'budget': {
-                primaryKey: 'budget_completed',
-                fallbackKey: 'budget_unlocked',
-                logic: function(p, f) { return p === 'true' || localStorage.getItem(f) === 'true'; }
-            },
-            'prompt': {
-                primaryKey: 'prompt_completed',
-                fallbackKey: 'vault_saved_prompts',
-                logic: function(p, f) {
-                    if (p === 'true') return true;
-                    try {
-                        var categories = JSON.parse(localStorage.getItem('prompt_vault_categories_used') || '[]');
-                        var savedPrompts = JSON.parse(localStorage.getItem(f) || '[]');
-                        return categories.length >= 3 || savedPrompts.length > 0;
-                    } catch(e) { return false; }
-                }
-            }
+            'autopilot': { primaryKey: 'autopilot_completed', fallbackKey: 'cashvault_architect_id', logic: function(p, f) { return p === 'true' || !!localStorage.getItem(f); } },
+            'freedom': { primaryKey: 'freedom_completed', fallbackKey: 'freedom_calculator_result', logic: function(p, f) { return p === 'true' || !!localStorage.getItem(f); } },
+            'waiting': { primaryKey: 'waiting_completed', fallbackKey: 'cost_of_waiting_data', logic: function(p, f) { return p === 'true' || !!localStorage.getItem(f); } },
+            'investment': { primaryKey: 'investment_completed', fallbackKey: 'investment_simplifier_completed', logic: function(p, f) { return p === 'true' || localStorage.getItem(f) === 'true'; } },
+            '800club': { primaryKey: 'eightclub_completed', fallbackKey: 'credit_protocol_score', logic: function(p, f) { if (p === 'true') return true; var score = parseInt(localStorage.getItem(f) || '0', 10); return !isNaN(score) && score > 0; } },
+            'budget': { primaryKey: 'budget_completed', fallbackKey: 'budget_unlocked', logic: function(p, f) { return p === 'true' || localStorage.getItem(f) === 'true'; } },
+            'prompt': { primaryKey: 'prompt_completed', fallbackKey: 'vault_saved_prompts', logic: function(p, f) { if (p === 'true') return true; try { var categories = JSON.parse(localStorage.getItem('prompt_vault_categories_used') || '[]'); var savedPrompts = JSON.parse(localStorage.getItem(f) || '[]'); return categories.length >= 3 || savedPrompts.length > 0; } catch(e) { return false; } } }
         };
 
         function checkSystemCompletion(systemId) {
@@ -984,34 +1007,13 @@
         function getCompletionContext(systemId) {
             try {
                 switch(systemId) {
-                    case 'autopilot':
-                        var archId = localStorage.getItem('cashvault_architect_id');
-                        return archId ? 'ID: ' + archId : null;
-                    case 'freedom':
-                        var fData = JSON.parse(localStorage.getItem('freedom_calculator_result') || 'null');
-                        if (fData && fData.exitAge) return 'Freedom Age: ' + fData.exitAge;
-                        if (fData && fData.freedomYears) return 'In ' + fData.freedomYears + ' years';
-                        return null;
-                    case 'waiting':
-                        var wData = JSON.parse(localStorage.getItem('cost_of_waiting_data') || 'null');
-                        if (wData && wData.costPerDay) return 'Cost: $' + Math.round(wData.costPerDay) + '/day';
-                        return null;
-                    case 'investment':
-                        var iData = JSON.parse(localStorage.getItem('investmentSimplifier_portfolio') || 'null');
-                        if (iData && iData.etf) return 'Portfolio: ' + iData.etf;
-                        return null;
-                    case '800club':
-                        var score = localStorage.getItem('credit_protocol_score');
-                        if (score) return 'Score: ' + score + '%';
-                        return null;
-                    case 'budget':
-                        var bData = JSON.parse(localStorage.getItem('budget_calculator_result') || 'null');
-                        if (bData && bData.selectedSystem) return 'System: ' + bData.selectedSystem;
-                        return null;
-                    case 'prompt':
-                        var cats = JSON.parse(localStorage.getItem('prompt_vault_categories_used') || '[]');
-                        if (cats.length > 0) return cats.length + ' categories used';
-                        return null;
+                    case 'autopilot': var archId = localStorage.getItem('cashvault_architect_id'); return archId ? 'ID: ' + archId : null;
+                    case 'freedom': var fData = JSON.parse(localStorage.getItem('freedom_calculator_result') || 'null'); if (fData && fData.exitAge) return 'Freedom Age: ' + fData.exitAge; if (fData && fData.freedomYears) return 'In ' + fData.freedomYears + ' years'; return null;
+                    case 'waiting': var wData = JSON.parse(localStorage.getItem('cost_of_waiting_data') || 'null'); if (wData && wData.costPerDay) return 'Cost: $' + Math.round(wData.costPerDay) + '/day'; return null;
+                    case 'investment': var iData = JSON.parse(localStorage.getItem('investmentSimplifier_portfolio') || 'null'); if (iData && iData.etf) return 'Portfolio: ' + iData.etf; return null;
+                    case '800club': var score = localStorage.getItem('credit_protocol_score'); if (score) return 'Score: ' + score + '%'; return null;
+                    case 'budget': var bData = JSON.parse(localStorage.getItem('budget_calculator_result') || 'null'); if (bData && bData.selectedSystem) return 'System: ' + bData.selectedSystem; return null;
+                    case 'prompt': var cats = JSON.parse(localStorage.getItem('prompt_vault_categories_used') || '[]'); if (cats.length > 0) return cats.length + ' categories used'; return null;
                 }
             } catch(e) {}
             return null;
@@ -1032,31 +1034,173 @@
         var unlockedSystems = ['autopilot'];
         var currentModalSystem = null;
 
-        // ==============================================
-        // TEMP ID GENERATOR (Bridge Users: KOU-TXXXXX)
-        // ==============================================
         function generateTempArchitectId() {
             var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             var id = 'KOU-T';
-            for (var i = 0; i < 5; i++) {
-                id += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
+            for (var i = 0; i < 5; i++) id += chars.charAt(Math.floor(Math.random() * chars.length));
             return id;
         }
 
-        function isBridgeUser() {
-            return localStorage.getItem('vault_email_captured') === 'true';
+        function isBridgeUser() { return localStorage.getItem('vault_email_captured') === 'true'; }
+        function isTempId(id) { return id && id.length === 10 && id.substring(0, 5) === 'KOU-T'; }
+
+        // ==============================================
+        // ECOSYSTEM DETECTION (PATH D)
+        // Scans localStorage for ANY evidence of app
+        // usage: completion flags, email captures,
+        // stored results. If ANY flag exists, user
+        // has touched the ecosystem and skips the gate.
+        // ==============================================
+        function hasEcosystemActivity() {
+            var flags = [
+                'freedom_completed', 'freedom_calculator_result', 'freedom_email',
+                'waiting_completed', 'cost_of_waiting_data', 'cost_of_waiting_email',
+                'investment_completed', 'investment_simplifier_completed', 'investmentSimplifier_bridge_email',
+                'eightclub_completed', 'credit_protocol_score',
+                'budget_completed', 'budget_unlocked',
+                'prompt_completed', 'prompt_vault_categories_used'
+            ];
+            for (var i = 0; i < flags.length; i++) {
+                var val = localStorage.getItem(flags[i]);
+                if (val && val !== 'false' && val !== '0' && val !== 'null' && val !== '[]') return true;
+            }
+            return false;
         }
 
-        function isTempId(id) {
-            return id && id.length === 10 && id.substring(0, 5) === 'KOU-T';
+        // Returns array of detected tool completions for theater display
+        function getEcosystemCompletions() {
+            var found = [];
+            var checks = [
+                { flags: ['freedom_completed', 'freedom_calculator_result', 'freedom_email'], name: 'Freedom Calculator', icon: '\uD83C\uDFAF' },
+                { flags: ['waiting_completed', 'cost_of_waiting_data', 'cost_of_waiting_email'], name: 'Cost of Waiting', icon: '\u23F0' },
+                { flags: ['investment_completed', 'investment_simplifier_completed', 'investmentSimplifier_bridge_email'], name: 'Investment Simplifier', icon: '\uD83D\uDCCA' },
+                { flags: ['eightclub_completed', 'credit_protocol_score'], name: '800-Club Protocol', icon: '\uD83D\uDCB3' },
+                { flags: ['budget_completed', 'budget_unlocked'], name: 'Budget Calculator', icon: '\uD83D\uDCB0' },
+                { flags: ['prompt_completed'], name: 'Prompt Vault', icon: '\uD83E\uDDE0' }
+            ];
+            for (var c = 0; c < checks.length; c++) {
+                var check = checks[c];
+                for (var f = 0; f < check.flags.length; f++) {
+                    var val = localStorage.getItem(check.flags[f]);
+                    if (val && val !== 'false' && val !== '0' && val !== 'null' && val !== '[]') {
+                        found.push({ name: check.name, icon: check.icon });
+                        break;
+                    }
+                }
+            }
+            return found;
         }
 
         // ==============================================
-        // VERIFICATION CEREMONY
-        // Runs 3-step animated verification before
-        // revealing the dashboard. Makes the ID feel
-        // like a real credential, not a random string.
+        // ECOSYSTEM PROCESSING THEATER
+        // 5-step strategic delay for ecosystem users
+        // without an Architect ID. Scans their data,
+        // shows what they built, assigns temp ID.
+        // Idleness Aversion + Operational Transparency.
+        // ==============================================
+        function runEcosystemTheater(tempId) {
+            var gate = document.getElementById('accessGate');
+            gate.classList.remove('show');
+
+            var theater = document.getElementById('ecosystemTheater');
+            theater.classList.remove('hidden');
+
+            var titleEl = document.getElementById('ecoTheaterTitle');
+            var stepEl = document.getElementById('ecoTheaterStep');
+            var progressFill = document.getElementById('ecoTheaterProgressFill');
+            var pctEl = document.getElementById('ecoTheaterPct');
+            var valueFrame = document.getElementById('ecoTheaterValueFrame');
+            var valueText = document.getElementById('ecoTheaterValueText');
+
+            var completions = getEcosystemCompletions();
+            var count = completions.length;
+            var names = '';
+            for (var n = 0; n < completions.length; n++) {
+                names += completions[n].icon + ' ' + completions[n].name;
+                if (n < completions.length - 1) names += ', ';
+            }
+
+            // Calculate velocity and level for display
+            var velScore = '1.0x';
+            if (count >= 5) velScore = '1.5x';
+            else if (count >= 3) velScore = '1.25x';
+            else if (count >= 2) velScore = '1.1x';
+            else if (count >= 1) velScore = '1.0x';
+
+            var level = 'Bronze';
+            if (count >= 7) level = 'Elite';
+            else if (count >= 5) level = 'Gold';
+            else if (count >= 3) level = 'Silver';
+
+            var steps = [
+                {
+                    title: 'Scanning ecosystem...',
+                    step: 'Checking for active tools...',
+                    pct: 20,
+                    label: null,
+                    value: null
+                },
+                {
+                    title: 'Found ' + count + ' active tool' + (count !== 1 ? 's' : '') + '.',
+                    step: 'Loading completion data...',
+                    pct: 45,
+                    label: 'Tools Detected',
+                    value: names || 'Ecosystem activity detected'
+                },
+                {
+                    title: 'Calculating Wealth Velocity...',
+                    step: 'Analyzing your progress...',
+                    pct: 70,
+                    label: 'Your Status',
+                    value: 'Velocity: ' + velScore + '  |  Level: ' + level + '  |  ' + count + '/7 tools active'
+                },
+                {
+                    title: 'Assigning Architect ID...',
+                    step: 'Generating temporary credentials...',
+                    pct: 90,
+                    label: 'Your Architect ID',
+                    value: tempId + '  (complete Autopilot to claim permanent ID)'
+                },
+                {
+                    title: 'Dashboard ready.',
+                    step: 'Access granted.',
+                    pct: 100,
+                    label: null,
+                    value: null
+                }
+            ];
+
+            var i = 0;
+            var interval = setInterval(function() {
+                if (i < steps.length) {
+                    titleEl.textContent = steps[i].title;
+                    stepEl.textContent = steps[i].step;
+                    progressFill.style.width = steps[i].pct + '%';
+                    pctEl.textContent = steps[i].pct + '%';
+                    if (steps[i].value) {
+                        var labelEl = document.querySelector('.eco-theater-value-label');
+                        if (labelEl && steps[i].label) labelEl.textContent = steps[i].label;
+                        valueText.textContent = steps[i].value;
+                        valueFrame.classList.add('show');
+                    } else {
+                        valueFrame.classList.remove('show');
+                    }
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(function() {
+                        theater.classList.add('hidden');
+                        document.getElementById('mainDashboard').style.display = 'block';
+                        initDashboard();
+                    }, 500);
+                }
+            }, 950);
+        }
+
+        // ==============================================
+        // VERIFICATION CEREMONY (Autopilot ID users)
+        // Unchanged from original. Runs 3-step animated
+        // verification for users with a real KOU-ID.
         // ==============================================
         function runVerificationCeremony(architectId) {
             var gate = document.getElementById('accessGate');
@@ -1070,63 +1214,34 @@
             var step2 = document.getElementById('gvStep2');
             var step3 = document.getElementById('gvStep3');
 
-            // Show gate in verify mode (hide cold visitor content + preview)
             gate.classList.add('show');
             gateContent.style.display = 'none';
             gatePreview.style.display = 'none';
             verifyState.classList.add('show');
             verifyId.textContent = architectId;
 
-            // Step 1: Verify ID (0ms -> 800ms)
-            setTimeout(function() {
-                verifyBar.style.width = '33%';
-                verifyStatus.textContent = 'Verifying Architect ID...';
-                step1.classList.add('active');
-            }, 100);
-
-            setTimeout(function() {
-                step1.classList.remove('active');
-                step1.classList.add('done');
-                step1.querySelector('.step-dot').textContent = '\u2713';
-            }, 800);
-
-            // Step 2: Load systems (800ms -> 1800ms)
-            setTimeout(function() {
-                verifyBar.style.width = '66%';
-                verifyStatus.textContent = 'Loading your systems...';
-                step2.classList.add('active');
-            }, 900);
-
-            setTimeout(function() {
-                step2.classList.remove('active');
-                step2.classList.add('done');
-                step2.querySelector('.step-dot').textContent = '\u2713';
-            }, 1800);
-
-            // Step 3: Prepare dashboard (1800ms -> 2500ms)
-            setTimeout(function() {
-                verifyBar.style.width = '100%';
-                verifyStatus.textContent = 'Access granted.';
-                verifyStatus.style.color = 'var(--accent-green)';
-                step3.classList.add('active');
-            }, 1900);
-
-            setTimeout(function() {
-                step3.classList.remove('active');
-                step3.classList.add('done');
-                step3.querySelector('.step-dot').textContent = '\u2713';
-            }, 2400);
-
-            // Reveal dashboard (2600ms)
-            setTimeout(function() {
-                gate.classList.remove('show');
-                document.getElementById('mainDashboard').style.display = 'block';
-                initDashboard();
-            }, 2700);
+            setTimeout(function() { verifyBar.style.width = '33%'; verifyStatus.textContent = 'Verifying Architect ID...'; step1.classList.add('active'); }, 100);
+            setTimeout(function() { step1.classList.remove('active'); step1.classList.add('done'); step1.querySelector('.step-dot').textContent = '\u2713'; }, 800);
+            setTimeout(function() { verifyBar.style.width = '66%'; verifyStatus.textContent = 'Loading your systems...'; step2.classList.add('active'); }, 900);
+            setTimeout(function() { step2.classList.remove('active'); step2.classList.add('done'); step2.querySelector('.step-dot').textContent = '\u2713'; }, 1800);
+            setTimeout(function() { verifyBar.style.width = '100%'; verifyStatus.textContent = 'Access granted.'; verifyStatus.style.color = 'var(--accent-green)'; step3.classList.add('active'); }, 1900);
+            setTimeout(function() { step3.classList.remove('active'); step3.classList.add('done'); step3.querySelector('.step-dot').textContent = '\u2713'; }, 2400);
+            setTimeout(function() { gate.classList.remove('show'); document.getElementById('mainDashboard').style.display = 'block'; initDashboard(); }, 2700);
         }
 
         // ==============================================
-        // ACCESS CHECK (4 paths, 1 ceremony)
+        // ACCESS CHECK (5 paths, 1 ceremony, 1 theater)
+        //
+        // PATH A: ?id= query param from Autopilot
+        //         -> ceremony -> dashboard
+        // PATH B: Stored Architect ID (returning user)
+        //         -> ceremony -> dashboard
+        // PATH C: Bridge user (vault_email_captured)
+        //         -> temp ID -> ceremony -> dashboard
+        // PATH D: Ecosystem user (any app activity, no ID)
+        //         -> temp ID -> processing theater -> dashboard
+        // PATH E: Cold visitor (zero activity)
+        //         -> show gate with blurred preview
         // ==============================================
         function checkAccess() {
             // PATH A: ?id= query param from Autopilot bridge
@@ -1135,15 +1250,9 @@
             if (paramId) {
                 paramId = paramId.trim().toUpperCase();
                 if (/^KOU-[A-Z0-9]{6}$/.test(paramId)) {
-                    // Store the ID
                     localStorage.setItem('cashvault_architect_id', paramId);
                     localStorage.setItem('command_center_architect_id', paramId);
-                    // Clean URL (remove ?id= so refresh doesn't re-trigger)
-                    try {
-                        var cleanUrl = window.location.pathname + window.location.hash;
-                        window.history.replaceState({}, document.title, cleanUrl);
-                    } catch(e) {}
-                    // Run ceremony
+                    try { var cleanUrl = window.location.pathname + window.location.hash; window.history.replaceState({}, document.title, cleanUrl); } catch(e) {}
                     runVerificationCeremony(paramId);
                     return 'ceremony';
                 }
@@ -1159,16 +1268,23 @@
             // PATH C: Bridge user (Prompt Vault email capture)
             if (isBridgeUser()) {
                 var tempId = localStorage.getItem('command_center_temp_id');
-                if (!tempId) {
-                    tempId = generateTempArchitectId();
-                    localStorage.setItem('command_center_temp_id', tempId);
-                }
+                if (!tempId) { tempId = generateTempArchitectId(); localStorage.setItem('command_center_temp_id', tempId); }
                 localStorage.setItem('command_center_architect_id', tempId);
                 runVerificationCeremony(tempId);
                 return 'ceremony';
             }
 
-            // PATH D: No access. Show bio-link gate with blurred preview.
+            // PATH D: Ecosystem user (completed any app, no ID yet)
+            // No gate. No email. Strategic theater, then dashboard.
+            if (hasEcosystemActivity()) {
+                var ecoTempId = localStorage.getItem('command_center_temp_id');
+                if (!ecoTempId) { ecoTempId = generateTempArchitectId(); localStorage.setItem('command_center_temp_id', ecoTempId); }
+                localStorage.setItem('command_center_architect_id', ecoTempId);
+                runEcosystemTheater(ecoTempId);
+                return 'theater';
+            }
+
+            // PATH E: Cold visitor. Show bio-link gate with blurred preview.
             document.getElementById('mainDashboard').style.display = 'none';
             document.getElementById('gateContent').style.display = 'block';
             document.getElementById('gatePreview').style.display = 'block';
@@ -1182,12 +1298,10 @@
             var input = document.getElementById('gateIdInput');
             var error = document.getElementById('gateError');
             var id = input.value.trim().toUpperCase();
-
             if (/^KOU-[A-Z0-9]{6}$/.test(id)) {
                 localStorage.setItem('cashvault_architect_id', id);
                 localStorage.setItem('command_center_architect_id', id);
                 error.style.display = 'none';
-                // Run ceremony instead of instant reveal
                 runVerificationCeremony(id);
             } else {
                 error.style.display = 'block';
@@ -1209,12 +1323,7 @@
             if (e.key === 'Enter') gateManualEntry();
         });
 
-        // ==============================================
-        // INIT
-        // ==============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAccess();
-        });
+        document.addEventListener('DOMContentLoaded', function() { checkAccess(); });
 
         function initDashboard() {
             loadArchitectId();
@@ -1257,13 +1366,11 @@
 
         function loadUnlockStatus() {
             unlockedSystems = ['autopilot'];
-
             SYSTEMS.forEach(function(system) {
                 if (completedSystems.indexOf(system.id) !== -1) {
                     if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
                     return;
                 }
-
                 if (system.unlockType === 'completion' && system.unlockRequires) {
                     if (completedSystems.indexOf(system.unlockRequires) !== -1) {
                         if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
@@ -1306,9 +1413,6 @@
             return { score: '1.0x', desc: 'Complete your first tool to start building velocity.', label: 'zero' };
         }
 
-        // ==============================================
-        // WELCOME BANNER (Bridge User Onboarding)
-        // ==============================================
         function updateWelcomeBanner() {
             var banner = document.getElementById('welcomeBanner');
             var titleEl = document.getElementById('welcomeBannerTitle');
@@ -1316,23 +1420,18 @@
             var btnEl = document.getElementById('welcomeBannerBtn');
             var btnTextEl = document.getElementById('welcomeBannerBtnText');
 
-            if (!isBridgeUser()) { banner.classList.remove('show'); return; }
+            // Show banner for bridge users AND ecosystem theater users (temp ID holders)
+            if (!isBridgeUser() && !isTempId(currentArchitectId)) { banner.classList.remove('show'); return; }
 
             if (!localStorage.getItem('bridge_entry_tool_count')) {
                 localStorage.setItem('bridge_entry_tool_count', String(completedSystems.length));
             }
-
             var entryCount = parseInt(localStorage.getItem('bridge_entry_tool_count') || '0', 10);
-
-            if (completedSystems.length > entryCount && completedSystems.length >= 2) {
-                banner.classList.remove('show');
-                return;
-            }
+            if (completedSystems.length > entryCount && completedSystems.length >= 2) { banner.classList.remove('show'); return; }
 
             var nextSystem = SYSTEMS
                 .filter(function(s) { return completedSystems.indexOf(s.id) === -1 && unlockedSystems.indexOf(s.id) !== -1; })
                 .sort(function(a, b) { return a.priority - b.priority; })[0];
-
             if (!nextSystem) { banner.classList.remove('show'); return; }
 
             var count = completedSystems.length;
@@ -1349,7 +1448,6 @@
             btnTextEl.textContent = 'Open ' + nextSystem.name.split(' ')[0];
             btnEl.href = nextSystem.url;
             btnEl.onclick = null;
-
             banner.classList.add('show');
         }
 
@@ -1378,13 +1476,8 @@
             var velocity = getVelocityScore();
             document.getElementById('velocityScore').textContent = velocity.score;
             document.getElementById('velocityDesc').textContent = velocity.desc;
-
             try {
-                localStorage.setItem('cashvault_velocity', JSON.stringify({
-                    score: velocity.score,
-                    label: velocity.label,
-                    systems: completedSystems.length
-                }));
+                localStorage.setItem('cashvault_velocity', JSON.stringify({ score: velocity.score, label: velocity.label, systems: completedSystems.length }));
             } catch(e) {}
 
             document.getElementById('systemsCompleted').textContent = completedSystems.length + '/7';
@@ -1398,18 +1491,13 @@
         }
 
         function goToFreedomCalc() {
-            if (unlockedSystems.indexOf('freedom') !== -1) {
-                window.location.href = CONFIG.FREEDOM_CALCULATOR_URL;
-            } else {
-                var freedomSystem = SYSTEMS.find(function(s) { return s.id === 'freedom'; });
-                showInfoModal(freedomSystem);
-            }
+            if (unlockedSystems.indexOf('freedom') !== -1) { window.location.href = CONFIG.FREEDOM_CALCULATOR_URL; }
+            else { var freedomSystem = SYSTEMS.find(function(s) { return s.id === 'freedom'; }); showInfoModal(freedomSystem); }
         }
 
         function renderSystemsGrid() {
             var grid = document.getElementById('systemsGrid');
             grid.innerHTML = '';
-
             SYSTEMS.forEach(function(system) {
                 var isCompleted = completedSystems.indexOf(system.id) !== -1;
                 var isUnlocked = unlockedSystems.indexOf(system.id) !== -1;
@@ -1428,7 +1516,7 @@
 
                 var actionBadgeHtml = '';
                 if (isSocialAction) {
-                    if (system.socialAction === 'dm') actionBadgeHtml = '<span class="action-badge dm">\uD83D\uDDDD\uFE0F DM to Unlock</span>';
+                    if (system.socialAction === 'dm') actionBadgeHtml = '<span class="action-badge dm">\uD83D\uDDD1\uFE0F DM to Unlock</span>';
                     else if (system.socialAction === 'story') actionBadgeHtml = '<span class="action-badge story">\uD83D\uDCF8 Story to Unlock</span>';
                 }
 
@@ -1436,10 +1524,7 @@
                 var descClass = 'system-desc';
                 if (isCompleted) {
                     var context = getCompletionContext(system.id);
-                    if (context) {
-                        descText = context;
-                        descClass = 'system-desc completed-context';
-                    }
+                    if (context) { descText = context; descClass = 'system-desc completed-context'; }
                 }
 
                 card.innerHTML =
@@ -1451,12 +1536,8 @@
                     '</div>' +
                     '<div class="system-status">' + (isCompleted ? '\u2705' : (isUnlocked ? '\u25CB' : '\uD83D\uDD12')) + '</div>';
 
-                if (isUnlocked) {
-                    card.onclick = function() { window.location.href = system.url; };
-                } else {
-                    card.onclick = (function(s) { return function() { showInfoModal(s); }; })(system);
-                }
-
+                if (isUnlocked) { card.onclick = function() { window.location.href = system.url; }; }
+                else { card.onclick = (function(s) { return function() { showInfoModal(s); }; })(system); }
                 grid.appendChild(card);
             });
         }
@@ -1481,7 +1562,6 @@
             subtitle.textContent = exp.subtitle;
 
             var contentHtml = '';
-
             if (exp.dualOptions) {
                 contentHtml += '<div class="dual-options">';
                 exp.dualOptions.forEach(function(opt, i) {
@@ -1491,9 +1571,7 @@
                 exp.dualOptions.forEach(function(opt, i) {
                     var stepColor = i === 0 ? 'gold' : 'pink';
                     contentHtml += '<div class="dual-section' + (i === 0 ? ' show' : '') + '" id="dualSection' + i + '"><div class="unlock-method"><div class="unlock-method-title ' + stepColor + '">' + opt.title + '</div>';
-                    opt.steps.forEach(function(step, j) {
-                        contentHtml += '<div class="unlock-step"><span class="unlock-step-num ' + stepColor + '">' + (j + 1) + '</span><span class="unlock-step-text">' + step + '</span></div>';
-                    });
+                    opt.steps.forEach(function(step, j) { contentHtml += '<div class="unlock-step"><span class="unlock-step-num ' + stepColor + '">' + (j + 1) + '</span><span class="unlock-step-text">' + step + '</span></div>'; });
                     contentHtml += '</div>';
                     if (i === 0) contentHtml += '<p style="text-align:center;color:var(--accent-gold);font-weight:700;margin-bottom:15px;">Your progress: ' + completedSystems.length + '/5 tools</p>';
                     if (i === 1) contentHtml += '<p style="text-align:center;margin-top:15px;"><button class="info-modal-btn primary gold" style="width:100%;" onclick="showVaultCodeModal()">I Have My Code &rarr;</button></p>';
@@ -1503,9 +1581,7 @@
             } else if (exp.secretKeyword) {
                 contentHtml += '<div class="secret-keyword-box"><div class="secret-keyword-label">\uD83E\uDD2B Secret Keyword</div><div class="secret-keyword">' + exp.secretKeyword + '</div></div>';
                 contentHtml += '<div class="unlock-method"><div class="unlock-method-title pink">How to Unlock</div>';
-                exp.steps.forEach(function(step, i) {
-                    contentHtml += '<div class="unlock-step"><span class="unlock-step-num pink">' + (i + 1) + '</span><span class="unlock-step-text">' + step + '</span></div>';
-                });
+                exp.steps.forEach(function(step, i) { contentHtml += '<div class="unlock-step"><span class="unlock-step-num pink">' + (i + 1) + '</span><span class="unlock-step-text">' + step + '</span></div>'; });
                 contentHtml += '</div>';
                 primaryBtn.textContent = '\uD83D\uDD11 I Have My Code';
                 primaryBtn.className = 'info-modal-btn primary pink';
@@ -1513,9 +1589,7 @@
             } else {
                 var stepColor = system.unlockType === 'level' ? 'gold' : '';
                 contentHtml += '<div class="unlock-method"><div class="unlock-method-title ' + stepColor + '">' + exp.title + '</div>';
-                exp.steps.forEach(function(step, i) {
-                    contentHtml += '<div class="unlock-step"><span class="unlock-step-num ' + stepColor + '">' + (i + 1) + '</span><span class="unlock-step-text">' + step + '</span></div>';
-                });
+                exp.steps.forEach(function(step, i) { contentHtml += '<div class="unlock-step"><span class="unlock-step-num ' + stepColor + '">' + (i + 1) + '</span><span class="unlock-step-text">' + step + '</span></div>'; });
                 contentHtml += '</div>';
                 if (exp.showProgress) {
                     var needed = system.unlockLevel === 'silver' ? 3 : 5;
@@ -1530,11 +1604,8 @@
                     primaryBtn.textContent = 'Keep Building \u2192';
                     primaryBtn.className = 'info-modal-btn primary gold';
                     primaryBtn.style.display = 'flex';
-                } else {
-                    primaryBtn.style.display = 'none';
-                }
+                } else { primaryBtn.style.display = 'none'; }
             }
-
             content.innerHTML = contentHtml;
             modal.classList.add('show');
         }
@@ -1555,11 +1626,7 @@
             document.querySelectorAll('.dual-section').forEach(function(el, i) { el.classList.toggle('show', i === index); });
         }
 
-        function showBudgetCodeModal() {
-            document.getElementById('budgetCodeInput').value = '';
-            document.getElementById('budgetCodeError').style.display = 'none';
-            document.getElementById('budgetCodeModal').classList.add('show');
-        }
+        function showBudgetCodeModal() { document.getElementById('budgetCodeInput').value = ''; document.getElementById('budgetCodeError').style.display = 'none'; document.getElementById('budgetCodeModal').classList.add('show'); }
         function closeBudgetCodeModal() { document.getElementById('budgetCodeModal').classList.remove('show'); }
 
         function verifyBudgetCode() {
@@ -1572,18 +1639,10 @@
                 loadUnlockStatus();
                 renderDashboard();
                 showSuccessModal('Budget Calculator Unlocked!', 'Cash flow control activated.');
-            } else {
-                error.style.display = 'block';
-                input.style.borderColor = 'var(--danger)';
-            }
+            } else { error.style.display = 'block'; input.style.borderColor = 'var(--danger)'; }
         }
 
-        function showVaultCodeModal() {
-            closeInfoModal();
-            document.getElementById('vaultCodeInput').value = '';
-            document.getElementById('vaultCodeError').style.display = 'none';
-            document.getElementById('vaultCodeModal').classList.add('show');
-        }
+        function showVaultCodeModal() { closeInfoModal(); document.getElementById('vaultCodeInput').value = ''; document.getElementById('vaultCodeError').style.display = 'none'; document.getElementById('vaultCodeModal').classList.add('show'); }
         function closeVaultCodeModal() { document.getElementById('vaultCodeModal').classList.remove('show'); }
 
         function verifyVaultCode() {
@@ -1596,10 +1655,7 @@
                 loadUnlockStatus();
                 renderDashboard();
                 showSuccessModal('Prompt Vault Unlocked!', 'AI arsenal activated.');
-            } else {
-                error.style.display = 'block';
-                input.style.borderColor = 'var(--danger)';
-            }
+            } else { error.style.display = 'block'; input.style.borderColor = 'var(--danger)'; }
         }
 
         function showSuccessModal(titleText, descText) {
@@ -1624,18 +1680,10 @@
             var next = document.getElementById('levelNextReward');
             var level, progress, nextReward;
 
-            if (count >= 7) {
-                level = 'elite'; progress = 100; nextReward = 'Max level \uD83D\uDC51';
-                document.getElementById('nextAction').style.display = 'none';
-                document.getElementById('allComplete').style.display = 'block';
-            }
+            if (count >= 7) { level = 'elite'; progress = 100; nextReward = 'Max level \uD83D\uDC51'; document.getElementById('nextAction').style.display = 'none'; document.getElementById('allComplete').style.display = 'block'; }
             else if (count >= 5) { level = 'gold'; progress = 70 + ((count - 5) / 2) * 30; nextReward = (7 - count) + ' more \u2192 Elite'; }
             else if (count >= 3) { level = 'silver'; progress = 40 + ((count - 3) / 2) * 30; nextReward = (5 - count) + ' more \u2192 Gold'; }
-            else {
-                level = 'bronze';
-                progress = count === 0 ? 0 : 5 + (count / 3) * 35;
-                nextReward = (3 - count) + ' more \u2192 Silver';
-            }
+            else { level = 'bronze'; progress = count === 0 ? 0 : 5 + (count / 3) * 35; nextReward = (3 - count) + ' more \u2192 Silver'; }
 
             badge.className = 'level-badge ' + level;
             name.textContent = level.charAt(0).toUpperCase() + level.slice(1);
@@ -1674,9 +1722,7 @@
                 btn.onclick = null;
                 btnText.textContent = 'Open ' + nextSystem.name.split(' ')[0];
             } else {
-                var nextLocked = SYSTEMS.find(function(s) {
-                    return completedSystems.indexOf(s.id) === -1 && unlockedSystems.indexOf(s.id) === -1;
-                });
+                var nextLocked = SYSTEMS.find(function(s) { return completedSystems.indexOf(s.id) === -1 && unlockedSystems.indexOf(s.id) === -1; });
                 if (nextLocked) {
                     actionSection.className = 'next-action level-up';
                     title.textContent = 'Level Up to Unlock ' + nextLocked.name;
