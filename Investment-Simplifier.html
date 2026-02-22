@@ -353,6 +353,12 @@
             background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             margin-bottom: 5px;
+            text-shadow: 0 0 40px rgba(16,185,129,0.4);
+            animation: heroGlow 3s ease-in-out infinite;
+        }
+        @keyframes heroGlow {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(16,185,129,0.3)); }
+            50% { filter: drop-shadow(0 0 20px rgba(16,185,129,0.6)); }
         }
         .projection-hero-sub { font-size: 0.85rem; color: var(--text-secondary); }
         .projection-hero-comparison {
@@ -411,6 +417,14 @@
         .etf-allocation { display: flex; align-items: center; justify-content: space-between; padding-top: 15px; border-top: 1px solid var(--border); }
         .allocation-percent { font-size: 1.5rem; font-weight: 700; color: var(--success); }
         .allocation-dollars { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; text-align: right; }
+
+        /* TICKER LEGEND */
+        .ticker-legend {
+            display: flex; align-items: center; gap: 8px; padding: 10px 14px; margin-bottom: 15px;
+            background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 8px; font-size: 0.78rem; color: var(--text-muted);
+        }
+        .ticker-legend strong { color: var(--text-secondary); }
 
         /* SHARE CARD */
         .share-card-section {
@@ -493,6 +507,8 @@
         }
         .strategy-chip:hover { border-color: var(--accent-primary); color: var(--accent-primary); transform: translateY(-2px); }
         .strategy-chip.active { border-color: var(--accent-primary); color: var(--accent-primary); background: rgba(99,102,241,0.1); }
+        .strategy-chip.recommended { border-color: var(--success); background: rgba(16,185,129,0.08); }
+        .strategy-chip.recommended::after { content: 'MOST POPULAR'; position: absolute; top: -8px; right: 12px; background: var(--success); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; }
         .strategy-chip-name { font-weight: 700; color: var(--text-primary); display: block; margin-bottom: 2px; font-size: 0.95rem; }
         .strategy-chip-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; display: block; margin-top: 6px; }
         .strategy-chip-best-for { font-size: 0.72rem; color: var(--accent-primary); font-weight: 600; display: block; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); }
@@ -550,6 +566,18 @@
         .step-number { width: 32px; height: 32px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
         .step-content h4 { color: var(--text-primary); font-size: 0.95rem; margin-bottom: 4px; }
         .step-content p { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.5; }
+
+        /* TRUST DISCLAIMERS */
+        .trust-disclaimers {
+            margin-top: 20px; padding: 18px;
+            background: rgba(99,102,241,0.05); border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+        .trust-disclaimers p {
+            font-size: 0.75rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 8px;
+        }
+        .trust-disclaimers p:last-child { margin-bottom: 0; }
+        .trust-disclaimers strong { color: var(--text-secondary); }
 
         .footer { text-align: center; color: var(--text-muted); padding: 20px 0; font-size: 0.8rem; }
         .footer a { color: var(--success); text-decoration: none; }
@@ -669,25 +697,25 @@
                 <p class="strategy-templates-label">Pick a Strategy (or customize below)</p>
                 <p class="strategy-templates-sublabel">Each one is battle-tested. Tap to auto-fill your portfolio.</p>
                 <div class="strategy-chips">
-                    <div class="strategy-chip" onclick="loadStrategy('vti_only', this)">
+                    <div class="strategy-chip recommended" id="chip-vti" onclick="loadStrategy('vti_only', this)">
                         <span class="strategy-chip-name">&#x1F680; Set It and Forget It</span>
                         <span class="strategy-chip-holdings">100% VTI</span>
                         <span class="strategy-chip-desc">Buy one fund that owns every U.S. company. Never think about it again. The simplest path to wealth.</span>
                         <span class="strategy-chip-best-for">Best for: Beginners who want zero complexity</span>
                     </div>
-                    <div class="strategy-chip" onclick="loadStrategy('buffett', this)">
+                    <div class="strategy-chip" id="chip-buffett" onclick="loadStrategy('buffett', this)">
                         <span class="strategy-chip-name">&#x1F3C6; The Buffett Play</span>
                         <span class="strategy-chip-holdings">90% S&P 500 / 10% Bonds</span>
                         <span class="strategy-chip-desc">Warren Buffett's exact recommendation for his own family. 90% in America's 500 biggest companies, 10% safety net.</span>
                         <span class="strategy-chip-best-for">Best for: "I trust the richest investor alive"</span>
                     </div>
-                    <div class="strategy-chip" onclick="loadStrategy('bogle', this)">
+                    <div class="strategy-chip" id="chip-bogle" onclick="loadStrategy('bogle', this)">
                         <span class="strategy-chip-name">&#x1F30D; World Portfolio</span>
                         <span class="strategy-chip-holdings">US + International + Bonds</span>
                         <span class="strategy-chip-desc">Own companies from every country on Earth. If the U.S. slows down, you're still covered. Maximum diversification.</span>
                         <span class="strategy-chip-best-for">Best for: "I don't want all my eggs in one country"</span>
                     </div>
-                    <div class="strategy-chip" onclick="loadStrategy('income', this)">
+                    <div class="strategy-chip" id="chip-income" onclick="loadStrategy('income', this)">
                         <span class="strategy-chip-name">&#x1F4B0; Cash Flow Machine</span>
                         <span class="strategy-chip-holdings">SCHD + VYM Dividends</span>
                         <span class="strategy-chip-desc">Companies that pay you cash every quarter just for owning their stock. Your portfolio becomes a paycheck generator.</span>
@@ -699,8 +727,8 @@
             <div class="input-grid">
                 <div class="input-group">
                     <label for="userAge">Your Age</label>
-                    <input type="number" id="userAge" value="25" min="18" max="100">
-                    <input type="range" id="ageRange" value="25" min="18" max="100" style="margin-top: 8px;">
+                    <input type="number" id="userAge" value="19" min="18" max="100">
+                    <input type="range" id="ageRange" value="19" min="18" max="100" style="margin-top: 8px;">
                 </div>
                 <div class="input-group">
                     <label for="riskStyle">Investment Style</label>
@@ -739,6 +767,10 @@
                             <span class="allocation-value" id="bondAllocation">--</span>
                         </div>
                     </div>
+                </div>
+                <div class="ticker-legend">
+                    <span>&#x2139;&#xFE0F;</span>
+                    <span><strong>Tickers explained:</strong> The letters in the chart (VTI, SCHD, BND, etc.) are stock market codes for real ETFs you can buy on any brokerage app like Fidelity, Schwab, or Vanguard.</span>
                 </div>
             </div>
 
@@ -784,9 +816,9 @@
             <!-- === EMAIL GATE === -->
             <div class="portfolio-gate-container" id="portfolioGateContainer">
                 <div class="unlock-overlay" id="unlockOverlay">
-                    <div class="unlock-icon">&#x1F512;</div>
-                    <h3 class="unlock-title">Your Buy List Expires.</h3>
-                    <p class="unlock-subtitle">The exact tickers and percentages are below. Close this tab and they're gone. One email locks them in.</p>
+                    <div class="unlock-icon">&#x1F4E9;</div>
+                    <h3 class="unlock-title">Your Buy List is Ready.</h3>
+                    <p class="unlock-subtitle">The exact tickers and dollar amounts are below. One email and they're yours permanently.</p>
                     
                     <div class="beehiiv-embed-container">
                         <iframe 
@@ -885,13 +917,21 @@
             </div>
         </div>
 
-        <!-- BRIDGE CTA -->
+        <!-- BRIDGE CTA: COMMAND CENTER ONLY -->
         <div class="bridge-cta" id="bridgeCta" style="display: none;">
             <h3 id="bridgeCtaTitle">&#x2705; Your Portfolio is Designed</h3>
-            <p id="bridgeCtaDesc">Now make it automatic. Install the Autopilot System and never think about investing again.</p>
-            <a href="#" id="bridgeCtaBtn" class="bridge-cta-btn">
-                <span>&#x1F916;</span> <span id="bridgeCtaBtnText">Install The Autopilot System</span> &rarr;
+            <p id="bridgeCtaDesc">Now track everything from one place. Command Center shows your portfolio, progress, and next steps.</p>
+            <a href="https://spacekou5-oss.github.io/cashvault-funnel/command-center.html" id="bridgeCtaBtn" class="bridge-cta-btn">
+                <span>&#x1F3AF;</span> <span id="bridgeCtaBtnText">Open Command Center</span> &rarr;
             </a>
+        </div>
+
+        <!-- TRUST & DISCLAIMERS -->
+        <div class="trust-disclaimers">
+            <p><strong>&#x1F4CA; Real ETFs, real tickers.</strong> Every fund shown (VTI, VOO, SCHD, BND, etc.) is a real, publicly traded ETF you can buy on Fidelity, Schwab, Vanguard, or any major brokerage. These are not hypothetical.</p>
+            <p><strong>&#x1F4C8; Projection assumptions.</strong> Growth projections use a 7% average annual return (the S&P 500 historical average after inflation). Actual results vary. Markets go up and down. Past performance does not guarantee future results.</p>
+            <p><strong>&#x1F30D; Currency and region.</strong> This tool uses USD and U.S.-listed ETFs. Some ETFs (like VXUS and VT) include international companies. For non-U.S. investors, check your local brokerage for equivalent funds.</p>
+            <p><strong>&#x26A0;&#xFE0F; Not financial advice.</strong> This tool is for educational purposes. It does not constitute personalized investment advice. Always do your own research or consult a licensed financial advisor before investing.</p>
         </div>
 
         <div class="next-steps">
@@ -904,16 +944,14 @@
         </div>
 
         <div class="footer">
-            <p>Made by <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a></p>
+            <p>Built by <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a> &bull; Systems over willpower.</p>
             <p>Not financial advice. Research before investing.</p>
         </div>
     </div>
 
     <script>
         // --- CONFIGURATION ---
-        // PATCH 1: Added BRIDGE_URL for upstream email redirect
         const CONFIG = {
-            AUTOPILOT_URL: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html",
             COMMAND_CENTER_URL: "https://spacekou5-oss.github.io/cashvault-funnel/command-center.html",
             BRIDGE_URL: "https://spacekou5-oss.github.io/cashvault-funnel/bridge-investment.html",
             SOCIAL: { INSTAGRAM: "@koutalksmoney", TWITTER: "@koutalksmoney" },
@@ -997,10 +1035,6 @@
             return id;
         }
 
-        // PATCH 2: Returning user detection
-        // Returns true ONLY if user already completed Investment Simplifier's own email gate.
-        // Upstream email users (Freedom Calc / Cost of Waiting) are NEW to this app.
-        // They must sign up here too. Each app captures its own segment.
         function isReturningUser() {
             return localStorage.getItem('investmentSimplifier_bridge_email') === 'true';
         }
@@ -1195,7 +1229,6 @@
         }
 
         // === PROCESSING THEATER ===
-        // PATCH 3: After generation, upstream email users redirect to bridge page
         function calculateWithTheater() {
             const overlay = document.getElementById('processingOverlay');
             const textEl = document.getElementById('processingText');
@@ -1238,11 +1271,6 @@
                         progressFill.style.width = '15%';
                         calculatePortfolio();
                         
-                        // PATCH 3: RETURNING users skip inline results and go to Bridge.
-                        // They already gave their email on a previous visit.
-                        // Bridge page shows confetti, share card, brokerage explainer, next steps.
-                        // Data is already saved to localStorage by calculatePortfolio() -> saveForBridgePage().
-                        // NEW users (including those from Freedom Calc / Cost of Waiting) see the email gate.
                         if (isReturningUser()) {
                             window.location.href = CONFIG.BRIDGE_URL;
                             return;
@@ -1292,26 +1320,31 @@
         }
 
         // === UPSTREAM WELCOME-BACK PERSONALIZATION ===
-        // Detects users arriving from Freedom Calculator or Cost of Waiting.
-        // Swaps Welcome Gate copy to acknowledge their journey and frame Investment Simplifier as Step 2.
-        // Gate still requires email signup. This is purely psychological: continuity > cold start.
         function personalizeWelcomeGate() {
             const fromFreedom = localStorage.getItem('freedom_email') === 'true';
             const fromCostOfWaiting = localStorage.getItem('cost_of_waiting_email') === 'true';
-            if (!fromFreedom && !fromCostOfWaiting) return;
+            const fromAutopilot = localStorage.getItem('autopilot_completed') === 'true';
+            
+            if (!fromFreedom && !fromCostOfWaiting && !fromAutopilot) return;
 
             const badge = document.querySelector('.welcome-badge span');
             const title = document.querySelector('.welcome-title');
             const subtitle = document.querySelector('.welcome-subtitle');
             const btn = document.querySelector('.welcome-btn');
 
-            if (fromFreedom) {
-                badge.textContent = 'Step 2 of 2 \u2022 Welcome Back';
+            if (fromAutopilot) {
+                // Autopilot gate handles this case separately, but if somehow they land here:
+                badge.textContent = 'Step 2 \u2022 Welcome Back';
+                title.innerHTML = 'Your Machine is Running.<br>Now Build the Portfolio.';
+                subtitle.textContent = 'Autopilot moves your money. This tells it WHERE to put it. 60 seconds. Exact ETFs. Exact percentages.';
+                btn.textContent = 'Build My Portfolio \u2192';
+            } else if (fromFreedom) {
+                badge.textContent = 'Step 2 \u2022 Welcome Back';
                 title.innerHTML = 'You Know Your Number.<br>Now Build the Machine.';
                 subtitle.textContent = 'Your Freedom Number showed you the destination. This builds the portfolio that gets you there. 60 seconds. Exact tickers. Exact percentages.';
                 btn.textContent = 'Build My Portfolio \u2192';
             } else if (fromCostOfWaiting) {
-                badge.textContent = 'Step 2 of 2 \u2022 Welcome Back';
+                badge.textContent = 'Step 2 \u2022 Welcome Back';
                 title.innerHTML = 'You Saw What Waiting Costs.<br>Now Stop the Bleeding.';
                 subtitle.textContent = 'Every day without a portfolio is money evaporating. This gives you the exact ETFs, percentages, and a 30-year projection in 60 seconds.';
                 btn.textContent = 'Build My Portfolio Now \u2192';
@@ -1328,13 +1361,6 @@
                 unlockPortfolio();
             }
 
-            // REMOVED: Upstream email auto-unlock.
-            // Freedom Calc and Cost of Waiting users are NEW to Investment Simplifier.
-            // They must sign up on this app's Beehiiv form for proper segmentation.
-            // Only investmentSimplifier_bridge_email (set by THIS app's form) unlocks the gate.
-
-            // UPSTREAM WELCOME-BACK: Personalize the Welcome Gate for users arriving from other apps.
-            // Gate still blocks. Email still captures. But the copy acknowledges their journey.
             personalizeWelcomeGate();
             
             const savedState = checkSavedState();
@@ -1375,22 +1401,20 @@
             rangeEl.addEventListener('input', () => { numEl.value = rangeEl.value; callback(); });
         }
 
+        // FIX: Strategy chips only change riskStyle, never touch age
         function loadStrategy(strategy, chipEl) {
             useCoreFromAutopilot = false;
             document.getElementById('coreHoldingBanner').classList.remove('show');
             document.querySelectorAll('.strategy-chip').forEach(c => c.classList.remove('active'));
             if (chipEl) chipEl.classList.add('active');
-            if (strategy === 'vti_only') updateInputs(25, 'growth');
-            else if (strategy === 'buffett') updateInputs(60, 'balanced');
-            else if (strategy === 'bogle') updateInputs(40, 'balanced');
-            else if (strategy === 'income') updateInputs(55, 'income');
+            
+            // Only change the risk style dropdown. Age stays as-is.
+            if (strategy === 'vti_only') document.getElementById('riskStyle').value = 'growth';
+            else if (strategy === 'buffett') document.getElementById('riskStyle').value = 'balanced';
+            else if (strategy === 'bogle') document.getElementById('riskStyle').value = 'balanced';
+            else if (strategy === 'income') document.getElementById('riskStyle').value = 'income';
+            
             calculateWithTheater();
-        }
-
-        function updateInputs(age, risk) {
-            document.getElementById('userAge').value = age;
-            document.getElementById('ageRange').value = age;
-            document.getElementById('riskStyle').value = risk;
         }
 
         function saveForBridgePage(stockPct, bondPct, alloc) {
@@ -1636,23 +1660,14 @@
             }
         }
 
+        // COMMAND CENTER ONLY: Single funnel destination
         function showBridgeCta() {
             const bridgeCta = document.getElementById('bridgeCta');
             bridgeCta.style.display = 'block';
-            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
-            const autopilotCompleted = localStorage.getItem('autopilot_completed') === 'true';
-            if (autopilotCompleted) {
-                bridgeCta.classList.add('completed');
-                document.getElementById('bridgeCtaTitle').innerHTML = '&#x2705; Autopilot Already Installed';
-                document.getElementById('bridgeCtaDesc').textContent = 'Your wealth machine is running. Track your progress in Command Center.';
-                document.getElementById('bridgeCtaBtnText').textContent = 'Open Command Center';
-                document.getElementById('bridgeCtaBtn').href = CONFIG.COMMAND_CENTER_URL;
-            } else {
-                const coreEtf = currentPortfolioData?.alloc?.find(a => a.isCore) || currentPortfolioData?.alloc?.[0];
-                const etfTicker = coreEtf ? (etfData[coreEtf.id]?.ticker || coreEtf.id.toUpperCase()) : 'VTI';
-                document.getElementById('bridgeCtaDesc').textContent = `You have the WHAT (your portfolio). Now install the HOW. The Autopilot System sets up automatic $${monthly}/month purchases of these exact ETFs.`;
-                document.getElementById('bridgeCtaBtn').href = `${CONFIG.AUTOPILOT_URL}?source=investment&monthly=${monthly}&suggested_etf=${etfTicker}`;
-            }
+            document.getElementById('bridgeCtaTitle').innerHTML = '&#x2705; Your Portfolio is Designed';
+            document.getElementById('bridgeCtaDesc').textContent = 'Your buy list is locked. Command Center tracks your portfolio, unlocks automation, and shows your next move.';
+            document.getElementById('bridgeCtaBtnText').textContent = 'Open Command Center';
+            document.getElementById('bridgeCtaBtn').href = CONFIG.COMMAND_CENTER_URL;
         }
 
         function copyShareText() {
