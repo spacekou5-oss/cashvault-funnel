@@ -65,7 +65,7 @@
         }
 
         /* ===================== */
-        /* FIX #1: ACCESS GATE  */
+        /* ACCESS GATE           */
         /* ===================== */
         .access-gate {
             display: none; flex-direction: column; align-items: center; justify-content: center;
@@ -102,6 +102,57 @@
         }
         .gate-id-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--accent-gold-glow); }
         .gate-error { color: var(--danger); font-size: 0.75rem; margin-top: 8px; display: none; text-align: left; }
+
+        /* VERIFICATION CEREMONY */
+        .gate-verify-state { display: none; width: 100%; max-width: 380px; text-align: center; }
+        .gate-verify-state.show { display: block; }
+        .gate-verify-id {
+            font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 800;
+            color: var(--accent-green); letter-spacing: 0.08em; margin-bottom: 24px;
+        }
+        .gate-verify-progress {
+            width: 100%; height: 4px; background: #1a1a1a;
+            border-radius: 4px; overflow: hidden; margin-bottom: 14px;
+        }
+        .gate-verify-bar {
+            height: 100%; width: 0%; background: var(--accent-green);
+            border-radius: 4px; transition: width 0.5s ease;
+        }
+        .gate-verify-bar::after {
+            content: ''; display: block; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            background-size: 200% 100%; animation: shimmer 1.5s infinite;
+        }
+        .gate-verify-status {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+            color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;
+            min-height: 22px; transition: opacity 0.2s;
+        }
+        .gate-verify-check {
+            display: flex; flex-direction: column; gap: 8px;
+            margin-top: 20px; text-align: left;
+        }
+        .gate-verify-step {
+            display: flex; align-items: center; gap: 10px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+            color: var(--text-muted); opacity: 0;
+            transition: opacity 0.3s, color 0.3s;
+        }
+        .gate-verify-step.active { opacity: 1; color: var(--text-secondary); }
+        .gate-verify-step.done { opacity: 1; color: var(--accent-green); }
+        .gate-verify-step .step-dot {
+            width: 16px; height: 16px; border-radius: 50%;
+            border: 2px solid var(--text-muted); display: flex;
+            align-items: center; justify-content: center; font-size: 9px;
+            flex-shrink: 0; transition: all 0.3s;
+        }
+        .gate-verify-step.active .step-dot { border-color: var(--accent-green); }
+        .gate-verify-step.done .step-dot {
+            border-color: var(--accent-green); background: var(--accent-green); color: #000;
+        }
+        /* Hide manual entry + CTA during verification */
+        .gate-manual-section { transition: opacity 0.3s; }
+        .gate-manual-section.hidden { opacity: 0; pointer-events: none; height: 0; overflow: hidden; margin: 0; padding: 0; }
 
         /* HEADER */
         .header {
@@ -140,7 +191,7 @@
             border-color: var(--accent-gold); background: var(--accent-gold-dim);
         }
 
-        /* WELCOME BANNER (NEW - Fix #3) */
+        /* WELCOME BANNER */
         .welcome-banner {
             display: none; position: relative; overflow: hidden;
             background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(251, 191, 36, 0.08) 100%);
@@ -308,7 +359,6 @@
         
         .system-info { flex: 1; min-width: 0; }
         .system-name { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
-        /* FIX #10: Completion context subtitle */
         .system-desc { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .system-desc.completed-context { color: var(--accent-green); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 600; }
         .system-status { font-size: 1.2rem; }
@@ -340,7 +390,6 @@
             text-decoration: none; cursor: pointer; transition: all 0.2s; position: relative; z-index: 1;
         }
         .next-action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-green-glow); }
-        /* FIX #7: Level-up variant */
         .next-action.level-up { border-color: var(--accent-gold); background: linear-gradient(135deg, rgba(251,191,36,0.1) 0%, var(--bg-card) 100%); }
         .next-action.level-up .next-action-badge { background: var(--accent-gold); }
         .next-action.level-up .next-action-btn { background: var(--accent-gold); }
@@ -420,7 +469,7 @@
         .dual-section { display: none; }
         .dual-section.show { display: block; }
 
-        /* FIX #11: Share modal (replaces alert) */
+        /* Share modal */
         .share-modal-content { text-align: center; }
         .share-card-preview {
             background: linear-gradient(135deg, rgba(34,197,94,0.15) 0%, var(--bg-secondary) 100%);
@@ -447,7 +496,7 @@
         .all-complete-title { font-size: 1.2rem; font-weight: 800; color: var(--accent-gold); margin-bottom: 6px; }
         .all-complete-desc { font-size: 0.85rem; color: var(--text-secondary); }
 
-        /* FIX #9: MOBILE - 3-column compact hero stats */
+        /* MOBILE */
         @media (max-width: 700px) {
             .hero-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
             .hero-stat { padding: 12px 8px; }
@@ -469,27 +518,54 @@
     <div class="bg-glow bg-glow-1"></div>
     <div class="bg-glow bg-glow-2"></div>
 
-    <!-- FIX #1: ACCESS GATE -->
+    <!-- ACCESS GATE -->
     <div class="access-gate" id="accessGate">
-        <div class="gate-icon">🔒</div>
+        <div class="gate-icon">&#x1F512;</div>
         <h1 class="gate-title">Command Center</h1>
         <p class="gate-subtitle">This dashboard requires an Architect ID. Complete the Autopilot Money System to earn yours.</p>
-        <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="gate-cta">Install The System &#8594;</a>
-        <div class="gate-divider">Already have an Architect ID?</div>
-        <div class="gate-id-section">
-            <div class="gate-id-label">Enter your Architect ID</div>
-            <div class="gate-id-input-wrapper">
-                <input type="text" id="gateIdInput" class="gate-id-input" placeholder="KOU-XXXXXX" maxlength="10" autocomplete="off">
-                <button class="gate-id-btn" onclick="gateManualEntry()">Enter</button>
+
+        <!-- VERIFICATION CEREMONY (shown when ID is auto-detected) -->
+        <div class="gate-verify-state" id="gateVerifyState">
+            <div class="gate-verify-id" id="gateVerifyId">KOU-XXXXXX</div>
+            <div class="gate-verify-progress">
+                <div class="gate-verify-bar" id="gateVerifyBar"></div>
             </div>
-            <p class="gate-error" id="gateError">Invalid ID format. Must be KOU- followed by 6 characters.</p>
+            <div class="gate-verify-status" id="gateVerifyStatus">Initializing...</div>
+            <div class="gate-verify-check">
+                <div class="gate-verify-step" id="gvStep1">
+                    <div class="step-dot"></div>
+                    <span>Verifying Architect ID</span>
+                </div>
+                <div class="gate-verify-step" id="gvStep2">
+                    <div class="step-dot"></div>
+                    <span>Loading your systems</span>
+                </div>
+                <div class="gate-verify-step" id="gvStep3">
+                    <div class="step-dot"></div>
+                    <span>Preparing dashboard</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANUAL ENTRY (shown when no ID detected) -->
+        <div class="gate-manual-section" id="gateManualSection">
+            <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="gate-cta">Install The System &#8594;</a>
+            <div class="gate-divider">Already have an Architect ID?</div>
+            <div class="gate-id-section">
+                <div class="gate-id-label">Enter your Architect ID</div>
+                <div class="gate-id-input-wrapper">
+                    <input type="text" id="gateIdInput" class="gate-id-input" placeholder="KOU-XXXXXX" maxlength="10" autocomplete="off">
+                    <button class="gate-id-btn" onclick="gateManualEntry()">Enter</button>
+                </div>
+                <p class="gate-error" id="gateError">Invalid ID format. Must be KOU- followed by 6 characters.</p>
+            </div>
         </div>
     </div>
 
     <!-- UNIVERSAL INFO MODAL -->
     <div class="info-modal" id="infoModal">
         <div class="info-modal-card" id="infoModalCard">
-            <div class="info-modal-icon" id="infoModalIcon">🔒</div>
+            <div class="info-modal-icon" id="infoModalIcon">&#x1F512;</div>
             <h2 class="info-modal-title" id="infoModalTitle">System Locked</h2>
             <p class="info-modal-subtitle" id="infoModalSubtitle">Complete the required steps to unlock</p>
             <div id="infoModalContent"></div>
@@ -503,7 +579,7 @@
     <!-- BUDGET CODE MODAL -->
     <div class="info-modal" id="budgetCodeModal">
         <div class="info-modal-card pink">
-            <div class="info-modal-icon">🔑</div>
+            <div class="info-modal-icon">&#x1F511;</div>
             <h2 class="info-modal-title">Enter Unlock Code</h2>
             <p class="info-modal-subtitle">DM the secret keyword to @koutalksmoney to receive your code</p>
             <div class="code-input-group">
@@ -511,7 +587,7 @@
                 <p class="code-error" id="budgetCodeError">Invalid code. DM "INNERLOOP" to get the correct code.</p>
             </div>
             <div class="info-modal-btns">
-                <button class="info-modal-btn primary pink" onclick="verifyBudgetCode()">🔓 Unlock</button>
+                <button class="info-modal-btn primary pink" onclick="verifyBudgetCode()">&#x1F513; Unlock</button>
                 <button class="info-modal-btn secondary" onclick="closeBudgetCodeModal()">Cancel</button>
             </div>
         </div>
@@ -520,7 +596,7 @@
     <!-- VAULT CODE MODAL -->
     <div class="info-modal" id="vaultCodeModal">
         <div class="info-modal-card gold">
-            <div class="info-modal-icon">🔑</div>
+            <div class="info-modal-icon">&#x1F511;</div>
             <h2 class="info-modal-title">Enter Vault Code</h2>
             <p class="info-modal-subtitle">Post your Architect Certificate on your Instagram Story, tag @koutalksmoney, and I'll DM you the code!</p>
             <div class="code-input-group">
@@ -528,17 +604,17 @@
                 <p class="code-error" id="vaultCodeError">Invalid code. Post your certificate to your story and tag me to get the correct code.</p>
             </div>
             <div class="info-modal-btns">
-                <button class="info-modal-btn primary gold" onclick="verifyVaultCode()">🔓 Unlock Vault</button>
+                <button class="info-modal-btn primary gold" onclick="verifyVaultCode()">&#x1F513; Unlock Vault</button>
                 <button class="info-modal-btn secondary" onclick="closeVaultCodeModal()">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- FIX #11: SHARE MODAL (replaces alert) -->
+    <!-- SHARE MODAL -->
     <div class="info-modal" id="shareModal">
         <div class="info-modal-card">
             <div class="share-modal-content">
-                <div class="info-modal-icon">📸</div>
+                <div class="info-modal-icon">&#x1F4F8;</div>
                 <h2 class="info-modal-title">Share Your Progress</h2>
                 <div class="share-card-preview" id="shareCardPreview">
                     <div class="share-card-id" id="shareCardId">KOU-XXXXXX</div>
@@ -563,14 +639,14 @@
                 <div class="live-indicator"><div class="live-dot"></div><span>Live</span></div>
             </div>
             <div class="architect-badge" onclick="copyArchitectId()">
-                <span>🏛️</span>
+                <span>&#x1F3DB;&#xFE0F;</span>
                 <span id="displayArchitectId">KOU-XXXXXX</span>
             </div>
         </div>
 
-        <!-- WELCOME BANNER (NEW - Fix #3: Bridge User Onboarding) -->
+        <!-- WELCOME BANNER -->
         <div class="welcome-banner" id="welcomeBanner">
-            <div class="welcome-banner-icon">⚡</div>
+            <div class="welcome-banner-icon">&#x26A1;</div>
             <div class="welcome-banner-content">
                 <div class="welcome-banner-title" id="welcomeBannerTitle">System Online</div>
                 <div class="welcome-banner-desc" id="welcomeBannerDesc">Loading next directive...</div>
@@ -648,9 +724,9 @@
             <h3 class="share-title">Share Progress</h3>
             <p class="share-subtitle">Building while they're sleeping</p>
             <div class="share-buttons">
-                <a href="#" class="share-btn" onclick="shareToInstagram(); return false;"><span>📸</span><span>Story</span></a>
-                <a href="#" class="share-btn" onclick="shareToTwitter(); return false;"><span>𝕏</span><span>Post</span></a>
-                <button class="share-btn" onclick="copyShareText()"><span>📋</span><span>Copy</span></button>
+                <a href="#" class="share-btn" onclick="shareToInstagram(); return false;"><span>&#x1F4F8;</span><span>Story</span></a>
+                <a href="#" class="share-btn" onclick="shareToTwitter(); return false;"><span>&#x1D54F;</span><span>Post</span></a>
+                <button class="share-btn" onclick="copyShareText()"><span>&#x1F4CB;</span><span>Copy</span></button>
             </div>
         </div>
 
@@ -673,7 +749,7 @@
         };
 
         // ==============================================
-        // FIX #2: HASH OBFUSCATION (no plaintext codes)
+        // HASH OBFUSCATION (no plaintext codes)
         // ==============================================
         function simpleHash(str) {
             var hash = 0;
@@ -781,13 +857,13 @@
         }
 
         var SYSTEMS = [
-            { id: 'autopilot', name: 'Autopilot System', desc: 'Your wealth machine', icon: '🤖', url: CONFIG.AUTOPILOT_URL, storageKey: 'autopilot_completed', unlockType: 'always', priority: 1, socialAction: null, unlockExplanation: { title: 'Always Available', subtitle: 'This is your entry point. Start here.', steps: ['Click to begin the Autopilot System', 'Complete all 6 modules', 'Claim your unique Architect ID'] } },
-            { id: 'freedom', name: 'Freedom Calculator', desc: 'Know your number', icon: '🎯', url: CONFIG.FREEDOM_CALCULATOR_URL, storageKey: 'freedom_completed', unlockType: 'completion', unlockRequires: 'autopilot', priority: 2, socialAction: null, unlockExplanation: { title: 'Complete Autopilot System', subtitle: "Install your core wealth machine first.", steps: ['Open the Autopilot System', 'Complete all 6 modules', 'Claim your Architect ID', 'Freedom Calculator unlocks automatically'] } },
-            { id: 'waiting', name: 'Cost of Waiting', desc: 'Urgency multiplier', icon: '⏰', url: CONFIG.COST_OF_WAITING_URL, storageKey: 'waiting_completed', unlockType: 'completion', unlockRequires: 'freedom', priority: 3, socialAction: null, unlockExplanation: { title: 'Complete Freedom Calculator', subtitle: "Know your target before seeing what delays cost you.", steps: ['Open the Freedom Calculator', 'Enter your financial details', 'Get your Freedom Number', 'Cost of Waiting unlocks automatically'] } },
-            { id: 'investment', name: 'Investment Simplifier', desc: 'Portfolio builder', icon: '📊', url: CONFIG.INVESTMENT_SIMPLIFIER_URL, storageKey: 'investment_completed', unlockType: 'completion', unlockRequires: 'waiting', priority: 4, socialAction: null, unlockExplanation: { title: 'Complete Cost of Waiting', subtitle: "Now that you feel the urgency, learn HOW to invest.", steps: ['Open Cost of Waiting Calculator', 'See what procrastination costs', 'Get motivated to act', 'Investment Simplifier unlocks automatically'] } },
-            { id: '800club', name: '800-Club Protocol', desc: 'Credit leverage', icon: '💳', url: CONFIG.EIGHT_HUNDRED_CLUB_URL, storageKey: 'eightclub_completed', unlockType: 'level', unlockLevel: 'silver', priority: 5, socialAction: null, unlockExplanation: { title: 'Reach Silver Level', subtitle: "Complete 3 tools to reach Silver and unlock credit mastery.", steps: ['Complete any 3 tools', 'Reach Silver Architect level', '800-Club Protocol unlocks automatically'], showProgress: true } },
-            { id: 'budget', name: 'Budget Calculator', desc: 'Cash flow control', icon: '💰', url: CONFIG.BUDGET_CALCULATOR_URL, storageKey: 'budget_completed', unlockType: 'code', unlockKey: 'budget_unlocked', priority: 6, socialAction: 'dm', unlockExplanation: { title: 'DM Secret Keyword', subtitle: "Get exclusive access by connecting with me directly.", secretKeyword: 'INNERLOOP', steps: ['DM @koutalksmoney on Instagram', 'Send the secret keyword: INNERLOOP', "I'll reply with your unlock code instantly", 'Enter the code to unlock'], hasCodeInput: true } },
-            { id: 'prompt', name: 'Prompt Vault', desc: 'AI arsenal', icon: '🧠', url: CONFIG.PROMPT_VAULT_URL, storageKey: 'prompt_completed', unlockType: 'dual', unlockLevel: 'gold', unlockKey: 'vault_unlocked', priority: 7, socialAction: 'story', unlockExplanation: { title: 'Two Ways to Unlock', subtitle: "Choose your path to the AI arsenal.", dualOptions: [{ icon: '⭐', title: 'Reach Gold Level', desc: 'Complete 5 tools', steps: ['Complete any 5 tools', 'Reach Gold Architect level', 'Prompt Vault unlocks automatically'] }, { icon: '📸', title: 'Post Certificate', desc: 'Tag me on your story', steps: ['Open Autopilot System', 'Scroll to your Architect Certificate', 'Screenshot the certificate card', '<strong>Post it on your Instagram Story</strong>', '<strong>Tag @koutalksmoney in the story</strong>', "I'll DM you the Vault code!"] }], hasCodeInput: true } }
+            { id: 'autopilot', name: 'Autopilot System', desc: 'Your wealth machine', icon: '\uD83E\uDD16', url: CONFIG.AUTOPILOT_URL, storageKey: 'autopilot_completed', unlockType: 'always', priority: 1, socialAction: null, unlockExplanation: { title: 'Always Available', subtitle: 'This is your entry point. Start here.', steps: ['Click to begin the Autopilot System', 'Complete all 6 modules', 'Claim your unique Architect ID'] } },
+            { id: 'freedom', name: 'Freedom Calculator', desc: 'Know your number', icon: '\uD83C\uDFAF', url: CONFIG.FREEDOM_CALCULATOR_URL, storageKey: 'freedom_completed', unlockType: 'completion', unlockRequires: 'autopilot', priority: 2, socialAction: null, unlockExplanation: { title: 'Complete Autopilot System', subtitle: "Install your core wealth machine first.", steps: ['Open the Autopilot System', 'Complete all 6 modules', 'Claim your Architect ID', 'Freedom Calculator unlocks automatically'] } },
+            { id: 'waiting', name: 'Cost of Waiting', desc: 'Urgency multiplier', icon: '\u23F0', url: CONFIG.COST_OF_WAITING_URL, storageKey: 'waiting_completed', unlockType: 'completion', unlockRequires: 'freedom', priority: 3, socialAction: null, unlockExplanation: { title: 'Complete Freedom Calculator', subtitle: "Know your target before seeing what delays cost you.", steps: ['Open the Freedom Calculator', 'Enter your financial details', 'Get your Freedom Number', 'Cost of Waiting unlocks automatically'] } },
+            { id: 'investment', name: 'Investment Simplifier', desc: 'Portfolio builder', icon: '\uD83D\uDCCA', url: CONFIG.INVESTMENT_SIMPLIFIER_URL, storageKey: 'investment_completed', unlockType: 'completion', unlockRequires: 'waiting', priority: 4, socialAction: null, unlockExplanation: { title: 'Complete Cost of Waiting', subtitle: "Now that you feel the urgency, learn HOW to invest.", steps: ['Open Cost of Waiting Calculator', 'See what procrastination costs', 'Get motivated to act', 'Investment Simplifier unlocks automatically'] } },
+            { id: '800club', name: '800-Club Protocol', desc: 'Credit leverage', icon: '\uD83D\uDCB3', url: CONFIG.EIGHT_HUNDRED_CLUB_URL, storageKey: 'eightclub_completed', unlockType: 'level', unlockLevel: 'silver', priority: 5, socialAction: null, unlockExplanation: { title: 'Reach Silver Level', subtitle: "Complete 3 tools to reach Silver and unlock credit mastery.", steps: ['Complete any 3 tools', 'Reach Silver Architect level', '800-Club Protocol unlocks automatically'], showProgress: true } },
+            { id: 'budget', name: 'Budget Calculator', desc: 'Cash flow control', icon: '\uD83D\uDCB0', url: CONFIG.BUDGET_CALCULATOR_URL, storageKey: 'budget_completed', unlockType: 'code', unlockKey: 'budget_unlocked', priority: 6, socialAction: 'dm', unlockExplanation: { title: 'DM Secret Keyword', subtitle: "Get exclusive access by connecting with me directly.", secretKeyword: 'INNERLOOP', steps: ['DM @koutalksmoney on Instagram', 'Send the secret keyword: INNERLOOP', "I'll reply with your unlock code instantly", 'Enter the code to unlock'], hasCodeInput: true } },
+            { id: 'prompt', name: 'Prompt Vault', desc: 'AI arsenal', icon: '\uD83E\uDDE0', url: CONFIG.PROMPT_VAULT_URL, storageKey: 'prompt_completed', unlockType: 'dual', unlockLevel: 'gold', unlockKey: 'vault_unlocked', priority: 7, socialAction: 'story', unlockExplanation: { title: 'Two Ways to Unlock', subtitle: "Choose your path to the AI arsenal.", dualOptions: [{ icon: '\u2B50', title: 'Reach Gold Level', desc: 'Complete 5 tools', steps: ['Complete any 5 tools', 'Reach Gold Architect level', 'Prompt Vault unlocks automatically'] }, { icon: '\uD83D\uDCF8', title: 'Post Certificate', desc: 'Tag me on your story', steps: ['Open Autopilot System', 'Scroll to your Architect Certificate', 'Screenshot the certificate card', '<strong>Post it on your Instagram Story</strong>', '<strong>Tag @koutalksmoney in the story</strong>', "I'll DM you the Vault code!"] }], hasCodeInput: true } }
         ];
 
         var currentArchitectId = '';
@@ -816,35 +892,125 @@
         }
 
         // ==============================================
-        // FIX #1: ACCESS GATE (with bridge bypass)
+        // VERIFICATION CEREMONY
+        // Runs 3-step animated verification before
+        // revealing the dashboard. Makes the ID feel
+        // like a real credential, not a random string.
+        // ==============================================
+        function runVerificationCeremony(architectId) {
+            var gate = document.getElementById('accessGate');
+            var manualSection = document.getElementById('gateManualSection');
+            var verifyState = document.getElementById('gateVerifyState');
+            var verifyId = document.getElementById('gateVerifyId');
+            var verifyBar = document.getElementById('gateVerifyBar');
+            var verifyStatus = document.getElementById('gateVerifyStatus');
+            var step1 = document.getElementById('gvStep1');
+            var step2 = document.getElementById('gvStep2');
+            var step3 = document.getElementById('gvStep3');
+
+            // Show gate in verify mode
+            gate.classList.add('show');
+            manualSection.classList.add('hidden');
+            verifyState.classList.add('show');
+            verifyId.textContent = architectId;
+
+            // Step 1: Verify ID (0ms -> 800ms)
+            setTimeout(function() {
+                verifyBar.style.width = '33%';
+                verifyStatus.textContent = 'Verifying Architect ID...';
+                step1.classList.add('active');
+            }, 100);
+
+            setTimeout(function() {
+                step1.classList.remove('active');
+                step1.classList.add('done');
+                step1.querySelector('.step-dot').textContent = '\u2713';
+            }, 800);
+
+            // Step 2: Load systems (800ms -> 1800ms)
+            setTimeout(function() {
+                verifyBar.style.width = '66%';
+                verifyStatus.textContent = 'Loading your systems...';
+                step2.classList.add('active');
+            }, 900);
+
+            setTimeout(function() {
+                step2.classList.remove('active');
+                step2.classList.add('done');
+                step2.querySelector('.step-dot').textContent = '\u2713';
+            }, 1800);
+
+            // Step 3: Prepare dashboard (1800ms -> 2500ms)
+            setTimeout(function() {
+                verifyBar.style.width = '100%';
+                verifyStatus.textContent = 'Access granted.';
+                verifyStatus.style.color = 'var(--accent-green)';
+                step3.classList.add('active');
+            }, 1900);
+
+            setTimeout(function() {
+                step3.classList.remove('active');
+                step3.classList.add('done');
+                step3.querySelector('.step-dot').textContent = '\u2713';
+            }, 2400);
+
+            // Reveal dashboard (2600ms)
+            setTimeout(function() {
+                gate.classList.remove('show');
+                document.getElementById('mainDashboard').style.display = 'block';
+                initDashboard();
+            }, 2700);
+        }
+
+        // ==============================================
+        // ACCESS CHECK (4 paths, 1 ceremony)
         // ==============================================
         function checkAccess() {
-            // Path A: Has a real Architect ID from Autopilot
-            var architectId = localStorage.getItem('cashvault_architect_id') || localStorage.getItem('command_center_architect_id');
-            if (architectId) {
-                document.getElementById('mainDashboard').style.display = 'block';
-                document.getElementById('accessGate').classList.remove('show');
-                return true;
+            // PATH A: ?id= query param from Autopilot bridge
+            var urlParams = new URLSearchParams(window.location.search);
+            var paramId = urlParams.get('id');
+            if (paramId) {
+                paramId = paramId.trim().toUpperCase();
+                if (/^KOU-[A-Z0-9]{6}$/.test(paramId)) {
+                    // Store the ID
+                    localStorage.setItem('cashvault_architect_id', paramId);
+                    localStorage.setItem('command_center_architect_id', paramId);
+                    // Clean URL (remove ?id= so refresh doesn't re-trigger)
+                    try {
+                        var cleanUrl = window.location.pathname + window.location.hash;
+                        window.history.replaceState({}, document.title, cleanUrl);
+                    } catch(e) {}
+                    // Run ceremony
+                    runVerificationCeremony(paramId);
+                    return 'ceremony';
+                }
             }
 
-            // Path B: Bridge user (email verified via Prompt Vault bridge)
+            // PATH B: Returning user (ID in localStorage)
+            var storedId = localStorage.getItem('cashvault_architect_id') || localStorage.getItem('command_center_architect_id');
+            if (storedId) {
+                runVerificationCeremony(storedId);
+                return 'ceremony';
+            }
+
+            // PATH C: Bridge user (Prompt Vault email capture)
             if (isBridgeUser()) {
                 var tempId = localStorage.getItem('command_center_temp_id');
                 if (!tempId) {
                     tempId = generateTempArchitectId();
                     localStorage.setItem('command_center_temp_id', tempId);
                 }
-                // Store as command_center_architect_id (NOT cashvault_architect_id)
                 localStorage.setItem('command_center_architect_id', tempId);
-                document.getElementById('mainDashboard').style.display = 'block';
-                document.getElementById('accessGate').classList.remove('show');
-                return true;
+                runVerificationCeremony(tempId);
+                return 'ceremony';
             }
 
-            // Path C: No access. Show gate.
+            // PATH D: No access. Show manual gate.
             document.getElementById('mainDashboard').style.display = 'none';
+            document.getElementById('gateManualSection').classList.remove('hidden');
+            document.getElementById('gateVerifyState').classList.remove('show');
             document.getElementById('accessGate').classList.add('show');
-            return false;
+            return 'gate';
         }
 
         function gateManualEntry() {
@@ -856,9 +1022,8 @@
                 localStorage.setItem('cashvault_architect_id', id);
                 localStorage.setItem('command_center_architect_id', id);
                 error.style.display = 'none';
-                document.getElementById('accessGate').classList.remove('show');
-                document.getElementById('mainDashboard').style.display = 'block';
-                initDashboard();
+                // Run ceremony instead of instant reveal
+                runVerificationCeremony(id);
             } else {
                 error.style.display = 'block';
                 input.style.borderColor = 'var(--danger)';
@@ -883,9 +1048,7 @@
         // INIT
         // ==============================================
         document.addEventListener('DOMContentLoaded', function() {
-            if (checkAccess()) {
-                initDashboard();
-            }
+            checkAccess();
         });
 
         function initDashboard() {
@@ -899,7 +1062,6 @@
         }
 
         function loadArchitectId() {
-            // Priority: real ID > temp ID > fallback
             currentArchitectId = localStorage.getItem('cashvault_architect_id') ||
                                 localStorage.getItem('command_center_architect_id') ||
                                 localStorage.getItem('command_center_temp_id') ||
@@ -969,9 +1131,6 @@
             return 'bronze';
         }
 
-        // ==============================================
-        // FIX #2: VELOCITY WITH 1.1x TIER (kill dead zone)
-        // ==============================================
         function getVelocityScore() {
             var count = completedSystems.length;
             if (count >= 7) return { score: '2.0x', desc: 'Maximum velocity. All tools operational. You are the machine.', label: 'elite' };
@@ -983,7 +1142,7 @@
         }
 
         // ==============================================
-        // FIX #3: WELCOME BANNER (Bridge User Onboarding)
+        // WELCOME BANNER (Bridge User Onboarding)
         // ==============================================
         function updateWelcomeBanner() {
             var banner = document.getElementById('welcomeBanner');
@@ -992,30 +1151,25 @@
             var btnEl = document.getElementById('welcomeBannerBtn');
             var btnTextEl = document.getElementById('welcomeBannerBtnText');
 
-            // Only show for bridge users who haven't completed all tools
             if (!isBridgeUser()) { banner.classList.remove('show'); return; }
 
-            // Record entry snapshot on first visit
             if (!localStorage.getItem('bridge_entry_tool_count')) {
                 localStorage.setItem('bridge_entry_tool_count', String(completedSystems.length));
             }
 
             var entryCount = parseInt(localStorage.getItem('bridge_entry_tool_count') || '0', 10);
 
-            // Hide banner once they've completed at least one MORE tool since entering CC
             if (completedSystems.length > entryCount && completedSystems.length >= 2) {
                 banner.classList.remove('show');
                 return;
             }
 
-            // Find the next uncompleted + unlocked system to direct them to
             var nextSystem = SYSTEMS
                 .filter(function(s) { return completedSystems.indexOf(s.id) === -1 && unlockedSystems.indexOf(s.id) !== -1; })
                 .sort(function(a, b) { return a.priority - b.priority; })[0];
 
             if (!nextSystem) { banner.classList.remove('show'); return; }
 
-            // Dynamic copy based on how many tools they have
             var count = completedSystems.length;
             titleEl.textContent = count + '/7 tools active';
 
@@ -1109,8 +1263,8 @@
 
                 var actionBadgeHtml = '';
                 if (isSocialAction) {
-                    if (system.socialAction === 'dm') actionBadgeHtml = '<span class="action-badge dm">🗝️ DM to Unlock</span>';
-                    else if (system.socialAction === 'story') actionBadgeHtml = '<span class="action-badge story">📸 Story to Unlock</span>';
+                    if (system.socialAction === 'dm') actionBadgeHtml = '<span class="action-badge dm">\uD83D\uDDDD\uFE0F DM to Unlock</span>';
+                    else if (system.socialAction === 'story') actionBadgeHtml = '<span class="action-badge story">\uD83D\uDCF8 Story to Unlock</span>';
                 }
 
                 var descText = system.desc;
@@ -1130,7 +1284,7 @@
                         '<div class="system-name">' + system.name + '</div>' +
                         '<div class="' + descClass + '">' + descText + '</div>' +
                     '</div>' +
-                    '<div class="system-status">' + (isCompleted ? '✅' : (isUnlocked ? '○' : '🔒')) + '</div>';
+                    '<div class="system-status">' + (isCompleted ? '\u2705' : (isUnlocked ? '\u25CB' : '\uD83D\uDD12')) + '</div>';
 
                 if (isUnlocked) {
                     card.onclick = function() { window.location.href = system.url; };
@@ -1166,12 +1320,12 @@
             if (exp.dualOptions) {
                 contentHtml += '<div class="dual-options">';
                 exp.dualOptions.forEach(function(opt, i) {
-                    contentHtml += '<div class="dual-option" onclick="selectDualOption(' + i + ')"><div class="dual-option-icon">' + opt.icon + '</div><div class="dual-option-title">' + opt.title + '</div><div class="dual-option-desc">' + opt.desc + '</div></div>';
+                    contentHtml += '<div class="dual-option' + (i === 0 ? ' selected' : '') + '" onclick="selectDualOption(' + i + ')"><div class="dual-option-icon">' + opt.icon + '</div><div class="dual-option-title">' + opt.title + '</div><div class="dual-option-desc">' + opt.desc + '</div></div>';
                 });
                 contentHtml += '</div>';
                 exp.dualOptions.forEach(function(opt, i) {
                     var stepColor = i === 0 ? 'gold' : 'pink';
-                    contentHtml += '<div class="dual-section" id="dualSection' + i + '"><div class="unlock-method"><div class="unlock-method-title ' + stepColor + '">' + opt.title + '</div>';
+                    contentHtml += '<div class="dual-section' + (i === 0 ? ' show' : '') + '" id="dualSection' + i + '"><div class="unlock-method"><div class="unlock-method-title ' + stepColor + '">' + opt.title + '</div>';
                     opt.steps.forEach(function(step, j) {
                         contentHtml += '<div class="unlock-step"><span class="unlock-step-num ' + stepColor + '">' + (j + 1) + '</span><span class="unlock-step-text">' + step + '</span></div>';
                     });
@@ -1182,13 +1336,13 @@
                 });
                 primaryBtn.style.display = 'none';
             } else if (exp.secretKeyword) {
-                contentHtml += '<div class="secret-keyword-box"><div class="secret-keyword-label">🤫 Secret Keyword</div><div class="secret-keyword">' + exp.secretKeyword + '</div></div>';
+                contentHtml += '<div class="secret-keyword-box"><div class="secret-keyword-label">\uD83E\uDD2B Secret Keyword</div><div class="secret-keyword">' + exp.secretKeyword + '</div></div>';
                 contentHtml += '<div class="unlock-method"><div class="unlock-method-title pink">How to Unlock</div>';
                 exp.steps.forEach(function(step, i) {
                     contentHtml += '<div class="unlock-step"><span class="unlock-step-num pink">' + (i + 1) + '</span><span class="unlock-step-text">' + step + '</span></div>';
                 });
                 contentHtml += '</div>';
-                primaryBtn.textContent = '🔑 I Have My Code';
+                primaryBtn.textContent = '\uD83D\uDD11 I Have My Code';
                 primaryBtn.className = 'info-modal-btn primary pink';
                 primaryBtn.style.display = 'flex';
             } else {
@@ -1204,11 +1358,11 @@
                 }
                 if (system.unlockType === 'completion' && system.unlockRequires) {
                     var reqSystem = SYSTEMS.find(function(s) { return s.id === system.unlockRequires; });
-                    primaryBtn.textContent = 'Open ' + reqSystem.name + ' →';
+                    primaryBtn.textContent = 'Open ' + reqSystem.name + ' \u2192';
                     primaryBtn.className = 'info-modal-btn primary';
                     primaryBtn.style.display = 'flex';
                 } else if (system.unlockType === 'level') {
-                    primaryBtn.textContent = 'Keep Building →';
+                    primaryBtn.textContent = 'Keep Building \u2192';
                     primaryBtn.className = 'info-modal-btn primary gold';
                     primaryBtn.style.display = 'flex';
                 } else {
@@ -1287,7 +1441,7 @@
             var modal = document.getElementById('infoModal');
             var card = document.getElementById('infoModalCard');
             card.className = 'info-modal-card';
-            document.getElementById('infoModalIcon').textContent = '🎉';
+            document.getElementById('infoModalIcon').textContent = '\uD83C\uDF89';
             document.getElementById('infoModalTitle').textContent = titleText;
             document.getElementById('infoModalSubtitle').textContent = descText;
             document.getElementById('infoModalContent').innerHTML = '';
@@ -1306,16 +1460,16 @@
             var level, progress, nextReward;
 
             if (count >= 7) {
-                level = 'elite'; progress = 100; nextReward = 'Max level 👑';
+                level = 'elite'; progress = 100; nextReward = 'Max level \uD83D\uDC51';
                 document.getElementById('nextAction').style.display = 'none';
                 document.getElementById('allComplete').style.display = 'block';
             }
-            else if (count >= 5) { level = 'gold'; progress = 70 + ((count - 5) / 2) * 30; nextReward = (7 - count) + ' more → Elite'; }
-            else if (count >= 3) { level = 'silver'; progress = 40 + ((count - 3) / 2) * 30; nextReward = (5 - count) + ' more → Gold'; }
+            else if (count >= 5) { level = 'gold'; progress = 70 + ((count - 5) / 2) * 30; nextReward = (7 - count) + ' more \u2192 Elite'; }
+            else if (count >= 3) { level = 'silver'; progress = 40 + ((count - 3) / 2) * 30; nextReward = (5 - count) + ' more \u2192 Gold'; }
             else {
                 level = 'bronze';
                 progress = count === 0 ? 0 : 5 + (count / 3) * 35;
-                nextReward = (3 - count) + ' more → Silver';
+                nextReward = (3 - count) + ' more \u2192 Silver';
             }
 
             badge.className = 'level-badge ' + level;
@@ -1383,12 +1537,12 @@
         function closeShareModal() { document.getElementById('shareModal').classList.remove('show'); }
 
         function shareToTwitter() {
-            var text = encodeURIComponent(completedSystems.length + '/7 wealth tools active ⚡\n\nArchitect ID: ' + currentArchitectId + '\n\n@koutalksmoney');
+            var text = encodeURIComponent(completedSystems.length + '/7 wealth tools active \u26A1\n\nArchitect ID: ' + currentArchitectId + '\n\n@koutalksmoney');
             window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
         }
 
         function copyShareText() {
-            var text = completedSystems.length + '/7 wealth tools active ⚡\n\nArchitect ID: ' + currentArchitectId + '\n\nBuilding the machine.\n\n@koutalksmoney';
+            var text = completedSystems.length + '/7 wealth tools active \u26A1\n\nArchitect ID: ' + currentArchitectId + '\n\nBuilding the machine.\n\n@koutalksmoney';
             navigator.clipboard.writeText(text);
             showSuccessModal('Copied!', 'Caption ready to paste.');
         }
@@ -1397,7 +1551,7 @@
             navigator.clipboard.writeText(currentArchitectId);
             var badge = document.querySelector('.architect-badge');
             var original = badge.innerHTML;
-            badge.innerHTML = '<span>✓ Copied!</span>';
+            badge.innerHTML = '<span>\u2713 Copied!</span>';
             setTimeout(function() { badge.innerHTML = original; }, 1500);
         }
 
