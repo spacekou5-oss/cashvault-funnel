@@ -40,6 +40,80 @@
 
         .container { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; padding: 40px 20px; }
 
+        /* ============================================
+           PROCESSING THEATER (new users only)
+           Reframes the email signup as valuable.
+           Skipped entirely for returning users.
+           Idleness Aversion + Operational Transparency.
+        ============================================ */
+        .processing-theater {
+            position: fixed; inset: 0; background: var(--bg-primary); z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 30px; text-align: center;
+        }
+        .processing-theater.hidden { display: none; }
+
+        .theater-icon {
+            width: 72px; height: 72px; margin-bottom: 28px; position: relative;
+        }
+        .theater-ring {
+            width: 72px; height: 72px; border: 3px solid rgba(99,102,241,0.15);
+            border-top-color: var(--accent-indigo); border-right-color: var(--accent-purple);
+            border-radius: 50%; animation: spin 1s linear infinite;
+            position: absolute; top: 0; left: 0;
+        }
+        .theater-ring-inner {
+            width: 52px; height: 52px; border: 2px solid rgba(16,185,129,0.1);
+            border-bottom-color: var(--accent-green);
+            border-radius: 50%; animation: spin 1.5s linear infinite reverse;
+            position: absolute; top: 10px; left: 10px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .theater-title {
+            font-size: 1.25rem; font-weight: 700; color: var(--text-primary);
+            margin-bottom: 6px; min-height: 32px;
+            transition: opacity 0.3s ease;
+        }
+        .theater-step {
+            font-size: 0.85rem; color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 28px; min-height: 22px;
+            transition: opacity 0.3s ease;
+        }
+        .theater-progress {
+            width: 300px; height: 6px; background: rgba(99,102,241,0.12);
+            border-radius: 3px; overflow: hidden; margin-bottom: 8px;
+        }
+        .theater-progress-fill {
+            height: 100%; border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent-indigo), var(--accent-purple), var(--accent-green));
+            background-size: 200% 100%;
+            animation: progressShimmer 2s ease infinite;
+            transition: width 0.6s ease; width: 15%;
+        }
+        @keyframes progressShimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .theater-pct {
+            font-size: 0.72rem; color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace; margin-bottom: 24px;
+        }
+        .theater-value-frame {
+            max-width: 380px; padding: 16px 24px;
+            background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 12px; opacity: 0; transform: translateY(8px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .theater-value-frame.show { opacity: 1; transform: translateY(0); }
+        .theater-value-label {
+            font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 0.12em; margin-bottom: 6px;
+        }
+        .theater-value-text { font-size: 0.88rem; color: var(--accent-green); font-weight: 600; line-height: 1.5; }
+
         /* Success Header */
         .success-header { text-align: center; margin-bottom: 40px; animation: fadeInUp 0.6s ease-out; }
         .success-icon {
@@ -59,7 +133,6 @@
         .reinforcement p { font-size: 0.9rem; color: var(--accent-green); font-weight: 600; }
         .reinforcement .subtext { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; margin-top: 4px; }
 
-        /* ADDITION 1: Upstream Badge CSS */
         .upstream-badge {
             display: none; margin: 0 auto 16px; padding: 8px 16px;
             background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.08));
@@ -76,7 +149,6 @@
         .meta-badge.style { background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple)); color: white; font-weight: 600; }
         .portfolio-id { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-muted); }
 
-        /* Allocation Display */
         .allocation-display { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
         .allocation-box { background: var(--bg-secondary); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid var(--border-subtle); }
         .allocation-box.stocks { border-color: var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.1); }
@@ -86,7 +158,6 @@
         .allocation-box.stocks .allocation-value { color: var(--accent-green); }
         .allocation-box.bonds .allocation-value { color: var(--accent-indigo); }
 
-        /* Strategy Explainer */
         .strategy-explainer {
             background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.04) 100%);
             border: 1px solid rgba(99,102,241,0.2); border-radius: 12px;
@@ -99,7 +170,6 @@
         .strategy-detail-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
         .strategy-detail-value { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); }
 
-        /* ETF Grid */
         .etf-section { margin-bottom: 24px; }
         .section-title { font-size: 1rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
         .section-title::before { content: ''; width: 4px; height: 16px; background: var(--accent-indigo); border-radius: 2px; }
@@ -119,7 +189,6 @@
         .etf-meta-tag.expense { background: rgba(16,185,129,0.15); color: var(--accent-green); }
         .etf-meta-tag.type { background: rgba(99,102,241,0.15); color: var(--accent-indigo); }
         .etf-percent { font-size: 1.5rem; font-weight: 800; color: var(--accent-green); text-align: right; }
-        .etf-dollars { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; text-align: right; }
 
         /* Projections */
         .projections-card { background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary)); border: 1px solid var(--border-accent); border-radius: 16px; padding: 32px; margin-bottom: 24px; animation: fadeInUp 0.6s ease-out 0.2s backwards; }
@@ -173,27 +242,67 @@
         .share-handle { font-size: 0.85rem; color: var(--accent-indigo); font-weight: 600; }
         .share-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
 
-        /* Action Buttons */
-        .actions { display: grid; gap: 12px; margin-bottom: 32px; animation: fadeInUp 0.6s ease-out 0.4s backwards; }
+        /* Buttons */
         .btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 24px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s ease; text-decoration: none; }
         .btn-primary { background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple)); color: white; box-shadow: 0 4px 20px var(--accent-indigo-glow); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-indigo-glow); }
-        .btn-autopilot { background: linear-gradient(135deg, var(--accent-green), #059669); color: white; box-shadow: 0 4px 20px var(--accent-green-glow); }
-        .btn-autopilot:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-green-glow); }
+        .btn-command {
+            background: linear-gradient(135deg, var(--accent-green), #059669); color: white;
+            box-shadow: 0 4px 20px var(--accent-green-glow);
+            position: relative; overflow: hidden;
+        }
+        .btn-command:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-green-glow); }
+        .btn-command::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            animation: btnSheen 3s ease-in-out infinite;
+        }
+        @keyframes btnSheen { 0% { left: -100%; } 50%, 100% { left: 100%; } }
         .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-subtle); }
         .btn-secondary:hover { border-color: var(--accent-indigo); background: var(--bg-card-hover); }
         .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px dashed var(--border-subtle); }
         .btn-ghost:hover { color: var(--text-primary); border-color: var(--text-muted); }
         .btn-sm { padding: 10px 16px; font-size: 0.85rem; }
 
-        /* Autopilot CTA Context */
-        .autopilot-context {
-            background: var(--bg-card); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px;
-            padding: 16px; margin-bottom: 12px; animation: fadeInUp 0.6s ease-out 0.35s backwards;
+        /* ============================================
+           ECOSYSTEM PROGRESS + COMMAND CENTER CTA
+           Replaces: Autopilot CTA + Bookmark reminder.
+           Single exit point into the loop hub.
+           Command Center IS the loop. This page
+           celebrates the win and funnels INTO it.
+        ============================================ */
+        .ecosystem-progress {
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(26,31,58,0.8) 100%);
+            border: 2px solid rgba(16,185,129,0.25); border-radius: 16px;
+            padding: 28px; margin-bottom: 24px; animation: fadeInUp 0.6s ease-out 0.35s backwards;
+            position: relative; overflow: hidden;
         }
-        .autopilot-context p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
-        .autopilot-context .what-how { color: var(--accent-green); font-weight: 700; }
-        .autopilot-micro-preview { margin-top: 10px; padding: 8px 12px; background: var(--bg-secondary); border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        .ecosystem-progress::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-indigo), var(--accent-purple));
+        }
+        .ecosystem-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .ecosystem-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+        .ecosystem-level {
+            font-size: 0.72rem; font-weight: 700; padding: 4px 12px;
+            background: rgba(99,102,241,0.15); color: var(--accent-indigo);
+            border-radius: 20px; text-transform: uppercase; letter-spacing: 0.06em;
+        }
+        .ecosystem-apps { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .eco-app {
+            padding: 12px 10px; background: var(--bg-secondary); border: 1px solid var(--border-subtle);
+            border-radius: 10px; text-align: center; font-size: 0.78rem; transition: all 0.2s;
+        }
+        .eco-app.completed { border-color: rgba(16,185,129,0.35); background: rgba(16,185,129,0.06); }
+        .eco-app.locked { opacity: 0.4; }
+        .eco-app-icon { font-size: 1.2rem; margin-bottom: 4px; display: block; }
+        .eco-app-name { font-weight: 600; color: var(--text-secondary); display: block; }
+        .eco-app.completed .eco-app-name { color: var(--accent-green); }
+        .eco-app-status { font-size: 0.62rem; color: var(--text-muted); display: block; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .eco-app.completed .eco-app-status { color: var(--accent-green); }
+
+        .ecosystem-context { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.6; }
+        .ecosystem-context strong { color: var(--accent-green); }
 
         /* Brokerage Explainer */
         .brokerage-explainer {
@@ -229,13 +338,6 @@
         .step-etf-detail { font-family: 'JetBrains Mono', monospace; color: var(--accent-green); font-weight: 600; }
         .step-time { display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; color: var(--accent-amber); font-weight: 600; padding: 2px 8px; background: rgba(245,158,11,0.1); border-radius: 4px; margin-top: 6px; }
 
-        .bookmark-reminder {
-            text-align: center; margin-top: 20px; padding: 12px;
-            background: rgba(99,102,241,0.05); border: 1px dashed rgba(99,102,241,0.2); border-radius: 10px;
-            font-size: 0.8rem; color: var(--text-muted);
-        }
-        .bookmark-reminder a { color: var(--accent-indigo); text-decoration: none; font-weight: 600; }
-
         .footer { text-align: center; padding: 32px 0; color: var(--text-muted); font-size: 0.85rem; }
         .footer a { color: var(--accent-indigo); text-decoration: none; }
 
@@ -259,19 +361,41 @@
             .portfolio-header { flex-direction: column; gap: 12px; align-items: flex-start; }
             .success-header h1 { font-size: 1.6rem; }
             .share-actions { grid-template-columns: 1fr; }
+            .ecosystem-apps { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
 <body>
     <div class="bg-grid"></div>
     <canvas id="confetti-canvas"></canvas>
-    
+
+    <!-- ============================================
+         PROCESSING THEATER
+         Only shown to NEW users (first bridge visit).
+         Returning users skip straight to results.
+         Reframes the email signup value via
+         Idleness Aversion + Operational Transparency.
+    ============================================ -->
+    <div class="processing-theater hidden" id="processingTheater">
+        <div class="theater-icon">
+            <div class="theater-ring"></div>
+            <div class="theater-ring-inner"></div>
+        </div>
+        <p class="theater-title" id="theaterTitle">Verifying your email...</p>
+        <p class="theater-step" id="theaterStep">Connecting to portfolio data...</p>
+        <div class="theater-progress"><div class="theater-progress-fill" id="theaterProgressFill"></div></div>
+        <p class="theater-pct" id="theaterPct">15%</p>
+        <div class="theater-value-frame" id="theaterValueFrame">
+            <p class="theater-value-label">What You Just Unlocked</p>
+            <p class="theater-value-text" id="theaterValueText"></p>
+        </div>
+    </div>
+
     <div class="container" id="main-content">
         <div class="success-header">
             <div class="success-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
             </div>
-            <!-- ADDITION 2: Upstream badge element -->
             <div class="upstream-badge" id="upstreamBadge"></div>
             <h1 id="bridgeHeadline">Portfolio Unlocked</h1>
             <p id="bridgeSubline">Your personalized ETF allocation is ready.</p>
@@ -294,7 +418,6 @@
                 <div class="allocation-box bonds"><div class="allocation-label">&#x1F3E6; Bonds</div><div class="allocation-value" id="display-bonds">--%</div></div>
             </div>
 
-            <!-- Strategy Explainer -->
             <div class="strategy-explainer" id="strategyExplainer">
                 <h3>&#x1F9E0; What This Means</h3>
                 <p id="strategyExplainerText">Loading...</p>
@@ -352,13 +475,23 @@
             </div>
         </div>
 
-        <!-- Actions -->
-        <div class="actions">
-            <div class="autopilot-context" id="autopilot-context">
-                <p>You have the <span class="what-how">WHAT</span> (your portfolio). Now install the <span class="what-how">HOW</span>. The Autopilot System sets up automatic monthly purchases of these exact ETFs, so you never have to remember.</p>
-                <div class="autopilot-micro-preview" id="autopilot-preview"></div>
+        <!-- ============================================
+             ECOSYSTEM PROGRESS + COMMAND CENTER CTA
+             Replaces: Autopilot CTA + Bookmark reminder.
+             Single exit point. One CTA. One destination.
+             Command Center IS the loop. This page
+             celebrates the win and funnels INTO it.
+        ============================================ -->
+        <div class="ecosystem-progress" id="ecosystemProgress">
+            <div class="ecosystem-header">
+                <div class="ecosystem-title">&#x1F3AF; Your Ecosystem Progress</div>
+                <div class="ecosystem-level" id="ecoLevel">Level 1</div>
             </div>
-            <a href="#" id="autopilot-btn" class="btn btn-autopilot"><span>&#x1F916;</span> Install The Autopilot System</a>
+            <div class="ecosystem-apps" id="ecoApps"></div>
+            <p class="ecosystem-context">Your portfolio is built. <strong>Command Center</strong> tracks everything: your progress, your next unlock, and the tools that turn this plan into an automated machine.</p>
+            <a href="https://spacekou5-oss.github.io/cashvault-funnel/command-center.html" class="btn btn-command" id="commandCenterBtn">
+                <span>&#x1F3AF;</span> Open Command Center <span>&rarr;</span>
+            </a>
         </div>
 
         <!-- Brokerage Explainer -->
@@ -431,12 +564,8 @@
             </div>
         </div>
 
-        <div class="bookmark-reminder" id="bookmark-reminder">
-            &#x1F516; <a href="#" id="bookmark-link">Bookmark this page</a> to come back to your portfolio anytime.
-        </div>
-
         <div class="footer">
-            Made by <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a><br>
+            Built by <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a> &bull; Systems over willpower.<br>
             Not financial advice. Research before investing.
         </div>
     </div>
@@ -449,9 +578,14 @@
     </div>
 
     <script>
-        const STORAGE_KEY = 'investmentSimplifier_portfolio';
-        const styleLabels = { growth: '\u{1F680} Growth', balanced: '\u2696\uFE0F Balanced', income: '\u{1F6E1}\uFE0F Income' };
-        const styleDescriptions = {
+        // =========================================
+        // CONFIGURATION
+        // =========================================
+        var STORAGE_KEY = 'investmentSimplifier_portfolio';
+        var COMMAND_CENTER_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/command-center.html';
+
+        var styleLabels = { growth: '\u{1F680} Growth', balanced: '\u2696\uFE0F Balanced', income: '\u{1F6E1}\uFE0F Income' };
+        var styleDescriptions = {
             growth: {
                 summary: 'Your portfolio is built for maximum long-term growth. It leans heavily into stocks because you have time on your side. The strategy accepts more ups and downs in the short term in exchange for higher projected returns over decades.',
                 riskLevel: 'Higher volatility',
@@ -472,7 +606,7 @@
             }
         };
 
-        const etfMeta = {
+        var etfMeta = {
             'VTI': { expense: '0.03%', type: 'Total Market' },
             'VOO': { expense: '0.03%', type: 'S&P 500' },
             'VXUS': { expense: '0.07%', type: 'International' },
@@ -488,6 +622,23 @@
             'VT': { expense: '0.07%', type: 'Global' }
         };
 
+        // =========================================
+        // Ecosystem apps for progress display.
+        // Reads localStorage flags set by each app.
+        // Mirrors Command Center's flag system.
+        // =========================================
+        var ECOSYSTEM_APPS = [
+            { name: 'Freedom Number', icon: '\u{1F9E0}', flag: 'freedom_email' },
+            { name: 'Cost of Waiting', icon: '\u23F3', flag: 'cost_of_waiting_email' },
+            { name: 'Investment Plan', icon: '\u{1F4C8}', flag: 'investment_completed' },
+            { name: 'Autopilot', icon: '\u{1F916}', flag: 'autopilot_completed' },
+            { name: '800 Club', icon: '\u{1F3C6}', flag: '800club_completed' },
+            { name: 'Budget Calc', icon: '\u{1F4B0}', flag: 'budget_completed' }
+        ];
+
+        // =========================================
+        // UTILITIES
+        // =========================================
         function formatCurrency(num) {
             if (num >= 1000000) return '$' + (num / 1000000).toFixed(2) + 'M';
             if (num >= 1000) return '$' + Math.round(num).toLocaleString();
@@ -495,27 +646,28 @@
         }
 
         function loadPortfolioData() {
-            const params = new URLSearchParams(window.location.search);
+            // Priority: URL params > cookie > localStorage
+            var params = new URLSearchParams(window.location.search);
             if (params.has('data')) {
                 try {
-                    const decoded = JSON.parse(decodeURIComponent(params.get('data')));
+                    var decoded = JSON.parse(decodeURIComponent(params.get('data')));
                     if (decoded && decoded.etfs) return decoded;
                 } catch(e) {}
             }
             try {
-                const cookies = document.cookie.split(';');
-                for (const cookie of cookies) {
-                    const [name, value] = cookie.trim().split('=');
-                    if (name === 'isPortfolio') {
-                        const decoded = JSON.parse(decodeURIComponent(value));
-                        if (decoded && decoded.etfs) return decoded;
+                var cookies = document.cookie.split(';');
+                for (var c = 0; c < cookies.length; c++) {
+                    var parts = cookies[c].trim().split('=');
+                    if (parts[0] === 'isPortfolio') {
+                        var cookieDecoded = JSON.parse(decodeURIComponent(parts[1]));
+                        if (cookieDecoded && cookieDecoded.etfs) return cookieDecoded;
                     }
                 }
             } catch(e) {}
-            const stored = localStorage.getItem(STORAGE_KEY);
+            var stored = localStorage.getItem(STORAGE_KEY);
             if (stored) {
                 try {
-                    const parsed = JSON.parse(stored);
+                    var parsed = JSON.parse(stored);
                     if (parsed && parsed.etfs) return parsed;
                 } catch(e) {}
             }
@@ -523,10 +675,105 @@
         }
 
         // =========================================
-        // ADDITION 3: UPSTREAM PERSONALIZATION
-        // Detects Freedom Calculator or Cost of Waiting users.
-        // Swaps header copy to acknowledge their journey.
-        // Read-only. Touches zero data, zero flags, zero gate logic.
+        // NEW USER DETECTION
+        // A user is "new" if they have NOT previously
+        // visited the bridge page. Flag set after first
+        // theater completes. Returning users skip theater.
+        // =========================================
+        function isNewUser() {
+            return localStorage.getItem('bridge_investment_visited') !== 'true';
+        }
+
+        // =========================================
+        // PROCESSING THEATER (new users only)
+        // 5-step loading sequence that reframes
+        // the email signup as valuable. Each step
+        // reveals what they unlocked. Uses:
+        // - Idleness Aversion (fake loading builds value)
+        // - Operational Transparency (show the work)
+        // - Goal Gradient (progress starts at 15%)
+        // =========================================
+        function runProcessingTheater(portfolio, callback) {
+            var theater = document.getElementById('processingTheater');
+            var titleEl = document.getElementById('theaterTitle');
+            var stepEl = document.getElementById('theaterStep');
+            var progressFill = document.getElementById('theaterProgressFill');
+            var pctEl = document.getElementById('theaterPct');
+            var valueFrame = document.getElementById('theaterValueFrame');
+            var valueText = document.getElementById('theaterValueText');
+
+            // Hide main content during theater
+            document.getElementById('main-content').style.opacity = '0';
+            theater.classList.remove('hidden');
+
+            var proj30 = formatCurrency(portfolio.projections.year30);
+            var multiplier = (portfolio.projections.year30 / 87000).toFixed(1);
+            var monthly = (portfolio.monthlyInvestment || 500).toLocaleString();
+
+            var steps = [
+                {
+                    title: 'Email verified.',
+                    step: 'Connecting to your portfolio data...',
+                    pct: 25,
+                    value: null
+                },
+                {
+                    title: 'Portfolio found.',
+                    step: 'Loading ' + portfolio.etfs.length + ' ETFs with exact allocations...',
+                    pct: 45,
+                    value: 'Your personalized buy list with exact tickers, percentages, and dollar amounts per ETF.'
+                },
+                {
+                    title: 'Running projections...',
+                    step: 'Modeling compound growth at $' + monthly + '/month...',
+                    pct: 70,
+                    value: '30-year projection: ' + proj30 + ' (' + multiplier + 'x the average American retirement).'
+                },
+                {
+                    title: 'Building your share card...',
+                    step: 'Generating screenshot-ready portfolio card...',
+                    pct: 90,
+                    value: 'Share card, brokerage guide, and step-by-step buy instructions included.'
+                },
+                {
+                    title: 'Everything unlocked.',
+                    step: 'Preparing your results...',
+                    pct: 100,
+                    value: null
+                }
+            ];
+
+            var i = 0;
+            var interval = setInterval(function() {
+                if (i < steps.length) {
+                    titleEl.textContent = steps[i].title;
+                    stepEl.textContent = steps[i].step;
+                    progressFill.style.width = steps[i].pct + '%';
+                    pctEl.textContent = steps[i].pct + '%';
+                    if (steps[i].value) {
+                        valueText.textContent = steps[i].value;
+                        valueFrame.classList.add('show');
+                    } else {
+                        valueFrame.classList.remove('show');
+                    }
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(function() {
+                        theater.classList.add('hidden');
+                        document.getElementById('main-content').style.opacity = '1';
+                        document.getElementById('main-content').style.transition = 'opacity 0.5s ease';
+                        callback();
+                    }, 400);
+                }
+            }, 950);
+        }
+
+        // =========================================
+        // UPSTREAM PERSONALIZATION
+        // Detects Freedom Calculator or Cost of Waiting
+        // users via localStorage flags. Swaps header
+        // copy to acknowledge their journey. Read-only.
         // =========================================
         function personalizeForUpstream() {
             var fromFreedom = false;
@@ -553,143 +800,175 @@
             }
         }
 
-        function loadPortfolio() {
-            const portfolio = loadPortfolioData();
-            if (!portfolio) { showError(); return; }
-            localStorage.setItem('investmentSimplifier_bridge_email', 'true');
-            personalizeForUpstream();
-            renderPortfolio(portfolio);
-            generateBookmarkURL(portfolio);
-            setTimeout(() => {
-                animateCountUp('proj-30', portfolio.projections.year30);
-                setTimeout(() => triggerConfetti(), 1500);
-            }, 800);
+        // =========================================
+        // ECOSYSTEM PROGRESS
+        // Reads localStorage flags from all apps.
+        // Calculates Architect Level. Shows Command
+        // Center as the sole destination.
+        // =========================================
+        function renderEcosystemProgress() {
+            var container = document.getElementById('ecoApps');
+            var completedCount = 0;
+
+            for (var a = 0; a < ECOSYSTEM_APPS.length; a++) {
+                var app = ECOSYSTEM_APPS[a];
+                var isCompleted = false;
+                try { isCompleted = localStorage.getItem(app.flag) === 'true'; } catch(e) {}
+                if (isCompleted) completedCount++;
+
+                var div = document.createElement('div');
+                div.className = 'eco-app ' + (isCompleted ? 'completed' : 'locked');
+                div.innerHTML =
+                    '<span class="eco-app-icon">' + (isCompleted ? '\u2705' : app.icon) + '</span>' +
+                    '<span class="eco-app-name">' + app.name + '</span>' +
+                    '<span class="eco-app-status">' + (isCompleted ? 'Completed' : 'Locked') + '</span>';
+                container.appendChild(div);
+            }
+
+            // Architect Level based on completions
+            var levelEl = document.getElementById('ecoLevel');
+            if (completedCount >= 5) levelEl.textContent = 'Level 5 \u2022 Architect';
+            else if (completedCount >= 4) levelEl.textContent = 'Level 4 \u2022 Builder';
+            else if (completedCount >= 3) levelEl.textContent = 'Level 3 \u2022 Strategist';
+            else if (completedCount >= 2) levelEl.textContent = 'Level 2 \u2022 Planner';
+            else levelEl.textContent = 'Level 1 \u2022 Starter';
         }
 
+        // =========================================
+        // MAIN LOAD ORCHESTRATOR
+        // New users: Processing Theater -> Render -> Confetti
+        // Returning users: Render immediately (no theater, no confetti)
+        // =========================================
+        function loadPortfolio() {
+            var portfolio = loadPortfolioData();
+            if (!portfolio) { showError(); return; }
+
+            // Set email bridge flag (signals Investment Simplifier that email was captured)
+            localStorage.setItem('investmentSimplifier_bridge_email', 'true');
+
+            var newUser = isNewUser();
+
+            if (newUser) {
+                // NEW USER: Processing Theater, then render, then confetti
+                runProcessingTheater(portfolio, function() {
+                    personalizeForUpstream();
+                    renderPortfolio(portfolio);
+                    renderEcosystemProgress();
+                    // Mark as visited so they skip theater on return
+                    localStorage.setItem('bridge_investment_visited', 'true');
+                    setTimeout(function() {
+                        animateCountUp('proj-30', portfolio.projections.year30);
+                        setTimeout(function() { triggerConfetti(); }, 1500);
+                    }, 400);
+                });
+            } else {
+                // RETURNING USER: Skip theater, render immediately, no confetti
+                personalizeForUpstream();
+                renderPortfolio(portfolio);
+                renderEcosystemProgress();
+                setTimeout(function() {
+                    animateCountUp('proj-30', portfolio.projections.year30);
+                }, 400);
+            }
+        }
+
+        // =========================================
+        // RENDER PORTFOLIO
+        // =========================================
         function renderPortfolio(p) {
             document.getElementById('display-age').textContent = p.age;
             document.getElementById('display-style').textContent = styleLabels[p.style] || p.style;
             document.getElementById('display-id').textContent = 'ID: ' + p.portfolioId;
             document.getElementById('display-stocks').textContent = p.stockPercent + '%';
             document.getElementById('display-bonds').textContent = p.bondPercent + '%';
-            document.getElementById('display-monthly').textContent = p.monthlyInvestment?.toLocaleString() || '500';
+            document.getElementById('display-monthly').textContent = p.monthlyInvestment ? p.monthlyInvestment.toLocaleString() : '500';
 
             document.getElementById('proj-10').textContent = formatCurrency(p.projections.year10);
             document.getElementById('proj-20').textContent = formatCurrency(p.projections.year20);
 
-            const multiplier = (p.projections.year30 / 87000).toFixed(1);
+            var multiplier = (p.projections.year30 / 87000).toFixed(1);
             document.getElementById('comp-you').textContent = formatCurrency(p.projections.year30);
             document.getElementById('comp-multiplier').textContent = multiplier + 'x ahead of the pack';
 
-            const reinforcementSub = document.getElementById('reinforcement-sub');
+            var reinforcementSub = document.getElementById('reinforcement-sub');
             if (p.age && p.age < 30) {
-                reinforcementSub.textContent = `The average American has $0 invested at ${p.age}. You're now ahead of 80% of your generation.`;
+                reinforcementSub.textContent = 'The average American has $0 invested at ' + p.age + '. You\'re now ahead of 80% of your generation.';
             } else {
-                reinforcementSub.textContent = `Most people never build a portfolio. You just did it in 60 seconds.`;
+                reinforcementSub.textContent = 'Most people never build a portfolio. You just did it in 60 seconds.';
             }
 
             renderStrategyExplainer(p);
 
+            // Share card data
             document.getElementById('share-value').textContent = formatCurrency(p.projections.year30);
             document.getElementById('share-comparison').textContent = multiplier + 'x ahead of the average American';
             document.getElementById('share-stocks').textContent = p.stockPercent + '%';
             document.getElementById('share-bonds').textContent = p.bondPercent + '%';
             document.getElementById('share-id').textContent = 'ID: ' + p.portfolioId;
 
-            const etfGrid = document.getElementById('etf-grid');
+            // ETF grid
+            var etfGrid = document.getElementById('etf-grid');
             etfGrid.innerHTML = '';
-            p.etfs.forEach(etf => {
-                const meta = etfMeta[etf.ticker] || { expense: 'N/A', type: 'Fund' };
-                const card = document.createElement('div');
-                card.className = `etf-card ${etf.type}`;
-                card.innerHTML = `
-                    <div class="etf-info">
-                        <span class="etf-ticker">${etf.ticker}</span>
-                        <span class="etf-name">${etf.name}</span>
-                        ${etf.description ? `<span class="etf-desc">${etf.description}</span>` : ''}
-                        <div class="etf-meta">
-                            <span class="etf-meta-tag expense">${meta.expense} fee</span>
-                            <span class="etf-meta-tag type">${meta.type}</span>
-                        </div>
-                    </div>
-                    <div>
-                        <span class="etf-percent">${etf.percent}%</span>
-                    </div>`;
+            for (var i = 0; i < p.etfs.length; i++) {
+                var etf = p.etfs[i];
+                var meta = etfMeta[etf.ticker] || { expense: 'N/A', type: 'Fund' };
+                var card = document.createElement('div');
+                card.className = 'etf-card ' + etf.type;
+                card.innerHTML =
+                    '<div class="etf-info">' +
+                        '<span class="etf-ticker">' + etf.ticker + '</span>' +
+                        '<span class="etf-name">' + etf.name + '</span>' +
+                        (etf.description ? '<span class="etf-desc">' + etf.description + '</span>' : '') +
+                        '<div class="etf-meta">' +
+                            '<span class="etf-meta-tag expense">' + meta.expense + ' fee</span>' +
+                            '<span class="etf-meta-tag type">' + meta.type + '</span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div><span class="etf-percent">' + etf.percent + '%</span></div>';
                 etfGrid.appendChild(card);
-            });
-
-            const coreEtf = p.etfs.find(e => e.type === 'core') || p.etfs[0];
-            const monthly = p.monthlyInvestment || 500;
-            const previewEl = document.getElementById('autopilot-preview');
-            if (coreEtf) {
-                const coreMonthly = Math.round(monthly * coreEtf.percent / 100);
-                previewEl.textContent = `${coreEtf.ticker} at ${coreEtf.percent}% = $${coreMonthly}/month on autopilot`;
             }
-            document.getElementById('autopilot-btn').href = `https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html?source=bridge&monthly=${monthly}&suggested_etf=${coreEtf?.ticker || 'VTI'}`;
 
             renderPersonalizedSteps(p);
             startCostTicker(p.projections.year30);
         }
 
         function renderStrategyExplainer(p) {
-            const desc = styleDescriptions[p.style] || styleDescriptions.balanced;
+            var desc = styleDescriptions[p.style] || styleDescriptions.balanced;
             document.getElementById('strategyExplainerText').textContent = desc.summary;
-            const details = document.getElementById('strategyDetails');
-            details.innerHTML = `
-                <div class="strategy-detail-item">
-                    <div class="strategy-detail-label">Risk Level</div>
-                    <div class="strategy-detail-value">${desc.riskLevel}</div>
-                </div>
-                <div class="strategy-detail-item">
-                    <div class="strategy-detail-label">Best Held For</div>
-                    <div class="strategy-detail-value">${desc.timeHorizon}</div>
-                </div>
-                <div class="strategy-detail-item">
-                    <div class="strategy-detail-label">Best For</div>
-                    <div class="strategy-detail-value">${desc.bestFor}</div>
-                </div>
-            `;
+            var details = document.getElementById('strategyDetails');
+            details.innerHTML =
+                '<div class="strategy-detail-item"><div class="strategy-detail-label">Risk Level</div><div class="strategy-detail-value">' + desc.riskLevel + '</div></div>' +
+                '<div class="strategy-detail-item"><div class="strategy-detail-label">Best Held For</div><div class="strategy-detail-value">' + desc.timeHorizon + '</div></div>' +
+                '<div class="strategy-detail-item"><div class="strategy-detail-label">Best For</div><div class="strategy-detail-value">' + desc.bestFor + '</div></div>';
         }
 
         function renderPersonalizedSteps(p) {
-            const lumpSum = 1000;
-            let step2Detail = '';
-            p.etfs.forEach((etf, i) => {
-                const amount = Math.round(lumpSum * etf.percent / 100);
-                step2Detail += `<span class="step-etf-detail">${etf.ticker}</span> \u2192 Search "${etf.ticker}" in your brokerage, buy $${amount.toLocaleString()} worth (that's ${etf.percent}% of $${lumpSum.toLocaleString()})`;
+            var lumpSum = 1000;
+            var step2Detail = '';
+            for (var i = 0; i < p.etfs.length; i++) {
+                var etf = p.etfs[i];
+                var amount = Math.round(lumpSum * etf.percent / 100);
+                step2Detail += '<span class="step-etf-detail">' + etf.ticker + '</span> \u2192 Search "' + etf.ticker + '" in your brokerage, buy $' + amount.toLocaleString() + ' worth (that\'s ' + etf.percent + '% of $' + lumpSum.toLocaleString() + ')';
                 if (i < p.etfs.length - 1) step2Detail += '<br><br>';
-            });
-            document.getElementById('step2-detail').innerHTML = `<strong>Your exact buy list with $${lumpSum.toLocaleString()} to start:</strong><br><br>${step2Detail}`;
+            }
+            document.getElementById('step2-detail').innerHTML = '<strong>Your exact buy list with $' + lumpSum.toLocaleString() + ' to start:</strong><br><br>' + step2Detail;
 
-            const monthly = p.monthlyInvestment || 500;
-            document.getElementById('step3-title').textContent = `Set Up Automatic $${monthly.toLocaleString()}/Month Buys`;
-            document.getElementById('step3-text').textContent = `In your brokerage, look for "Recurring Investments" or "Automatic Investments." Set each ETF to buy automatically every month on the same day (like payday). Your $${monthly.toLocaleString()}/month gets split across your ETFs based on the percentages above.`;
+            var monthly = p.monthlyInvestment || 500;
+            document.getElementById('step3-title').textContent = 'Set Up Automatic $' + monthly.toLocaleString() + '/Month Buys';
+            document.getElementById('step3-text').textContent = 'In your brokerage, look for "Recurring Investments" or "Automatic Investments." Set each ETF to buy automatically every month on the same day (like payday). Your $' + monthly.toLocaleString() + '/month gets split across your ETFs based on the percentages above.';
         }
 
-        function generateBookmarkURL(p) {
-            const encoded = encodeURIComponent(JSON.stringify(p));
-            const bookmarkUrl = window.location.origin + window.location.pathname + '?data=' + encoded;
-            const bookmarkLink = document.getElementById('bookmark-link');
-            bookmarkLink.href = bookmarkUrl;
-            bookmarkLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                navigator.clipboard.writeText(bookmarkUrl).then(() => {
-                    bookmarkLink.textContent = 'Link copied! Paste it anywhere.';
-                    setTimeout(() => { bookmarkLink.textContent = 'Bookmark this page'; }, 3000);
-                }).catch(() => {
-                    prompt('Copy this link to save your portfolio:', bookmarkUrl);
-                });
-            });
-        }
-
+        // =========================================
+        // ANIMATIONS + TICKERS
+        // =========================================
         function animateCountUp(elementId, target) {
-            const el = document.getElementById(elementId);
-            const duration = 1500;
-            const start = performance.now();
+            var el = document.getElementById(elementId);
+            var duration = 1500;
+            var start = performance.now();
             function update(now) {
-                const elapsed = now - start;
-                const progress = Math.min(elapsed / duration, 1);
-                const eased = 1 - Math.pow(1 - progress, 3);
+                var elapsed = now - start;
+                var progress = Math.min(elapsed / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3);
                 el.textContent = formatCurrency(Math.round(target * eased));
                 if (progress < 1) requestAnimationFrame(update);
             }
@@ -697,69 +976,70 @@
         }
 
         function startCostTicker(projectedValue) {
-            const dailyCost = projectedValue / (30 * 365);
-            const costPerMs = dailyCost / 86400000;
-            const el = document.getElementById('costTickerValue');
-            const startTime = performance.now();
+            var dailyCost = projectedValue / (30 * 365);
+            var costPerMs = dailyCost / 86400000;
+            var el = document.getElementById('costTickerValue');
+            var startTime = performance.now();
             function tick(now) {
-                const elapsed = now - startTime;
-                const accumulated = elapsed * costPerMs;
+                var elapsed = now - startTime;
+                var accumulated = elapsed * costPerMs;
                 el.textContent = '$' + accumulated.toFixed(2);
                 requestAnimationFrame(tick);
             }
             requestAnimationFrame(tick);
         }
 
-        function showError() {
-            document.getElementById('main-content').style.display = 'none';
-            document.getElementById('error-state').style.display = 'block';
-        }
-
+        // =========================================
+        // SHARE FUNCTIONS
+        // =========================================
         function copyCaption() {
-            const data = loadPortfolioData();
+            var data = loadPortfolioData();
             if (!data) return;
-            const multiplier = (data.projections.year30 / 87000).toFixed(1);
-            const caption = `I just found out I could be ${multiplier}x richer than the average American by retirement.\n\nBuilt my portfolio in 60 seconds. What's your number?\n\n${data.stockPercent}% Stocks / ${data.bondPercent}% Bonds\n30-Year Projection: ${formatCurrency(data.projections.year30)}\n\nBuild yours free \u2193\n@koutalksmoney\n\n#moneytok #investingforbeginners #etfportfolio #buildwealth #financialliteracy`;
-            navigator.clipboard.writeText(caption).then(() => {
-                const btn = event.target.closest('.btn');
-                const original = btn.innerHTML;
+            var multiplier = (data.projections.year30 / 87000).toFixed(1);
+            var caption = 'I just found out I could be ' + multiplier + 'x richer than the average American by retirement.\n\nBuilt my portfolio in 60 seconds. What\'s your number?\n\n' + data.stockPercent + '% Stocks / ' + data.bondPercent + '% Bonds\n30-Year Projection: ' + formatCurrency(data.projections.year30) + '\n\nBuild yours free \u2193\n@koutalksmoney\n\n#moneytok #investingforbeginners #etfportfolio #buildwealth #financialliteracy';
+            navigator.clipboard.writeText(caption).then(function() {
+                var btn = event.target.closest('.btn');
+                var original = btn.innerHTML;
                 btn.innerHTML = '<span>\u2713</span> Copied!';
-                setTimeout(() => btn.innerHTML = original, 2000);
+                setTimeout(function() { btn.innerHTML = original; }, 2000);
             });
         }
 
         function downloadCard() {
-            const shareCard = document.getElementById('share-card-inner');
+            var shareCard = document.getElementById('share-card-inner');
             if (!shareCard) return;
-            const btn = event.target.closest('.btn');
-            const original = btn.innerHTML;
+            var btn = event.target.closest('.btn');
+            var original = btn.innerHTML;
             btn.innerHTML = '<span>\u23F3</span> Generating...';
             html2canvas(shareCard, {
                 backgroundColor: '#0f1629',
                 scale: 2,
                 useCORS: true,
                 logging: false
-            }).then(canvas => {
-                const link = document.createElement('a');
+            }).then(function(canvas) {
+                var link = document.createElement('a');
                 link.download = 'my-portfolio-koutalksmoney.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 btn.innerHTML = '<span>\u2713</span> Downloaded!';
-                setTimeout(() => btn.innerHTML = original, 2000);
-            }).catch(() => {
+                setTimeout(function() { btn.innerHTML = original; }, 2000);
+            }).catch(function() {
                 btn.innerHTML = original;
                 alert('Long-press the share card above to screenshot, then post to your story and tag @koutalksmoney');
             });
         }
 
+        // =========================================
+        // CONFETTI (new users only)
+        // =========================================
         function triggerConfetti() {
-            const canvas = document.getElementById('confetti-canvas');
-            const ctx = canvas.getContext('2d');
+            var canvas = document.getElementById('confetti-canvas');
+            var ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            const particles = [];
-            const colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899'];
-            for (let i = 0; i < 100; i++) {
+            var particles = [];
+            var colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899'];
+            for (var i = 0; i < 100; i++) {
                 particles.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height - canvas.height,
@@ -770,10 +1050,11 @@
                     spin: (Math.random() - 0.5) * 0.2
                 });
             }
-            let frame = 0;
+            var frame = 0;
             function animate() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => {
+                for (var j = 0; j < particles.length; j++) {
+                    var p = particles[j];
                     p.y += p.speed;
                     p.x += Math.sin(p.angle) * 0.5;
                     p.angle += p.spin;
@@ -783,7 +1064,7 @@
                     ctx.fillStyle = p.color;
                     ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
                     ctx.restore();
-                });
+                }
                 frame++;
                 if (frame < 180) requestAnimationFrame(animate);
                 else ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -791,6 +1072,17 @@
             animate();
         }
 
+        // =========================================
+        // ERROR STATE
+        // =========================================
+        function showError() {
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('error-state').style.display = 'block';
+        }
+
+        // =========================================
+        // INIT
+        // =========================================
         document.addEventListener('DOMContentLoaded', loadPortfolio);
     </script>
 </body>
