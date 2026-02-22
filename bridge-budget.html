@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- IFRAME BREAKOUT + GUARDED UNLOCK -->
     <script>
@@ -101,6 +101,49 @@
         }
 
         @keyframes fadeSlide{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+        @keyframes spin{to{transform:rotate(360deg);}}
+
+        /* ========== POST-EMAIL LOADING THEATER ========== */
+        .unlock-theater{
+            padding:60px 32px;text-align:center;
+            animation:fadeSlide 0.4s ease;
+        }
+        .unlock-theater-icon{
+            width:56px;height:56px;margin:0 auto 20px;position:relative;
+        }
+        .unlock-theater-ring{
+            width:100%;height:100%;
+            border:3px solid var(--border);border-top-color:var(--green);
+            border-radius:50%;animation:spin 1s linear infinite;
+        }
+        .unlock-theater-badge{
+            display:inline-block;padding:5px 12px;border-radius:16px;
+            font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:700;
+            text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;
+            background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);
+            color:var(--green);
+        }
+        .unlock-theater h2{font-size:1.2rem;font-weight:700;margin-bottom:6px;}
+        .unlock-theater-sub{font-size:0.85rem;color:var(--text-secondary);margin-bottom:24px;}
+        .unlock-steps{max-width:360px;margin:0 auto;text-align:left;}
+        .unlock-step{
+            display:flex;align-items:center;gap:10px;padding:7px 0;
+            font-size:0.75rem;color:var(--text-muted);transition:all 0.3s;
+        }
+        .unlock-step.active{color:var(--green);}
+        .unlock-step.done{color:var(--green);}
+        .unlock-check{
+            width:16px;height:16px;border-radius:50%;border:2px solid var(--border);
+            flex-shrink:0;display:flex;align-items:center;justify-content:center;
+            font-size:0.6rem;transition:all 0.3s;
+        }
+        .unlock-step.active .unlock-check{border-color:var(--green);background:rgba(16,185,129,0.1);}
+        .unlock-step.done .unlock-check{border-color:var(--green);background:rgba(16,185,129,0.15);color:var(--green);}
+        .unlock-progress{
+            width:100%;max-width:300px;height:3px;background:var(--border);
+            border-radius:2px;margin:20px auto 0;overflow:hidden;
+        }
+        .unlock-progress-bar{height:100%;background:var(--green);border-radius:2px;transition:width 0.4s ease;width:15%;}
 
         /* Banner */
         .dash-banner{
@@ -159,7 +202,7 @@
         .income-field input::placeholder{color:var(--text-muted);font-weight:400;}
         .income-toggle{
             display:flex;background:var(--bg-input);border:1px solid var(--border);
-            border-radius:8px;overflow:hidden;flex-shrink:0;
+            border-radius:8px;overflow:hidden;flex-shrink:0;position:relative;
         }
         .income-toggle button{
             padding:10px 16px;font-size:0.75rem;font-weight:600;
@@ -167,6 +210,13 @@
             cursor:pointer;transition:all 0.2s;white-space:nowrap;
         }
         .income-toggle button.active{background:var(--accent);color:#000;}
+        .income-toggle-rec{
+            position:absolute;top:-8px;left:4px;
+            font-family:'JetBrains Mono',monospace;font-size:0.45rem;
+            color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;
+            background:var(--bg-secondary);padding:1px 5px;border-radius:3px;
+            font-weight:700;pointer-events:none;
+        }
 
         /* Content Grid */
         .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
@@ -211,50 +261,26 @@
             font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--text-primary);
             display:flex;align-items:baseline;gap:5px;
         }
-        .doughnut-legend-pct{
-            font-size:0.65rem;font-weight:500;color:var(--text-muted);
-        }
-
-        /* Envelope editable legend items */
+        .doughnut-legend-pct{font-size:0.65rem;font-weight:500;color:var(--text-muted);}
         .doughnut-legend-item.editable{padding:6px 10px;}
         .envelope-input-wrap{display:flex;align-items:center;gap:4px;flex-shrink:0;}
-        .envelope-input-wrap .env-dollar{
-            font-family:'JetBrains Mono',monospace;font-size:0.75rem;
-            color:var(--text-muted);font-weight:600;
-        }
+        .envelope-input-wrap .env-dollar{font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--text-muted);font-weight:600;}
         .envelope-input{
             width:72px;background:var(--bg-input);
             border:1px solid var(--border);border-radius:6px;
             padding:5px 8px;color:var(--text-primary);
             font-family:'JetBrains Mono',monospace;font-size:0.8rem;
-            font-weight:700;outline:none;transition:border-color 0.2s;
-            text-align:right;
+            font-weight:700;outline:none;transition:border-color 0.2s;text-align:right;
         }
         .envelope-input:focus{border-color:var(--accent);}
         .envelope-input.over-budget{border-color:var(--red);color:var(--red);}
-        .envelope-pct-badge{
-            font-family:'JetBrains Mono',monospace;font-size:0.6rem;
-            color:var(--text-muted);font-weight:500;min-width:32px;text-align:right;
-        }
-        .envelope-unallocated{
-            display:flex;align-items:center;justify-content:space-between;
-            padding:10px 12px;border-radius:8px;margin-top:4px;
-            font-size:0.8rem;font-weight:600;transition:all 0.3s;
-        }
-        .envelope-unallocated.balanced{
-            background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:var(--green);
-        }
-        .envelope-unallocated.over{
-            background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);
-        }
-        .envelope-unallocated.under{
-            background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);color:var(--blue);
-        }
+        .envelope-pct-badge{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--text-muted);font-weight:500;min-width:32px;text-align:right;}
+        .envelope-unallocated{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:8px;margin-top:4px;font-size:0.8rem;font-weight:600;transition:all 0.3s;}
+        .envelope-unallocated.balanced{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:var(--green);}
+        .envelope-unallocated.over{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);}
+        .envelope-unallocated.under{background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);color:var(--blue);}
         .envelope-unallocated-val{font-family:'JetBrains Mono',monospace;font-weight:700;}
-        .envelope-hint{
-            font-size:0.65rem;color:var(--text-muted);text-align:center;
-            margin-top:6px;font-style:italic;
-        }
+        .envelope-hint{font-size:0.65rem;color:var(--text-muted);text-align:center;margin-top:6px;font-style:italic;}
         .envelope-suggestion{
             display:flex;align-items:flex-start;gap:10px;
             padding:12px 14px;border-radius:8px;margin-top:6px;
@@ -262,65 +288,43 @@
             font-size:0.78rem;line-height:1.5;color:var(--text-secondary);
             animation:fadeSlide 0.3s ease;
         }
-        .envelope-suggestion-icon{
-            flex-shrink:0;font-size:1rem;margin-top:1px;
-        }
+        .envelope-suggestion-icon{flex-shrink:0;font-size:1rem;margin-top:1px;}
         .envelope-suggestion strong{color:var(--accent);font-weight:700;}
-        .envelope-suggestion .env-yearly{
-            font-family:'JetBrains Mono',monospace;font-size:0.7rem;
-            color:var(--green);font-weight:600;
-        }
+        .envelope-suggestion .env-yearly{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--green);font-weight:600;}
 
         /* Tabs */
         .tabs-section{border-top:1px solid var(--border-light);padding-top:20px;margin-bottom:24px;}
-        .tabs-title{
-            text-align:center;font-size:0.65rem;color:var(--text-muted);
-            text-transform:uppercase;letter-spacing:0.12em;margin-bottom:12px;font-weight:700;
-        }
+        .tabs-title{text-align:center;font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:12px;font-weight:700;}
         .tabs-row{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;}
-        .sys-tab{
-            padding:8px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;
-            border:1px solid var(--border);background:transparent;
-            color:var(--text-muted);cursor:pointer;transition:all 0.2s;white-space:nowrap;
-        }
+        .sys-tab{padding:8px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:all 0.2s;white-space:nowrap;}
         .sys-tab:hover{border-color:var(--accent);color:var(--accent);}
         .sys-tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
-        .sys-tab-score{
-            font-family:'JetBrains Mono',monospace;font-size:0.6rem;margin-left:4px;opacity:0.7;
-        }
+        .sys-tab-score{font-family:'JetBrains Mono',monospace;font-size:0.6rem;margin-left:4px;opacity:0.7;}
 
-        /* Cross-sell */
+        /* Cross-sell: Command Center */
         .cross-sell{
-            background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.02));
-            border:1px solid rgba(16,185,129,0.2);border-radius:12px;
+            background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(245,158,11,0.02));
+            border:1px solid rgba(245,158,11,0.2);border-radius:12px;
             padding:20px;text-align:center;margin-bottom:24px;
         }
-        .cross-sell-eyebrow{
-            font-family:'JetBrains Mono',monospace;font-size:0.6rem;
-            color:var(--green);text-transform:uppercase;letter-spacing:0.12em;
-            margin-bottom:6px;font-weight:700;
-        }
+        .cross-sell-eyebrow{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;font-weight:700;}
         .cross-sell-title{font-size:1rem;font-weight:700;margin-bottom:4px;}
         .cross-sell-text{font-size:0.8rem;color:var(--text-secondary);margin-bottom:14px;line-height:1.5;}
-        .cross-sell-amount{
-            font-family:'JetBrains Mono',monospace;font-size:1.4rem;
-            font-weight:800;color:var(--green);margin-bottom:14px;
-        }
+        .cross-sell-amount{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:800;color:var(--accent);margin-bottom:14px;}
         .cross-sell-btn{
             display:inline-flex;align-items:center;gap:8px;
-            background:var(--green);color:#000;padding:12px 24px;
+            background:var(--accent);color:#000;padding:12px 24px;
             border-radius:8px;font-family:'JetBrains Mono',monospace;
             font-size:0.8rem;font-weight:700;text-decoration:none;
             transition:all 0.3s;text-transform:uppercase;letter-spacing:0.04em;
         }
-        .cross-sell-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(16,185,129,0.3);}
+        .cross-sell-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px var(--accent-glow);}
 
         /* Identity Card */
         .card-section{border-top:1px solid var(--border-light);padding-top:20px;}
-        .card-section-title{
-            text-align:center;font-size:0.65rem;color:var(--text-muted);
-            text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px;font-weight:700;
-        }
+        .card-section-title{text-align:center;font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;font-weight:700;}
+        .card-section-explainer{text-align:center;font-size:0.75rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.5;}
+        .card-section-explainer strong{color:var(--accent);font-weight:700;}
         .id-card{
             width:100%;max-width:400px;margin:0 auto;
             aspect-ratio:1.586/1;border-radius:16px;overflow:hidden;position:relative;
@@ -328,36 +332,19 @@
             border:1px solid rgba(245,158,11,0.2);
             padding:24px;display:flex;flex-direction:column;justify-content:space-between;
         }
-        .id-card-holo{
-            position:absolute;top:-50%;right:-30%;width:300px;height:300px;
-            background:conic-gradient(from 0deg,transparent,rgba(245,158,11,0.06),transparent,rgba(96,165,250,0.05),transparent);
-            border-radius:50%;animation:holoSpin 8s linear infinite;pointer-events:none;
-        }
+        .id-card-holo{position:absolute;top:-50%;right:-30%;width:300px;height:300px;background:conic-gradient(from 0deg,transparent,rgba(245,158,11,0.06),transparent,rgba(96,165,250,0.05),transparent);border-radius:50%;animation:holoSpin 8s linear infinite;pointer-events:none;}
         @keyframes holoSpin{to{transform:rotate(360deg);}}
         .id-card-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;}
-        .id-card-badge{
-            font-family:'JetBrains Mono',monospace;font-size:0.5rem;
-            color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;
-            font-weight:700;border:1px solid rgba(245,158,11,0.3);padding:4px 10px;border-radius:4px;
-        }
+        .id-card-badge{font-family:'JetBrains Mono',monospace;font-size:0.5rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;font-weight:700;border:1px solid rgba(245,158,11,0.3);padding:4px 10px;border-radius:4px;}
         .id-card-brand{font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:var(--text-muted);text-align:right;}
         .id-card-mid{position:relative;z-index:1;}
-        .id-card-archetype{
-            font-family:'JetBrains Mono',monospace;font-size:clamp(1rem,3.5vw,1.3rem);
-            font-weight:800;color:var(--accent);letter-spacing:0.06em;
-            text-transform:uppercase;margin-bottom:2px;
-        }
+        .id-card-archetype{font-family:'JetBrains Mono',monospace;font-size:clamp(1rem,3.5vw,1.3rem);font-weight:800;color:var(--accent);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:2px;}
         .id-card-system{font-size:0.75rem;color:var(--text-secondary);margin-bottom:8px;}
         .id-card-alloc{display:flex;gap:12px;}
         .id-card-alloc-item{text-align:center;}
-        .id-card-alloc-val{
-            font-family:'JetBrains Mono',monospace;font-size:0.85rem;
-            font-weight:700;color:var(--text-primary);
-        }
+        .id-card-alloc-val{font-family:'JetBrains Mono',monospace;font-size:0.85rem;font-weight:700;color:var(--text-primary);}
         .id-card-alloc-lbl{font-size:0.5rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;}
-        .id-card-bottom{
-            display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1;
-        }
+        .id-card-bottom{display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1;}
         .id-card-income-val{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:800;color:var(--text-primary);}
         .id-card-income-lbl{font-size:0.5rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;}
         .id-card-footer-brand{font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:var(--accent);font-weight:700;}
@@ -387,23 +374,10 @@
         .recovery-opt-arch{font-size:0.7rem;color:var(--accent);font-family:'JetBrains Mono',monospace;}
 
         /* Footer */
-        .footer{
-            text-align:center;padding:20px 0 12px;margin-top:28px;
-            border-top:1px solid var(--border-light);
-        }
+        .footer{text-align:center;padding:20px 0 12px;margin-top:28px;border-top:1px solid var(--border-light);}
         .footer-privacy{font-size:0.7rem;color:var(--text-muted);margin-bottom:12px;line-height:1.5;}
-        .footer-social{
-            display:flex;justify-content:center;align-items:center;gap:20px;
-            margin-bottom:14px;flex-wrap:wrap;
-        }
-        .footer-social-link{
-            display:inline-flex;align-items:center;gap:6px;
-            font-size:0.75rem;font-weight:600;color:var(--text-secondary);
-            text-decoration:none;transition:color 0.2s;
-            padding:6px 14px;border-radius:20px;
-            border:1px solid var(--border-light);
-            background:rgba(255,255,255,0.02);
-        }
+        .footer-social{display:flex;justify-content:center;align-items:center;gap:20px;margin-bottom:14px;flex-wrap:wrap;}
+        .footer-social-link{display:inline-flex;align-items:center;gap:6px;font-size:0.75rem;font-weight:600;color:var(--text-secondary);text-decoration:none;transition:color 0.2s;padding:6px 14px;border-radius:20px;border:1px solid var(--border-light);background:rgba(255,255,255,0.02);}
         .footer-social-link:hover{color:var(--accent);border-color:rgba(245,158,11,0.3);}
         .footer-social-link svg{width:14px;height:14px;flex-shrink:0;}
         .footer-links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;}
@@ -420,6 +394,7 @@
             .id-card{padding:18px;}
             .id-card-archetype{font-size:0.95rem;}
             .card-actions{flex-direction:column;align-items:stretch;}
+            .unlock-theater{padding:40px 20px;}
         }
     </style>
 </head>
@@ -429,12 +404,28 @@
         <header class="header">
             <div class="header-brand"><a href="https://instagram.com/koutalksmoney" target="_blank">Built by Kou. Tested with real money.</a></div>
             <h1 class="header-title">Your Financial DNA</h1>
-            <p class="header-sub">Your personalized financial blueprint.</p>
+            <p class="header-sub" id="headerSub">Your personalized financial blueprint.</p>
         </header>
 
         <main class="main-card">
-            <!-- Reinforcement Banner -->
-            <div class="dash-banner" id="dashBanner">&#10003; Blueprint Unlocked. Your personalized system is ready below.</div>
+            <!-- POST-EMAIL UNLOCK THEATER -->
+            <div class="unlock-theater" id="unlockTheater">
+                <div class="unlock-theater-badge">Email Confirmed</div>
+                <div class="unlock-theater-icon"><div class="unlock-theater-ring"></div></div>
+                <h2>Building your personalized blueprint...</h2>
+                <div class="unlock-theater-sub">6 answers processed. Generating your allocation system.</div>
+                <div class="unlock-steps" id="unlockSteps">
+                    <div class="unlock-step" id="ut0"><div class="unlock-check"></div><span>Quiz responses verified</span></div>
+                    <div class="unlock-step" id="ut1"><div class="unlock-check"></div><span>Archetype match confirmed</span></div>
+                    <div class="unlock-step" id="ut2"><div class="unlock-check"></div><span>Calculating dollar allocations for your income</span></div>
+                    <div class="unlock-step" id="ut3"><div class="unlock-check"></div><span>Loading archetype comparison tools</span></div>
+                    <div class="unlock-step" id="ut4"><div class="unlock-check"></div><span>Generating Financial DNA card</span></div>
+                </div>
+                <div class="unlock-progress"><div class="unlock-progress-bar" id="unlockBar"></div></div>
+            </div>
+
+            <!-- Reinforcement Banner (hidden during theater) -->
+            <div class="dash-banner" id="dashBanner" style="display:none;">&#10003; Blueprint Unlocked. Your personalized system is ready below.</div>
 
             <!-- Recovery Prompt -->
             <div class="recovery" id="recoverySection" style="display:none;">
@@ -443,8 +434,8 @@
                 <div class="recovery-options" id="recoveryOptions"></div>
             </div>
 
-            <!-- Dashboard -->
-            <div id="dashboardSection">
+            <!-- Dashboard (hidden during theater) -->
+            <div id="dashboardSection" style="display:none;">
                 <div class="dash-header">
                     <div class="dash-eyebrow">Your Financial Archetype</div>
                     <div class="dash-archetype" id="dashArchetype"></div>
@@ -460,9 +451,10 @@
                         <div class="income-row">
                             <div class="income-field">
                                 <span>$</span>
-                                <input type="number" id="incomeInput" placeholder="e.g. 5000" inputmode="numeric">
+                                <input type="number" id="incomeInput" placeholder="e.g. 2400" inputmode="numeric">
                             </div>
                             <div class="income-toggle">
+                                <span class="income-toggle-rec">recommended</span>
                                 <button id="btnMonthly" class="active" onclick="setPeriod('monthly')">Monthly</button>
                                 <button id="btnAnnual" onclick="setPeriod('annual')">Annual</button>
                             </div>
@@ -501,18 +493,19 @@
                         <div class="tabs-row" id="tabsRow"></div>
                     </div>
 
-                    <!-- Cross-sell -->
+                    <!-- Cross-sell: Command Center -->
                     <div class="cross-sell" id="crossSell">
-                        <div class="cross-sell-eyebrow">Next Step: Automate It</div>
-                        <div class="cross-sell-title" id="crossSellTitle"></div>
-                        <div class="cross-sell-text" id="crossSellText">You mapped the allocation. Now wire the automation so it runs without you.</div>
+                        <div class="cross-sell-eyebrow">Next Step: Your Complete Toolkit</div>
+                        <div class="cross-sell-title" id="crossSellTitle">You built the blueprint. Now access every tool in the system.</div>
+                        <div class="cross-sell-text" id="crossSellText">Autopilot automation, credit protocol, investment calculator, and more. All in one control room.</div>
                         <div class="cross-sell-amount" id="crossSellAmount"></div>
-                        <a href="#" class="cross-sell-btn" id="crossSellBtn">Install The Autopilot System &#8594;</a>
+                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/command-center.html" class="cross-sell-btn" id="crossSellBtn">Open Command Center &#8594;</a>
                     </div>
 
                     <!-- Identity Card -->
                     <div class="card-section">
                         <div class="card-section-title">Your Financial DNA Card</div>
+                        <div class="card-section-explainer">Download and share your archetype. Tag <strong>@koutalksmoney</strong> on social and DM <strong>"CHEAT"</strong> to unlock the Prompt Vault.</div>
                         <div class="id-card" id="idCard">
                             <div class="id-card-holo"></div>
                             <div class="id-card-top">
@@ -543,6 +536,7 @@
             </div>
         </main>
 
+        <!-- Footer: app links REMOVED, social + retake kept -->
         <footer class="footer">
             <div class="footer-privacy">Your data stays on your device. Nothing is sent to our servers.</div>
             <div class="footer-social">
@@ -557,9 +551,6 @@
             </div>
             <div class="footer-links">
                 <a href="https://spacekou5-oss.github.io/cashvault-funnel/Kous-Budget-Calculator.html" class="footer-link">Retake Quiz</a>
-                <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="footer-link">Autopilot System</a>
-                <a href="https://spacekou5-oss.github.io/cashvault-funnel/800-club.html" class="footer-link">800-Club</a>
-                <a href="https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" class="footer-link">Freedom Calculator</a>
             </div>
         </footer>
     </div>
@@ -568,73 +559,46 @@
     // =========================================
     // SYSTEM DATA (synced with Budget Calculator)
     // =========================================
-    var AUTOPILOT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html';
+    var COMMAND_CENTER_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/command-center.html';
 
     var SYSTEMS = {
         '50-30-20': {
-            archetype: 'THE BALANCED STRATEGIST',
-            title: '50/30/20 Rule',
+            archetype: 'THE BALANCED STRATEGIST', title: '50/30/20 Rule',
             desc: '50% Needs. 30% Wants. 20% Savings and Debt. Three buckets. No overthinking. The system that works because it removes every decision except one: which bucket does this go in?',
             advantage: 'You get guardrails without a straitjacket. Wants are not eliminated, they are contained. Savings are not optional, they are automatic. This is the system for people who want structure without suffocation.',
-            segments: [
-                { label: 'Needs', pct: 50, color: '#f59e0b' },
-                { label: 'Wants', pct: 30, color: '#818cf8' },
-                { label: 'Savings & Debt', pct: 20, color: '#60a5fa' }
-            ],
+            segments: [{ label: 'Needs', pct: 50, color: '#f59e0b' },{ label: 'Wants', pct: 30, color: '#818cf8' },{ label: 'Savings & Debt', pct: 20, color: '#60a5fa' }],
             investPct: 20, investLabel: 'savings/debt allocation'
         },
         'wealth-builder': {
-            archetype: 'THE COMPOUND COMMANDER',
-            title: 'Wealth Builder',
+            archetype: 'THE COMPOUND COMMANDER', title: 'Wealth Builder',
             desc: '50% Needs. 30% Investing. 10% Wants. 10% Emergency. Four buckets engineered for one outcome: your money compounds faster than your lifestyle inflates.',
             advantage: 'Your future net worth is the priority. Wants get a hard ceiling. Investing gets more than most people spend on entertainment. This is the system for people who treat wealth like a construction project, not a side effect.',
-            segments: [
-                { label: 'Needs', pct: 50, color: '#f59e0b' },
-                { label: 'Investing', pct: 30, color: '#10b981' },
-                { label: 'Wants', pct: 10, color: '#818cf8' },
-                { label: 'Emergency', pct: 10, color: '#60a5fa' }
-            ],
+            segments: [{ label: 'Needs', pct: 50, color: '#f59e0b' },{ label: 'Investing', pct: 30, color: '#10b981' },{ label: 'Wants', pct: 10, color: '#818cf8' },{ label: 'Emergency', pct: 10, color: '#60a5fa' }],
             investPct: 30, investLabel: 'investing allocation'
         },
         'pay-yourself-first': {
-            archetype: 'THE AUTOMATION GHOST',
-            title: 'Pay Yourself First (30/70)',
+            archetype: 'THE AUTOMATION GHOST', title: 'Pay Yourself First (30/70)',
             desc: '30% auto-transferred to savings or investing the instant income lands. Before rent. Before food. Before anything. The remaining 70% is yours to manage however you want.',
             advantage: 'One auto-transfer at 30%. Aggressive, but invisible. Your future self takes nearly a third of every paycheck before your present self can touch it. This is for people who want wealth on autopilot, not people who want the easiest possible system.',
-            segments: [
-                { label: 'Auto-Save/Invest', pct: 30, color: '#60a5fa' },
-                { label: 'Everything Else', pct: 70, color: '#818cf8' }
-            ],
+            segments: [{ label: 'Auto-Save/Invest', pct: 30, color: '#60a5fa' },{ label: 'Everything Else', pct: 70, color: '#818cf8' }],
             investPct: 30, investLabel: 'auto-save allocation'
         },
         '80-20': {
-            archetype: 'THE MINIMALIST OPERATOR',
-            title: '80/20 Anti-Budget',
+            archetype: 'THE MINIMALIST OPERATOR', title: '80/20 Anti-Budget',
             desc: 'Save 20%. Spend the other 80% on whatever you want. No categories. No tracking. No spreadsheets. No guilt. One rule. Maximum freedom.',
             advantage: 'Zero mental overhead. You hate budgeting, so this system hates it for you. The 20% savings is non-negotiable, but the other 80% has no rules. This is for people who want financial progress without becoming an accountant.',
-            segments: [
-                { label: 'Savings & Debt', pct: 20, color: '#60a5fa' },
-                { label: 'Everything Else', pct: 80, color: '#818cf8' }
-            ],
+            segments: [{ label: 'Savings & Debt', pct: 20, color: '#60a5fa' },{ label: 'Everything Else', pct: 80, color: '#818cf8' }],
             investPct: 20, investLabel: 'savings/debt allocation'
         },
         'envelope': {
-            archetype: 'THE CASH WARLORD',
-            title: 'Envelope System',
+            archetype: 'THE CASH WARLORD', title: 'Envelope System',
             desc: 'Hard spending limits per category. When the envelope is empty, spending stops. No exceptions. No negotiations. No "I will make up for it next month." Every dollar gets a job before you spend it.',
             advantage: 'The nuclear option for people who know they overspend. Forces real-time awareness: you watch the balance drop with every swipe. This is for people who need the financial equivalent of a physical fence, not a suggestion.',
-            segments: [
-                { label: 'Fixed Expenses', pct: 50, color: '#64748b', editable: true },
-                { label: 'Groceries', pct: 15, color: '#f472b6', editable: true },
-                { label: 'Savings & Debt', pct: 15, color: '#60a5fa', editable: false },
-                { label: 'Fun & Shopping', pct: 10, color: '#a78bfa', editable: false },
-                { label: 'Buffer', pct: 10, color: '#34d399', editable: false }
-            ],
+            segments: [{ label: 'Fixed Expenses', pct: 50, color: '#64748b', editable: true },{ label: 'Groceries', pct: 15, color: '#f472b6', editable: true },{ label: 'Savings & Debt', pct: 15, color: '#60a5fa', editable: false },{ label: 'Fun & Shopping', pct: 10, color: '#a78bfa', editable: false },{ label: 'Buffer', pct: 10, color: '#34d399', editable: false }],
             investPct: 15, investLabel: 'savings component'
         }
     };
 
-    // Quiz questions (synced scoring for dynamic "why" rendering)
     var QUESTIONS = [
         { options: [
             { label: 'Get control of overspending', score: { 'envelope': 5, '50-30-20': 2 }, reason: 'controlling overspending is your top priority' },
@@ -681,12 +645,42 @@
     var envelopeOverrides = null;
 
     var $ = function(id) { return document.getElementById(id); };
+    function fmt(n) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0); }
+    function getMonthly() { return incomePeriod === 'annual' ? income / 12 : income; }
 
-    function fmt(n) {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0);
-    }
-    function getMonthly() {
-        return incomePeriod === 'annual' ? income / 12 : income;
+    // =========================================
+    // POST-EMAIL UNLOCK THEATER
+    // Idleness Aversion + Operational Transparency.
+    // Builds perceived value of what they just
+    // "purchased" with their email address.
+    // =========================================
+    function runUnlockTheater(callback) {
+        var steps = document.querySelectorAll('.unlock-step');
+        var bar = $('unlockBar');
+        var i = 0;
+        var total = steps.length;
+
+        var interval = setInterval(function() {
+            if (i > 0) {
+                steps[i-1].classList.remove('active');
+                steps[i-1].classList.add('done');
+                steps[i-1].querySelector('.unlock-check').innerHTML = '&#10003;';
+            }
+            if (i < total) {
+                steps[i].classList.add('active');
+                bar.style.width = (15 + ((i + 1) / total * 85)) + '%';
+                i++;
+            } else {
+                clearInterval(interval);
+                setTimeout(function() {
+                    // Hide theater, show dashboard
+                    $('unlockTheater').style.display = 'none';
+                    $('dashBanner').style.display = 'block';
+                    $('dashboardSection').style.display = 'block';
+                    if (callback) callback();
+                }, 600);
+            }
+        }, 700);
     }
 
     // =========================================
@@ -720,10 +714,7 @@
         if (!income || income === 0) {
             try {
                 var apData = JSON.parse(localStorage.getItem('autopilot_system_data') || 'null');
-                if (apData && apData.income && apData.income > 0) {
-                    income = apData.income;
-                    autopilotImported = true;
-                }
+                if (apData && apData.income && apData.income > 0) { income = apData.income; autopilotImported = true; }
             } catch(e) {}
         }
 
@@ -738,6 +729,7 @@
     // RECOVERY PROMPT
     // =========================================
     function showRecovery() {
+        $('unlockTheater').style.display = 'none';
         $('dashboardSection').style.display = 'none';
         $('dashBanner').style.display = 'none';
         var section = $('recoverySection');
@@ -756,6 +748,7 @@
                 localStorage.setItem('budget_quiz_completed', 'true');
                 localStorage.setItem('budget_unlocked', 'true');
                 section.style.display = 'none';
+                $('dashBanner').style.display = 'block';
                 $('dashboardSection').style.display = 'block';
                 renderDashboard();
             };
@@ -764,158 +757,67 @@
     }
 
     // =========================================
-    // ENVELOPE HELPERS (synced from Calculator)
+    // ENVELOPE HELPERS
     // =========================================
     function initEnvelopeDefaults() {
-        var sys = SYSTEMS['envelope'];
-        var monthly = getMonthly();
+        var sys = SYSTEMS['envelope']; var monthly = getMonthly();
         if (monthly <= 0) { envelopeOverrides = null; return; }
         if (!envelopeOverrides) {
             envelopeOverrides = {};
-            sys.segments.forEach(function(seg, i) {
-                if (seg.editable) {
-                    envelopeOverrides[i] = Math.round(monthly * seg.pct / 100);
-                }
-            });
+            sys.segments.forEach(function(seg, i) { if (seg.editable) { envelopeOverrides[i] = Math.round(monthly * seg.pct / 100); } });
         }
     }
-
     function getEnvelopeTotal() {
-        var sys = SYSTEMS['envelope'];
-        var monthly = getMonthly();
-        if (monthly <= 0) return 0;
-        var total = 0;
-        sys.segments.forEach(function(seg, i) {
-            if (seg.editable && envelopeOverrides) {
-                total += (envelopeOverrides[i] || 0);
-            } else {
-                total += Math.round(monthly * seg.pct / 100);
-            }
-        });
+        var sys = SYSTEMS['envelope']; var monthly = getMonthly(); if (monthly <= 0) return 0; var total = 0;
+        sys.segments.forEach(function(seg, i) { if (seg.editable && envelopeOverrides) { total += (envelopeOverrides[i] || 0); } else { total += Math.round(monthly * seg.pct / 100); } });
         return total;
     }
-
     function onEnvelopeInput(index, value) {
-        var parsed = parseFloat(value);
-        envelopeOverrides[index] = isNaN(parsed) ? 0 : Math.round(parsed);
+        var parsed = parseFloat(value); envelopeOverrides[index] = isNaN(parsed) ? 0 : Math.round(parsed);
         localStorage.setItem('budget_envelope_overrides', JSON.stringify(envelopeOverrides));
-        updateEnvelopeDoughnut();
-        updateEnvelopeUnallocated();
-        updateEnvelopeSuggestion();
-        updateEnvelopePctBadges();
-        updateCrossSell();
-        updateIdCard();
+        updateEnvelopeDoughnut(); updateEnvelopeUnallocated(); updateEnvelopeSuggestion(); updateEnvelopePctBadges(); updateCrossSell(); updateIdCard();
     }
-
     function updateEnvelopeSuggestion() {
-        var el = document.getElementById('envelopeSuggestion');
-        if (!el) return;
-        var monthly = getMonthly();
-        if (monthly <= 0) { el.innerHTML = ''; return; }
-
-        var total = getEnvelopeTotal();
-        var diff = monthly - total;
-
-        // Only show when there IS unallocated money
-        if (diff < 1) {
-            el.innerHTML = '';
-            return;
-        }
-
-        var yearly = diff * 12;
-        var pct = Math.round((diff / monthly) * 100);
-        var msg = '';
-
+        var el = document.getElementById('envelopeSuggestion'); if (!el) return;
+        var monthly = getMonthly(); if (monthly <= 0) { el.innerHTML = ''; return; }
+        var total = getEnvelopeTotal(); var diff = monthly - total;
+        if (diff < 1) { el.innerHTML = ''; return; }
+        var yearly = diff * 12; var pct = Math.round((diff / monthly) * 100); var msg = '';
         if (diff >= monthly * 0.10) {
-            // Large surplus (10%+ of income): split recommendation
             var half = Math.round(diff / 2);
-            msg = '<span class="envelope-suggestion-icon">&#9889;</span>' +
-                '<div>You have <strong>' + fmt(diff) + '/mo</strong> (' + pct + '%) unallocated. ' +
-                'Move it to <strong>Savings & Debt</strong>. That is an extra <span class="env-yearly">' + fmt(yearly) + '/year</span> compounding in your favor. ' +
-                'Or split it: <strong>' + fmt(half) + '</strong> to Savings, <strong>' + fmt(diff - half) + '</strong> to Buffer for extra protection.</div>';
+            msg = '<span class="envelope-suggestion-icon">&#9889;</span><div>You have <strong>' + fmt(diff) + '/mo</strong> (' + pct + '%) unallocated. Move it to <strong>Savings & Debt</strong>. That is an extra <span class="env-yearly">' + fmt(yearly) + '/year</span> compounding in your favor. Or split it: <strong>' + fmt(half) + '</strong> to Savings, <strong>' + fmt(diff - half) + '</strong> to Buffer for extra protection.</div>';
         } else if (diff >= 20) {
-            // Moderate surplus: direct to savings
-            msg = '<span class="envelope-suggestion-icon">&#9889;</span>' +
-                '<div>You have <strong>' + fmt(diff) + '/mo</strong> left over. ' +
-                'Route it to <strong>Savings & Debt</strong>. That is <span class="env-yearly">' + fmt(yearly) + '/year</span> your future self will thank you for.</div>';
+            msg = '<span class="envelope-suggestion-icon">&#9889;</span><div>You have <strong>' + fmt(diff) + '/mo</strong> left over. Route it to <strong>Savings & Debt</strong>. That is <span class="env-yearly">' + fmt(yearly) + '/year</span> your future self will thank you for.</div>';
         } else {
-            // Micro surplus: acknowledge it
-            msg = '<span class="envelope-suggestion-icon">&#10004;</span>' +
-                '<div><strong>' + fmt(diff) + '/mo</strong> surplus. Healthy micro-buffer. No action needed.</div>';
+            msg = '<span class="envelope-suggestion-icon">&#10004;</span><div><strong>' + fmt(diff) + '/mo</strong> surplus. Healthy micro-buffer. No action needed.</div>';
         }
-
-        el.className = 'envelope-suggestion';
-        el.innerHTML = msg;
+        el.className = 'envelope-suggestion'; el.innerHTML = msg;
     }
-
     function updateEnvelopeDoughnut() {
-        var sys = SYSTEMS['envelope'];
-        var ring = $('doughnutRing');
-        var centerVal = $('doughnutValue');
-        var centerLbl = $('doughnutLabel');
-        var monthly = getMonthly();
-        var total = getEnvelopeTotal();
-
-        var stops = [];
-        var cum = 0;
+        var sys = SYSTEMS['envelope']; var ring = $('doughnutRing'); var centerVal = $('doughnutValue'); var centerLbl = $('doughnutLabel');
+        var monthly = getMonthly(); var total = getEnvelopeTotal(); var stops = []; var cum = 0;
         sys.segments.forEach(function(seg, i) {
-            var amt;
-            if (seg.editable && envelopeOverrides) {
-                amt = envelopeOverrides[i] || 0;
-            } else {
-                amt = Math.round(monthly * seg.pct / 100);
-            }
-            var pct = monthly > 0 ? (amt / monthly) * 100 : seg.pct;
-            stops.push(seg.color + ' ' + cum + '% ' + (cum + pct) + '%');
-            cum += pct;
+            var amt; if (seg.editable && envelopeOverrides) { amt = envelopeOverrides[i] || 0; } else { amt = Math.round(monthly * seg.pct / 100); }
+            var pct = monthly > 0 ? (amt / monthly) * 100 : seg.pct; stops.push(seg.color + ' ' + cum + '% ' + (cum + pct) + '%'); cum += pct;
         });
-        if (cum < 100) {
-            stops.push('rgba(100,116,139,0.2) ' + cum + '% 100%');
-        }
+        if (cum < 100) { stops.push('rgba(100,116,139,0.2) ' + cum + '% 100%'); }
         ring.style.background = 'conic-gradient(' + stops.join(', ') + ')';
-
-        centerVal.textContent = fmt(total);
-        centerLbl.textContent = Math.abs(total - monthly) < 1 ? 'Fully Allocated' : 'Allocated';
+        centerVal.textContent = fmt(total); centerLbl.textContent = Math.abs(total - monthly) < 1 ? 'Fully Allocated' : 'Allocated';
     }
-
     function updateEnvelopeUnallocated() {
-        var el = document.getElementById('envelopeUnallocated');
-        if (!el) return;
-        var monthly = getMonthly();
-        var total = getEnvelopeTotal();
-        var diff = monthly - total;
-
+        var el = document.getElementById('envelopeUnallocated'); if (!el) return;
+        var monthly = getMonthly(); var total = getEnvelopeTotal(); var diff = monthly - total;
         el.className = 'envelope-unallocated';
-        if (Math.abs(diff) < 1) {
-            el.classList.add('balanced');
-            el.innerHTML = '<span>Fully Allocated</span><span class="envelope-unallocated-val">$0 remaining</span>';
-        } else if (diff > 0) {
-            el.classList.add('under');
-            el.innerHTML = '<span>Unallocated</span><span class="envelope-unallocated-val">' + fmt(diff) + ' remaining</span>';
-        } else {
-            el.classList.add('over');
-            el.innerHTML = '<span>Over Budget</span><span class="envelope-unallocated-val">' + fmt(Math.abs(diff)) + ' over</span>';
-        }
+        if (Math.abs(diff) < 1) { el.classList.add('balanced'); el.innerHTML = '<span>Fully Allocated</span><span class="envelope-unallocated-val">$0 remaining</span>'; }
+        else if (diff > 0) { el.classList.add('under'); el.innerHTML = '<span>Unallocated</span><span class="envelope-unallocated-val">' + fmt(diff) + ' remaining</span>'; }
+        else { el.classList.add('over'); el.innerHTML = '<span>Over Budget</span><span class="envelope-unallocated-val">' + fmt(Math.abs(diff)) + ' over</span>'; }
     }
-
     function updateEnvelopePctBadges() {
-        var monthly = getMonthly();
-        if (monthly <= 0) return;
-        var sys = SYSTEMS['envelope'];
+        var monthly = getMonthly(); if (monthly <= 0) return; var sys = SYSTEMS['envelope'];
         sys.segments.forEach(function(seg, i) {
-            if (!seg.editable) return;
-            var badge = document.getElementById('envPct_' + i);
-            var input = document.getElementById('envInput_' + i);
-            if (!badge || !input) return;
-            var amt = envelopeOverrides[i] || 0;
-            var pct = Math.round((amt / monthly) * 100);
-            badge.textContent = pct + '%';
-            var defaultAmt = Math.round(monthly * seg.pct / 100);
-            if (amt > defaultAmt * 1.5) {
-                input.classList.add('over-budget');
-            } else {
-                input.classList.remove('over-budget');
-            }
+            if (!seg.editable) return; var badge = document.getElementById('envPct_' + i); var input = document.getElementById('envInput_' + i);
+            if (!badge || !input) return; var amt = envelopeOverrides[i] || 0; var pct = Math.round((amt / monthly) * 100); badge.textContent = pct + '%';
+            var defaultAmt = Math.round(monthly * seg.pct / 100); if (amt > defaultAmt * 1.5) { input.classList.add('over-budget'); } else { input.classList.remove('over-budget'); }
         });
     }
 
@@ -928,29 +830,14 @@
         $('dashSystemName').textContent = sys.title;
         $('dashDesc').textContent = sys.desc;
         $('dashWhy').textContent = sys.advantage;
-
-        renderDynamicWhy();
-        renderTabs();
-        updateChart();
-        updateCrossSell();
-        updateIdCard();
+        renderDynamicWhy(); renderTabs(); updateChart(); updateCrossSell(); updateIdCard();
     }
 
     function renderDynamicWhy() {
         var el = $('dashWhyDynamic');
         if (!savedAnswers || savedAnswers.length === 0) { el.style.display = 'none'; return; }
-        var contributions = savedAnswers
-            .map(function(a) {
-                var q = QUESTIONS[a.qi];
-                if (!q) return null;
-                var opt = q.options[a.oi];
-                if (!opt) return null;
-                return { reason: opt.reason, pts: opt.score[selectedSystem] || 0 };
-            })
-            .filter(function(c) { return c && c.pts > 0; })
-            .sort(function(a, b) { return b.pts - a.pts; })
-            .slice(0, 3);
-
+        var contributions = savedAnswers.map(function(a) { var q = QUESTIONS[a.qi]; if (!q) return null; var opt = q.options[a.oi]; if (!opt) return null; return { reason: opt.reason, pts: opt.score[selectedSystem] || 0 }; })
+            .filter(function(c) { return c && c.pts > 0; }).sort(function(a, b) { return b.pts - a.pts; }).slice(0, 3);
         if (contributions.length === 0) { el.style.display = 'none'; return; }
         el.style.display = 'block';
         var lines = contributions.map(function(c, i) { return '<strong>(' + (i + 1) + ')</strong> ' + c.reason; });
@@ -958,267 +845,127 @@
     }
 
     function renderTabs() {
-        var row = $('tabsRow');
-        row.innerHTML = '';
+        var row = $('tabsRow'); row.innerHTML = '';
         Object.keys(SYSTEMS).forEach(function(key) {
-            var sys = SYSTEMS[key];
-            var btn = document.createElement('button');
+            var sys = SYSTEMS[key]; var btn = document.createElement('button');
             btn.className = 'sys-tab' + (key === selectedSystem ? ' active' : '');
             var scoreText = savedScores[key] ? '<span class="sys-tab-score">(' + savedScores[key] + ')</span>' : '';
             btn.innerHTML = sys.archetype.replace('THE ', '') + scoreText;
-            btn.onclick = function() {
-                selectedSystem = key;
-                envelopeOverrides = null; // reset when switching
-                localStorage.removeItem('budget_envelope_overrides');
-                localStorage.setItem('budget_selected_system', key);
-                renderDashboard();
-            };
+            btn.onclick = function() { selectedSystem = key; envelopeOverrides = null; localStorage.removeItem('budget_envelope_overrides'); localStorage.setItem('budget_selected_system', key); renderDashboard(); };
             row.appendChild(btn);
         });
     }
 
-    // =========================================
-    // CSS DOUGHNUT + DUAL FORMAT LEGEND
-    // =========================================
     function updateChart() {
-        var sys = SYSTEMS[selectedSystem];
-        var monthly = getMonthly();
-        var ring = $('doughnutRing');
-        var centerVal = $('doughnutValue');
-        var centerLbl = $('doughnutLabel');
-        var legend = $('doughnutLegend');
-
+        var sys = SYSTEMS[selectedSystem]; var monthly = getMonthly();
+        var ring = $('doughnutRing'); var centerVal = $('doughnutValue'); var centerLbl = $('doughnutLabel'); var legend = $('doughnutLegend');
         var isEnvelope = selectedSystem === 'envelope';
-
-        // ---- ENVELOPE: mixed editable + locked ----
         if (isEnvelope && monthly > 0) {
-            initEnvelopeDefaults();
-            updateEnvelopeDoughnut();
-
-            legend.innerHTML = '';
+            initEnvelopeDefaults(); updateEnvelopeDoughnut(); legend.innerHTML = '';
             sys.segments.forEach(function(seg, i) {
                 var el = document.createElement('div');
-
                 if (seg.editable) {
-                    var amt = envelopeOverrides[i] || 0;
-                    var pct = Math.round((amt / monthly) * 100);
+                    var amt = envelopeOverrides[i] || 0; var pct = Math.round((amt / monthly) * 100);
                     el.className = 'doughnut-legend-item editable';
-                    el.innerHTML =
-                        '<div class="doughnut-legend-left">' +
-                            '<div class="doughnut-legend-dot" style="background:' + seg.color + ';"></div>' +
-                            '<span class="doughnut-legend-label">' + seg.label + '</span>' +
-                        '</div>' +
-                        '<div class="envelope-input-wrap">' +
-                            '<span class="env-dollar">$</span>' +
-                            '<input type="number" class="envelope-input" id="envInput_' + i + '" value="' + amt + '" inputmode="numeric">' +
-                            '<span class="envelope-pct-badge" id="envPct_' + i + '">' + pct + '%</span>' +
-                        '</div>';
+                    el.innerHTML = '<div class="doughnut-legend-left"><div class="doughnut-legend-dot" style="background:' + seg.color + ';"></div><span class="doughnut-legend-label">' + seg.label + '</span></div><div class="envelope-input-wrap"><span class="env-dollar">$</span><input type="number" class="envelope-input" id="envInput_' + i + '" value="' + amt + '" inputmode="numeric"><span class="envelope-pct-badge" id="envPct_' + i + '">' + pct + '%</span></div>';
                     legend.appendChild(el);
-
-                    (function(idx) {
-                        setTimeout(function() {
-                            var inp = document.getElementById('envInput_' + idx);
-                            if (inp) {
-                                inp.addEventListener('input', function(e) {
-                                    onEnvelopeInput(idx, e.target.value);
-                                });
-                            }
-                        }, 0);
-                    })(i);
+                    (function(idx) { setTimeout(function() { var inp = document.getElementById('envInput_' + idx); if (inp) { inp.addEventListener('input', function(e) { onEnvelopeInput(idx, e.target.value); }); } }, 0); })(i);
                 } else {
-                    var lockedAmt = Math.round(monthly * seg.pct / 100);
-                    el.className = 'doughnut-legend-item';
-                    el.innerHTML =
-                        '<div class="doughnut-legend-left">' +
-                            '<div class="doughnut-legend-dot" style="background:' + seg.color + ';"></div>' +
-                            '<span class="doughnut-legend-label">' + seg.label + '</span>' +
-                        '</div>' +
-                        '<span class="doughnut-legend-value">' + fmt(lockedAmt) + ' <span class="doughnut-legend-pct">(' + seg.pct + '% locked)</span></span>';
+                    var lockedAmt = Math.round(monthly * seg.pct / 100); el.className = 'doughnut-legend-item';
+                    el.innerHTML = '<div class="doughnut-legend-left"><div class="doughnut-legend-dot" style="background:' + seg.color + ';"></div><span class="doughnut-legend-label">' + seg.label + '</span></div><span class="doughnut-legend-value">' + fmt(lockedAmt) + ' <span class="doughnut-legend-pct">(' + seg.pct + '% locked)</span></span>';
                     legend.appendChild(el);
                 }
             });
-
-            var unalloc = document.createElement('div');
-            unalloc.id = 'envelopeUnallocated';
-            legend.appendChild(unalloc);
-            updateEnvelopeUnallocated();
-
-            // Smart suggestion for unallocated funds
-            var suggestion = document.createElement('div');
-            suggestion.id = 'envelopeSuggestion';
-            legend.appendChild(suggestion);
-            updateEnvelopeSuggestion();
-
-            var hint = document.createElement('div');
-            hint.className = 'envelope-hint';
-            hint.textContent = 'Edit Fixed Expenses and Groceries. Other categories are locked percentages.';
-            legend.appendChild(hint);
+            var unalloc = document.createElement('div'); unalloc.id = 'envelopeUnallocated'; legend.appendChild(unalloc); updateEnvelopeUnallocated();
+            var suggestion = document.createElement('div'); suggestion.id = 'envelopeSuggestion'; legend.appendChild(suggestion); updateEnvelopeSuggestion();
+            var hint = document.createElement('div'); hint.className = 'envelope-hint'; hint.textContent = 'Edit Fixed Expenses and Groceries. Other categories are locked percentages.'; legend.appendChild(hint);
             return;
         }
-
-        // ---- ALL OTHER SYSTEMS ----
         if (!isEnvelope) { envelopeOverrides = null; }
-
-        var stops = [];
-        var cum = 0;
-        sys.segments.forEach(function(seg) {
-            stops.push(seg.color + ' ' + cum + '% ' + (cum + seg.pct) + '%');
-            cum += seg.pct;
-        });
+        var stops = []; var cum = 0;
+        sys.segments.forEach(function(seg) { stops.push(seg.color + ' ' + cum + '% ' + (cum + seg.pct) + '%'); cum += seg.pct; });
         ring.style.background = 'conic-gradient(' + stops.join(', ') + ')';
-
-        if (monthly > 0) {
-            centerVal.textContent = fmt(monthly);
-            centerLbl.textContent = 'Monthly';
-        } else {
-            centerVal.textContent = sys.segments.map(function(s) { return s.pct + '%'; }).join('/');
-            centerLbl.textContent = sys.title;
-        }
-
+        if (monthly > 0) { centerVal.textContent = fmt(monthly); centerLbl.textContent = 'Monthly'; }
+        else { centerVal.textContent = sys.segments.map(function(s) { return s.pct + '%'; }).join('/'); centerLbl.textContent = sys.title; }
         legend.innerHTML = '';
         sys.segments.forEach(function(seg) {
-            var el = document.createElement('div');
-            el.className = 'doughnut-legend-item';
-            var valueHtml;
-            if (monthly > 0) {
-                valueHtml = '<span class="doughnut-legend-value">' + fmt(monthly * seg.pct / 100) + ' <span class="doughnut-legend-pct">(' + seg.pct + '%)</span></span>';
-            } else {
-                valueHtml = '<span class="doughnut-legend-value">' + seg.pct + '%</span>';
-            }
-            el.innerHTML =
-                '<div class="doughnut-legend-left">' +
-                    '<div class="doughnut-legend-dot" style="background:' + seg.color + ';"></div>' +
-                    '<span class="doughnut-legend-label">' + seg.label + '</span>' +
-                '</div>' + valueHtml;
+            var el = document.createElement('div'); el.className = 'doughnut-legend-item'; var valueHtml;
+            if (monthly > 0) { valueHtml = '<span class="doughnut-legend-value">' + fmt(monthly * seg.pct / 100) + ' <span class="doughnut-legend-pct">(' + seg.pct + '%)</span></span>'; }
+            else { valueHtml = '<span class="doughnut-legend-value">' + seg.pct + '%</span>'; }
+            el.innerHTML = '<div class="doughnut-legend-left"><div class="doughnut-legend-dot" style="background:' + seg.color + ';"></div><span class="doughnut-legend-label">' + seg.label + '</span></div>' + valueHtml;
             legend.appendChild(el);
         });
     }
 
     // =========================================
-    // CROSS-SELL
+    // CROSS-SELL: Command Center
     // =========================================
     function updateCrossSell() {
-        var sys = SYSTEMS[selectedSystem];
-        var monthly = getMonthly();
-        var investAmt = Math.round(monthly * sys.investPct / 100);
-
+        var sys = SYSTEMS[selectedSystem]; var monthly = getMonthly(); var investAmt = Math.round(monthly * sys.investPct / 100);
         if (monthly > 0) {
-            $('crossSellTitle').textContent = 'Your ' + sys.archetype + ' system allocates ' + sys.investPct + '% to ' + sys.investLabel + '.';
-            $('crossSellAmount').textContent = fmt(investAmt) + '/mo on autopilot';
-            $('crossSellAmount').style.display = 'block';
-            $('crossSellBtn').href = AUTOPILOT_URL + '?source=budget&monthly=' + investAmt;
+            $('crossSellTitle').textContent = 'Your ' + sys.archetype + ' system allocates ' + sys.investPct + '% to ' + sys.investLabel + '. That is ' + fmt(investAmt) + '/mo.';
+            $('crossSellAmount').textContent = 'Automate it. Track it. Scale it.'; $('crossSellAmount').style.display = 'block';
+            $('crossSellBtn').href = COMMAND_CENTER_URL + '?source=budget&monthly=' + investAmt;
         } else {
-            $('crossSellTitle').textContent = 'Your ' + sys.archetype + ' system says invest ' + sys.investPct + '%.';
-            $('crossSellAmount').style.display = 'none';
-            $('crossSellBtn').href = AUTOPILOT_URL + '?source=budget';
+            $('crossSellTitle').textContent = 'You built the blueprint. Now access every tool in the system.';
+            $('crossSellAmount').style.display = 'none'; $('crossSellBtn').href = COMMAND_CENTER_URL + '?source=budget';
         }
-        $('crossSellText').textContent = 'You mapped the allocation. Now wire the automation so it runs without you.';
+        $('crossSellText').textContent = 'Autopilot automation, credit protocol, investment calculator, and more. All in one control room.';
     }
 
     // =========================================
-    // IDENTITY CARD (synced with Calculator)
+    // IDENTITY CARD
     // =========================================
     function updateIdCard() {
-        var sys = SYSTEMS[selectedSystem];
-        var monthly = getMonthly();
+        var sys = SYSTEMS[selectedSystem]; var monthly = getMonthly();
         var isEnvelope = selectedSystem === 'envelope' && monthly > 0;
-
         $('cardArchetype').textContent = sys.archetype;
-
         if (isEnvelope && envelopeOverrides) {
-            var pcts = sys.segments.map(function(seg, i) {
-                if (seg.editable && envelopeOverrides[i] !== undefined) {
-                    return Math.round((envelopeOverrides[i] / monthly) * 100) + '%';
-                }
-                return seg.pct + '%';
-            });
+            var pcts = sys.segments.map(function(seg, i) { if (seg.editable && envelopeOverrides[i] !== undefined) { return Math.round((envelopeOverrides[i] / monthly) * 100) + '%'; } return seg.pct + '%'; });
             $('cardSystem').textContent = sys.title + ' | ' + pcts.join('/');
-        } else {
-            $('cardSystem').textContent = sys.title + ' | ' + sys.segments.map(function(s) { return s.pct + '%'; }).join('/');
-        }
-
-        var alloc = $('cardAlloc');
-        alloc.innerHTML = '';
+        } else { $('cardSystem').textContent = sys.title + ' | ' + sys.segments.map(function(s) { return s.pct + '%'; }).join('/'); }
+        var alloc = $('cardAlloc'); alloc.innerHTML = '';
         sys.segments.forEach(function(seg, i) {
-            var val;
-            if (isEnvelope && seg.editable && envelopeOverrides && envelopeOverrides[i] !== undefined) {
-                val = fmt(envelopeOverrides[i]);
-            } else {
-                val = monthly > 0 ? fmt(monthly * seg.pct / 100) : seg.pct + '%';
-            }
-            var el = document.createElement('div');
-            el.className = 'id-card-alloc-item';
-            el.innerHTML = '<div class="id-card-alloc-val">' + val + '</div><div class="id-card-alloc-lbl">' + seg.label + '</div>';
-            alloc.appendChild(el);
+            var val; if (isEnvelope && seg.editable && envelopeOverrides && envelopeOverrides[i] !== undefined) { val = fmt(envelopeOverrides[i]); } else { val = monthly > 0 ? fmt(monthly * seg.pct / 100) : seg.pct + '%'; }
+            var el = document.createElement('div'); el.className = 'id-card-alloc-item';
+            el.innerHTML = '<div class="id-card-alloc-val">' + val + '</div><div class="id-card-alloc-lbl">' + seg.label + '</div>'; alloc.appendChild(el);
         });
-
         $('cardIncome').textContent = monthly > 0 ? fmt(monthly) : '--';
     }
 
     function downloadCard() {
-        var btn = $('cardDownloadBtn');
-        var btnText = $('cardBtnText');
-        btn.disabled = true;
-        btnText.textContent = 'Generating...';
-
-        if (window.html2canvas) {
-            captureCard();
-        } else {
-            var script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-            script.onload = captureCard;
-            script.onerror = function() {
-                btnText.textContent = 'Download Failed';
-                setTimeout(function() { btn.disabled = false; btnText.textContent = 'Download Card'; }, 2000);
-            };
+        var btn = $('cardDownloadBtn'); var btnText = $('cardBtnText'); btn.disabled = true; btnText.textContent = 'Generating...';
+        if (window.html2canvas) { captureCard(); } else {
+            var script = document.createElement('script'); script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+            script.onload = captureCard; script.onerror = function() { btnText.textContent = 'Download Failed'; setTimeout(function() { btn.disabled = false; btnText.textContent = 'Download Card'; }, 2000); };
             document.head.appendChild(script);
         }
     }
-
     function captureCard() {
-        html2canvas($('idCard'), {
-            scale: 3, backgroundColor: '#0c0e1a', useCORS: true, logging: false
-        }).then(function(canvas) {
-            var link = document.createElement('a');
-            link.download = 'financial-dna-' + SYSTEMS[selectedSystem].archetype.replace(/\s+/g, '-').toLowerCase() + '.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            $('cardBtnText').textContent = 'Downloaded!';
+        html2canvas($('idCard'), { scale: 3, backgroundColor: '#0c0e1a', useCORS: true, logging: false }).then(function(canvas) {
+            var link = document.createElement('a'); link.download = 'financial-dna-' + SYSTEMS[selectedSystem].archetype.replace(/\s+/g, '-').toLowerCase() + '.png';
+            link.href = canvas.toDataURL('image/png'); link.click(); $('cardBtnText').textContent = 'Downloaded!';
             setTimeout(function() { $('cardDownloadBtn').disabled = false; $('cardBtnText').textContent = 'Download Card'; }, 2000);
-        }).catch(function() {
-            $('cardBtnText').textContent = 'Download Failed';
-            setTimeout(function() { $('cardDownloadBtn').disabled = false; $('cardBtnText').textContent = 'Download Card'; }, 2000);
-        });
+        }).catch(function() { $('cardBtnText').textContent = 'Download Failed'; setTimeout(function() { $('cardDownloadBtn').disabled = false; $('cardBtnText').textContent = 'Download Card'; }, 2000); });
     }
 
     // =========================================
     // INCOME HANDLERS
     // =========================================
     $('incomeInput').addEventListener('input', function(e) {
-        var val = parseFloat(e.target.value);
-        income = isNaN(val) ? 0 : val;
-        localStorage.setItem('budget_income', income.toString());
-        envelopeOverrides = null;
-        localStorage.removeItem('budget_envelope_overrides');
-        updateChart();
-        updateCrossSell();
-        updateIdCard();
+        var val = parseFloat(e.target.value); income = isNaN(val) ? 0 : val;
+        localStorage.setItem('budget_income', income.toString()); envelopeOverrides = null;
+        localStorage.removeItem('budget_envelope_overrides'); updateChart(); updateCrossSell(); updateIdCard();
     });
-
     function setPeriod(p) {
-        incomePeriod = p;
-        localStorage.setItem('budget_income_period', p);
-        $('btnMonthly').classList.toggle('active', p === 'monthly');
-        $('btnAnnual').classList.toggle('active', p === 'annual');
-        envelopeOverrides = null;
-        localStorage.removeItem('budget_envelope_overrides');
-        updateChart();
-        updateCrossSell();
-        updateIdCard();
+        incomePeriod = p; localStorage.setItem('budget_income_period', p);
+        $('btnMonthly').classList.toggle('active', p === 'monthly'); $('btnAnnual').classList.toggle('active', p === 'annual');
+        envelopeOverrides = null; localStorage.removeItem('budget_envelope_overrides'); updateChart(); updateCrossSell(); updateIdCard();
     }
 
     // =========================================
     // INITIALIZATION
+    // Runs unlock theater, THEN shows dashboard.
     // =========================================
     (function init() {
         var result = hydrateData();
@@ -1233,8 +980,13 @@
         }
 
         if (result.foundSystem) {
-            renderDashboard();
+            // Run unlock theater, then show dashboard
+            runUnlockTheater(function() {
+                renderDashboard();
+            });
         } else {
+            // No system found, skip theater, show recovery
+            $('unlockTheater').style.display = 'none';
             showRecovery();
         }
     })();
