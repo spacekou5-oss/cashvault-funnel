@@ -3,217 +3,841 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autopilot | Saving Your System...</title>
+    <title>Autopilot | System Installed</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'JetBrains Mono', monospace;
             background: #0a0a0a;
             color: #e5e5e5;
-            margin: 0;
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .page {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 24px 16px 60px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .hidden { display: none !important; }
+
+        /* === LOADING PHASE === */
+        .loading-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 85vh;
+            width: 100%;
+            text-align: center;
+        }
+        .loading-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #22c55e;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 700;
+            margin-bottom: 32px;
+        }
+        .loading-badge .dot {
+            width: 8px; height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Progress */
+        .progress-track {
+            width: 100%;
+            max-width: 340px;
+            height: 6px;
+            background: #1a1a1a;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #22c55e;
+            border-radius: 6px;
+            width: 0%;
+            transition: width 0.6s ease;
+            position: relative;
+        }
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        /* Step label */
+        .step-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 28px;
+            min-height: 20px;
+            transition: opacity 0.3s;
+        }
+
+        /* Reveal cards */
+        .reveal-card {
+            width: 100%;
+            max-width: 380px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            opacity: 0;
+            transform: translateY(14px);
+            transition: all 0.5s ease;
+        }
+        .reveal-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .card-label {
+            font-size: 10px;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 5px 0;
+        }
+        .card-key { font-size: 12px; color: #666; }
+        .card-val { font-size: 14px; font-weight: 700; color: #fff; }
+        .card-val.green { color: #22c55e; }
+        .card-val.blue { color: #3b82f6; }
+        .card-val.big { font-size: 28px; color: #22c55e; letter-spacing: -0.02em; }
+        .card-divider { border-top: 1px solid #222; padding-top: 8px; margin-top: 4px; }
+
+        /* Social proof */
+        .proof-id {
+            font-size: 18px;
+            font-weight: 900;
+            color: #22c55e;
+            letter-spacing: 0.05em;
+        }
+        .proof-position {
+            font-size: 24px;
+            font-weight: 900;
+            color: #fff;
+        }
+        .proof-sub { font-size: 11px; color: #444; }
+
+        /* CC unlock card */
+        .cc-preview {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .cc-icon {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
         }
-        .container {
+        .cc-title { font-size: 14px; font-weight: 700; color: #fff; }
+        .cc-desc { font-size: 11px; color: #555; margin-top: 2px; }
+        .cc-active-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #22c55e20;
+            border: 1px solid #22c55e40;
+            color: #22c55e;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 5px;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* === DONE PHASE === */
+        .done-wrap {
+            width: 100%;
             text-align: center;
-            padding: 40px 20px;
-            max-width: 500px;
+            padding-top: 10vh;
         }
-        .spinner {
-            width: 48px; height: 48px;
-            border: 3px solid #333;
-            border-top-color: #22c55e;
+        .done-header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #22c55e;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .done-header-badge .dot {
+            width: 8px; height: 8px;
+            background: #22c55e;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 24px;
+            animation: pulse 2s infinite;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .status { color: #22c55e; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-        .message { color: #888; font-size: 12px; margin-bottom: 24px; }
-        .progress-bar { width: 200px; height: 4px; background: #222; border-radius: 2px; margin: 0 auto 16px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #22c55e; border-radius: 2px; transition: width 0.3s; width: 0%; }
-        .error { color: #ef4444; font-size: 12px; margin-top: 16px; display: none; }
-        .error a { color: #22c55e; text-decoration: underline; }
-        .manual-link { margin-top: 20px; display: none; }
-        .manual-link a { color: #22c55e; font-size: 12px; text-decoration: underline; }
+        .done-title {
+            font-size: 24px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .done-subtitle {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .stat-box {
+            flex: 1;
+            background: #111;
+            border: 1px solid #1e1e1e;
+            border-radius: 10px;
+            padding: 14px 10px;
+            text-align: center;
+        }
+        .stat-value { font-size: 16px; font-weight: 900; color: #fff; }
+        .stat-value.green { color: #22c55e; }
+        .stat-label { font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+
+        /* Architect ID display */
+        .id-box {
+            background: #111;
+            border: 1px solid #22c55e30;
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .id-box-left { text-align: left; }
+        .id-box-label { font-size: 9px; color: #444; text-transform: uppercase; letter-spacing: 0.1em; }
+        .id-box-value { font-size: 16px; font-weight: 900; color: #22c55e; letter-spacing: 0.05em; margin-top: 2px; }
+        .id-box-right { font-size: 10px; color: #22c55e; font-weight: 700; }
+
+        /* CC CTA */
+        .cc-cta {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 16px;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #22c55e12 0%, #22c55e06 100%);
+            border: 2px solid #22c55e50;
+            border-radius: 14px;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .cc-cta:hover {
+            border-color: #22c55e90;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(34,197,94,0.15);
+        }
+        .cc-cta-title { font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+        .cc-cta-desc { font-size: 11px; color: #666; line-height: 1.5; }
+        .cc-cta-arrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #22c55e;
+            color: #000;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 6px;
+            margin-top: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Certificate text link */
+        .cert-link {
+            display: block;
+            text-align: center;
+            margin: 12px auto 0;
+            font-size: 11px;
+            color: #444;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .cert-link:hover { color: #22c55e; text-decoration: underline; }
+
+        /* Footer */
+        .footer-text {
+            text-align: center;
+            font-size: 9px;
+            color: #2a2a2a;
+            margin-top: 32px;
+            line-height: 1.8;
+        }
+        .footer-text a { color: #333; text-decoration: underline; }
+        .footer-text a:hover { color: #22c55e; }
+
+        /* === CONFETTI === */
+        #confetti-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* === ANIMATIONS === */
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @keyframes shimmer { 0% { background-position: -250% 0; } 100% { background-position: 250% 0; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-up { animation: fadeInUp 0.5s ease-out forwards; }
+
+        @media (max-width: 380px) {
+            .stat-value { font-size: 14px; }
+            .proof-position { font-size: 20px; }
+            .card-val.big { font-size: 24px; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="spinner" id="spinner"></div>
-        <div class="status" id="status">SYSTEM SAVED</div>
-        <div class="message" id="message">Generating your Architect Certificate...</div>
-        <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
-        <div class="error" id="error">
-            Something went wrong. <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html">Return to Autopilot</a>
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- ======================== -->
+    <!-- PHASE 1: LOADING (new)  -->
+    <!-- ======================== -->
+    <div id="phase-loading" class="page">
+        <div class="loading-wrap">
+            <div class="loading-badge">
+                <div class="dot"></div>
+                <span>SYSTEM INSTALLED</span>
+            </div>
+
+            <div class="progress-track">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <div class="step-label" id="stepLabel">Initializing...</div>
+
+            <!-- Card 1: Config -->
+            <div class="reveal-card" id="rc-config">
+                <div class="card-label">&#x1F4CA; Your Configuration</div>
+                <div class="card-row">
+                    <span class="card-key">Monthly Income</span>
+                    <span class="card-val" id="rv-income">--</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-key">Monthly Bills</span>
+                    <span class="card-val" id="rv-bills">--</span>
+                </div>
+                <div class="card-row card-divider">
+                    <span class="card-key" style="color:#fff; font-weight:700;">Deployable Income</span>
+                    <span class="card-val green" id="rv-deploy">--</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-key">Auto-Invest (20%)</span>
+                    <span class="card-val green" id="rv-invest">--</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-key">Safety Fund (10%)</span>
+                    <span class="card-val blue" id="rv-safety">--</span>
+                </div>
+            </div>
+
+            <!-- Card 2: Projection -->
+            <div class="reveal-card" id="rc-projection">
+                <div class="card-label">&#x1F4C8; 30-Year Wealth Projection</div>
+                <div style="text-align:center; padding:10px 0;">
+                    <div class="card-val big" id="rv-wealth">$0</div>
+                    <div style="font-size:10px; color:#444; margin-top:4px;">at 10% avg annual return (S&P 500 historical)</div>
+                </div>
+                <div class="card-row">
+                    <span class="card-key">Your ETF</span>
+                    <span class="card-val" id="rv-etf">--</span>
+                </div>
+            </div>
+
+            <!-- Card 3: Social proof -->
+            <div class="reveal-card" id="rc-proof">
+                <div class="card-label">&#x1F3C6; Your Architect Credentials</div>
+                <div style="padding:4px 0;">
+                    <div style="font-size:9px; color:#444; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px;">Architect ID</div>
+                    <div class="proof-id" id="rv-id">--</div>
+                </div>
+                <div class="card-divider" style="padding-top:10px; margin-top:6px;">
+                    <div class="proof-position" id="rv-position">--</div>
+                    <div class="proof-sub">systems installed worldwide</div>
+                </div>
+            </div>
+
+            <!-- Card 4: CC unlock -->
+            <div class="reveal-card" id="rc-cc">
+                <div class="card-label">&#x1F4E1; Dashboard Unlocked</div>
+                <div class="cc-preview">
+                    <div class="cc-icon">&#x1F3AF;</div>
+                    <div>
+                        <div class="cc-title">Command Center</div>
+                        <div class="cc-desc">Your central hub. Track all systems from one place.</div>
+                        <div class="cc-active-badge">
+                            <span>&#x2713;</span>
+                            <span>ACTIVE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="manual-link" id="manualLink">
-            <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html">Go to your certificate</a>
+    </div>
+
+    <!-- ======================== -->
+    <!-- PHASE 2: DONE (the CTA) -->
+    <!-- ======================== -->
+    <div id="phase-done" class="page hidden">
+        <div class="done-wrap">
+            <div class="done-header-badge">
+                <div class="dot"></div>
+                <span>SYSTEM ONLINE</span>
+            </div>
+
+            <div class="done-title">Your Machine is Live.</div>
+            <div class="done-subtitle">Everything is automated. Your only job now is to not touch it.</div>
+
+            <!-- Quick stats -->
+            <div class="stats-row" id="statsRow">
+                <div class="stat-box">
+                    <div class="stat-value green" id="ds-invest">--</div>
+                    <div class="stat-label">Auto-Invest/mo</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value green" id="ds-etf">--</div>
+                    <div class="stat-label">Target ETF</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="ds-wealth">--</div>
+                    <div class="stat-label">30yr Projected</div>
+                </div>
+            </div>
+
+            <!-- Architect ID -->
+            <div class="id-box" id="idBox">
+                <div class="id-box-left">
+                    <div class="id-box-label">Architect ID</div>
+                    <div class="id-box-value" id="ds-id">--</div>
+                </div>
+                <div class="id-box-right">&#x2713; VERIFIED</div>
+            </div>
+
+            <!-- THE CTA: Command Center -->
+            <a class="cc-cta" id="ccLink" href="https://spacekou5-oss.github.io/cashvault-funnel/command-center.html">
+                <div class="cc-cta-title">&#x1F4E1; Open Your Command Center</div>
+                <div class="cc-cta-desc">Track your system. See what you have unlocked. Get your next move. This is your hub.</div>
+                <div class="cc-cta-arrow">&#x2192; ENTER YOUR HUB</div>
+            </a>
+
+            <!-- Certificate link (text only, not a competing CTA) -->
+            <a class="cert-link" id="certLink" href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html">
+                &#x1F4CB; View or download your Architect Certificate
+            </a>
+
+            <!-- Footer -->
+            <div class="footer-text">
+                Not financial advice. Educational tool by <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a>
+                <br>Your data stays in your browser. Nothing is sent to any server.
+                <br>Projections based on 10% avg annual return (S&P 500 historical). Actual returns vary.
+            </div>
         </div>
     </div>
 
     <script>
-        // ============================================================
-        // BRIDGE-AUTOPILOT: Recovery page after Beehiiv email capture
-        // 
-        // Problem: Beehiiv iframe doesn't reliably fire postMessage 
-        // back to the parent app. So completeGate() never runs, and
-        // the user has no Architect ID when they land here.
+        // ===================================================================
+        // AUTOPILOT BRIDGE v3
         //
-        // Solution: Auto-generate the Architect ID from localStorage
-        // data (userName), set all required flags, then redirect back
-        // to the main autopilot app which will show Module 6 (cert).
-        // ============================================================
+        // Purpose: Post-email-capture experience.
+        // Job 1: Set localStorage flags (technical, non-negotiable)
+        // Job 2: Show value sequence for new users (justify the email)
+        // Job 3: Push to Command Center (the loop)
+        //
+        // New users: Value loading sequence -> Summary -> CC push
+        // Returning users: Summary -> CC push (skip loading)
+        //
+        // Zero React. Zero Babel. Zero modern JS. Pure ES5. Rock solid.
+        // ===================================================================
 
-        const AUTOPILOT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html';
+        var LINKS = {
+            COMMAND_CENTER: 'https://spacekou5-oss.github.io/cashvault-funnel/command-center.html',
+            AUTOPILOT: 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html',
+            INSTAGRAM: 'https://instagram.com/koutalksmoney'
+        };
 
+        // --- ID GENERATOR (same algorithm as main app) ---
         function generateIdFromName(name) {
-            const email = name + '@architect.system';
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            const n = email.toLowerCase().trim();
-            let h1 = 0, h2 = 5381;
-            for (let i = 0; i < n.length; i++) {
-                const c = n.charCodeAt(i);
+            var email = (name + '@architect.system').toLowerCase().trim();
+            var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            var h1 = 0, h2 = 5381;
+            for (var i = 0; i < email.length; i++) {
+                var c = email.charCodeAt(i);
                 h1 = ((h1 << 5) - h1) + c;
                 h1 = h1 & h1;
                 h2 = ((h2 << 5) + h2) + c;
             }
-            const combined = Math.abs(h1) + Math.abs(h2);
-            let id = 'KOU-';
-            let wh = combined;
-            for (let i = 0; i < 6; i++) {
-                const ci = (wh + (n.charCodeAt(i % n.length) * (i + 1))) % chars.length;
+            var combined = Math.abs(h1) + Math.abs(h2);
+            var id = 'KOU-';
+            var wh = combined;
+            for (var i = 0; i < 6; i++) {
+                var ci = (wh + (email.charCodeAt(i % email.length) * (i + 1))) % chars.length;
                 id += chars.charAt(Math.abs(ci));
                 wh = Math.floor(wh / 7) + ci;
             }
             return id;
         }
 
-        function setProgress(pct) {
-            document.getElementById('progress').style.width = pct + '%';
+        // --- COMPOUND INTEREST ---
+        function calcFutureValue(monthly, years) {
+            var r = 0.10, n = 12;
+            return monthly * ((Math.pow(1 + r / n, n * years) - 1) / (r / n));
         }
 
-        function setStatus(text) {
-            document.getElementById('status').textContent = text;
-        }
-
-        function setMessage(text) {
-            document.getElementById('message').textContent = text;
-        }
-
-        function showError() {
-            document.getElementById('spinner').style.display = 'none';
-            document.getElementById('error').style.display = 'block';
-        }
-
-        function showManualLink() {
-            document.getElementById('manualLink').style.display = 'block';
-        }
-
-        (function run() {
-            try {
-                setProgress(20);
-                setMessage('Reading your system data...');
-
-                // Step 1: Check if Architect ID already exists
-                let architectId = localStorage.getItem('cashvault_architect_id');
-                
-                // Step 2: If no ID, auto-generate from stored data
-                if (!architectId) {
-                    setProgress(40);
-                    setMessage('Generating your Architect ID...');
-
-                    // Try to get userName from stored system data
-                    let userName = '';
-                    const savedData = localStorage.getItem('autopilot_system_data');
-                    if (savedData) {
-                        try {
-                            const parsed = JSON.parse(savedData);
-                            userName = parsed.userName || '';
-                        } catch(e) {}
+        // --- CONFETTI ENGINE ---
+        var confetti = {
+            canvas: null,
+            ctx: null,
+            particles: [],
+            running: false,
+            init: function () {
+                this.canvas = document.getElementById('confetti-canvas');
+                if (!this.canvas) return;
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+                var self = this;
+                window.addEventListener('resize', function () { self.resize(); });
+            },
+            resize: function () {
+                if (!this.canvas) return;
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            },
+            launch: function () {
+                if (this.running) return;
+                this.running = true;
+                this.particles = [];
+                var self = this;
+                var start = Date.now();
+                var colors = ['#22c55e', '#16a34a', '#fbbf24', '#4ade80'];
+                var si = setInterval(function () {
+                    if (Date.now() - start > 1800) { clearInterval(si); return; }
+                    for (var i = 0; i < 2; i++) {
+                        self.particles.push({
+                            x: Math.random() * self.canvas.width,
+                            y: -20,
+                            t: '$',
+                            c: colors[Math.floor(Math.random() * colors.length)],
+                            s: Math.random() * 16 + 12,
+                            sy: Math.random() * 2.5 + 2,
+                            sx: (Math.random() - 0.5) * 3,
+                            r: Math.random() * 360,
+                            rs: (Math.random() - 0.5) * 8,
+                            o: 1,
+                            w: Math.random() * 10,
+                            ws: Math.random() * 0.08 + 0.04
+                        });
                     }
-
-                    // Fallback: check URL hash for name parameter
-                    if (!userName) {
-                        try {
-                            const hash = window.location.hash.slice(1);
-                            const params = new URLSearchParams(hash);
-                            userName = params.get('n') || '';
-                        } catch(e) {}
+                }, 120);
+                var animate = function () {
+                    self.ctx.clearRect(0, 0, self.canvas.width, self.canvas.height);
+                    self.particles = self.particles.filter(function (p) {
+                        p.y += p.sy;
+                        p.x += p.sx + Math.sin(p.w) * 0.5;
+                        p.r += p.rs;
+                        p.w += p.ws;
+                        if (p.y > self.canvas.height - 80) p.o -= 0.04;
+                        if (p.o <= 0 || p.y > self.canvas.height + 40) return false;
+                        self.ctx.save();
+                        self.ctx.translate(p.x, p.y);
+                        self.ctx.rotate(p.r * Math.PI / 180);
+                        self.ctx.globalAlpha = p.o;
+                        self.ctx.fillStyle = p.c;
+                        self.ctx.font = p.s + 'px Arial';
+                        self.ctx.textAlign = 'center';
+                        self.ctx.textBaseline = 'middle';
+                        self.ctx.fillText(p.t, 0, 0);
+                        self.ctx.restore();
+                        return true;
+                    });
+                    if (self.particles.length > 0 || Date.now() - start < 3000) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        self.running = false;
+                        self.ctx.clearRect(0, 0, self.canvas.width, self.canvas.height);
                     }
+                };
+                animate();
+            }
+        };
 
-                    // Last resort: generate from timestamp
-                    if (!userName) {
-                        userName = 'architect_' + Date.now();
-                    }
+        // --- ANIMATED COUNT-UP ---
+        function countUp(el, target, duration, prefix) {
+            prefix = prefix || '';
+            var start = Date.now();
+            var tick = function () {
+                var elapsed = Date.now() - start;
+                var progress = Math.min(elapsed / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                var current = Math.round(target * eased);
+                el.textContent = prefix + current.toLocaleString();
+                if (progress < 1) requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+        }
 
-                    // Generate the ID (same algorithm as main app)
-                    architectId = generateIdFromName(userName);
-                }
+        // --- DATA RECOVERY ---
+        function recoverData() {
+            var data = {
+                userName: '',
+                income: 0,
+                bills: 0,
+                etfTicker: '',
+                etfName: '',
+                architectId: null,
+                isReturning: false
+            };
 
-                setProgress(60);
-                setMessage('Setting up your certificate...');
+            // Returning user check
+            var existingId = localStorage.getItem('cashvault_architect_id');
+            var emailCaptured = localStorage.getItem('autopilot_email_captured') === 'true';
+            if (existingId && emailCaptured) {
+                data.architectId = existingId;
+                data.isReturning = true;
+            }
 
-                // Step 3: Set ALL required localStorage flags
-                // These are the same flags that completeGate() sets
-                localStorage.setItem('autopilot_email_captured', 'true');
-                localStorage.setItem('cashvault_architect_id', architectId);
-                localStorage.setItem('autopilot_completed', 'true');
-                localStorage.setItem('command_center_architect_id', architectId);
-
-                // Preserve ETF choice if it exists in system data
-                const savedData = localStorage.getItem('autopilot_system_data');
-                if (savedData) {
-                    try {
-                        const parsed = JSON.parse(savedData);
-                        if (parsed.etfChoice) {
-                            localStorage.setItem('autopilot_etf_choice', JSON.stringify(parsed.etfChoice));
-                        }
-                        // Calculate and store monthly invest
-                        if (parsed.income && parsed.bills) {
-                            const deployable = Math.max(0, parsed.income - parsed.bills);
-                            const investAmount = deployable * 0.20;
-                            localStorage.setItem('architect_monthly_invest', Math.round(investAmount).toString());
-                        }
-                    } catch(e) {}
-                }
-
-                setProgress(80);
-                setMessage('Finalizing...');
-
-                // Step 4: Also signal the parent app via cross-tab storage event
-                // (In case the main app is still open in another tab)
-                // Writing to localStorage triggers the 'storage' event in other tabs
-
-                // Step 5: Try to notify parent window (if opened in iframe/popup)
+            // Read system data
+            var savedRaw = localStorage.getItem('autopilot_system_data');
+            if (savedRaw) {
                 try {
-                    if (window.opener) {
-                        window.opener.postMessage({ type: 'AUTOPILOT_EMAIL_CAPTURED', verified: true }, '*');
+                    var parsed = JSON.parse(savedRaw);
+                    data.userName = parsed.userName || '';
+                    data.income = parsed.income || 0;
+                    data.bills = parsed.bills || 0;
+                    if (parsed.etfChoice) {
+                        data.etfTicker = parsed.etfChoice.ticker || '';
+                        data.etfName = parsed.etfChoice.name || '';
                     }
-                    if (window.parent && window.parent !== window) {
-                        window.parent.postMessage({ type: 'AUTOPILOT_EMAIL_CAPTURED', verified: true }, '*');
+                } catch (e) { }
+            }
+
+            // Fallback: URL hash
+            if (!data.userName) {
+                try {
+                    var hash = window.location.hash.slice(1);
+                    var params = new URLSearchParams(hash);
+                    data.userName = params.get('n') || '';
+                    if (!data.income && params.get('i')) data.income = Number(params.get('i'));
+                    if (!data.bills && params.get('b')) data.bills = Number(params.get('b'));
+                    if (!data.etfTicker && params.get('etf')) data.etfTicker = params.get('etf');
+                } catch (e) { }
+            }
+
+            if (!data.userName) data.userName = 'ARCHITECT';
+            if (!data.architectId) data.architectId = generateIdFromName(data.userName);
+
+            // Derived
+            var deployable = Math.max(0, data.income - data.bills);
+            data.deployable = deployable;
+            data.investAmount = deployable * 0.20;
+            data.safetyAmount = deployable * 0.10;
+            data.wealth30 = calcFutureValue(data.investAmount, 30);
+
+            return data;
+        }
+
+        // --- SET FLAGS ---
+        function setFlags(data) {
+            localStorage.setItem('autopilot_email_captured', 'true');
+            localStorage.setItem('cashvault_architect_id', data.architectId);
+            localStorage.setItem('autopilot_completed', 'true');
+            localStorage.setItem('command_center_architect_id', data.architectId);
+            localStorage.setItem('architect_monthly_invest', Math.round(data.investAmount).toString());
+
+            var savedRaw = localStorage.getItem('autopilot_system_data');
+            if (savedRaw) {
+                try {
+                    var parsed = JSON.parse(savedRaw);
+                    if (parsed.etfChoice) {
+                        localStorage.setItem('autopilot_etf_choice', JSON.stringify(parsed.etfChoice));
                     }
-                } catch(e) {}
+                } catch (e) { }
+            }
 
-                setProgress(100);
-                setStatus('CERTIFICATE READY');
-                setMessage('Redirecting to your certificate...');
+            // Signal other tabs
+            try {
+                if (window.opener) window.opener.postMessage({ type: 'AUTOPILOT_EMAIL_CAPTURED', verified: true }, '*');
+                if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'AUTOPILOT_EMAIL_CAPTURED', verified: true }, '*');
+            } catch (e) { }
+        }
 
-                // Step 6: Redirect back to the main app (lands on Module 6)
-                setTimeout(function() {
-                    window.location.href = AUTOPILOT_URL;
-                }, 1500);
+        // --- ARCHITECT COUNT ---
+        function getArchitectCount(callback) {
+            try {
+                if (window.storage) {
+                    window.storage.get('architects-recent', true).then(function (r) {
+                        if (r) { callback(JSON.parse(r.value).length); }
+                        else { callback(Math.floor(Math.random() * 180) + 63); }
+                    }).catch(function () {
+                        callback(Math.floor(Math.random() * 180) + 63);
+                    });
+                } else {
+                    callback(Math.floor(Math.random() * 180) + 63);
+                }
+            } catch (e) {
+                callback(Math.floor(Math.random() * 180) + 63);
+            }
+        }
 
-                // Fallback: show manual link if redirect doesn't work
-                setTimeout(function() {
-                    showManualLink();
-                }, 4000);
+        // --- POPULATE DONE PHASE ---
+        function populateDone(data) {
+            document.getElementById('ds-invest').textContent = '$' + Math.round(data.investAmount);
+            document.getElementById('ds-etf').textContent = data.etfTicker || '--';
+            document.getElementById('ds-wealth').textContent = '$' + Math.round(data.wealth30 / 1000) + 'k';
+            document.getElementById('ds-id').textContent = data.architectId;
 
-            } catch(e) {
-                console.error('Bridge recovery failed:', e);
-                showError();
+            // Auto-fill CC link with Architect ID so CC skips manual verification
+            var ccUrl = LINKS.COMMAND_CENTER + '?id=' + encodeURIComponent(data.architectId);
+            document.getElementById('ccLink').href = ccUrl;
+        }
+
+        // --- SHOW DONE PHASE ---
+        function showDonePhase() {
+            document.getElementById('phase-loading').classList.add('hidden');
+            document.getElementById('phase-done').classList.remove('hidden');
+            window.scrollTo(0, 0);
+
+            // Confetti
+            setTimeout(function () { confetti.launch(); }, 400);
+        }
+
+        // =============================================
+        // LOADING SEQUENCE (New Users Only)
+        // =============================================
+        function runLoadingSequence(data) {
+            var bar = document.getElementById('progressBar');
+            var label = document.getElementById('stepLabel');
+
+            var steps = [
+                {
+                    pct: 25,
+                    text: 'Reading your configuration...',
+                    wait: 800,
+                    run: function () {
+                        document.getElementById('rv-income').textContent = '$' + data.income.toLocaleString();
+                        document.getElementById('rv-bills').textContent = data.bills > 0 ? '$' + data.bills.toLocaleString() : '$0';
+                        document.getElementById('rv-deploy').textContent = '$' + data.deployable.toLocaleString();
+                        document.getElementById('rv-invest').textContent = '$' + Math.round(data.investAmount).toLocaleString() + '/mo';
+                        document.getElementById('rv-safety').textContent = '$' + Math.round(data.safetyAmount).toLocaleString() + '/mo';
+                        document.getElementById('rc-config').classList.add('show');
+                    }
+                },
+                {
+                    pct: 50,
+                    text: 'Projecting your wealth curve...',
+                    wait: 2200,
+                    run: function () {
+                        document.getElementById('rv-etf').textContent = data.etfTicker || 'Not set';
+                        document.getElementById('rc-projection').classList.add('show');
+                        countUp(document.getElementById('rv-wealth'), Math.round(data.wealth30), 2000, '$');
+                    }
+                },
+                {
+                    pct: 75,
+                    text: 'Registering your Architect ID...',
+                    wait: 2000,
+                    run: function () {
+                        document.getElementById('rv-id').textContent = data.architectId;
+                        getArchitectCount(function (count) {
+                            document.getElementById('rv-position').textContent = 'Architect #' + (count + 1);
+                        });
+                        document.getElementById('rc-proof').classList.add('show');
+                    }
+                },
+                {
+                    pct: 100,
+                    text: 'Unlocking your dashboard...',
+                    wait: 1600,
+                    run: function () {
+                        document.getElementById('rc-cc').classList.add('show');
+                    }
+                }
+            ];
+
+            var idx = 0;
+
+            function next() {
+                if (idx >= steps.length) {
+                    label.textContent = 'Ready.';
+                    setTimeout(showDonePhase, 1000);
+                    return;
+                }
+                var step = steps[idx];
+                bar.style.width = step.pct + '%';
+                label.textContent = step.text;
+                setTimeout(function () {
+                    step.run();
+                    idx++;
+                    setTimeout(next, step.wait);
+                }, 400);
+            }
+
+            setTimeout(next, 600);
+        }
+
+        // =============================================
+        // MAIN
+        // =============================================
+        (function () {
+            confetti.init();
+
+            var data = recoverData();
+            setFlags(data);
+            populateDone(data);
+
+            if (data.isReturning) {
+                // Returning user: skip loading, go straight to done
+                showDonePhase();
+            } else {
+                // New user: run the value sequence
+                runLoadingSequence(data);
             }
         })();
     </script>
