@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dual-Audience Customer Profile // Kou Talks Money</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a14; }
+::-webkit-scrollbar { height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.2); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const ORANGE = "#f97316";
+const CYAN = "#22d3ee";
+const AMBER = "#f59e0b";
+const RED = "#ef4444";
+const GREEN = "#10b981";
+const BLUE = "#3b82f6";
+
+const sections = [
+  { id: "overview", label: "Dual Audience Model", color: AMBER },
+  { id: "brandon_who", label: "Brandon: Profile", color: ORANGE },
+  { id: "brandon_pain", label: "Brandon: Pain & Desires", color: ORANGE },
+  { id: "brandon_online", label: "Brandon: Online DNA", color: ORANGE },
+  { id: "brandon_trust", label: "Brandon: Trust & Objections", color: ORANGE },
+  { id: "jordan_who", label: "Jordan: Profile", color: CYAN },
+  { id: "jordan_pain", label: "Jordan: Pain & Stakes", color: CYAN },
+  { id: "jordan_buying", label: "Jordan: Buying Psychology", color: CYAN },
+  { id: "jordan_convert", label: "Jordan: Objections & Signals", color: CYAN },
+  { id: "bridge", label: "The Bridge", color: BLUE },
+  { id: "competitors", label: "Competitive Landscape", color: AMBER },
+  { id: "verification", label: "Verification", color: GREEN },
+];
+
+const ConfidenceBadge = ({ score }) => {
+  const c = score >= 85 ? GREEN : score >= 70 ? "#eab308" : RED;
+  return (
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.3)", borderRadius: 20, padding: "4px 12px", fontSize: 12, fontFamily: "var(--mono)" }}>
+      <div style={{ width: 8, height: 8, borderRadius: "50%", background: c, boxShadow: `0 0 6px ${c}` }} />
+      <span style={{ color: "#94a3b8" }}>Confidence:</span>
+      <span style={{ color: "#f1f5f9", fontWeight: 600 }}>{score}/100</span>
+    </div>
+  );
+};
+
+const Card = ({ title, children, confidence, tag, accent }) => (
+  <div style={{ background: "linear-gradient(135deg, rgba(30,41,59,0.8), rgba(15,23,42,0.9))", border: "1px solid rgba(148,163,184,0.12)", borderRadius: 12, padding: "20px 22px", marginBottom: 14 }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#f1f5f9", letterSpacing: "-0.02em" }}>{title}</h3>
+        {tag && <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: accent || AMBER, background: `${accent || AMBER}18`, padding: "3px 8px", borderRadius: 4 }}>{tag}</span>}
+      </div>
+      {confidence !== undefined && <ConfidenceBadge score={confidence} />}
+    </div>
+    <div style={{ color: "#cbd5e1", fontSize: 13, lineHeight: 1.7 }}>{children}</div>
+  </div>
+);
+
+const PainCard = ({ num, quote, decode, accent }) => {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div onClick={() => setOpen(!open)} style={{ cursor: "pointer", padding: "14px 18px", background: "rgba(0,0,0,0.25)", borderRadius: 8, borderLeft: `3px solid ${accent || RED}`, marginBottom: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: accent || RED, fontFamily: "var(--mono)" }}>Pain #{num}</div>
+        <span style={{ fontSize: 16, color: "#64748b", transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s" }}>&#9662;</span>
+      </div>
+      <div style={{ fontSize: 14, fontWeight: 500, color: "#f1f5f9", fontStyle: "italic", lineHeight: 1.5, marginTop: 6 }}>"{quote}"</div>
+      {open && <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.6, marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(148,163,184,0.08)" }}>{decode}</div>}
+    </div>
+  );
+};
+
+const StatBox = ({ label, value, detail }) => (
+  <div style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(148,163,184,0.08)", borderRadius: 8, padding: "12px 14px" }}>
+    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#64748b", fontFamily: "var(--mono)", marginBottom: 4 }}>{label}</div>
+    <div style={{ fontSize: 15, fontWeight: 700, color: "#f1f5f9" }}>{value}</div>
+    {detail && <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 3, lineHeight: 1.5 }}>{detail}</div>}
+  </div>
+);
+
+const ObjRow = ({ says, counter }) => (
+  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, background: "rgba(148,163,184,0.06)", borderRadius: 8, overflow: "hidden", marginBottom: 8 }}>
+    <div style={{ padding: "12px 14px", background: "rgba(239,68,68,0.06)" }}>
+      <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: RED, fontFamily: "var(--mono)", marginBottom: 4 }}>They Think</div>
+      <div style={{ fontSize: 12, color: "#e2e8f0", lineHeight: 1.5 }}>{says}</div>
+    </div>
+    <div style={{ padding: "12px 14px", background: "rgba(16,185,129,0.06)" }}>
+      <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: GREEN, fontFamily: "var(--mono)", marginBottom: 4 }}>Reframe</div>
+      <div style={{ fontSize: 12, color: "#e2e8f0", lineHeight: 1.5 }}>{counter}</div>
+    </div>
+  </div>
+);
+
+const Callout = ({ text, sub, accent }) => (
+  <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 10, padding: "20px 22px", margin: "16px 0", textAlign: "center", border: `1px solid ${accent || AMBER}20` }}>
+    <div style={{ fontSize: 15, fontWeight: 600, color: "#f1f5f9", lineHeight: 1.6, marginBottom: 6 }}>{text}</div>
+    {sub && <div style={{ fontSize: 10, color: "#64748b", fontFamily: "var(--mono)", letterSpacing: "0.08em" }}>{sub}</div>}
+  </div>
+);
+
+const TrustGrid = ({ builds, destroys }) => (
+  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+    <div style={{ padding: "14px 16px", borderRadius: 8, background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.15)" }}>
+      <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: GREEN, fontFamily: "var(--mono)", marginBottom: 8 }}>Builds Trust</div>
+      {builds.map((b, i) => <div key={i} style={{ fontSize: 12, color: "#94a3b8", marginBottom: 5, lineHeight: 1.4 }}>{b}</div>)}
+    </div>
+    <div style={{ padding: "14px 16px", borderRadius: 8, background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)" }}>
+      <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: RED, fontFamily: "var(--mono)", marginBottom: 8 }}>Destroys Trust</div>
+      {destroys.map((d, i) => <div key={i} style={{ fontSize: 12, color: "#94a3b8", marginBottom: 5, lineHeight: 1.4 }}>{d}</div>)}
+    </div>
+  </div>
+);
+
+const SectionBanner = ({ badge, title, sub, color }) => (
+  <div style={{ marginBottom: 20, padding: "20px 22px", borderRadius: 12, background: `linear-gradient(135deg, ${color}12, transparent)`, border: `1px solid ${color}30`, textAlign: "center" }}>
+    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color, fontFamily: "var(--mono)", marginBottom: 6 }}>{badge}</div>
+    <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: "#f1f5f9" }}>{title}</h2>
+    <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 6, lineHeight: 1.5, maxWidth: 600, margin: "6px auto 0" }}>{sub}</div>
+  </div>
+);
+
+function CustomerProfileV2() {
+  const [active, setActive] = React.useState("overview");
+
+  const render = () => {
+    switch (active) {
+
+      case "overview":
+        return (<div>
+          <Card title="The Two-Layer Audience Model" confidence={90} tag="Strategic Foundation" accent={AMBER}>
+            <p style={{ margin: "0 0 12px" }}><strong style={{ color: ORANGE }}>Layer 1: Broke-Clock Brandon</strong> is the content growth audience. College student, part-time W-2, universal financial confusion. Brandon's pool is 20+ million in the US. Every college student with a job knows five more in the same situation. The shareability multiplier is massive because the pain is not niche. It is universal. <strong style={{ color: "#f1f5f9" }}>Brandon does not buy products. Brandon grows the account, feeds the algorithm, and creates the reach that makes Layer 2 possible.</strong></p>
+            <p style={{ margin: "0 0 12px" }}><strong style={{ color: CYAN }}>Layer 2: Side-Hustle Jordan</strong> is the monetization buyer. 19 to 26, W-2 job PLUS unstructured side income. Jordan has the two-income problem your product ladder was designed to solve. Jordan finds you through Brandon's content. 15 to 25% of Brandon's audience either already IS Jordan or becomes Jordan within 6 to 12 months when they start a side hustle.</p>
+            <p style={{ margin: 0, fontWeight: 600, color: AMBER }}>Brandon is the fuel. Jordan is the revenue. One engine. Two outcomes. The content targets Brandon. The product ladder catches Jordan.</p>
+          </Card>
+
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 14, padding: 20, background: `${AMBER}08`, border: `1px solid ${AMBER}20`, borderRadius: 12, marginBottom: 14 }}>
+            {[
+              { v: "207M", l: "Creators Globally", s: "Linktree 2025" },
+              { v: "27M", l: "Paid U.S. Creators", s: "14% of ages 16-54" },
+              { v: "$44K", l: "Avg U.S. Creator Income", s: "$3,680/month" },
+              { v: "20M+", l: "Brandon's TAM (US)", s: "College + part-time work" },
+              { v: "15-25%", l: "Brandon to Jordan Rate", s: "Natural conversion" },
+            ].map((s, i) => (
+              <div key={i} style={{ textAlign: "center", flex: "1 1 100px" }}>
+                <div style={{ fontSize: 24, fontWeight: 800, color: AMBER, fontFamily: "var(--mono)", letterSpacing: "-0.03em" }}>{s.v}</div>
+                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 3, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>{s.l}</div>
+                <div style={{ fontSize: 10, color: "#64748b", marginTop: 2 }}>{s.s}</div>
+              </div>
+            ))}
+          </div>
+
+          <Card title="Why This Dual Model Works" confidence={88}>
+            <p style={{ margin: "0 0 10px" }}>You do NOT create separate content for Jordan. You create content for Brandon that Jordan recognizes themselves in. The funnel separates them automatically based on income data entered into your tools. Under $1,500/month from one source: Brandon. Multiple income sources or $1,500+: Jordan. Same content, same tool, different follow-up.</p>
+            <p style={{ margin: 0 }}>The mathematical advantage: Brandon's audience is 20+ million people in the US (18 to 22 enrolled in college with part-time employment). That is 2 to 3x larger than the side hustle audience and 8 to 10x larger than the pure "content creator" audience. The biggest possible top of funnel in Gen Z personal finance. And no creator currently owns it with systems-level content.</p>
+          </Card>
+
+          <Callout text="Content for Brandon. Products for Jordan. Same Reels. Same tools. Different follow-up based on the number they enter." sub="The entire business architecture in one sentence" accent={AMBER} />
+        </div>);
+
+      case "brandon_who":
+        return (<div>
+          <SectionBanner badge="Content Growth Audience" title={'"Broke-Clock Brandon"'} sub="College student. Part-time job. Paycheck disappears before the next one lands. 20+ million in the US. Every single one knows 5 people in the exact same situation. Brandon does not buy. Brandon GROWS." color={ORANGE} />
+
+          <Card title="Demographics" confidence={88} accent={ORANGE}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <StatBox label="Age" value="18-22" detail="First or second year managing own money without parental oversight. Old enough to feel consequences. Young enough that systems built now compound for 40+ years." />
+              <StatBox label="Income (W-2)" value="$800-$2,000/mo" detail="Part-time: Chipotle, Target, campus dining, tutoring, retail, coffee shop. 15-25 hrs/week at $12-20/hr. Every dollar enters one checking account and exits through 30 unnamed holes." />
+              <StatBox label="Education" value="Enrolled Full-Time" detail="Community college, state school, or university. School is the priority identity. The job is 'just to cover stuff.' Financial education happens at 11pm scrolling Instagram." />
+              <StatBox label="Living" value="Dorm / Parents / Shared Apt" detail="Housing is free or split. Income covers everything housing doesn't: food, gas, subscriptions, social life, textbooks, phone. These 'small' expenses create the invisible bleed." />
+              <StatBox label="Tax Situation" value="Handled (Not Understood)" detail="W-2 employer withholds. Filed once with TurboTax because parents said to. Got a refund. No idea why. Tax pain is LOW. Financial CONFUSION is high. Key difference from Jordan." />
+              <StatBox label="Savings" value="$0-$500" detail="Has opened a savings account. It has $47 from three months ago. The intention is there. The system is not. Brandon lacks automation, not willpower." />
+              <StatBox label="Investing" value="$0 (Thinks They Can't)" detail="Believes investing requires: (a) a lot of money, (b) knowledge they don't have, (c) a 'real' income. All three beliefs are wrong. Nobody has shown the math at $25/week." />
+              <StatBox label="Credit Score" value="580-680 or None" detail="Student card with $500 limit, or nothing. Either maxing it monthly and paying minimums, or afraid to use it. Knows 'credit matters' but can't explain why." />
+            </div>
+          </Card>
+
+          <Card title="Psychographic Profile" confidence={87} tag="Deep Intel" accent={ORANGE}>
+            <p style={{ margin: "0 0 12px" }}><strong style={{ color: ORANGE }}>Core Identity:</strong> Student first, employee second. The job funds the life, not defines it. But financial confusion bleeds into everything: stress about groceries, guilt about coffee, anxiety about credit card statements opened three days late. Brandon is not lazy. Brandon is unsystematic. They manage money like a first-time driver manages a manual transmission: stalling, grinding gears, lurching forward.</p>
+            <p style={{ margin: "0 0 12px" }}><strong style={{ color: ORANGE }}>Emotional State:</strong> A low-grade financial hum that never turns off. Not crisis-level panic (that's Jordan with a $5K tax bill). A persistent sense that they're doing something wrong but can't identify what. Every purchase triggers a micro-calculation: "can I afford this?" followed by "I have no idea, I'll just check my balance." Checking the balance is not a financial strategy. It is financial gambling.</p>
+            <p style={{ margin: "0 0 12px" }}><strong style={{ color: ORANGE }}>Self-Perception:</strong> Smart in school, clueless with money. This creates painful cognitive dissonance: "I can pass organic chemistry but I can't figure out where my paycheck goes." The gap between academic intelligence and financial illiteracy is where all the shame lives. Your content must normalize the gap, not lecture about closing it.</p>
+            <p style={{ margin: 0 }}><strong style={{ color: ORANGE }}>Relationship With Authority:</strong> Deeply skeptical. Banks feel predatory (overdraft fees confirmed it). Financial advisors feel irrelevant (for rich or old people). Parents either financially illiterate themselves or gave advice that doesn't match Brandon's reality ("just save 20%" means nothing at $1,400/month when $1,350 is spoken for). Finance influencers trigger the "selling me something" filter within 3 seconds. Brandon wants a friend who is 2 steps ahead, shows receipts, and doesn't judge.</p>
+          </Card>
+
+          <Card title="Why Brandon Is the Highest-Leverage Content Audience" confidence={90} tag="47/50 Score" accent={ORANGE}>
+            <p style={{ margin: "0 0 12px" }}><strong style={{ color: "#f1f5f9" }}>Brandon IS Kou, right now.</strong> Same age, same income range, same "part-time paycheck and full-time confusion" energy. The identity match is 1:1. When Brandon sees your content, they don't think "this person is teaching me." They think "this person is literally me but 2 steps ahead." That is the most powerful credibility position in short-form content.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
+              {[
+                { metric: "Attention Density", score: "10/10", why: "Universal pain, not niche" },
+                { metric: "Shareability", score: "10/10", why: "Every viewer has 5 friends in same boat" },
+                { metric: "Curiosity Gaps", score: "9/10", why: "Wide knowledge void at their scale" },
+                { metric: "Authority Speed", score: "10/10", why: "Perfect identity match, zero credibility gap" },
+                { metric: "Monetization Bridge", score: "8/10", why: "15-25% is already Jordan or becomes Jordan" },
+              ].map((m, i) => (
+                <div key={i} style={{ padding: 10, background: "rgba(0,0,0,0.2)", borderRadius: 6 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#f1f5f9" }}>{m.metric}</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: ORANGE, fontFamily: "var(--mono)" }}>{m.score}</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{m.why}</div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>);
+
+      case "brandon_pain":
+        return (<div>
+          <Card title="The 7 Pain Points (In Brandon's Own Words)" confidence={89} accent={ORANGE}>
+            <p style={{ margin: "0 0 14px", fontSize: 12, color: "#94a3b8" }}>These are the phrases Brandon uses in DMs, Reddit posts, group chats, and 11pm Google searches. Use these EXACT formulations in hooks, captions, and emails. Tap each to expand the decode.</p>
+            <PainCard num={1} accent={ORANGE} quote="I got paid $680 on Friday and by Wednesday I have $40 left. I literally don't know where it went." decode="Brandon's #1 pain. Not overspending in one category. Death by 30 micro-transactions: $7 coffee, $12 lunch, $15 Uber, $9.99 subscription they forgot, $14 DoorDash. No individual purchase feels reckless. The total is catastrophic. The pain is the invisibility. They cannot point to the problem because it's distributed. The Budget Calculator solves this in 10 minutes. Bridges to PAYDAY." />
+            <PainCard num={2} accent={ORANGE} quote="I keep telling myself I'll start saving but by the end of the month there's nothing left to save." decode="Brandon treats savings as what's 'left over' after spending. There is never anything left because spending expands to fill available balance. The fix is automate-first: move $50 to savings the DAY the paycheck hits. Brandon saves last. The system saves first. Bridges to AUTOPILOT." />
+            <PainCard num={3} accent={ORANGE} quote="I want to start investing but I only make like $14/hr. You need real money to invest, right?" decode="Brandon believes there's a minimum income threshold. There isn't. $25/week into an index fund at 19 becomes $180,000+ by 50. But nobody has shown Brandon this math at THEIR numbers. Every investing video uses $500/month examples. Brandon makes $1,400. Show the math at $25/week. Bridges to LEAK." />
+            <PainCard num={4} accent={ORANGE} quote="I got a credit card because everyone said I should build credit but now I owe $400 and I don't really know how this works." decode="Told 'build credit.' Nobody told them HOW. They use the card like a debit card or worse, like free money. Don't understand utilization ratio, statement dates, or why paying the minimum is a trap. The 800-Club Checklist gives the exact steps. Bridges to ELITE800." />
+            <PainCard num={5} accent={ORANGE} quote="I just realized I'm paying for like 6 subscriptions I don't even use. That's literally $70/month." decode="Spotify, Netflix, iCloud, Hulu, gym, an app trial that auto-renewed. $70/month = $840/year = 60 hours of work at $14/hr. The reaction to seeing this number is a content goldmine and share trigger. Bridges to PAYDAY." />
+            <PainCard num={6} accent={ORANGE} quote="My tire blew out and I had to put it on my credit card because I have literally zero saved. Now I owe $350 I can't pay off." decode="No emergency buffer. Not because emergencies are rare (car repairs, medical co-pays, phone replacement) but because a dedicated emergency fund was never installed. First expense becomes debt. Debt creates interest. Interest creates more debt. Spiral from one tire. Bridges to AUTOPILOT." />
+            <PainCard num={7} accent={ORANGE} quote="Everyone else seems to have their money figured out and I'm sitting here checking my bank app 5 times a day hoping I don't overdraft." decode="Social media creates the illusion peers are financially competent. 78% of Americans live paycheck to paycheck. But Brandon sees highlight reels and concludes they're uniquely bad with money. The shame prevents asking for help. Your content breaks this isolation. Bridges to MYNUMBER." />
+          </Card>
+
+          <Callout text="Brandon does not need a finance education. Brandon needs someone to say: your paycheck is $680, here is exactly where it goes, here is the $50 you can automate into savings without feeling it, and here is what $25/week becomes by the time you are 40. Then show the proof at $14/hour, not $100,000/year." sub="The entire content strategy in one sentence" accent={ORANGE} />
+
+          <Card title="The 5 Core Desires (What Makes Brandon ACT)" confidence={87} accent={ORANGE}>
+            <p style={{ margin: "0 0 12px", fontSize: 12, color: "#94a3b8" }}>Pain stops the scroll. Desire drives the action. Every CTA must bridge from pain to one of these.</p>
+            {[
+              { n: 1, title: "Visibility Into Their Own Money", q: "Just show me where my money goes. Not a lecture. A map.", desc: "Brandon's #1 desire is to SEE the problem. A visual breakdown ('$680 paycheck: $180 food, $70 subscriptions, $120 gas, $95 random Amazon, $215 bills') is the most powerful moment you can create. The emotional reaction to seeing their own spending visualized drives shares." },
+              { n: 2, title: "A System That Runs Without Them", q: "Set it up once and never think about it again.", desc: "They know they lack ongoing discipline. They want automation that moves savings and investment money BEFORE they can spend it. 'Willpower is for losers. Build a machine.' Setup must take under 15 minutes. If it requires willpower, Brandon abandons by week 3." },
+              { n: 3, title: "Permission to Start Small", q: "I want someone to tell me $25 is enough. That I don't need to wait until I make more.", desc: "Every finance content uses income examples above their reality. $25/week IS their world. The permission to start small turns a spectator into a participant. The Cost of Waiting Calculator at $25/week is more powerful than any hypothetical at $200/week." },
+              { n: 4, title: "A Credit Score Roadmap (Not a Warning)", q: "Stop telling me credit is important. Tell me the exact 5 things I need to do this month.", desc: "'Build your credit early' is wallpaper. 'Request a credit limit increase (this lowers your utilization ratio)' is actionable. The 800-Club Checklist converts vague warning into step-by-step protocol." },
+              { n: 5, title: "A Peer Who Gets It", q: "I want money advice from someone who makes what I make, not a 35-year-old telling me to max out my 401k.", desc: "Proximity beats authority every time. A 19-year-old documenting how they budget a part-time paycheck from their car is infinitely more credible than a CFP with a podcast studio. The Blue Tape, the Cockpit, the real numbers: trust architecture optimized for this exact desire." },
+            ].map((d, i) => (
+              <div key={i} style={{ padding: "14px 16px", background: "rgba(0,0,0,0.2)", borderRadius: 8, marginBottom: 8, borderLeft: `3px solid ${GREEN}` }}>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: GREEN, fontFamily: "var(--mono)", marginBottom: 4 }}>Desire #{d.n}: {d.title}</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "#f1f5f9", fontStyle: "italic", lineHeight: 1.5, marginBottom: 6 }}>"{d.q}"</div>
+                <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.6 }}>{d.desc}</div>
+              </div>
+            ))}
+          </Card>
+        </div>);
+
+      case "brandon_online":
+        return (<div>
+          <Card title="Platform Behavior" confidence={85} accent={ORANGE}>
+            {[
+              { platform: "Instagram Reels", time: "60+ min/day", desc: "Primary platform. Heaviest usage in 18-22 demo. Brandon discovers content through the algorithm, not search. Your content competes with entertainment, not other finance content." },
+              { platform: "TikTok", time: "Near-equal", desc: "Cross-posted content performs identically. Entertainment-first, education-second. Finance TikTok works when it feels like a friend explaining, not a guru teaching." },
+              { platform: "YouTube Shorts", time: "Filler", desc: "When IG/TT runs dry. Long-form YouTube (5-10 min) builds deeper trust and drives evergreen discovery through search." },
+              { platform: "Reddit", time: "1am deep dives", desc: "r/personalfinance, r/college, r/FinancialPlanning. They lurk. Read threads at 1am trying to find answers too embarrassed to ask publicly. Never posts. Their language in these threads is your copywriting source code." },
+            ].map((p, i) => (
+              <div key={i} style={{ padding: "12px 16px", background: "rgba(0,0,0,0.2)", borderRadius: 8, marginBottom: 8 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: ORANGE }}>{p.platform}</span>
+                  <span style={{ fontSize: 10, color: "#64748b", fontFamily: "var(--mono)" }}>{p.time}</span>
+                </div>
+                <div style={{ fontSize: 12, color: "#cbd5e1", lineHeight: 1.6 }}>{p.desc}</div>
+              </div>
+            ))}
+          </Card>
+
+          <Card title="Scroll Behavior" confidence={86} tag="Critical" accent={ORANGE}>
+            <p style={{ margin: "0 0 10px" }}><strong style={{ color: "#f1f5f9" }}>Stay-or-go decision: 0.5 to 1.5 seconds.</strong> Brandon has a specific filter: "is this about MY kind of money?" Content that signals high income, investing jargon, or adult life stages (mortgage, retirement, kids) fails this filter instantly. Content that signals "part-time paycheck," "college student," or specific dollar amounts under $2,000/month passes it.</p>
+            <p style={{ margin: 0, color: ORANGE, fontWeight: 600 }}>The qualifier in the first 2 seconds is everything. "If you work part-time in college" self-selects Brandon. Without the qualifier, Brandon assumes the content is for someone with a "real" financial situation and scrolls.</p>
+          </Card>
+
+          <Card title="The 5-Friend Share Multiplier" confidence={88} tag="Growth Mechanic" accent={ORANGE}>
+            <p style={{ margin: 0 }}>Brandon's primary share trigger is <strong style={{ color: "#f1f5f9" }}>recognition shock</strong>: "oh my god this is literally me." The share is not "this is cool." It is "YOU NEED TO SEE THIS" sent to 3 to 5 friends in a group chat. Every college student with a part-time job has a group chat with other college students with part-time jobs. One share reaches 3 to 5 people who are ALL in the target audience. DM sends count 3 to 5x more than likes for reach expansion in the algorithm.</p>
+          </Card>
+
+          <Card title="Creators Brandon Already Follows" confidence={83} accent={ORANGE}>
+            <div style={{ display: "grid", gap: 8 }}>
+              <div style={{ padding: 12, background: "rgba(16,185,129,0.06)", borderRadius: 6, border: "1px solid rgba(16,185,129,0.12)" }}>
+                <div style={{ fontSize: 10, color: GREEN, fontWeight: 700, fontFamily: "var(--mono)", marginBottom: 4 }}>TRUSTS</div>
+                <div style={{ fontSize: 12, color: "#cbd5e1" }}>Caleb Hammer (brutal honesty, no selling), Humphrey Yang (simple, visual), college lifestyle creators who occasionally mention money</div>
+              </div>
+              <div style={{ padding: 12, background: "rgba(234,179,8,0.06)", borderRadius: 6, border: "1px solid rgba(234,179,8,0.12)" }}>
+                <div style={{ fontSize: 10, color: "#eab308", fontWeight: 700, fontFamily: "var(--mono)", marginBottom: 4 }}>SKEPTICAL OF</div>
+                <div style={{ fontSize: 12, color: "#cbd5e1" }}>Graham Stephan, Andrei Jikh (too rich, different life stage, feels irrelevant to $14/hr reality)</div>
+              </div>
+              <div style={{ padding: 12, background: "rgba(239,68,68,0.06)", borderRadius: 6, border: "1px solid rgba(239,68,68,0.12)" }}>
+                <div style={{ fontSize: 10, color: RED, fontWeight: 700, fontFamily: "var(--mono)", marginBottom: 4 }}>AVOIDS</div>
+                <div style={{ fontSize: 12, color: "#cbd5e1" }}>"Passive income" gurus, crypto bros, anyone filming in front of a rented car, anyone using the phrase "financial freedom"</div>
+              </div>
+            </div>
+            <p style={{ margin: "12px 0 0", fontSize: 13, color: ORANGE, fontWeight: 600 }}>The gap: No finance creator makes content specifically for the "part-time paycheck" reality. Brandon lives in the gap between budgeting, investing, and credit creators. You fill that gap.</p>
+          </Card>
+
+          <Card title="Content That Stops Brandon vs. Loses Brandon" confidence={86} accent={ORANGE}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <div style={{ padding: "14px 16px", borderRadius: 8, background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.12)" }}>
+                <div style={{ fontSize: 9, color: GREEN, fontWeight: 700, fontFamily: "var(--mono)", marginBottom: 8 }}>STOPS SCROLLING</div>
+                {["A specific dollar amount they recognize ($680 paycheck)", "College-specific context ('if you work part-time in college')", "Comparison shock ($25/week = $48K by 40, wait 6 years = $31K)", "Someone their age doing math in their car (The Cockpit)", "The Blue Tape countdown ('Day 1,754 of building to $1M')", "'Nobody taught me this in school' framing"].map((s, i) => <div key={i} style={{ fontSize: 11, color: "#94a3b8", marginBottom: 5, lineHeight: 1.4 }}>{s}</div>)}
+              </div>
+              <div style={{ padding: "14px 16px", borderRadius: 8, background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.12)" }}>
+                <div style={{ fontSize: 9, color: RED, fontWeight: 700, fontFamily: "var(--mono)", marginBottom: 8 }}>SCROLLS PAST</div>
+                {["Income examples above $3K/month (Brandon makes $1,400)", "Jargon without context ('dollar-cost averaging' = nothing)", "'Financial freedom' framing (irrelevant at $14/hr)", "Polished production (ring light + studio = rich person)", "Multi-step complexity (anything over 3 steps)", "Adult life stage assumptions (401k, mortgage, kids)"].map((s, i) => <div key={i} style={{ fontSize: 11, color: "#94a3b8", marginBottom: 5, lineHeight: 1.4 }}>{s}</div>)}
+              </div>
+            </div>
+          </Card>
+        </div>);
+
+      case "brandon_trust":
+        return (<div>
+          <Card title="Trust Architecture" confidence={87} accent={ORANGE}>
+            <TrustGrid
+              builds={[
+                "Show your actual part-time paycheck breakdown (real receipts, real numbers)",
+                "Name specific contexts: 'dining hall shift,' 'campus job,' '$14/hr at Target'",
+                "Film from The Cockpit (anti-studio = 'this person is not rich')",
+                "Use 'nobody taught me this either' (shared discovery, not lecture)",
+                "Show system setup in real time on your phone (proof it takes 10 min)",
+                "Reference Blue Tape countdown (public commitment = skin in the game)",
+                "Use dollar amounts at Brandon's scale ($680 paycheck, $25/week, $14/hr)",
+                "Admit mistakes ('I overdrafted twice before I built this system')",
+                "Give the tool result for FREE, no email gate on first interaction",
+                "Respond to every comment and DM with a real reply, not emojis",
+              ]}
+              destroys={[
+                "Use income examples above $2,000/month (Brandon's ceiling)",
+                "Assume Brandon has savings, investments, or multiple accounts",
+                "Film with polished production, ring light, studio setup",
+                "Use jargon first: 'asset allocation,' 'expense ratio,' 'utilization'",
+                "Claim to be a financial expert or advisor",
+                "Hard-sell Brandon (growth audience, NOT the buyer)",
+                "Pitch before delivering value in ANY video",
+                "Use 'financial freedom' framing (feels fake at $14/hr)",
+                "Post only wins (one overdraft story builds more trust than ten wins)",
+                "Use generic copy ('unlock your potential' = invisible wallpaper)",
+              ]}
+            />
+          </Card>
+
+          <Card title="Objection Map (What Brandon Thinks vs. Reframe)" confidence={86} accent={ORANGE}>
+            <p style={{ margin: "0 0 12px", fontSize: 12, color: "#94a3b8" }}>Internal objections before clicking, following, or DMing. Content must preemptively dismantle without addressing directly (triggers defensiveness).</p>
+            <ObjRow says={`"I don't make enough money for budgeting to matter."`} counter={`"You made $680. $70 went to subscriptions you forgot. That's $840/year. At $14/hr that's 60 hours of work to pay for apps you don't use." Turn dollars into hours worked. Hours is a currency Brandon feels viscerally.`} />
+            <ObjRow says={`"I'll figure out money stuff after I graduate and get a real job."`} counter={`"Every year you wait to start investing at $25/week costs you $17,000 by age 40. You don't need a real job. You need a real system." Turn procrastination into a dollar amount lost.`} />
+            <ObjRow says={`"I'm too broke to invest."`} counter={`"$25. One dining hall shift. That's enough to start. I'll show you the math." The reframe is not 'you're not broke.' It's 'the bar is lower than you think.' Then SHOW the compound math at $25/week.`} />
+            <ObjRow says={`"Credit cards are a trap. I'll just use my debit card."`} counter={`"A debit card builds zero credit. Zero credit means 8% on a car loan instead of 4%. On a $15,000 car, that's $3,000 more." Turn avoidance into a future dollar penalty on a purchase Brandon WILL make (a car, not a house).`} />
+            <ObjRow says={`"Why should I trust a 19-year-old about money?"`} counter={`"I'm not a financial advisor. I'm the guy who Googled 'where does my paycheck go' at 2am and built the system so you don't have to." Documentation, not expertise. Receipts, not credentials.`} />
+            <ObjRow says={`"Budgeting apps are annoying and I always stop after a week."`} counter={`"I'm not asking you to track every purchase for the rest of your life. I'm asking you to spend 10 minutes seeing where last month went. One time." Position as one-time diagnostic, not ongoing habit.`} />
+            <ObjRow says={`"I don't want to pay for money advice."`} counter={`Brandon does NOT need to pay. Brandon uses free tools. Brandon is the content audience, not the buyer. Never hard-sell Brandon. Give value. Build trust. Revenue comes from Jordan.`} />
+          </Card>
+
+          <Card title="Where to Find Brandon (Hunting Grounds)" confidence={84} tag="Outreach" accent={ORANGE}>
+            {[
+              { where: "Instagram", detail: "Comment sections of: college lifestyle accounts, 'day in the life' student videos, part-time job humor accounts, campus meme pages, Caleb Hammer (massive college student viewership). Look for: 'literally me,' 'I'm so broke,' 'wait how do I even budget.'" },
+              { where: "Reddit", detail: "r/college (financial stress threads weekly), r/personalfinance ('I'm 19 and...' posts), r/povertyfinance (emotional end of Brandon's spectrum). Copy their language verbatim for hooks." },
+              { where: "Campus Ecosystems", detail: "College subreddits, Facebook groups for campus orgs, GroupMe/Discord for dorms and study groups. 95% social, 5% money panic. Your content answers the question the entire campus is afraid to ask." },
+              { where: "Real Life", detail: "Your own coworkers. Your classmates. Ask: 'Do you know where your last paycheck actually went?' Watch their face. That reaction IS the hook for your next Reel. Every conversation with a real Brandon is worth 100 hours of market research." },
+            ].map((h, i) => (
+              <div key={i} style={{ padding: "12px 16px", background: "rgba(0,0,0,0.2)", borderRadius: 8, marginBottom: 8, borderLeft: `3px solid ${BLUE}` }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, marginBottom: 4 }}>{h.where}</div>
+                <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.6 }}>{h.detail}</div>
+              </div>
+            ))}
+          </Card>
+        </div>);
+
+      case "jordan_who":
+        return (<div>
+          <SectionBanner badge="Monetization Buyer" title={'"Side-Hustle Jordan"'} sub="19-26. W-2 job PLUS unstructured side income from Depop, Fiverr, freelancing, tutoring, or content creation. $500-$5,000/month from the side. Jordan has the two-income problem your product ladder was designed to solve." color={CYAN} />
+
+          <Card title="Demographics" confidence={88} accent={CYAN}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <StatBox label="Age" value="19-26" detail="Wider than Brandon. Includes students who started reselling at 18 and earn real money at 22, plus freelancers who went independent at 24. Common thread: the two-income structure." />
+              <StatBox label="Side Hustle Income" value="$500-$5,000/mo" detail="Reselling (Depop/eBay/Poshmark), freelancing (Fiverr/Upwork), tutoring, managing social media for local businesses, content creation. Real but inconsistent. Some months $2,400. Some months $600." />
+              <StatBox label="W-2 Income" value="$12-20/hr Part-Time" detail="Same part-time job as Brandon. The difference: Jordan ALSO has 1099 income. Two income types, two tax situations, one bank account. W-2 withholds taxes. Side hustle withholds nothing." />
+              <StatBox label="Tax Situation" value="DANGEROUS" detail="Owes SE tax (15.3%) plus income tax on ALL earnings. W-2 withholds for paycheck only. Side hustle: zero withheld. Owes $300-$5,000+ they haven't saved. Never heard of quarterly estimated payments." />
+              <StatBox label="Financial System" value="Nonexistent" detail="One checking account. Both income streams dump in. No separation between 'tax money,' 'reinvestment money,' and 'spending money.' A $12K-$60K/year income run from a single checking account." />
+              <StatBox label="Identity" value="Hustler, Not Business Owner" detail="Doesn't say 'I run a business.' Says 'I sell stuff on the side.' IRS doesn't care. At $400+ SE income, they ARE a sole proprietor. This identity gap is why they don't seek business-level financial help." />
+            </div>
+          </Card>
+
+          <Card title="Jordan vs. the 'Content Creator' Profile" confidence={85} tag="Positioning" accent={CYAN}>
+            <p style={{ margin: "0 0 12px" }}>Your Offer Ladder targets creators earning $1K to $10K/month. Jordan is the <strong style={{ color: "#f1f5f9" }}>entry point of that corridor</strong>. Side income $500 to $5,000 plus W-2 $800 to $2,000. Combined: $1,300 to $7,000/month. This overlaps directly with the offer ladder's target buyer.</p>
+            <p style={{ margin: "0 0 12px" }}>Jordan's behavioral signals map perfectly to the Discovery Engine's top signals. Tax Panic Calculator (#1 signal, 9.5/10), Income Volatility Loop (#2, 9/10), and Autopilot Abandonment (#5, 8/10) are all amplified by the two-income structure.</p>
+            <p style={{ margin: 0, color: CYAN, fontWeight: 600 }}>Jordan is NOT a different market. Jordan is the specific segment within your market that enters through Brandon's content and graduates into your product ladder.</p>
+          </Card>
+        </div>);
+
+      case "jordan_pain":
+        return (<div>
+          <Card title="Jordan's 7 Pain Points (Unique to Two-Income Problem)" confidence={88} accent={CYAN}>
+            <p style={{ margin: "0 0 14px", fontSize: 12, color: "#94a3b8" }}>Jordan shares Brandon's 7 pains AND adds these 7 unique to the two-income structure. Jordan carries all 14. Tap to expand.</p>
+            <PainCard num={1} accent={CYAN} quote="Wait, I have to pay taxes on my Depop sales? I thought that was only if you make like $50k." decode="Doesn't know the SE tax threshold ($400). Platforms report transactions over $600 via 1099-K. Jordan will receive a form they've never seen. #1 content hook: correcting this belief is surprising, urgent, and actionable. Bridges to PAYDAY." />
+            <PainCard num={2} accent={CYAN} quote="My paycheck takes out taxes but my Fiverr money doesn't. Do I have to do something about that?" decode="W-2 income (taxes withheld) AND 1099 income (zero withheld). Vaguely sense these are different but can't articulate how. Your employer handles one, you handle the other. If you don't handle the other, surprise bill. This two-income confusion is Jordan's signature pain. Bridges to PAYDAY." />
+            <PainCard num={3} accent={CYAN} quote="I made like $1,500 from my side hustle last month but I have no idea where it went. It's just... gone." decode="Side hustle income hits same checking account as W-2. No boundary between tax money, reinvestment money, spending money. ALL becomes spending money. The problem is absence of separate streams. Autopilot System creates the separation. Bridges to AUTOPILOT." />
+            <PainCard num={4} accent={CYAN} quote="Quarterly taxes? What is that? I thought you just file once a year in April." decode="No idea SE income requires estimated quarterly payments (Apr 15, Jun 15, Sep 15, Jan 15). Every deadline is a content moment: natural urgency trigger recurring 4x/year. Bridges to MYNUMBER." />
+            <PainCard num={5} accent={CYAN} quote="Can I write off my phone? What about my wifi? I use them for my side hustle but also for personal stuff." decode="Knows deductions exist but can't determine which qualify. Missing $500-$3,000/year in legitimate deductions (overpaying) or deducting personal expenses incorrectly (audit risk). Needs simple categorization. Bridges to PAYDAY." />
+            <PainCard num={6} accent={CYAN} quote="Honestly I'm kind of scared to make MORE money because I don't even know how to handle what I'm making now." decode="THE MOST DANGEROUS PAIN. Subconsciously caps own income because more money = more confusion. Absence of system is actively shrinking income ceiling. Core product message: your side hustle has a financial operating system problem, not a hustle problem. Bridges to AUTOPILOT." />
+            <PainCard num={7} accent={CYAN} quote="I don't feel like a 'business owner.' I'm just selling stuff. Do I really need to do all this?" decode="Doesn't identify as self-employed. IRS sees them as sole proprietor at $400+. This identity gap is why they don't seek help. Frame: not 'you are a business owner' but 'you made money on your own. Here's what nobody told you about what happens next.' Bridges to MYNUMBER." />
+          </Card>
+
+          <Card title="Jordan Inherits Brandon's Pain (Plus Higher Stakes)" confidence={86} accent={CYAN}>
+            <p style={{ margin: 0 }}>Jordan has ALL of Brandon's 7 pain points AND these 7 additional ones. The stakes are higher because Jordan's financial mistakes have legal consequences (IRS penalties) and larger dollar amounts at risk ($300 to $5,000+ in unexpected taxes). Brandon's pain is emotional confusion. Jordan's pain is emotional confusion PLUS financial and legal exposure. This is why Jordan pays and Brandon doesn't. The cost of not solving the problem is concrete, calculable, and accelerating.</p>
+          </Card>
+        </div>);
+
+      case "jordan_buying":
+        return (<div>
+          <Card title="Purchase Psychology" confidence={87} tag="Revenue Intel" accent={CYAN}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+              <StatBox label="Impulse Threshold" value="$9-$29" detail="At $19 (The Mirror), purchase is impulsive if trust is built. 'Costs less than one DoorDash order and tells you exactly what the IRS thinks you owe.'" />
+              <StatBox label="Trust Touchpoints" value="3-5 Before Purchase" detail="Videos, tool usage, email. Jordan needs 3-5 content interactions before opening wallet. Tax content accelerates because urgency is external (IRS deadline)." />
+              <StatBox label="Decision Timeline" value="5-14 Days" detail="See tax Reel (Day 1) > free tool (Day 1-3) > email with number (Day 2-4) > second Reel (Day 3-7) > purchase during quarterly deadline (Day 5-14). Deadlines compress weeks to days." />
+              <StatBox label="Average Revenue/Buyer" value="$70-$87" detail="Bronze 30-35% at $19, Silver 50-55% at $79, Gold 10-15% at $249. Silver drives majority of purchases and revenue." />
+            </div>
+          </Card>
+
+          <Card title="Product Ladder Mapping to Jordan's Journey" confidence={90} tag="From Offer Ladder" accent={CYAN}>
+            {[
+              { tier: "The Mirror ($19)", color: "#cd7f32", desc: "The diagnosis. Jordan gets exact tax number, sees where money leaks, gets one personalized recommendation. Creates 'informed anxiety' that drives Silver. Cognitive load after: HIGH. Jordan now KNOWS the problem.", upgrade: "25-40% upgrade to Silver" },
+              { tier: "The Machine ($79)", color: "#c0c0c0", desc: "The system, installed. Tax auto-save configured, income split architecture live, monthly 10-min review template loaded. Delivered via 45-min Zoom (Phase 1) or self-paced video (Phase 2). Cognitive load after: LOW (10 min/month).", upgrade: "50-55% of all buyers land here" },
+              { tier: "The Pit Crew ($249)", color: "#ffd700", desc: "The maintenance plan. Everything in Silver plus 4 quarterly check-ins, tax day walkthroughs, system recalibration as income changes. Cognitive load after: NEAR ZERO.", upgrade: "Anchor that makes Silver feel like a deal" },
+            ].map((t, i) => (
+              <div key={i} style={{ padding: "16px 18px", background: "rgba(0,0,0,0.25)", borderRadius: 8, marginBottom: 10, borderLeft: `3px solid ${t.color}` }}>
+                <div style={{ fontWeight: 700, color: "#f1f5f9", fontSize: 14, marginBottom: 6 }}>{t.tier}</div>
+                <div style={{ fontSize: 12, color: "#cbd5e1", lineHeight: 1.6, marginBottom: 8 }}>{t.desc}</div>
+                <span style={{ fontSize: 10, background: "rgba(34,211,238,0.1)", color: CYAN, padding: "3px 8px", borderRadius: 4 }}>{t.upgrade}</span>
+              </div>
+            ))}
+          </Card>
+
+          <Card title="Why Silver Wins (5 Pricing Forces)" confidence={90} tag="Psychology" accent={CYAN}>
+            {[
+              { force: "Force 1: Informed Anxiety", desc: "Bronze creates it. Silver resolves it. The emotional journey: ignorance > anxiety (post-Bronze) > relief (post-Silver). A Bronze buyer who does NOT upgrade is in a WORSE emotional state than before." },
+              { force: "Force 2: Anchor Effect", desc: "Gold ($249) makes Silver ($79) look like a deal. Silver delivers 85% of the outcome for 32% of the price. The $170 saved feels like a win." },
+              { force: "Force 3: Cognitive Load Drop", desc: "Load drops 85% from Bronze to Silver (100% > 15%). Only 10% more from Silver to Gold. Marginal value doesn't justify 3x price for most buyers." },
+              { force: "Force 4: Identity Match", desc: "Bronze feels too passive. Gold feels too dependent. Silver feels empowering: 'I set up the system myself (with guidance). Now it runs and I maintain it.' Matches creator identity." },
+              { force: "Force 5: Lowest Regret Risk", desc: "Enough investment to feel committed, low enough to avoid purchase anxiety, enough tangible output (a working system) that buyer's remorse is unlikely." },
+            ].map((f, i) => (
+              <div key={i} style={{ padding: "10px 14px", background: "rgba(0,0,0,0.2)", borderRadius: 6, marginBottom: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#f1f5f9", marginBottom: 3 }}>{f.force}</div>
+                <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>{f.desc}</div>
+              </div>
+            ))}
+          </Card>
+
+          <Card title="What Jordan Will NOT Pay For" confidence={84} accent={CYAN}>
+            <div style={{ display: "grid", gap: 6 }}>
+              {[
+                "Tax courses (they want the problem to GO AWAY, not to learn about it)",
+                "Generic budgeting apps (already tried and failed because variable income)",
+                "Community access alone (don't know you well enough to value a group yet)",
+                "Anything over $29 before first trust transaction",
+                "Anything requiring a 'call to discuss pricing' (instant disqualifier)",
+                "Anything framed as 'financial coaching' or 'financial advice'",
+              ].map((n, i) => (
+                <div key={i} style={{ fontSize: 12, color: "#fca5a5", padding: "8px 12px", background: "rgba(239,68,68,0.06)", borderRadius: 6, lineHeight: 1.5 }}>{n}</div>
+              ))}
+            </div>
+          </Card>
+        </div>);
+
+      case "jordan_convert":
+        return (<div>
+          <Card title="Jordan's Purchase Objections" confidence={85} accent={CYAN}>
+            <p style={{ margin: "0 0 12px", fontSize: 12, color: "#94a3b8" }}>Beyond Brandon's engagement objections. These are wallet-out hesitations.</p>
+            <ObjRow says={`"I don't make enough from my side hustle for taxes to matter."`} counter={`"The IRS threshold is $400. You made $1,200. You owe $330. Here is the math." The number does the reframing. Don't argue. Calculate.`} />
+            <ObjRow says={`"I'll just use TurboTax."`} counter={`"TurboTax files in April. It doesn't save the money throughout the year. Filing is the last step. The first 11 months are the problem nobody solves." Position as what happens BEFORE TurboTax.`} />
+            <ObjRow says={`"I don't want to pay for financial advice."`} counter={`"A $19 report costs less than the late-payment penalty for missing one quarterly deadline." Frame as loss prevention. The alternative to $19 is $200+ in penalties.`} />
+            <ObjRow says={`"This is too complicated. I'm not a business person."`} counter={`"10 minutes to set up. Never touch it again." Show the Autopilot setup in real time on your phone. Complexity dissolves when solution is visibly simple.`} />
+            <ObjRow says={`"$79 is a lot for someone my age."`} counter={`"Your estimated tax bill is $5,200. If you don't set aside money now, that's a $5,200 surprise in April. $79 to prevent that is a 65x return." Compare against cost of inaction, never against $0.`} />
+            <ObjRow says={`"Is this kid qualified to help me with money?"`} counter={`Lean INTO age. "I'm 19 and I built my own financial system because no CPA understood my income. I'm not giving tax advice. I'm showing you the same system I use." Peer credibility > institutional credibility.`} />
+          </Card>
+
+          <Card title="Where Jordan Self-Identifies (Inside Brandon's Audience)" confidence={86} tag="Revenue Signals" accent={CYAN}>
+            {[
+              { signal: "Tool Self-Selection", detail: "When viewer enters income into Budget Calculator or Freedom Calculator, amount and source identifies them. Multiple income sources or $1,500+ from non-W-2: Jordan. COO infrastructure routes to Jordan email path automatically." },
+              { signal: "DM Keyword Escalation", detail: "Jordan DMs tax keywords (PAYDAY, MYNUMBER) and system keywords (AUTOPILOT) more than Brandon, who favors budgeting and investing. Higher keyword variety from a single user signals Jordan." },
+              { signal: "Comment Reveals", detail: "Jordan exposes themselves: 'Does this apply to Fiverr income?' or 'I sell on Depop, does this count as self-employment?' These comments are prospecting gold. Reply with real answer AND CTA." },
+              { signal: "Reselling and Freelance Communities", detail: "Depop seller groups, Fiverr forums, Etsy communities, r/sidehustle, r/Depop, r/flipping. 95% sourcing/pricing talk. The 5% about taxes are panic posts. Your content answers the question the entire community is afraid to ask." },
+            ].map((s, i) => (
+              <div key={i} style={{ padding: "12px 16px", background: "rgba(0,0,0,0.2)", borderRadius: 8, marginBottom: 8, borderLeft: `3px solid ${CYAN}` }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: CYAN, marginBottom: 4 }}>{s.signal}</div>
+                <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.6 }}>{s.detail}</div>
+              </div>
+            ))}
+          </Card>
+
+          <Card title="Decision Trigger Events (Jordan-Specific)" confidence={88} tag="Campaign Calendar" accent={CYAN}>
+            {[
+              { trigger: "IRS Quarterly Deadline", window: "2-4 weeks before", power: "10/10", action: "Send Tax Hypothesis email timed to Apr 15, Jun 15, Sep 15, Jan 15. 4 natural urgency peaks per year." },
+              { trigger: "First 'Big' Side Hustle Payment", window: "Within 48 hours", power: "9/10", action: "Trigger Creator Money Report CTA. They just got paid and don't know what to do with it." },
+              { trigger: "Seeing Their 'Real Number'", window: "Immediate", power: "9/10", action: "This IS The Mirror. Diagnosis creates Silver upgrade pull within 24-72 hours." },
+              { trigger: "Peer Posts About Tax Savings", window: "24 hours", power: "8/10", action: "Social proof: 'This creator saved $4K with one 45-min session.' Instagram Stories format." },
+              { trigger: "Platform Algorithm Tanks Income", window: "1-2 weeks", power: "7.5/10", action: "'Your income dropped. Here's how to protect what you have left.'" },
+              { trigger: "New Year Resolution Window", window: "Dec 15 - Jan 31", power: "7/10", action: "'Start 2026 with your financial OS installed.' Bundle offer timing." },
+            ].map((t, i) => (
+              <div key={i} style={{ padding: "12px 16px", background: "rgba(0,0,0,0.2)", borderRadius: 8, marginBottom: 8 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9" }}>{t.trigger}</span>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: AMBER, fontFamily: "var(--mono)" }}>{t.power}</span>
+                </div>
+                <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
+                  <span style={{ fontSize: 10, background: `${BLUE}18`, color: BLUE, padding: "2px 8px", borderRadius: 4 }}>{t.window}</span>
+                </div>
+                <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>{t.action}</div>
+              </div>
+            ))}
+          </Card>
+        </div>);
+
+      case "bridge":
+        return (<div>
+          <SectionBanner badge="Conversion Architecture" title="The Brandon-to-Jordan Bridge" sub="You do NOT create separate content for Jordan. You create content for Brandon that Jordan recognizes themselves in. The system does the sorting." color={BLUE} />
+
+          <Card title="4 Bridge Mechanisms" confidence={88} tag="Core Logic" accent={BLUE}>
+            {[
+              { n: 1, name: "Shared Origin", desc: "Jordan's budgeting confusion STARTED as Brandon's pain. The part-time paycheck content resonates because Jordan still has that paycheck. The budgeting hook catches Jordan's attention through Brandon's problem.", color: ORANGE },
+              { n: 2, name: "Escalation Recognition", desc: "When Jordan sees 'I made $680 from my part-time job and here is where it goes,' they think 'I make $680 PLUS $1,200 from Fiverr and I definitely have not figured that part out.' Your smaller number triggers their larger calculation.", color: CYAN },
+              { n: 3, name: "Tool Self-Selection", desc: "When a viewer enters income into the Budget Calculator or Freedom Calculator, the number tells the system who they are. Under $1,500/month from one source: Brandon. Multiple income sources or $1,500+: Jordan. Same content, same tool, different follow-up.", color: GREEN },
+              { n: 4, name: "Temporal Conversion", desc: "20-30% of Brandon's audience will start a side hustle within 12 months. They were Brandon when they found you. They become Jordan when money gets complicated. Trust was built during the Brandon phase. The product sale happens naturally during the Jordan phase.", color: AMBER },
+            ].map((m, i) => (
+              <div key={i} style={{ padding: "16px 18px", background: "rgba(0,0,0,0.25)", borderRadius: 8, marginBottom: 10, borderLeft: `3px solid ${m.color}` }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: m.color, fontFamily: "var(--mono)", letterSpacing: "0.06em", marginBottom: 4 }}>Mechanism {m.n}: {m.name}</div>
+                <div style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.6 }}>{m.desc}</div>
+              </div>
+            ))}
+          </Card>
+
+          <Card title="The Jordan Magnet Hook" confidence={87} tag="Content Technique" accent={BLUE}>
+            <p style={{ margin: "0 0 12px" }}>Content aimed at Brandon that lights up Jordan's brain specifically:</p>
+            <div style={{ padding: "16px 18px", background: "rgba(0,0,0,0.3)", borderRadius: 8, border: `1px solid ${AMBER}25` }}>
+              <div style={{ fontSize: 15, fontWeight: 600, color: "#f1f5f9", fontStyle: "italic", lineHeight: 1.5 }}>"If you work a part-time job AND make money on the side, you owe the government twice and they only told you about one."</div>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 8, lineHeight: 1.5 }}>"Part-time job AND money on the side" is Jordan's exact structure. "Owe the government twice" is the surprise. Brandon shares it to friends who resell or freelance. Jordan watches it three times and DMs the keyword.</div>
+            </div>
+          </Card>
+
+          <Card title="Conversion Math" confidence={85} accent={BLUE}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 14, padding: 16, background: "rgba(0,0,0,0.2)", borderRadius: 8 }}>
+              {[
+                { v: "15-25%", l: "Brandon > Jordan", s: "Already IS or becomes" },
+                { v: "6-12mo", l: "Temporal Conversion", s: "Brandon starts side hustle" },
+                { v: "25-40%", l: "Mirror > Machine", s: "Bronze to Silver upgrade" },
+                { v: "50-55%", l: "Silver Purchase Rate", s: "Of all product buyers" },
+              ].map((s, i) => (
+                <div key={i} style={{ textAlign: "center", flex: "1 1 80px" }}>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: BLUE, fontFamily: "var(--mono)" }}>{s.v}</div>
+                  <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginTop: 2 }}>{s.l}</div>
+                  <div style={{ fontSize: 10, color: "#64748b", marginTop: 1 }}>{s.s}</div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Callout text="Brandon fills the audience. Jordan fills the bank account. One content engine serves both. The calculator separates them. The email sequence converts them. You never change your voice." sub="Same Reels. Same tools. Different follow-up based on the number they enter." accent={BLUE} />
+        </div>);
+
+      case "competitors":
+        return (<div>
+          <Card title="Competitive Landscape" confidence={82} tag="Market Intel" accent={AMBER}>
+            {[
+              { name: "Cookie Finance", price: "$300/mo full service, $29/mo essentials", gap: "Massive price gap. Their $300/mo targets $5K+/month creators. Your $19-$249 ladder targets those who can't afford $300/mo yet. You are the on-ramp they don't have. Their $29/mo essentials is LLC + banking, not tax infrastructure. No overlap.", threat: "Low", helps: "Validates the market exists. Their funding ($4.1M) proves investor confidence in creator financial services." },
+              { name: "Traditional CPAs", price: "$200-500/hr", gap: "Can't explain AdSense, don't know 1099-NEC for brand deals, give advice designed for W-2 employees. Creator reviews consistently cite 'my accountant didn't understand my income' as #1 frustration.", threat: "Low", helps: "Their failure IS your origin story. 'No CPA understood my income so I built the system myself.'" },
+              { name: "Finance YouTube", price: "Free", gap: "They teach ABOUT money. You INSTALL systems. They create 'I should' feeling. You close 'but I haven't' gap. None target $14/hr part-time income. All assume $50K+.", threat: "Indirect", helps: "Pre-educates your audience. Their viewers arrive understanding WHY but stuck on HOW. You solve HOW." },
+              { name: "Budgeting Apps (YNAB, Copilot)", price: "$5-15/mo", gap: "All fail for variable income. Discovery Engine Signal #5 proves this: users TRY these and abandon. All assume predictable paychecks. Your offer exists because these don't work for creator income.", threat: "Low", helps: "Every failed user is pre-qualified for your offer. They've already tried the 'normal' solution." },
+              { name: "Caleb Hammer", price: "Free (YouTube)", gap: "Massive college-age viewership. Brutal honesty, entertainment-focused. Nobody leaves his videos with a working automation. They leave motivated and still unsystematic.", threat: "Low", helps: "His audience IS Brandon. His comment section is your hunting ground. You're the 'what to do after Caleb' answer." },
+              { name: "Collective", price: "$299-499/mo", gap: "Targets established solopreneurs ($50K+/year). Full back-office service. Way above Jordan's budget and complexity needs. Different market tier entirely.", threat: "Low", helps: "Where Jordan graduates to when they hit $10K+/month. You're the feeder, not the competitor." },
+            ].map((c, i) => (
+              <div key={i} style={{ padding: "16px 18px", background: "rgba(0,0,0,0.2)", borderRadius: 8, marginBottom: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9" }}>{c.name}</span>
+                  <span style={{ fontSize: 10, fontWeight: 600, background: `${GREEN}18`, color: GREEN, padding: "3px 10px", borderRadius: 12 }}>{c.threat} threat</span>
+                </div>
+                <div style={{ fontSize: 11, color: "#64748b", marginBottom: 6 }}>Price: {c.price}</div>
+                <div style={{ fontSize: 12, color: "#86efac", lineHeight: 1.5, marginBottom: 6 }}><strong style={{ color: GREEN }}>Your Advantage:</strong> {c.gap}</div>
+                <div style={{ fontSize: 12, color: CYAN, lineHeight: 1.5 }}><strong>How They Help You:</strong> {c.helps}</div>
+              </div>
+            ))}
+          </Card>
+
+          <Callout text="You occupy white space nobody fills: the $19-$249 'financial infrastructure installation' tier for side-hustlers and emerging creators. Below Cookie Finance. Above free YouTube. Solving what budgeting apps can't." sub="The bridge between 'I watched a finance video' and 'my money is actually handled'" accent={AMBER} />
+        </div>);
+
+      case "verification":
+        return (<div>
+          <Card title="3 Strongest Ways This Profile Could Be Wrong" confidence={87}>
+            {[
+              { concern: "The dual-audience model may over-segment a continuous spectrum", investigation: "Brandon and Jordan are not clean binary categories. Many users fall between (e.g., occasional Venmo income from tutoring). However, tool-based income entry creates a natural cutoff. Users who enter multiple sources or higher amounts get Jordan path. The system handles ambiguity better than manual segmentation.", verdict: "LOW RISK", color: GREEN },
+              { concern: "Tax infrastructure may be too seasonal for year-round demand", investigation: "IRS quarterly deadlines create 4 urgency peaks (Jan 15, Apr 15, Jun 15, Sep 15). Between peaks, demand drops 40-60%. However, non-tax elements (investing setup, income splitting, monthly reviews) and Brandon's content pillars (budgeting, investing, credit) sustain year-round engagement.", verdict: "MEDIUM RISK", color: "#eab308" },
+              { concern: "Brandon may not convert to Jordan at the 15-25% projected rate", investigation: "This rate assumes meaningful percentage of college students start side income within 12 months. If closer to 8-10%, revenue model takes longer. However, even at 10%, a 20M+ Brandon TAM produces 2M+ potential Jordans. Volume compensates for lower rate. Monitor closely in Phase 1.", verdict: "LOW-MEDIUM RISK", color: "#eab308" },
+            ].map((c, i) => (
+              <div key={i} style={{ padding: "16px 18px", background: "rgba(0,0,0,0.2)", borderRadius: 8, borderLeft: `3px solid ${c.color}`, marginBottom: 10 }}>
+                <div style={{ fontWeight: 700, color: "#fca5a5", fontSize: 13, marginBottom: 8 }}>Concern {i + 1}: {c.concern}</div>
+                <div style={{ fontSize: 12, color: "#cbd5e1", lineHeight: 1.6, marginBottom: 8 }}>{c.investigation}</div>
+                <div style={{ fontSize: 12, padding: "6px 12px", background: `${c.color}15`, borderRadius: 6, color: c.color, fontWeight: 600, display: "inline-block" }}>{c.verdict}</div>
+              </div>
+            ))}
+          </Card>
+
+          <Card title="Final Output" confidence={88}>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 10, color: AMBER, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "var(--mono)", marginBottom: 6 }}>Clear Answer</div>
+              <div style={{ fontSize: 14, color: "#e2e8f0", lineHeight: 1.7 }}>
+                Your business serves two audiences through one content engine. <strong style={{ color: ORANGE }}>Broke-Clock Brandon</strong> (18-22, part-time W-2, $800-$2K/month, 20M+ TAM) is the growth audience who uses free tools and shares content. <strong style={{ color: CYAN }}>Side-Hustle Jordan</strong> (19-26, W-2 + side income, $1.3K-$7K/month combined) is the buyer who purchases The Mirror ($19), The Machine ($79), and The Pit Crew ($249). Brandon feeds the algorithm. Jordan feeds the bank account. 15-25% of Brandon's audience is already Jordan or becomes Jordan within 12 months. The Tax Terrified segment (35-40% of Jordan) is highest-priority with the strongest ROI story.
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 10, color: AMBER, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "var(--mono)", marginBottom: 6 }}>Overall Confidence</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ height: 8, flex: 1, background: `${AMBER}20`, borderRadius: 4, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: "88%", background: `linear-gradient(90deg, ${AMBER}, ${GREEN})`, borderRadius: 4 }} />
+                </div>
+                <span style={{ fontSize: 20, fontWeight: 800, color: GREEN, fontFamily: "var(--mono)" }}>88/100</span>
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: 10, color: AMBER, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "var(--mono)", marginBottom: 8 }}>Key Caveats</div>
+              {[
+                "Profile assumes 250+ email addresses from tool users for validation. Scale batch sizes proportionally if smaller.",
+                "Tax positioning requires legal framing: 'tax calculation and automation setup,' not 'tax advice.'",
+                "Brandon-to-Jordan conversion rate (15-25%) is projected, not validated. Track from Day 1.",
+                "Jordan's $79 Silver price is a hypothesis. Discovery Engine email validation will confirm or adjust.",
+                "Dual-audience model works because tools auto-segment. If tool adoption is low, manual segmentation needed.",
+                "Gen Z financial behavior data is limited. Some claims extrapolated from broader Millennial research.",
+              ].map((c, i) => (
+                <div key={i} style={{ fontSize: 12, color: "#94a3b8", padding: "8px 12px", background: "rgba(0,0,0,0.2)", borderRadius: 6, lineHeight: 1.5, marginBottom: 4 }}>{c}</div>
+              ))}
+            </div>
+          </Card>
+        </div>);
+
+      default: return null;
+    }
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(180deg, #0a0a14 0%, #020612 100%)", fontFamily: "'Inter', -apple-system, sans-serif", color: "#f1f5f9", "--mono": "'JetBrains Mono', monospace" }}>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+
+      <div style={{ padding: "28px 20px 20px", borderBottom: "1px solid rgba(148,163,184,0.06)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <div style={{ width: 10, height: 10, borderRadius: "50%", background: AMBER, boxShadow: `0 0 12px ${AMBER}50` }} />
+          <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: AMBER, fontFamily: "var(--mono)" }}>Kou Talks Money : Market Intelligence</span>
+        </div>
+        <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: "#f1f5f9", fontFamily: "'Outfit', sans-serif", letterSpacing: "-0.02em" }}>
+          Dual-Audience Customer Profile
+        </h1>
+        <p style={{ margin: "6px 0 0", color: "#64748b", fontSize: 12 }}>
+          <span style={{ color: ORANGE }}>Brandon</span> grows the audience. <span style={{ color: CYAN }}>Jordan</span> generates revenue. One engine. Two outcomes.
+        </p>
+      </div>
+
+      <div style={{ display: "flex", overflowX: "auto", gap: 3, padding: "10px 12px", borderBottom: "1px solid rgba(148,163,184,0.04)", WebkitOverflowScrolling: "touch" }}>
+        {sections.map((s) => (
+          <button key={s.id} onClick={() => setActive(s.id)} style={{
+            padding: "7px 12px", borderRadius: 6, border: "none", cursor: "pointer", fontSize: 11, fontWeight: active === s.id ? 700 : 500,
+            color: active === s.id ? "#0a0a14" : "#94a3b8",
+            background: active === s.id ? s.color : "rgba(148,163,184,0.06)",
+            whiteSpace: "nowrap", transition: "all 0.15s", fontFamily: "inherit",
+          }}>
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ padding: "18px 16px 60px", maxWidth: 800, margin: "0 auto" }}>
+        {render()}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(CustomerProfileV2));
+</script>
+</body>
+</html>
