@@ -13,6 +13,7 @@
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+
     
     <script>
         tailwind.config = {
@@ -115,7 +116,6 @@
             100% { box-shadow: 0 0 20px rgba(0, 255, 65, 0.2); }
         }
 
-        /* Mini celebration */
         .mini-celebration {
             position: fixed;
             top: 20%;
@@ -132,7 +132,6 @@
             100% { opacity: 0; transform: translateX(-50%) scale(0.8) translateY(-40px); }
         }
 
-        /* Returning user banner */
         .returning-banner {
             background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,215,0,0.02));
             border: 1px solid rgba(255,215,0,0.3);
@@ -155,7 +154,6 @@
         .returning-banner button:hover { border-color: #FF0000; color: #FF0000; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Validation message */
         .validation-msg {
             font-size: 10px;
             color: #FFA500;
@@ -163,11 +161,126 @@
             padding: 6px 0;
             animation: fadeIn 0.3s ease;
         }
+
+        /* Accordion styles */
+        .accordion-trigger {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .accordion-trigger:hover {
+            background-color: rgba(255, 215, 0, 0.05);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.3s ease;
+            opacity: 0;
+        }
+        .accordion-content.open {
+            max-height: 600px;
+            opacity: 1;
+        }
+
+        /* Smart Router Modal */
+        .router-card {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-align: center;
+        }
+        .router-card:hover {
+            transform: translateY(-2px);
+        }
+        .router-card.gold:hover { border-color: #FFD700; box-shadow: 0 0 20px rgba(255,215,0,0.15); }
+        .router-card.blue:hover { border-color: #00F0FF; box-shadow: 0 0 20px rgba(0,240,255,0.15); }
+        .router-card.green:hover { border-color: #00FF41; box-shadow: 0 0 20px rgba(0,255,65,0.15); }
+
+        /* Defaults badge */
+        .defaults-badge {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            color: #00F0FF;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            animation: fadeIn 0.5s ease;
+        }
+
+
+
+        /* Credibility footer */
+        .credibility-footer {
+            border-top: 1px solid #1a1a1a;
+            padding-top: 20px;
+            margin-top: 24px;
+        }
     </style>
 </head>
 <body class="bg-cyber-black text-white font-sans antialiased min-h-screen flex items-center justify-center p-4">
 
     <main x-data="freedomEngine()" class="w-full max-w-lg">
+
+        <!-- ========================================== -->
+        <!-- OPTIMIZATION #9: SMART ROUTER FOR          -->
+        <!-- RETURNING EMAIL SUBSCRIBERS                -->
+        <!-- ========================================== -->
+        <div x-cloak x-show="showSmartRouter"
+             class="fixed inset-0 z-50 flex items-center justify-center p-4"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100">
+            
+            <div class="absolute inset-0 bg-black/95 backdrop-blur-sm"></div>
+            
+            <div class="relative bg-cyber-dark border border-cyber-gray rounded-2xl p-5 w-full max-w-sm shadow-2xl"
+                 x-transition:enter="transition ease-out duration-300 delay-100"
+                 x-transition:enter-start="opacity-0 scale-90"
+                 x-transition:enter-end="opacity-100 scale-100">
+                
+                <div class="text-center mb-5">
+                    <p class="text-[10px] font-mono text-cyber-gold uppercase tracking-[0.3em] mb-2">Welcome Back</p>
+                    <h2 class="text-xl font-black uppercase tracking-tight text-white">Where To Next?</h2>
+                    <div class="mt-3 flex items-center justify-center gap-4 text-[10px] font-mono">
+                        <div>
+                            <p class="text-cyber-gold font-bold" x-text="formatMoney(savedFreedomNumber)"></p>
+                            <p class="text-gray-500">Freedom #</p>
+                        </div>
+                        <div class="w-px h-6 bg-cyber-gray"></div>
+                        <div>
+                            <p class="font-bold" :class="savedExitColor" x-text="savedExitLabel"></p>
+                            <p class="text-gray-500">Exit Age</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" 
+                       class="router-card gold block">
+                        <p class="text-sm font-black text-cyber-gold uppercase">Build My Portfolio</p>
+                        <p class="text-[10px] text-gray-400 mt-1">Pick your ETFs in the Investment Simplifier</p>
+                    </a>
+                    <a href="https://spacekou5-oss.github.io/cashvault-funnel/command-center.html"
+                       class="router-card blue block">
+                        <p class="text-sm font-black text-cyber-blue uppercase">Command Center</p>
+                        <p class="text-[10px] text-gray-400 mt-1">See your full financial dashboard</p>
+                    </a>
+                    <button @click="dismissSmartRouter()" class="router-card green w-full">
+                        <p class="text-sm font-black text-cyber-green uppercase">Recalculate My Number</p>
+                        <p class="text-[10px] text-gray-400 mt-1">Update inputs and run new projections</p>
+                    </button>
+                </div>
+
+                <p class="text-center text-[9px] text-gray-600 mt-4 font-mono">
+                    Last calculated <span x-text="lastVisitLabel"></span>
+                </p>
+            </div>
+        </div>
 
         <!-- Mini celebration popup -->
         <div x-show="miniCelebrationText" x-cloak class="mini-celebration">
@@ -176,24 +289,42 @@
             </div>
         </div>
 
-        <!-- Returning user banner -->
-        <div x-show="isReturningUser" class="returning-banner">
+        <!-- Returning user banner (no email yet) -->
+        <div x-show="isReturningUser && !isReturningSubscriber" class="returning-banner">
             <div>
-                <div class="banner-text">&#x1F504; Your Freedom Number is loaded.</div>
+                <div class="banner-text">&#x1F504; Your numbers are loaded.</div>
                 <div class="banner-sub">Last calculated <span x-text="lastVisitLabel"></span></div>
             </div>
             <button @click="resetToDefaults()">Start Fresh</button>
         </div>
 
+        <!-- ========================================== -->
+        <!-- HEADER                                     -->
+        <!-- ========================================== -->
         <div class="mb-8 text-center">
             <h1 class="text-3xl font-black tracking-tighter uppercase glitch text-white" data-text="DEFINE YOUR FREEDOM">
                 DEFINE YOUR FREEDOM
             </h1>
             <div class="h-1 w-24 bg-cyber-gold mx-auto mt-4 rounded-full shadow-[0_0_10px_#FFD700]"></div>
+            <p class="text-[10px] text-gray-500 font-mono mt-3 tracking-wide">
+                THE EXACT DOLLAR AMOUNT THAT MAKES A PAYCHECK OPTIONAL. FOREVER.
+            </p>
         </div>
 
-        <!-- Input Card -->
-        <div class="bg-cyber-dark border border-cyber-gray rounded-2xl p-6 mb-6 shadow-2xl space-y-5">
+        <!-- ========================================== -->
+        <!-- OPTIMIZATION #10: PREFILLED DEFAULTS       -->
+        <!-- ========================================== -->
+        <div x-show="isUsingDefaults" x-cloak class="flex items-center justify-center gap-2 mb-3">
+            <span class="defaults-badge">Recommended starting point</span>
+            <button @click="clearDefaults()" class="text-[9px] text-gray-500 hover:text-cyber-gold transition-colors underline cursor-pointer">
+                Clear &amp; enter mine
+            </button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- INPUT CARD                                 -->
+        <!-- ========================================== -->
+        <div class="bg-cyber-dark border border-cyber-gray rounded-2xl p-6 mb-4 shadow-2xl space-y-5">
             
             <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -208,7 +339,7 @@
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cyber-gray">$</span>
                         <input type="number" x-model.number="currentWealth" @input="onInputChange()"
                             class="input-cyber w-full font-mono text-xl p-3 pl-6 rounded-lg text-center placeholder-gray-600"
-                            placeholder="1000">
+                            placeholder="500">
                     </div>
                 </div>
             </div>
@@ -229,20 +360,56 @@
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-cyber-blue font-bold">$</span>
                     <input type="number" x-model.number="monthlyInvest" @input="onInputChange()"
                         class="input-cyber w-full font-mono text-2xl p-4 pl-8 rounded-lg text-white border-cyber-blue/30 focus:border-cyber-blue"
-                        placeholder="500">
+                        placeholder="200">
                 </div>
             </div>
 
-            <!-- FIX #10: Validation message -->
             <div x-show="validationMessage" class="validation-msg" x-text="validationMessage"></div>
         </div>
 
-        <!-- Results Card -->
-        <div class="bg-cyber-dark border border-cyber-gray rounded-2xl p-6 mb-6 relative overflow-hidden"
+        <!-- ========================================== -->
+        <!-- OPTIMIZATION #1-3: HOW THIS WORKS          -->
+        <!-- (Transparency, 8% assumption, disclaimers) -->
+        <!-- ========================================== -->
+        <div class="mb-4">
+            <div class="accordion-trigger flex items-center justify-between bg-cyber-dark border border-cyber-gray rounded-lg px-4 py-3"
+                 @click="showHowItWorks = !showHowItWorks">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">How is this calculated?</span>
+                <svg class="w-3 h-3 text-gray-500 transition-transform" :class="showHowItWorks ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </div>
+            <div class="accordion-content bg-cyber-dark border border-t-0 border-cyber-gray rounded-b-lg px-4 pb-4"
+                 :class="showHowItWorks ? 'open' : ''">
+                <div class="pt-3 space-y-3 text-[11px] text-gray-400 leading-relaxed">
+                    <div>
+                        <p class="text-cyber-gold font-bold uppercase text-[10px] mb-1">The Rule of 25</p>
+                        <p>Your Freedom Number = Desired Monthly Income x 12 months x 25. This is the total invested amount needed so that a 4% annual withdrawal covers your expenses indefinitely. It is the most widely used benchmark in early retirement planning.</p>
+                    </div>
+                    <div>
+                        <p class="text-cyber-gold font-bold uppercase text-[10px] mb-1">The 8% Return</p>
+                        <p>We use 8% average annual return based on the S&amp;P 500 historical performance since 1957. This is a pre-tax, nominal figure. Actual returns vary year to year. Some years are negative, some are 20%+. Over 20+ year horizons, the average converges toward this range.</p>
+                    </div>
+                    <div>
+                        <p class="text-cyber-gold font-bold uppercase text-[10px] mb-1">What This Does NOT Include</p>
+                        <p>This calculator does not deduct taxes, investment fees, or inflation from projections. Real-world returns after these factors are typically 5 to 7%. Your actual timeline may be longer. This is a directional tool, not a guarantee. The point: see your target, then build the vehicle to get there.</p>
+                    </div>
+                    <div>
+                        <p class="text-cyber-gold font-bold uppercase text-[10px] mb-1">How Accurate Is This?</p>
+                        <p>Over short periods (1 to 5 years), projections are unreliable. Markets are volatile. Over long periods (15 to 30+ years), compound growth at 7 to 10% annually has held remarkably consistent in US equity markets. The longer your horizon, the more reliable the math becomes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- RESULTS CARD                               -->
+        <!-- ========================================== -->
+        <div class="bg-cyber-dark border border-cyber-gray rounded-2xl p-6 mb-4 relative overflow-hidden"
              style="contain: layout style;"
              :class="showCelebration ? 'celebration-glow' : ''">
             
-            <!-- Processing overlay (FIX #2: first calc only) -->
+            <!-- Processing overlay (first calc only) -->
             <div x-show="isCalculating" class="absolute inset-0 bg-cyber-dark/95 z-20 flex flex-col items-center justify-center rounded-2xl">
                 <div class="space-y-3 text-center">
                     <div class="w-8 h-8 border-2 border-cyber-gold border-t-transparent rounded-full animate-spin mx-auto"></div>
@@ -252,7 +419,7 @@
 
             <div class="grid grid-cols-1 gap-8 relative z-10">
                 
-                <!-- FIX #3: Placeholder state before first valid calculation -->
+                <!-- Placeholder state -->
                 <div x-show="!hasValidInputs" class="text-center py-8">
                     <p class="text-cyber-gray font-mono text-sm uppercase tracking-widest">Enter your numbers above</p>
                     <p class="text-[10px] text-cyber-gray/50 mt-2">Your Freedom Number appears here.</p>
@@ -267,7 +434,6 @@
                          x-text="formatMoney(freedomNumber)">
                     </div>
                     
-                    <!-- FIX #4: Rule of 25 explainer -->
                     <p class="text-[10px] text-cyber-gray mt-2">
                         <span x-text="formatMoney(desiredIncome || 0)"></span>/mo x 12 x 25 = Freedom
                     </p>
@@ -283,7 +449,6 @@
                          :class="getStatusColor()"
                          x-text="exitAgeDisplay"></div>
                     
-                    <!-- FIX #8: Time-based progress bar -->
                     <div class="w-full bg-black h-2 mt-6 rounded-full overflow-hidden border border-cyber-gray/30">
                         <div class="h-full transition-all duration-1000 ease-out"
                              :class="getStatusBg()"
@@ -293,7 +458,7 @@
                         <span x-text="Math.max(0, Math.round(timeProgressPercent))"></span>% of your journey complete
                     </p>
                     <p class="text-[9px] text-cyber-gray/50 mt-1">
-                        Based on 8% avg. annual return (S&P 500 historical, inflation-adjusted). The right ETFs can push this higher.
+                        Based on 8% avg. annual return (S&amp;P 500 historical). The right ETFs can push this higher.
                     </p>
                 </div>
 
@@ -306,10 +471,12 @@
 
             </div>
             
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyber-blue rounded-full opacity-[0.03] pointer-events-none" style="filter: blur(40px);"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyber-blue rounded-full opacity-[0.03] pointer-events: none;" style="filter: blur(40px);"></div>
         </div>
 
-        <!-- CTA Button (FIX #6: Gated behind valid input) -->
+
+
+        <!-- CTA Button -->
         <div class="space-y-3">
             <button @click="handleCTA()"
                :disabled="!canProceed"
@@ -326,9 +493,34 @@
             </p>
         </div>
 
-        <!-- ============================================== -->
-        <!-- EMAIL GATE: FREEDOM -> INVESTMENT SIMPLIFIER   -->
-        <!-- ============================================== -->
+        <!-- ========================================== -->
+        <!-- OPTIMIZATION #6: CREDIBILITY FOOTER        -->
+        <!-- ========================================== -->
+        <div class="credibility-footer text-center mt-8 pb-8">
+            <div class="flex items-center justify-center gap-2 mb-2">
+                <div class="w-1.5 h-1.5 bg-cyber-gold rounded-full"></div>
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Built by Kou Talks Money</p>
+                <div class="w-1.5 h-1.5 bg-cyber-gold rounded-full"></div>
+            </div>
+            <p class="text-[10px] text-gray-600 leading-relaxed max-w-xs mx-auto">
+                19-year-old building to $1M by Nov 30, 2030. Documenting every dollar, every system, every mistake. Not a guru. An architect proving the math in real time.
+            </p>
+
+            
+            <!-- Disclaimer accordion -->
+            <div class="mt-4">
+                <button @click="showDisclaimer = !showDisclaimer" class="text-[9px] text-gray-600 hover:text-gray-400 transition-colors cursor-pointer uppercase tracking-widest">
+                    Disclaimer <span x-text="showDisclaimer ? '&#9650;' : '&#9660;'"></span>
+                </button>
+                <div x-show="showDisclaimer" x-cloak x-transition class="mt-2 text-[9px] text-gray-600 leading-relaxed max-w-sm mx-auto text-left">
+                    <p>This calculator is for educational and informational purposes only. It is not financial advice, investment advice, or tax advice. Projections are based on historical averages and do not guarantee future results. The 8% annual return assumption reflects long-term S&amp;P 500 historical performance and does not account for taxes, investment fees, inflation, or market volatility. Actual returns may be significantly higher or lower. Consult a licensed financial advisor before making investment decisions. Past performance does not guarantee future results.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- EMAIL GATE MODAL                           -->
+        <!-- ========================================== -->
         <div x-cloak x-show="showModal" 
              class="fixed inset-0 z-50 flex items-center justify-center p-3"
              x-transition:enter="transition ease-out duration-300"
@@ -354,21 +546,19 @@
                 </button>
 
                 <div class="text-center mb-3">
+                    <p class="text-[9px] font-mono text-gray-500 uppercase tracking-[0.2em] mb-1">PHASE 1 COMPLETE: YOUR TARGET IS SET</p>
                     <h2 class="text-xl sm:text-2xl font-black uppercase tracking-tight drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]"
                         :class="yearsToGoal >= 100 || exitAge >= 55 ? 'text-cyber-red' : exitAge < 40 ? 'text-cyber-green' : 'text-cyber-gold'"
                         x-text="modalHeadline">
                     </h2>
-                    <p class="text-cyber-blue font-mono text-[10px] mt-1 uppercase tracking-widest">
-                        Phase 1 Complete &rarr; Phase 2: Portfolio
-                    </p>
+                    <p class="text-[9px] font-mono text-gray-500 uppercase tracking-[0.2em] mt-1">PHASE 2: BUILD THE PORTFOLIO THAT GETS YOU THERE</p>
                 </div>
 
                 <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-3">
-                    <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">Your Numbers:</p>
                     <div class="grid grid-cols-2 gap-2 text-center text-[10px]">
                         <div>
                             <p class="text-cyber-gold font-mono font-bold" x-text="formatMoney(freedomNumber)"></p>
-                            <p class="text-gray-500">Target</p>
+                            <p class="text-gray-500">Your Target</p>
                         </div>
                         <div>
                             <p class="font-mono font-bold" :class="getStatusColor()" x-text="exitAgeDisplay"></p>
@@ -377,36 +567,61 @@
                     </div>
                 </div>
 
+                <!-- Portfolio preview teaser -->
+                <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-3">
+                    <p class="text-[10px] text-cyber-gold uppercase tracking-widest mb-2 text-center font-bold">Your Portfolio Strategy Preview</p>
+                    <div class="flex items-center justify-between text-[10px] mb-2">
+                        <span class="text-gray-400">Risk Profile:</span>
+                        <span class="text-white font-bold" x-text="portfolioStrategy.label"></span>
+                    </div>
+                    <div class="space-y-1.5">
+                        <template x-for="alloc in portfolioStrategy.allocations" :key="alloc.name">
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 bg-black rounded-full h-1.5 overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-500"
+                                         :class="alloc.color"
+                                         :style="'width:' + alloc.pct + '%'"></div>
+                                </div>
+                                <span class="text-[9px] text-gray-400 w-20 text-right" x-text="alloc.pct + '% ' + alloc.name"></span>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="mt-2 pt-2 border-t border-cyber-gray/30 text-center">
+                        <p class="text-[10px] text-gray-500">Top pick for your profile: <span class="text-cyber-gold font-bold" x-text="portfolioStrategy.teaser"></span></p>
+                        <p class="text-[9px] text-gray-600 mt-1">+ 3 more ETFs matched to your age and risk tolerance</p>
+                    </div>
+                </div>
+
                 <div class="text-center mb-3">
                     <p class="text-xs text-gray-300 leading-relaxed" x-text="modalSubhead"></p>
                 </div>
 
+                <!-- Phase progress -->
                 <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-4">
-                    <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">What Happens Next:</p>
+                    <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">Your Progress</p>
                     <div class="flex items-center gap-2 text-[10px]">
                         <div class="flex flex-col items-center">
-                            <div class="w-6 h-6 rounded-full bg-cyber-gold/20 border border-cyber-gold flex items-center justify-center text-cyber-gold font-bold">1</div>
-                            <span class="text-gray-500 mt-1">Email</span>
+                            <div class="w-6 h-6 rounded-full bg-cyber-green/20 border border-cyber-green flex items-center justify-center text-cyber-green font-bold">&#10003;</div>
+                            <span class="text-gray-500 mt-1">Target</span>
+                        </div>
+                        <div class="flex-1 h-px bg-cyber-green"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-6 h-6 rounded-full bg-cyber-gold/30 border-2 border-cyber-gold flex items-center justify-center text-cyber-gold font-bold animate-pulse">2</div>
+                            <span class="text-cyber-gold mt-1 font-bold">Portfolio</span>
                         </div>
                         <div class="flex-1 h-px bg-cyber-gray"></div>
                         <div class="flex flex-col items-center">
-                            <div class="w-6 h-6 rounded-full bg-cyber-blue/20 border border-cyber-blue flex items-center justify-center text-cyber-blue font-bold">2</div>
-                            <span class="text-gray-500 mt-1">Portfolio</span>
-                        </div>
-                        <div class="flex-1 h-px bg-cyber-gray"></div>
-                        <div class="flex flex-col items-center">
-                            <div class="w-6 h-6 rounded-full bg-cyber-green/20 border border-cyber-green flex items-center justify-center text-cyber-green font-bold">3</div>
+                            <div class="w-6 h-6 rounded-full bg-cyber-gray/20 border border-cyber-gray flex items-center justify-center text-gray-500 font-bold">3</div>
                             <span class="text-gray-500 mt-1">Invest</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- FIX #9: Context line above form -->
                 <p class="text-xs text-center text-cyber-gold font-bold mb-2">
                     &darr; Enter your email. Your personalized ETF portfolio loads instantly.
                 </p>
 
-                <!-- BEEHIIV EMBED (with async script + redirect handler) -->
+                <!-- BEEHIIV EMBED -->
                 <div class="flex justify-center pb-2">
                     <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
                     <iframe id="beehiivFrame"
@@ -471,7 +686,6 @@
                 })();
                 </script>
 
-                <!-- FIX #9: "Already submitted?" fallback -->
                 <div class="text-center mt-3 pb-2">
                     <p class="text-[10px] text-gray-500 font-mono tracking-wide mb-2">
                         Instant access. Shows you exactly what to buy. Zero spam.
@@ -492,48 +706,46 @@
     <script>
         function freedomEngine() {
             return {
-                // FIX #3: Start with null fields (empty, user creates their result)
+                // State (null = empty, user fills in)
                 age: null,
                 currentWealth: null,
                 desiredIncome: null,
                 monthlyInvest: null,
                 
-                // Fixed 8% return (S&P 500 historical avg, inflation-adjusted)
                 annualReturn: 0.08,
                 
                 showModal: false,
+                showSmartRouter: false,
+                showHowItWorks: false,
+                showDisclaimer: false,
                 
                 isCalculating: false,
                 calculatingText: '',
-                calculatingSteps: [
-                    'Applying Rule of 25...',
-                    'Factoring market returns...',
-                    'Projecting compound growth...',
-                    'Calculating exit timeline...'
-                ],
                 
                 showCelebration: false,
                 previousExitAge: 999,
                 triggerShockwave: false,
                 miniCelebrationText: '',
 
-                // FIX #2: First calc only theater
                 _hasCalculatedOnce: false,
                 _calcDebounce: null,
                 
-                // Returning user
                 isReturningUser: false,
+                isReturningSubscriber: false,
+                isUsingDefaults: false,
                 lastVisitLabel: '',
+
+                // Smart router cached values
+                savedFreedomNumber: 0,
+                savedExitLabel: '',
+                savedExitColor: 'text-white',
                 
-                // FIX #9: Fallback link timer
                 showFallbackLink: false,
                 _fallbackTimer: null,
-
-                // Cached formatter
                 _moneyFmt: null,
 
                 // ===========================
-                // FIX #1: localStorage PERSISTENCE
+                // PERSISTENCE
                 // ===========================
                 saveResults() {
                     try {
@@ -563,6 +775,19 @@
                         if (data.monthlyInvest) this.monthlyInvest = data.monthlyInvest;
                         this._hasCalculatedOnce = true;
 
+                        // Cache for smart router display
+                        if (data.freedomNumber) this.savedFreedomNumber = data.freedomNumber;
+                        if (data.exitAge) {
+                            const ea = data.exitAge;
+                            if (data.freedomYears >= 100) {
+                                this.savedExitLabel = 'NEVER';
+                                this.savedExitColor = 'text-cyber-red';
+                            } else {
+                                this.savedExitLabel = ea.toFixed(1) + ' YRS';
+                                this.savedExitColor = ea < 40 ? 'text-cyber-green' : ea < 55 ? 'text-cyber-gold' : 'text-cyber-red';
+                            }
+                        }
+
                         if (data.calculatedAt) {
                             const diff = Date.now() - new Date(data.calculatedAt).getTime();
                             const mins = Math.floor(diff / 60000);
@@ -583,11 +808,12 @@
                     this.monthlyInvest = null;
                     this._hasCalculatedOnce = false;
                     this.isReturningUser = false;
+                    this.isReturningSubscriber = false;
+                    this.isUsingDefaults = false;
                     this.previousExitAge = 999;
                     try { localStorage.removeItem('freedom_calculator_result'); } catch(e) {}
                 },
 
-                // FIX #11: Cross-app prefill from Budget Calculator
                 prefillFromBudget() {
                     try {
                         const budgetData = localStorage.getItem('budget_calculator_result');
@@ -599,16 +825,53 @@
                     } catch(e) { return false; }
                 },
 
+                applyDefaults() {
+                    this.age = 20;
+                    this.currentWealth = 500;
+                    this.desiredIncome = 5000;
+                    this.monthlyInvest = 200;
+                    this.isUsingDefaults = true;
+                },
+
+                clearDefaults() {
+                    this.age = null;
+                    this.currentWealth = null;
+                    this.desiredIncome = null;
+                    this.monthlyInvest = null;
+                    this.isUsingDefaults = false;
+                    this._hasCalculatedOnce = false;
+                },
+
+                dismissSmartRouter() {
+                    this.showSmartRouter = false;
+                },
+
                 // ===========================
                 // INIT
                 // ===========================
                 init() {
                     const hasSavedState = this.loadState();
+                    const hasEmailSubscribed = localStorage.getItem('freedom_email') === 'true';
                     
-                    if (hasSavedState) {
+                    if (hasSavedState && hasEmailSubscribed) {
+                        // Returning subscriber: show smart router
+                        this.isReturningUser = true;
+                        this.isReturningSubscriber = true;
+                        this.showSmartRouter = true;
+                    } else if (hasSavedState) {
+                        // Returning user (no email yet): show banner
                         this.isReturningUser = true;
                     } else {
-                        this.prefillFromBudget();
+                        // New user: try budget prefill, then defaults
+                        const hasBudgetData = this.prefillFromBudget();
+                        if (!hasBudgetData) {
+                            this.applyDefaults();
+                        }
+                    }
+
+                    // If we have valid inputs from defaults, run the first-calc animation
+                    if (this.hasValidInputs && !this._hasCalculatedOnce) {
+                        this.$nextTick(() => this.onInputChange());
                     }
 
                     this.$watch('freedomNumber', (value, oldValue) => {
@@ -618,7 +881,6 @@
                         }
                     });
                     
-                    // FIX #7: Progressive celebrations
                     this.$watch('exitAge', (newAge, oldAge) => {
                         if (!this.hasValidInputs || this.yearsToGoal >= 100) return;
                         this.checkMilestones(newAge, oldAge);
@@ -626,17 +888,16 @@
                 },
 
                 // ===========================
-                // FIX #2: Input change handler
+                // INPUT HANDLER
                 // ===========================
                 onInputChange() {
+                    if (this.isUsingDefaults) this.isUsingDefaults = false;
                     if (!this.hasValidInputs) return;
 
                     if (!this._hasCalculatedOnce) {
-                        // First valid calculation: full theater
                         this.runCalculatingAnimation();
                         this._hasCalculatedOnce = true;
                     } else {
-                        // All subsequent: instant, debounced save
                         clearTimeout(this._calcDebounce);
                         this._calcDebounce = setTimeout(() => this.saveResults(), 300);
                     }
@@ -646,7 +907,6 @@
                     this.isCalculating = true;
                     let step = 0;
                     
-                    // Dynamic step 2 based on selected rate
                     const steps = [
                         'Applying Rule of 25...',
                         'Factoring 8% market returns (S&P 500 avg)...',
@@ -669,7 +929,7 @@
                 },
 
                 // ===========================
-                // FIX #7: Progressive celebrations
+                // CELEBRATIONS
                 // ===========================
                 checkMilestones(newAge, oldAge) {
                     if (oldAge >= 30 && newAge < 30) {
@@ -699,7 +959,6 @@
                 makeConfetti() {
                     const colors = ['#00FF41', '#FFD700', '#00F0FF'];
                     const container = document.body;
-                    
                     for (let i = 0; i < 30; i++) {
                         const el = document.createElement('div');
                         el.classList.add('confetti');
@@ -710,19 +969,17 @@
                         el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                         el.style.animationDuration = (Math.random() * 2 + 2) + 's';
                         el.style.animationDelay = (Math.random() * 0.5) + 's';
-                        
                         container.appendChild(el);
                         setTimeout(() => el.remove(), 4000);
                     }
                 },
 
                 // ===========================
-                // FIX #6: CTA gating
+                // CTA
                 // ===========================
                 handleCTA() {
                     if (!this.canProceed) return;
                     this.showModal = true;
-                    // Start fallback timer (show "Already submitted?" after 15 seconds)
                     this.showFallbackLink = false;
                     clearTimeout(this._fallbackTimer);
                     this._fallbackTimer = setTimeout(() => {
@@ -731,17 +988,71 @@
                 },
 
                 // ===========================
+                // PORTFOLIO STRATEGY (Age-Based)
+                // ===========================
+                get portfolioStrategy() {
+                    const a = this.age || 20;
+                    if (a < 25) return {
+                        label: 'Aggressive Growth',
+                        allocations: [
+                            { name: 'Growth', pct: 80, color: 'bg-cyber-green' },
+                            { name: 'Index', pct: 15, color: 'bg-cyber-blue' },
+                            { name: 'Bonds', pct: 5, color: 'bg-cyber-gold' }
+                        ],
+                        teaser: 'VTI (Vanguard Total Stock Market)',
+                        description: 'Your 30+ year horizon is your biggest weapon. Maximum equity exposure with minimal bond drag.'
+                    };
+                    if (a < 35) return {
+                        label: 'Growth',
+                        allocations: [
+                            { name: 'Growth', pct: 70, color: 'bg-cyber-green' },
+                            { name: 'Index', pct: 20, color: 'bg-cyber-blue' },
+                            { name: 'Bonds', pct: 10, color: 'bg-cyber-gold' }
+                        ],
+                        teaser: 'VOO (Vanguard S&P 500)',
+                        description: 'Strong equity foundation with a stabilizing index layer.'
+                    };
+                    if (a < 45) return {
+                        label: 'Balanced Growth',
+                        allocations: [
+                            { name: 'Growth', pct: 55, color: 'bg-cyber-green' },
+                            { name: 'Index', pct: 25, color: 'bg-cyber-blue' },
+                            { name: 'Bonds', pct: 20, color: 'bg-cyber-gold' }
+                        ],
+                        teaser: 'VTI (Vanguard Total Stock Market)',
+                        description: 'Balanced approach: growth engine with a meaningful bond cushion.'
+                    };
+                    if (a < 55) return {
+                        label: 'Conservative Growth',
+                        allocations: [
+                            { name: 'Growth', pct: 40, color: 'bg-cyber-green' },
+                            { name: 'Index', pct: 30, color: 'bg-cyber-blue' },
+                            { name: 'Bonds', pct: 30, color: 'bg-cyber-gold' }
+                        ],
+                        teaser: 'SCHD (Schwab US Dividend)',
+                        description: 'Shifting toward income generation while maintaining growth potential.'
+                    };
+                    return {
+                        label: 'Capital Preservation',
+                        allocations: [
+                            { name: 'Growth', pct: 25, color: 'bg-cyber-green' },
+                            { name: 'Index', pct: 25, color: 'bg-cyber-blue' },
+                            { name: 'Bonds', pct: 50, color: 'bg-cyber-gold' }
+                        ],
+                        teaser: 'BND (Vanguard Total Bond)',
+                        description: 'Prioritizing capital preservation with steady income generation.'
+                    };
+                },
+
+                // ===========================
                 // COMPUTED PROPERTIES
                 // ===========================
-
-                // FIX #3: Check if user has entered valid inputs
                 get hasValidInputs() {
                     return this.age !== null && this.age > 0 &&
                            this.desiredIncome !== null && this.desiredIncome > 0 &&
                            this.monthlyInvest !== null;
                 },
 
-                // FIX #6: Can proceed to email gate
                 get canProceed() {
                     return this.hasValidInputs && 
                            this.age >= 14 && this.age <= 80 &&
@@ -750,7 +1061,6 @@
                            !this.validationMessage;
                 },
 
-                // FIX #10: Input validation
                 get validationMessage() {
                     if (this.age !== null && (this.age < 14 || this.age > 80)) return "Age should be between 14 and 80.";
                     if (this.currentWealth !== null && this.currentWealth < 0) return "Savings can't be negative (but zero is fine).";
@@ -793,7 +1103,6 @@
                     return this.exitAge.toFixed(1) + " YRS";
                 },
 
-                // FIX #8: Time-based progress bar
                 get timeProgressPercent() {
                     if (this.yearsToGoal >= 100 || this.yearsToGoal <= 0) return 0;
                     if (!this.age || this.age < 14) return 0;
