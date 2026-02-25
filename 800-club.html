@@ -189,6 +189,58 @@
         }
         .returning-banner button:hover { border-color: #FF0000; color: #FF0000; }
         @keyframes bannerIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Credit score input screen */
+        .score-input-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 55;
+            background: #111111;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .score-range-track {
+            -webkit-appearance: none;
+            background: transparent;
+            width: 100%;
+            touch-action: pan-x;
+        }
+        .score-range-track::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            border-radius: 3px;
+            background: linear-gradient(to right, #FF0000 0%, #FFA500 30%, #FFD700 60%, #00FF41 85%, #00F0FF 100%);
+        }
+        .score-range-track::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 28px;
+            width: 28px;
+            border-radius: 50%;
+            background: #FFFFFF;
+            border: 2px solid #00F0FF;
+            cursor: pointer;
+            margin-top: -11px;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+        }
+
+        /* Standardized footer */
+        .site-footer {
+            text-align: center;
+            padding: 24px 16px 16px;
+            margin-top: 32px;
+            border-top: 1px solid rgba(51,51,51,0.5);
+        }
+        .site-footer a {
+            color: #00F0FF;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .site-footer a:hover { color: #FFFFFF; }
     </style>
 </head>
 <body class="bg-stealth-bg text-stealth-white font-sans antialiased min-h-screen overflow-x-hidden">
@@ -227,17 +279,88 @@
                     </p>
                 </div>
 
-                <button @click="onboarding = false" 
+                <button @click="exitOnboarding()" 
                         class="group relative inline-flex items-center justify-center px-8 py-4 font-black text-white transition-all duration-200 bg-transparent border-2 border-stealth-blue rounded-none hover:bg-stealth-blue hover:text-black hover:shadow-[0_0_20px_rgba(0,240,255,0.6)] animate-pulse-fast mt-8 cursor-pointer">
                     <span class="mr-2">[</span> INITIATE PROTOCOL <span class="ml-2">]</span>
                 </button>
             </div>
         </div>
 
+        <!-- ========================================== -->
+        <!-- CREDIT SCORE INPUT (Post-Onboarding)       -->
+        <!-- ========================================== -->
+        <div x-show="showScoreInput" x-cloak
+             x-transition:enter="transition ease-out duration-500"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="score-input-screen">
+            
+            <div class="max-w-sm w-full space-y-6 text-center">
+                <div>
+                    <p class="text-[10px] font-mono text-stealth-blue uppercase tracking-[0.3em] mb-2">Optional Intel</p>
+                    <h2 class="text-2xl font-black uppercase tracking-tight text-white">What's your current score?</h2>
+                    <p class="text-[11px] text-stealth-text mt-2">This personalizes your starting point. No account needed.</p>
+                </div>
+
+                <!-- Score display -->
+                <div class="py-4">
+                    <div class="text-6xl font-black font-mono tracking-tight transition-colors duration-200"
+                         :class="getScoreColor(userCreditScore)"
+                         x-text="userCreditScore">
+                    </div>
+                    <p class="text-xs font-bold uppercase tracking-widest mt-2"
+                       :class="getScoreColor(userCreditScore)"
+                       x-text="getScoreLabel(userCreditScore)"></p>
+                </div>
+
+                <!-- Slider -->
+                <div class="px-2">
+                    <input type="range" min="300" max="850" step="10" x-model.number="userCreditScore"
+                           class="score-range-track w-full">
+                    <div class="flex justify-between text-[9px] text-stealth-text font-mono mt-1">
+                        <span>300</span>
+                        <span>500</span>
+                        <span>670</span>
+                        <span>800</span>
+                        <span>850</span>
+                    </div>
+                </div>
+
+                <!-- What this score costs you -->
+                <div class="bg-stealth-card border border-stealth-border rounded-lg p-3" x-show="userCreditScore < 750">
+                    <p class="text-[10px] text-stealth-text uppercase tracking-widest mb-1">What this score costs you:</p>
+                    <p class="text-lg font-black font-mono" :class="userCreditScore < 670 ? 'text-red-500' : 'text-stealth-gold'"
+                       x-text="getScorePenalty(userCreditScore)"></p>
+                    <p class="text-[9px] text-stealth-text mt-1">Extra interest on a $25,000 car loan vs. 800+ score</p>
+                </div>
+
+                <div class="bg-stealth-card border border-stealth-blue/30 rounded-lg p-3" x-show="userCreditScore >= 750">
+                    <p class="text-[10px] text-stealth-blue uppercase tracking-widest mb-1">Your advantage:</p>
+                    <p class="text-sm font-bold text-stealth-blue">You qualify for the lowest rates available. This protocol locks it in.</p>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="space-y-3 pt-2">
+                    <button @click="submitScore()"
+                            class="w-full py-3 rounded-lg font-black uppercase tracking-widest text-sm text-black bg-stealth-blue hover:bg-cyan-400 transition-all cursor-pointer shadow-[0_0_20px_rgba(0,240,255,0.3)]">
+                        Set My Starting Point
+                    </button>
+                    <button @click="skipScore()"
+                            class="w-full py-3 rounded-lg font-bold uppercase tracking-widest text-sm text-stealth-text bg-transparent border border-stealth-border hover:border-stealth-text hover:text-white transition-all cursor-pointer">
+                        I don't know my score yet
+                    </button>
+                    <p class="text-[9px] text-stealth-text/50">Tip: Download Credit Karma (free) to find out. Step 1 on the checklist.</p>
+                </div>
+            </div>
+        </div>
+
         <div class="w-full max-w-lg mx-auto">
             
             <!-- RETURNING USER BANNER -->
-            <div x-show="isReturningUser && !onboarding" class="returning-banner" x-cloak>
+            <div x-show="isReturningUser && !onboarding && !showScoreInput" class="returning-banner" x-cloak>
                 <div>
                     <div class="b-text">&#x1F504; Your progress is loaded.</div>
                     <div class="b-sub"><span x-text="checkedCount"></span>/10 completed. <span x-text="lastVisitLabel"></span></div>
@@ -247,7 +370,7 @@
 
             <!-- STICKY HEADER -->
             <div class="sticky top-0 z-40 bg-stealth-bg/95 backdrop-blur-md border-b border-stealth-border pb-4 pt-4 px-4 shadow-2xl transition-opacity duration-1000"
-                 :class="onboarding ? 'opacity-0' : 'opacity-100'">
+                 :class="onboarding || showScoreInput ? 'opacity-0' : 'opacity-100'">
                 <div class="flex justify-between items-end mb-2">
                     <div>
                         <h1 class="font-mono text-xs text-stealth-text tracking-widest uppercase">Credit Protocol</h1>
@@ -260,9 +383,14 @@
                         </div>
                         <p class="text-[10px] text-stealth-text font-mono" x-text="statusSubtext"></p>
                     </div>
-                    <div class="text-3xl font-black font-mono transition-transform" 
-                         :class="scorePop ? 'animate-score-pop' : ''"
-                         x-text="progress + '%'"></div>
+                    <div class="text-right">
+                        <div class="text-3xl font-black font-mono transition-transform" 
+                             :class="scorePop ? 'animate-score-pop' : ''"
+                             x-text="progress + '%'"></div>
+                        <p x-show="userCreditScore > 0" class="text-[9px] font-mono text-stealth-text mt-0.5">
+                            Credit: <span :class="getScoreColor(userCreditScore)" x-text="userCreditScore"></span>
+                        </p>
+                    </div>
                 </div>
 
                 <div class="w-full h-3 bg-stealth-card rounded-full overflow-hidden border border-stealth-border relative">
@@ -281,7 +409,7 @@
                 </p>
             </div>
 
-            <div class="px-4 mt-6 space-y-3 pb-40" :class="{ 'gold-mode': progress > 100 }">
+            <div class="px-4 mt-6 space-y-3" :class="{ 'gold-mode': progress > 100, 'pb-40': true }">
                 
                 <template x-for="item in items" :key="item.id">
                     <div class="bg-stealth-card border border-stealth-border rounded-xl overflow-hidden hover:border-stealth-blue/30 transition-colors group">
@@ -362,12 +490,22 @@
                     </div>
                 </div>
 
+                <!-- FOOTER -->
+                <footer class="site-footer">
+                    <a href="https://instagram.com/koutalksmoney" target="_blank" rel="noopener noreferrer" class="font-mono text-xs">
+                        @koutalksmoney
+                    </a>
+                    <p class="text-[10px] text-gray-600 mt-2 font-mono">
+                        Built by Kou Talks Money. 2026. All rights reserved.
+                    </p>
+                </footer>
+
             </div>
         </div>
 
         <!-- CTA BAR -->
         <div class="fixed bottom-0 left-0 w-full z-50 p-4 bg-stealth-bg/90 backdrop-blur-md border-t border-stealth-border"
-             x-show="!onboarding"
+             x-show="!onboarding && !showScoreInput"
              x-transition:enter="transition ease-out duration-1000"
              x-transition:enter-start="translate-y-full"
              x-transition:enter-end="translate-y-0">
@@ -470,19 +608,10 @@
                 </div>
                 <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
 
-                <!-- "Already submitted?" fallback -->
                 <div class="text-center mt-2 pb-2">
-                    <p class="text-[10px] text-gray-500 font-mono tracking-wide mb-2">
+                    <p class="text-[10px] text-gray-500 font-mono tracking-wide">
                         Instant access. Your personalized 70/20/10 blueprint. Zero spam.
                     </p>
-                    <div x-show="showFallbackLink" x-cloak>
-                        <p class="text-[10px] text-gray-400 mb-2">Already submitted your email?</p>
-                        <!-- FIX #1: Corrected URL (was Kous-Budget-Calculator.html) -->
-                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/budget-calculator.html" 
-                           class="inline-block text-[11px] font-bold text-stealth-gold hover:text-white transition-colors uppercase tracking-widest">
-                            Open Wealth Blueprint &rarr;
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
@@ -493,7 +622,10 @@
         function creditProtocol() {
             return {
                 onboarding: true,
+                showScoreInput: false,
                 showModal: false,
+                
+                userCreditScore: 650,
                 
                 showRankFlash: false,
                 rankFlashGold: false,
@@ -505,9 +637,6 @@
                 lastVisitLabel: '',
                 
                 modalAutoTriggered: false,
-                
-                showFallbackLink: false,
-                _fallbackTimer: null,
                 
                 items: [
                     { id: 1, title: 'The Spy', desc: 'Download Credit Karma / Experian app.', 
@@ -557,6 +686,52 @@
                 celebrated: false,
 
                 // ===========================
+                // CREDIT SCORE HELPERS
+                // ===========================
+                getScoreColor(score) {
+                    if (score >= 750) return 'text-stealth-blue';
+                    if (score >= 670) return 'text-stealth-gold';
+                    if (score >= 580) return 'text-orange-400';
+                    return 'text-red-500';
+                },
+
+                getScoreLabel(score) {
+                    if (score >= 800) return 'EXCEPTIONAL';
+                    if (score >= 750) return 'EXCELLENT';
+                    if (score >= 700) return 'GOOD';
+                    if (score >= 670) return 'FAIR';
+                    if (score >= 580) return 'BELOW AVERAGE';
+                    return 'NEEDS WORK';
+                },
+
+                getScorePenalty(score) {
+                    if (score >= 750) return '$0 extra';
+                    if (score >= 700) return '+$1,200 extra interest';
+                    if (score >= 670) return '+$2,400 extra interest';
+                    if (score >= 580) return '+$4,800 extra interest';
+                    return '+$7,200+ extra interest';
+                },
+
+                exitOnboarding() {
+                    this.onboarding = false;
+                    // Show score input for new users only
+                    if (!this.isReturningUser) {
+                        this.showScoreInput = true;
+                    }
+                },
+
+                submitScore() {
+                    this.showScoreInput = false;
+                    this.saveProgress();
+                },
+
+                skipScore() {
+                    this.userCreditScore = 0;
+                    this.showScoreInput = false;
+                    this.saveProgress();
+                },
+
+                // ===========================
                 // localStorage PERSISTENCE
                 // ===========================
                 saveProgress() {
@@ -564,6 +739,7 @@
                         const state = {
                             items: this.items.map(i => ({ id: i.id, checked: i.checked })),
                             bonus: this.bonus.checked,
+                            userCreditScore: this.userCreditScore,
                             timestamp: new Date().toISOString()
                         };
                         localStorage.setItem('credit_protocol_state', JSON.stringify(state));
@@ -586,6 +762,7 @@
                             });
                         }
                         if (data.bonus !== undefined) this.bonus.checked = data.bonus;
+                        if (data.userCreditScore !== undefined) this.userCreditScore = data.userCreditScore;
                         
                         if (data.timestamp) {
                             const diff = Date.now() - new Date(data.timestamp).getTime();
@@ -608,6 +785,7 @@
                     this.celebrated = false;
                     this.modalAutoTriggered = false;
                     this.previousStatus = 'GHOST';
+                    this.userCreditScore = 650;
                     try {
                         localStorage.removeItem('credit_protocol_state');
                         localStorage.removeItem('credit_protocol_score');
@@ -628,6 +806,7 @@
                     if (hasSaved && this.progress > 0) {
                         this.isReturningUser = true;
                         this.onboarding = false;
+                        this.showScoreInput = false;
                         this.previousStatus = this.statusText;
                         if (this.progress >= 100) this.celebrated = true;
                     }
@@ -635,16 +814,12 @@
                     this.$watch('showModal', (isOpen) => {
                         if (isOpen) {
                             this.activateRedirectHandler();
-                            this.showFallbackLink = false;
-                            this._fallbackTimer = setTimeout(() => { this.showFallbackLink = true; }, 15000);
                         } else {
                             this.deactivateRedirectHandler();
-                            clearTimeout(this._fallbackTimer);
                         }
                     });
                 },
 
-                // FIX #2: Corrected URL (was Kous-Budget-Calculator.html)
                 doBeehiivRedirect() {
                     if (this._hasRedirected) return;
                     this._hasRedirected = true;
@@ -658,7 +833,6 @@
                 activateRedirectHandler() {
                     const self = this;
 
-                    // Method 1: postMessage listener
                     this._redirectHandler = function(event) {
                         if (!self.showModal) return;
                         if (event.origin && event.origin.includes('beehiiv.com')) {
@@ -680,12 +854,6 @@
                     };
                     window.addEventListener('message', this._redirectHandler);
 
-                    // Method 2: iframe height change observer
-                    // FIX #3: Added 3s cooldown to prevent false trigger from
-                    // Beehiiv embed.js initial resize on load. The async script
-                    // resizes the iframe on render, which was triggering redirect
-                    // before the user typed anything. Now we ignore height changes
-                    // for the first 3 seconds after the modal opens.
                     const iframe = document.getElementById('beehiivFrame');
                     if (iframe) {
                         const initialHeight = iframe.style.height;
