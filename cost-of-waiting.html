@@ -149,9 +149,55 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Already-subscribed popup */
+        .sub-popup {
+            background: linear-gradient(135deg, rgba(0,240,255,0.06), rgba(0,255,65,0.04));
+            border: 1px solid rgba(0,240,255,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+        }
+        .sub-popup .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0,255,65,0.1);
+            border: 1px solid rgba(0,255,65,0.4);
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #00FF41;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+        }
+        .sub-popup .badge .dot {
+            width: 6px; height: 6px;
+            background: #00FF41;
+            border-radius: 50%;
+        }
+
+        /* Footer */
+        .site-footer {
+            text-align: center;
+            padding: 24px 16px 16px;
+            margin-top: 32px;
+            border-top: 1px solid rgba(51,51,51,0.5);
+        }
+        .site-footer a {
+            color: #00F0FF;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .site-footer a:hover { color: #FFFFFF; }
+
     </style>
 </head>
-<body class="bg-cyber-black text-white font-sans antialiased min-h-screen flex items-center justify-center p-4">
+<body class="bg-cyber-black text-white font-sans antialiased min-h-screen flex flex-col items-center justify-center p-4">
 
     <main x-data="costEngine()" class="w-full max-w-lg relative min-h-[600px] flex flex-col justify-center">
 
@@ -222,7 +268,7 @@
              x-cloak
              class="w-full">
 
-            <!-- Returning user banner (FIX #2: skip gatekeeper) -->
+            <!-- Returning user banner (skip gatekeeper) -->
             <div x-show="isReturningUser" class="returning-banner">
                 <div>
                     <div class="banner-text">&#x1F504; Your previous numbers are loaded.</div>
@@ -241,7 +287,7 @@
                 </div>
             </div>
 
-            <!-- Input Card (FIX #6: Added currentWealth field) -->
+            <!-- Input Card -->
             <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 shadow-2xl">
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
@@ -256,12 +302,12 @@
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cyber-gray">$</span>
                             <input type="number" x-model.number="contribution" @input="debounceSave()"
                                 class="w-full bg-black border border-cyber-gray text-white font-mono text-xl p-3 pl-8 rounded focus:outline-none focus:border-white transition-colors text-center"
-                                placeholder="500">
+                                placeholder="100">
                         </div>
                     </div>
                 </div>
 
-                <!-- FIX #6: Saved So Far input -->
+                <!-- Saved So Far input -->
                 <div class="mb-6">
                     <label class="block text-xs font-bold text-cyber-gray uppercase mb-2">Saved So Far</label>
                     <div class="relative">
@@ -278,7 +324,6 @@
                         <label class="text-sm font-bold uppercase tracking-wider text-cyber-red">Years You Wait</label>
                         <span class="text-3xl font-black font-mono text-cyber-red" x-text="waitYears + ' YRS'"></span>
                     </div>
-                    <!-- FIX #4: No recalc overlay. Direct reactive updates. -->
                     <input type="range" min="0" max="10" step="1" x-model.number="waitYears" @input="onSliderChange()" class="w-full mb-2">
                     <p class="text-center text-[10px] text-cyber-gray uppercase mt-2">Slide right to see the damage</p>
                 </div>
@@ -315,7 +360,7 @@
                        x-text="getFeedback()"></p>
                 </div>
 
-                <!-- FIX #8: Daily cost on MAIN screen (not hidden in modal) -->
+                <!-- Daily cost on MAIN screen -->
                 <div x-show="dailyCost > 0" class="mt-4 pt-4 border-t border-dashed border-cyber-gray/50 text-center">
                     <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-1">To Erase This Damage:</p>
                     <div class="text-2xl font-black text-cyber-green font-mono">
@@ -336,8 +381,8 @@
                 </div>
             </div>
 
-            <!-- FIX #7: Responsive CTA (color + text changes with loss amount) -->
-            <button @click="showModal = true" 
+            <!-- Responsive CTA -->
+            <button @click="handleCtaClick()" 
                 class="group block w-full text-center py-4 rounded-xl font-black uppercase tracking-widest transition-all hover:scale-[1.02] cursor-pointer"
                 :class="ctaStyle">
                 <span class="flex items-center justify-center gap-2">
@@ -349,6 +394,54 @@
             <p class="text-center text-[10px] text-cyber-gray mt-4 opacity-50">
                 Assumes 8% annual return (S&P 500 historical average, inflation-adjusted) compounded monthly. Not financial advice.
             </p>
+
+            <!-- ============================================== -->
+            <!-- ALREADY SUBSCRIBED POPUP                       -->
+            <!-- ============================================== -->
+            <div x-cloak x-show="showSubPopup"
+                 class="fixed inset-0 z-[70] flex items-center justify-center p-3"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0">
+
+                <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showSubPopup = false"></div>
+
+                <div class="relative sub-popup"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 scale-90"
+                     x-transition:enter-end="opacity-100 scale-100">
+
+                    <button @click="showSubPopup = false"
+                            class="absolute top-3 right-3 text-cyber-gray/50 hover:text-cyber-gray transition-colors z-10 cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+
+                    <div class="badge"><span class="dot"></span> Progress Saved</div>
+
+                    <h3 class="text-lg font-black text-white uppercase tracking-tight mb-2">
+                        You already unlocked this.
+                    </h3>
+                    <p class="text-xs text-gray-400 mb-5 leading-relaxed">
+                        Your Investment Simplifier access is ready. Pick up where you left off, or keep running numbers here.
+                    </p>
+
+                    <div class="space-y-3">
+                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html"
+                           class="block w-full py-3 rounded-lg font-bold uppercase tracking-widest text-sm text-black bg-cyber-green hover:bg-green-400 transition-all cursor-pointer text-center shadow-[0_0_20px_rgba(0,255,65,0.3)]">
+                            Open Investment Simplifier &#x279C;
+                        </a>
+                        <button @click="showSubPopup = false"
+                                class="block w-full py-3 rounded-lg font-bold uppercase tracking-widest text-sm text-gray-400 bg-transparent border border-cyber-gray hover:border-white hover:text-white transition-all cursor-pointer">
+                            Keep Using Calculator
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <!-- ============================================== -->
             <!-- EMAIL GATE: COST OF WAITING -> INVESTMENT SIMPLIFIER -->
@@ -440,7 +533,7 @@
                                 style="width: 400px; height: 285px; margin: 0; border-radius: 16px 16px 16px 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
                     </div>
 
-                    <!-- BEEHIIV REDIRECT HANDLER: Catches subscribe event and redirects parent window -->
+                    <!-- BEEHIIV REDIRECT HANDLER -->
                     <script>
                     (function() {
                         const REDIRECT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html';
@@ -449,18 +542,14 @@
                         function doRedirect() {
                             if (hasRedirected) return;
                             hasRedirected = true;
-                            // Save state before leaving
                             try {
                                 localStorage.setItem('waiting_completed', 'true');
                                 localStorage.setItem('cost_of_waiting_email', 'true');
                             } catch(e) {}
-                            // Redirect the PARENT window, not the iframe
                             window.top.location.href = REDIRECT_URL;
                         }
 
-                        // METHOD 1: Listen for postMessage from Beehiiv iframe
                         window.addEventListener('message', function(event) {
-                            // Beehiiv sends various message formats on subscribe
                             if (event.origin && event.origin.includes('beehiiv.com')) {
                                 const data = event.data;
                                 if (typeof data === 'string') {
@@ -479,7 +568,6 @@
                             }
                         });
 
-                        // METHOD 2: Detect iframe height change (Beehiiv embed.js resizes on success)
                         const iframe = document.getElementById('beehiivFrame');
                         if (iframe) {
                             let initialHeight = iframe.style.height;
@@ -488,8 +576,6 @@
                                     if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                                         const newHeight = iframe.style.height;
                                         if (newHeight !== initialHeight && initialHeight) {
-                                            // Height changed = form state changed (likely submitted)
-                                            // Wait a beat to let Beehiiv process
                                             setTimeout(doRedirect, 1500);
                                         }
                                     }
@@ -511,15 +597,28 @@
 
         </div>
 
+        <!-- ========================================= -->
+        <!-- FOOTER: Brand Attribution                 -->
+        <!-- ========================================= -->
+        <footer class="site-footer w-full" x-show="state === 'active'">
+            <a href="https://instagram.com/koutalksmoney" target="_blank" rel="noopener noreferrer" class="font-mono text-xs">
+                @koutalksmoney
+            </a>
+            <p class="text-[10px] text-gray-600 mt-2 font-mono">
+                Built by Kou Talks Money. 2026. All rights reserved.
+            </p>
+        </footer>
+
     </main>
 
     <script>
         function costEngine() {
             return {
                 showModal: false,
+                showSubPopup: false,
                 age: 20,
-                contribution: 500,
-                currentWealth: 0, // FIX #6: Saved So Far field
+                contribution: 100,
+                currentWealth: 0,
                 waitYears: 0,
                 
                 state: 'idle', 
@@ -541,7 +640,7 @@
                 saveDebounceTimer: null,
 
                 // ===========================
-                // FIX #1: localStorage PERSISTENCE
+                // localStorage PERSISTENCE
                 // ===========================
                 saveState() {
                     const data = {
@@ -571,7 +670,6 @@
                         if (data.waitYears !== undefined) this.waitYears = data.waitYears;
                         this.previousWaitYears = this.waitYears;
                         
-                        // Calculate "last visit" label
                         if (data.calculatedAt) {
                             const diff = Date.now() - new Date(data.calculatedAt).getTime();
                             const mins = Math.floor(diff / 60000);
@@ -585,7 +683,6 @@
                     } catch(e) { return false; }
                 },
 
-                // Debounced save for input fields (300ms)
                 debounceSave() {
                     if (this.saveDebounceTimer) clearTimeout(this.saveDebounceTimer);
                     this.saveDebounceTimer = setTimeout(() => this.saveState(), 300);
@@ -593,7 +690,7 @@
 
                 resetToDefaults() {
                     this.age = 20;
-                    this.contribution = 500;
+                    this.contribution = 100;
                     this.currentWealth = 0;
                     this.waitYears = 1;
                     this.previousWaitYears = 1;
@@ -603,7 +700,7 @@
                 },
 
                 // ===========================
-                // FIX #11: Cross-app Freedom Calculator prefill
+                // Cross-app Freedom Calculator prefill
                 // ===========================
                 prefillFromFreedomCalc() {
                     try {
@@ -618,18 +715,31 @@
                 },
 
                 // ===========================
-                // INIT: Smart routing (FIX #2)
+                // CTA click handler: routes based on subscription status
+                // ===========================
+                handleCtaClick() {
+                    try {
+                        const alreadySubscribed = localStorage.getItem('cost_of_waiting_email') === 'true';
+                        if (alreadySubscribed) {
+                            this.showSubPopup = true;
+                        } else {
+                            this.showModal = true;
+                        }
+                    } catch(e) {
+                        this.showModal = true;
+                    }
+                },
+
+                // ===========================
+                // INIT: Smart routing
                 // ===========================
                 init() {
-                    // FIX #2: Returning user detection
                     const hasSavedState = this.loadState();
                     
                     if (hasSavedState) {
-                        // Returning user: skip gatekeeper + processing entirely
                         this.isReturningUser = true;
                         this.state = 'active';
                         this.displayLoss = 0;
-                        // Single deferred animation after Alpine renders
                         requestAnimationFrame(() => {
                             this.animateLossCounter(0, this.loss);
                             if (this.loss > 500000) {
@@ -637,23 +747,19 @@
                             }
                         });
                     } else {
-                        // First visit: check for Freedom Calculator data
                         this.prefillFromFreedomCalc();
                     }
 
-                    // Watch loss for reactive animations
                     this.$watch('loss', (newLoss, oldLoss) => {
                         if (this.state !== 'active') return;
                         this.animateLossCounter(oldLoss, newLoss);
                         
-                        // Stable shake: set once when threshold crossed, clear after animation
                         if (newLoss > 500000 && !this.isShaking) {
                             this.isShaking = true;
                         } else if (newLoss <= 500000) {
                             this.isShaking = false;
                         }
                         
-                        // Defer damage flash to next frame to avoid DOM mutation storm
                         if (newLoss > 500000 && oldLoss <= 500000) {
                             requestAnimationFrame(() => this.triggerDamageFlash());
                         }
@@ -665,7 +771,6 @@
                         cancelAnimationFrame(this.lossAnimationFrame);
                     }
                     
-                    // Shorter animation during rapid slider interaction
                     const now = performance.now();
                     const timeSinceLastAnim = now - (this._lastAnimStart || 0);
                     const duration = timeSinceLastAnim < 300 ? 200 : 600;
@@ -697,14 +802,13 @@
                     }, 600);
                 },
                 
-                // FIX #4: No overlay. Debounced save. Smooth slider.
                 onSliderChange() {
                     this.previousWaitYears = this.waitYears;
                     this.debounceSave();
                 },
 
                 // ===========================
-                // FIX #5: Honest processing theater
+                // Processing theater
                 // ===========================
                 ignite() {
                     this.state = 'processing';
@@ -736,7 +840,7 @@
                 },
 
                 // ===========================
-                // FIX #10: Standardized 8% return
+                // Core math
                 // ===========================
                 retirementAge: 65,
                 annualRate: 0.08,
@@ -755,22 +859,18 @@
                     return daily;
                 },
 
-                // FIX #6: calculateFV now includes currentWealth compounding
                 calculateFV(startAge) {
                     if (startAge >= this.retirementAge) return 0;
                     const years = this.retirementAge - startAge;
                     const months = years * 12;
                     const monthlyRate = this.annualRate / 12;
                     
-                    // Future value of existing savings
                     const fvSavings = (this.currentWealth || 0) * Math.pow(1 + monthlyRate, months);
-                    // Future value of monthly contributions
                     const fvContributions = (this.contribution || 0) * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
                     
                     return fvSavings + fvContributions;
                 },
 
-                // FIX #9: Gen Z feedback copy (rent, loans, house, retirement)
                 getFeedback() {
                     const loss = this.displayLoss;
                     if (loss === 0) return "YOU ARE ON TRACK. STAY LOCKED IN.";
@@ -789,7 +889,6 @@
                     return "Steep. But doing nothing costs more.";
                 },
 
-                // FIX #7: Responsive CTA (color + text matches emotional state)
                 get ctaText() {
                     if (this.loss === 0) return "\u{1F4CA} SEE YOUR ETF PORTFOLIO";
                     if (this.loss < 100000) return "\u{1F527} START BEFORE IT GETS WORSE";
@@ -803,7 +902,6 @@
                     return 'bg-cyber-red hover:bg-red-600 text-white shadow-[0_0_20px_rgba(255,0,0,0.4)] animate-pulse-fast';
                 },
 
-                // Cached formatter (created ONCE, reused on every call)
                 _moneyFmt: null,
                 formatMoney(value) {
                     if (isNaN(value) || !isFinite(value) || value === null) return "$0";
