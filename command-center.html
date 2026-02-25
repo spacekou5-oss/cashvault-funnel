@@ -65,6 +65,23 @@
         }
 
         /* ===================== */
+        /* CELEBRATION PARTICLES */
+        /* ===================== */
+        .celebration-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9000; overflow: hidden;
+        }
+        .c-particle {
+            position: absolute; border-radius: 50%;
+            animation: c-particle-burst 1.8s ease-out forwards;
+        }
+        .c-particle.square { border-radius: 2px; }
+        @keyframes c-particle-burst {
+            0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0) rotate(var(--rot)); }
+        }
+
+        /* ===================== */
         /* ACCESS GATE           */
         /* ===================== */
         .access-gate {
@@ -169,8 +186,9 @@
         }
         .gate-id-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--accent-gold-glow); }
         .gate-error { color: var(--danger); font-size: 0.75rem; margin-top: 8px; display: none; text-align: left; }
-        .gate-footer { margin-top: 24px; font-size: 0.65rem; color: var(--text-muted); }
-        .gate-footer a { color: var(--accent-green); text-decoration: none; }
+        .gate-footer { margin-top: 24px; }
+        .gate-footer a { color: var(--accent-green); text-decoration: none; font-size: 0.75rem; }
+        .gate-footer-copy { font-size: 0.65rem; color: var(--text-muted); margin-top: 6px; }
 
         @media (max-width: 700px) {
             .gate-title { font-size: 1.7rem; }
@@ -232,11 +250,6 @@
 
         /* ============================================
            ECOSYSTEM PROCESSING THEATER
-           Fires for users who completed any app
-           but do NOT have an Architect ID yet.
-           Scans localStorage, shows what they built,
-           assigns temp ID, reveals dashboard.
-           Idleness Aversion + Operational Transparency.
         ============================================ */
         .ecosystem-theater {
             position: fixed; inset: 0; background: var(--bg-primary); z-index: 2000;
@@ -307,7 +320,7 @@
         /* HEADER */
         .header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border);
+            margin-bottom: 8px; padding-bottom: 20px; border-bottom: 1px solid var(--border);
         }
         .header-left { display: flex; align-items: center; gap: 15px; }
         .logo {
@@ -339,6 +352,17 @@
         }
         .architect-badge:hover {
             border-color: var(--accent-gold); background: var(--accent-gold-dim);
+        }
+
+        /* FIX 3: Dashboard brand attribution line */
+        .dashboard-brand-line {
+            text-align: center; padding: 6px 0 18px;
+        }
+        .dashboard-brand-line span {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem; font-weight: 600;
+            color: rgba(34, 197, 94, 0.4);
+            letter-spacing: 0.08em;
         }
 
         /* WELCOME BANNER */
@@ -630,9 +654,14 @@
         .share-card-brand { font-size: 0.7rem; color: var(--text-muted); }
         .share-instructions { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 15px; }
 
-        .footer { margin-top: 35px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; }
-        .footer-brand { font-size: 0.7rem; color: var(--text-muted); }
-        .footer-brand a { color: var(--accent-green); text-decoration: none; }
+        /* === STANDARDIZED FOOTER === */
+        .site-footer {
+            margin-top: 35px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center;
+        }
+        .site-footer a { color: var(--accent-green); text-decoration: none; font-size: 0.75rem; font-weight: 600; }
+        .site-footer .footer-copy {
+            font-size: 0.65rem; color: var(--text-muted); margin-top: 8px;
+        }
 
         .all-complete {
             background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, var(--bg-card) 100%);
@@ -729,7 +758,10 @@
                     </div>
                     <p class="gate-error" id="gateError">Invalid ID format. Must be KOU- followed by 6 characters.</p>
                 </div>
-                <div class="gate-footer">Built by <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a></div>
+                <div class="gate-footer">
+                    <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a>
+                    <p class="gate-footer-copy">Built by Kou Talks Money. 2026. All rights reserved.</p>
+                </div>
             </div>
 
             <div class="gate-verify-state" id="gateVerifyState">
@@ -756,14 +788,7 @@
         </div>
     </div>
 
-    <!-- ============================================
-         ECOSYSTEM PROCESSING THEATER
-         PATH D: Users who completed any app but
-         do NOT have an Architect ID. Scans their
-         localStorage, shows what they built,
-         assigns temp ID, reveals dashboard.
-         No email gate. No ID input. Straight through.
-    ============================================ -->
+    <!-- ECOSYSTEM PROCESSING THEATER -->
     <div class="ecosystem-theater hidden" id="ecosystemTheater">
         <div class="eco-theater-icon">
             <div class="eco-theater-ring"></div>
@@ -861,6 +886,11 @@
             </div>
         </div>
 
+        <!-- FIX 3: Brand attribution in dashboard screenshot zone -->
+        <div class="dashboard-brand-line">
+            <span>@koutalksmoney</span>
+        </div>
+
         <div class="welcome-banner" id="welcomeBanner">
             <div class="welcome-banner-icon">&#x26A1;</div>
             <div class="welcome-banner-content">
@@ -946,12 +976,50 @@
             </div>
         </div>
 
-        <div class="footer">
-            <div class="footer-brand">Built by <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a></div>
-        </div>
+        <!-- FIX 2: Standardized footer -->
+        <footer class="site-footer">
+            <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a>
+            <p class="footer-copy">Built by Kou Talks Money. 2026. All rights reserved.</p>
+        </footer>
     </div>
 
     <script>
+        /* ================================================
+           CELEBRATION PARTICLES (FIX 1)
+           Fires on successful sign-in from any path.
+           Multi-shape burst from center of screen.
+           ================================================ */
+        function triggerCelebration() {
+            var container = document.createElement('div');
+            container.className = 'celebration-container';
+            document.body.appendChild(container);
+            var colors = ['#22c55e', '#fbbf24', '#8b5cf6', '#3b82f6', '#ec4899', '#10b981'];
+            var cx = window.innerWidth / 2;
+            var cy = window.innerHeight / 3;
+
+            for (var i = 0; i < 50; i++) {
+                (function(idx) {
+                    setTimeout(function() {
+                        var p = document.createElement('div');
+                        p.className = 'c-particle' + (Math.random() > 0.6 ? ' square' : '');
+                        p.style.left = cx + 'px';
+                        p.style.top = cy + 'px';
+                        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+                        var size = (Math.random() * 10 + 4) + 'px';
+                        p.style.width = size;
+                        p.style.height = size;
+                        var angle = Math.random() * Math.PI * 2;
+                        var dist = 100 + Math.random() * 250;
+                        p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+                        p.style.setProperty('--ty', (Math.sin(angle) * dist - 60) + 'px');
+                        p.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+                        container.appendChild(p);
+                    }, idx * 20);
+                })(i);
+            }
+            setTimeout(function() { container.remove(); }, 3000);
+        }
+
         var CONFIG = {
             AUTOPILOT_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html',
             FREEDOM_CALCULATOR_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html',
@@ -1044,13 +1112,6 @@
         function isBridgeUser() { return localStorage.getItem('vault_email_captured') === 'true'; }
         function isTempId(id) { return id && id.length === 10 && id.substring(0, 5) === 'KOU-T'; }
 
-        // ==============================================
-        // ECOSYSTEM DETECTION (PATH D)
-        // Scans localStorage for ANY evidence of app
-        // usage: completion flags, email captures,
-        // stored results. If ANY flag exists, user
-        // has touched the ecosystem and skips the gate.
-        // ==============================================
         function hasEcosystemActivity() {
             var flags = [
                 'freedom_completed', 'freedom_calculator_result', 'freedom_email',
@@ -1067,7 +1128,6 @@
             return false;
         }
 
-        // Returns array of detected tool completions for theater display
         function getEcosystemCompletions() {
             var found = [];
             var checks = [
@@ -1091,13 +1151,6 @@
             return found;
         }
 
-        // ==============================================
-        // ECOSYSTEM PROCESSING THEATER
-        // 5-step strategic delay for ecosystem users
-        // without an Architect ID. Scans their data,
-        // shows what they built, assigns temp ID.
-        // Idleness Aversion + Operational Transparency.
-        // ==============================================
         function runEcosystemTheater(tempId) {
             var gate = document.getElementById('accessGate');
             gate.classList.remove('show');
@@ -1120,12 +1173,10 @@
                 if (n < completions.length - 1) names += ', ';
             }
 
-            // Calculate velocity and level for display
             var velScore = '1.0x';
             if (count >= 5) velScore = '1.5x';
             else if (count >= 3) velScore = '1.25x';
             else if (count >= 2) velScore = '1.1x';
-            else if (count >= 1) velScore = '1.0x';
 
             var level = 'Bronze';
             if (count >= 7) level = 'Elite';
@@ -1133,41 +1184,11 @@
             else if (count >= 3) level = 'Silver';
 
             var steps = [
-                {
-                    title: 'Scanning ecosystem...',
-                    step: 'Checking for active tools...',
-                    pct: 20,
-                    label: null,
-                    value: null
-                },
-                {
-                    title: 'Found ' + count + ' active tool' + (count !== 1 ? 's' : '') + '.',
-                    step: 'Loading completion data...',
-                    pct: 45,
-                    label: 'Tools Detected',
-                    value: names || 'Ecosystem activity detected'
-                },
-                {
-                    title: 'Calculating Wealth Velocity...',
-                    step: 'Analyzing your progress...',
-                    pct: 70,
-                    label: 'Your Status',
-                    value: 'Velocity: ' + velScore + '  |  Level: ' + level + '  |  ' + count + '/7 tools active'
-                },
-                {
-                    title: 'Assigning Architect ID...',
-                    step: 'Generating temporary credentials...',
-                    pct: 90,
-                    label: 'Your Architect ID',
-                    value: tempId + '  (complete Autopilot to claim permanent ID)'
-                },
-                {
-                    title: 'Dashboard ready.',
-                    step: 'Access granted.',
-                    pct: 100,
-                    label: null,
-                    value: null
-                }
+                { title: 'Scanning ecosystem...', step: 'Checking for active tools...', pct: 20, label: null, value: null },
+                { title: 'Found ' + count + ' active tool' + (count !== 1 ? 's' : '') + '.', step: 'Loading completion data...', pct: 45, label: 'Tools Detected', value: names || 'Ecosystem activity detected' },
+                { title: 'Calculating Wealth Velocity...', step: 'Analyzing your progress...', pct: 70, label: 'Your Status', value: 'Velocity: ' + velScore + '  |  Level: ' + level + '  |  ' + count + '/7 tools active' },
+                { title: 'Assigning Architect ID...', step: 'Generating temporary credentials...', pct: 90, label: 'Your Architect ID', value: tempId + '  (complete Autopilot to claim permanent ID)' },
+                { title: 'Dashboard ready.', step: 'Access granted.', pct: 100, label: null, value: null }
             ];
 
             var i = 0;
@@ -1191,17 +1212,13 @@
                     setTimeout(function() {
                         theater.classList.add('hidden');
                         document.getElementById('mainDashboard').style.display = 'block';
+                        triggerCelebration(); /* FIX 1: Celebration on theater complete */
                         initDashboard();
                     }, 500);
                 }
             }, 950);
         }
 
-        // ==============================================
-        // VERIFICATION CEREMONY (Autopilot ID users)
-        // Unchanged from original. Runs 3-step animated
-        // verification for users with a real KOU-ID.
-        // ==============================================
         function runVerificationCeremony(architectId) {
             var gate = document.getElementById('accessGate');
             var gateContent = document.getElementById('gateContent');
@@ -1226,25 +1243,15 @@
             setTimeout(function() { step2.classList.remove('active'); step2.classList.add('done'); step2.querySelector('.step-dot').textContent = '\u2713'; }, 1800);
             setTimeout(function() { verifyBar.style.width = '100%'; verifyStatus.textContent = 'Access granted.'; verifyStatus.style.color = 'var(--accent-green)'; step3.classList.add('active'); }, 1900);
             setTimeout(function() { step3.classList.remove('active'); step3.classList.add('done'); step3.querySelector('.step-dot').textContent = '\u2713'; }, 2400);
-            setTimeout(function() { gate.classList.remove('show'); document.getElementById('mainDashboard').style.display = 'block'; initDashboard(); }, 2700);
+            setTimeout(function() {
+                gate.classList.remove('show');
+                document.getElementById('mainDashboard').style.display = 'block';
+                triggerCelebration(); /* FIX 1: Celebration on ceremony complete */
+                initDashboard();
+            }, 2700);
         }
 
-        // ==============================================
-        // ACCESS CHECK (5 paths, 1 ceremony, 1 theater)
-        //
-        // PATH A: ?id= query param from Autopilot
-        //         -> ceremony -> dashboard
-        // PATH B: Stored Architect ID (returning user)
-        //         -> ceremony -> dashboard
-        // PATH C: Bridge user (vault_email_captured)
-        //         -> temp ID -> ceremony -> dashboard
-        // PATH D: Ecosystem user (any app activity, no ID)
-        //         -> temp ID -> processing theater -> dashboard
-        // PATH E: Cold visitor (zero activity)
-        //         -> show gate with blurred preview
-        // ==============================================
         function checkAccess() {
-            // PATH A: ?id= query param from Autopilot bridge
             var urlParams = new URLSearchParams(window.location.search);
             var paramId = urlParams.get('id');
             if (paramId) {
@@ -1258,14 +1265,12 @@
                 }
             }
 
-            // PATH B: Returning user (ID in localStorage)
             var storedId = localStorage.getItem('cashvault_architect_id') || localStorage.getItem('command_center_architect_id');
             if (storedId) {
                 runVerificationCeremony(storedId);
                 return 'ceremony';
             }
 
-            // PATH C: Bridge user (Prompt Vault email capture)
             if (isBridgeUser()) {
                 var tempId = localStorage.getItem('command_center_temp_id');
                 if (!tempId) { tempId = generateTempArchitectId(); localStorage.setItem('command_center_temp_id', tempId); }
@@ -1274,8 +1279,6 @@
                 return 'ceremony';
             }
 
-            // PATH D: Ecosystem user (completed any app, no ID yet)
-            // No gate. No email. Strategic theater, then dashboard.
             if (hasEcosystemActivity()) {
                 var ecoTempId = localStorage.getItem('command_center_temp_id');
                 if (!ecoTempId) { ecoTempId = generateTempArchitectId(); localStorage.setItem('command_center_temp_id', ecoTempId); }
@@ -1284,7 +1287,6 @@
                 return 'theater';
             }
 
-            // PATH E: Cold visitor. Show bio-link gate with blurred preview.
             document.getElementById('mainDashboard').style.display = 'none';
             document.getElementById('gateContent').style.display = 'block';
             document.getElementById('gatePreview').style.display = 'block';
@@ -1420,7 +1422,6 @@
             var btnEl = document.getElementById('welcomeBannerBtn');
             var btnTextEl = document.getElementById('welcomeBannerBtnText');
 
-            // Show banner for bridge users AND ecosystem theater users (temp ID holders)
             if (!isBridgeUser() && !isTempId(currentArchitectId)) { banner.classList.remove('show'); return; }
 
             if (!localStorage.getItem('bridge_entry_tool_count')) {
@@ -1668,6 +1669,7 @@
             document.getElementById('infoModalContent').innerHTML = '';
             document.getElementById('infoModalPrimaryBtn').style.display = 'none';
             modal.classList.add('show');
+            triggerCelebration(); /* FIX 1: Celebration on unlock success too */
             setTimeout(function() { modal.classList.remove('show'); }, 2000);
         }
 
