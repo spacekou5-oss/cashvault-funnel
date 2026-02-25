@@ -212,14 +212,20 @@
             animation: fadeIn 0.5s ease;
         }
 
-
-
-        /* Credibility footer */
-        .credibility-footer {
-            border-top: 1px solid #1a1a1a;
-            padding-top: 20px;
-            margin-top: 24px;
+        /* Standardized footer */
+        .site-footer {
+            text-align: center;
+            padding: 24px 16px 16px;
+            margin-top: 32px;
+            border-top: 1px solid rgba(51,51,51,0.5);
         }
+        .site-footer a {
+            color: #00F0FF;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .site-footer a:hover { color: #FFFFFF; }
     </style>
 </head>
 <body class="bg-cyber-black text-white font-sans antialiased min-h-screen flex items-center justify-center p-4">
@@ -227,8 +233,7 @@
     <main x-data="freedomEngine()" class="w-full max-w-lg">
 
         <!-- ========================================== -->
-        <!-- OPTIMIZATION #9: SMART ROUTER FOR          -->
-        <!-- RETURNING EMAIL SUBSCRIBERS                -->
+        <!-- SMART ROUTER FOR RETURNING EMAIL SUBS      -->
         <!-- ========================================== -->
         <div x-cloak x-show="showSmartRouter"
              class="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -312,7 +317,7 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- OPTIMIZATION #10: PREFILLED DEFAULTS       -->
+        <!-- PREFILLED DEFAULTS BADGE                   -->
         <!-- ========================================== -->
         <div x-show="isUsingDefaults" x-cloak class="flex items-center justify-center gap-2 mb-3">
             <span class="defaults-badge">Recommended starting point</span>
@@ -368,8 +373,7 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- OPTIMIZATION #1-3: HOW THIS WORKS          -->
-        <!-- (Transparency, 8% assumption, disclaimers) -->
+        <!-- HOW THIS WORKS ACCORDION                   -->
         <!-- ========================================== -->
         <div class="mb-4">
             <div class="accordion-trigger flex items-center justify-between bg-cyber-dark border border-cyber-gray rounded-lg px-4 py-3"
@@ -474,8 +478,6 @@
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyber-blue rounded-full opacity-[0.03] pointer-events: none;" style="filter: blur(40px);"></div>
         </div>
 
-
-
         <!-- CTA Button -->
         <div class="space-y-3">
             <button @click="handleCTA()"
@@ -494,19 +496,16 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- OPTIMIZATION #6: CREDIBILITY FOOTER        -->
+        <!-- FOOTER: Standardized Brand Attribution     -->
         <!-- ========================================== -->
-        <div class="credibility-footer text-center mt-8 pb-8">
-            <div class="flex items-center justify-center gap-2 mb-2">
-                <div class="w-1.5 h-1.5 bg-cyber-gold rounded-full"></div>
-                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Built by Kou Talks Money</p>
-                <div class="w-1.5 h-1.5 bg-cyber-gold rounded-full"></div>
-            </div>
-            <p class="text-[10px] text-gray-600 leading-relaxed max-w-xs mx-auto">
-                19-year-old building to $1M by Nov 30, 2030. Documenting every dollar, every system, every mistake. Not a guru. An architect proving the math in real time.
+        <footer class="site-footer">
+            <a href="https://instagram.com/koutalksmoney" target="_blank" rel="noopener noreferrer" class="font-mono text-xs">
+                @koutalksmoney
+            </a>
+            <p class="text-[10px] text-gray-600 mt-2 font-mono">
+                Built by Kou Talks Money. 2026. All rights reserved.
             </p>
 
-            
             <!-- Disclaimer accordion -->
             <div class="mt-4">
                 <button @click="showDisclaimer = !showDisclaimer" class="text-[9px] text-gray-600 hover:text-gray-400 transition-colors cursor-pointer uppercase tracking-widest">
@@ -516,7 +515,7 @@
                     <p>This calculator is for educational and informational purposes only. It is not financial advice, investment advice, or tax advice. Projections are based on historical averages and do not guarantee future results. The 8% annual return assumption reflects long-term S&amp;P 500 historical performance and does not account for taxes, investment fees, inflation, or market volatility. Actual returns may be significantly higher or lower. Consult a licensed financial advisor before making investment decisions. Past performance does not guarantee future results.</p>
                 </div>
             </div>
-        </div>
+        </footer>
 
         <!-- ========================================== -->
         <!-- EMAIL GATE MODAL                           -->
@@ -854,22 +853,18 @@
                     const hasEmailSubscribed = localStorage.getItem('freedom_email') === 'true';
                     
                     if (hasSavedState && hasEmailSubscribed) {
-                        // Returning subscriber: show smart router
                         this.isReturningUser = true;
                         this.isReturningSubscriber = true;
                         this.showSmartRouter = true;
                     } else if (hasSavedState) {
-                        // Returning user (no email yet): show banner
                         this.isReturningUser = true;
                     } else {
-                        // New user: try budget prefill, then defaults
                         const hasBudgetData = this.prefillFromBudget();
                         if (!hasBudgetData) {
                             this.applyDefaults();
                         }
                     }
 
-                    // If we have valid inputs from defaults, run the first-calc animation
                     if (this.hasValidInputs && !this._hasCalculatedOnce) {
                         this.$nextTick(() => this.onInputChange());
                     }
