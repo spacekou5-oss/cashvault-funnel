@@ -173,6 +173,13 @@
         .prompt-title-wrap { display: flex; flex-direction: column; gap: 4px; }
         .prompt-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
         .prompt-title { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); }
+        /* FIX 1: Brand attribution line inside prompt header */
+        .prompt-source {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem; font-weight: 600;
+            color: rgba(99, 102, 241, 0.5);
+            letter-spacing: 0.06em; margin-top: 4px;
+        }
         .unlock-badge { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--accent-green); border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #000; }
         .prompt-body { padding: 24px; }
         .prompt-text { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.8; color: var(--text-secondary); background: var(--bg-secondary); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px; white-space: pre-wrap; word-break: break-word; max-height: 400px; overflow-y: auto; }
@@ -193,7 +200,7 @@
         .tip-text { font-size: 0.9rem; color: var(--text-secondary); }
 
         /* ============================================
-           COMMAND CENTER CARD (Primary Hub CTA)
+           COMMAND CENTER CARD
            ============================================ */
         .command-center-card {
             background: linear-gradient(135deg, rgba(34, 197, 94, 0.06) 0%, rgba(99, 102, 241, 0.04) 100%);
@@ -241,9 +248,7 @@
         }
         .cc-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4); }
 
-        /* ============================================
-           CTA HIERARCHY: ChatGPT → Command Center → Vault
-           ============================================ */
+        /* CTA HIERARCHY */
         .actions { display: grid; gap: 12px; margin-bottom: 24px; animation: fadeInUp 0.6s ease-out 0.3s backwards; }
         .btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 24px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s ease; text-decoration: none; }
         .btn-primary { background: linear-gradient(135deg, var(--accent-indigo), #8b5cf6); color: white; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3); }
@@ -269,8 +274,22 @@
         .vault-return-section p { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px; line-height: 1.5; }
         .vault-return-section .prompt-count { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(99, 102, 241, 0.1); border-radius: 30px; font-size: 0.85rem; color: var(--accent-indigo); margin-bottom: 16px; }
 
-        .footer { text-align: center; padding: 32px 0; color: var(--text-muted); font-size: 0.85rem; }
-        .footer a { color: var(--accent-gold); text-decoration: none; }
+        /* === STANDARDIZED FOOTER === */
+        .site-footer {
+            text-align: center; padding: 28px 0 16px; margin-top: 32px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        .site-footer a {
+            color: var(--accent-gold); text-decoration: none; font-weight: 600;
+            font-size: 0.85rem; transition: color 0.2s;
+        }
+        .site-footer a:hover { color: var(--text-primary); }
+        .site-footer .footer-tagline {
+            font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;
+        }
+        .site-footer .footer-copy {
+            font-size: 0.7rem; color: var(--text-muted); margin-top: 10px;
+        }
 
         .error-state { text-align: center; padding: 60px 20px; }
         .error-state h2 { font-size: 1.5rem; margin-bottom: 12px; }
@@ -302,7 +321,6 @@
 
     <!-- ================================================
          ACTIVATION SEQUENCE (New Users Only)
-         Fires once. Never again. Reframes the exchange.
          ================================================ -->
     <div class="activation-overlay" id="activationOverlay" style="display:none;">
         <div class="activation-glow g1"></div>
@@ -391,6 +409,8 @@
                 <div class="prompt-title-wrap">
                     <span class="prompt-label">Prompt Title</span>
                     <span class="prompt-title" id="display-title">Loading...</span>
+                    <!-- FIX 1: Brand attribution inside prompt card header -->
+                    <span class="prompt-source">@koutalksmoney / The Vault</span>
                 </div>
                 <div class="unlock-badge">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
@@ -425,18 +445,14 @@
             </div>
         </div>
 
-        <!-- ============================================
-             CTA HIERARCHY: ChatGPT (Primary Action)
-             ============================================ -->
+        <!-- CTA HIERARCHY: ChatGPT (Primary Action) -->
         <div class="actions">
             <a href="https://chat.openai.com" target="_blank" class="btn btn-primary" onclick="persistState()">
                 <span>&#128640;</span> Open ChatGPT and Paste This
             </a>
         </div>
 
-        <!-- ============================================
-             COMMAND CENTER CARD (Primary Hub / Loop Core)
-             ============================================ -->
+        <!-- COMMAND CENTER CARD -->
         <div class="command-center-card" id="commandCenterCard">
             <div class="cc-header">
                 <div class="cc-icon">
@@ -467,9 +483,7 @@
             </a>
         </div>
 
-        <!-- ============================================
-             SECONDARY: Return to Vault
-             ============================================ -->
+        <!-- SECONDARY: Return to Vault -->
         <div class="vault-return-section">
             <div class="prompt-count">
                 <span>&#128293;</span> 21 Battle-Tested Prompt Templates
@@ -481,13 +495,15 @@
             </a>
         </div>
 
-        <div class="footer">
-            Made by <a href="https://instagram.com/koutalksmoney" target="_blank" onclick="persistState()">@koutalksmoney</a><br>
-            Don't work hard. Copy my homework.
-        </div>
+        <!-- === STANDARDIZED FOOTER === -->
+        <footer class="site-footer">
+            <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a>
+            <p class="footer-tagline">Don't work hard. Copy my homework.</p>
+            <p class="footer-copy">Built by Kou Talks Money. 2026. All rights reserved.</p>
+        </footer>
     </div>
 
-    <!-- ERROR STATE (Clean: only Command Center + Vault) -->
+    <!-- ERROR STATE -->
     <div class="container error-state" id="error-state" style="display: none;">
         <div style="font-size: 3rem; margin-bottom: 20px;">&#128275;</div>
         <h2>Your Access is Confirmed</h2>
