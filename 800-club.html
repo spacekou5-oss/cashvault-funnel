@@ -168,27 +168,117 @@
         }
         .hint-toggle:hover { color: #00F0FF; border-color: #00F0FF; }
 
-        .returning-banner {
-            background: linear-gradient(135deg, rgba(0,240,255,0.06), rgba(0,240,255,0.02));
-            border: 1px solid rgba(0,240,255,0.25);
-            border-radius: 8px;
-            padding: 10px 14px;
-            margin: 8px 16px 0 16px;
+        /* ========================================== */
+        /* OPTIMIZATION 1: FAKE DELAY ONBOARDING     */
+        /* ========================================== */
+        .scan-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 65;
+            background: #111111;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .scan-phase-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            transition: opacity 0.3s ease;
+            min-height: 18px;
+        }
+        .scan-bar-track {
+            width: 100%;
+            max-width: 280px;
+            height: 4px;
+            background: #1A1A1A;
+            border-radius: 2px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+        .scan-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00F0FF 0%, #00F0FF 70%, rgba(0,240,255,0.4) 100%);
+            border-radius: 2px;
+            transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+        }
+        .scan-reveal {
+            animation: scanReveal 0.6s ease-out forwards;
+        }
+        @keyframes scanReveal {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .scan-killshot {
+            animation: killshotReveal 0.8s ease-out forwards;
+        }
+        @keyframes killshotReveal {
+            0% { opacity: 0; transform: scale(0.95) translateY(8px); }
+            60% { opacity: 1; transform: scale(1.02) translateY(-2px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .scan-btn-reveal {
+            animation: btnReveal 0.5s ease-out 0.3s forwards;
+            opacity: 0;
+        }
+        @keyframes btnReveal {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cursor blink effect for scan text */
+        .scan-cursor::after {
+            content: '|';
+            animation: cursorBlink 0.6s step-end infinite;
+            color: #00F0FF;
+            margin-left: 2px;
+        }
+        @keyframes cursorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* ========================================== */
+        /* OPTIMIZATION 2: RETURNING USER POPUP      */
+        /* ========================================== */
+        .return-popup-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            animation: bannerIn 0.5s ease;
+            justify-content: center;
+            padding: 20px;
         }
-        .returning-banner .b-text { font-size: 11px; color: #00F0FF; font-weight: 600; }
-        .returning-banner .b-sub { font-size: 10px; color: #666; }
-        .returning-banner button { 
-            font-size: 10px; padding: 4px 10px; border-radius: 4px; cursor: pointer;
-            font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
-            transition: all 0.2s; background: transparent; border: 1px solid #333; color: #666;
+        .return-popup-card {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 16px;
+            overflow: hidden;
         }
-        .returning-banner button:hover { border-color: #FF0000; color: #FF0000; }
-        @keyframes bannerIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        .return-popup-card .rp-progress-ring {
+            width: 80px;
+            height: 80px;
+        }
+        .rp-progress-ring circle {
+            fill: none;
+            stroke-width: 4;
+        }
+        .rp-progress-ring .ring-bg { stroke: #333; }
+        .rp-progress-ring .ring-fill {
+            stroke: #00F0FF;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: center;
+            transition: stroke-dashoffset 1s ease-out 0.5s;
+        }
+        .rp-gold .ring-fill { stroke: #FFD700; }
 
         /* Credit score input screen */
         .score-input-screen {
@@ -254,40 +344,188 @@
              :class="rankFlashGold ? 'rank-flash gold' : 'rank-flash'">
         </div>
 
-        <!-- ONBOARDING SCREEN -->
-        <div x-show="onboarding" 
-             x-transition:leave="transition ease-in duration-700"
-             x-transition:leave-start="transform translate-y-0"
-             x-transition:leave-end="transform -translate-y-full"
-             class="fixed inset-0 z-[60] bg-black flex flex-col items-center justify-center p-6 text-center">
-             
-            <div class="max-w-md space-y-8">
-                <h1 class="text-4xl font-black font-mono tracking-tighter text-white animate-glitch uppercase">
-                    PROTOCOL: 800-CLUB
-                </h1>
-                
-                <div class="space-y-4 border-l-2 border-stealth-blue pl-6 text-left">
-                    <p class="text-stealth-text text-sm font-mono uppercase tracking-widest">Target Analysis:</p>
-                    <p class="text-lg text-white font-medium leading-relaxed">
-                        Banks do not trust you. They trust <span class="text-stealth-blue font-bold">data</span>.
-                    </p>
-                    <p class="text-sm text-stealth-text">
-                        This checklist is the exact algorithm to force the banks to give you access.
-                    </p>
-                    <p class="text-stealth-gold font-bold uppercase text-sm tracking-wider">
-                        Your Goal: Hit 100% Readiness.
-                    </p>
+        <!-- ========================================== -->
+        <!-- OPTIMIZATION 1: FAKE DELAY SCAN SCREEN    -->
+        <!-- (Replaces static onboarding for new users) -->
+        <!-- ========================================== -->
+        <div x-show="showScanScreen" x-cloak
+             x-transition:leave="transition ease-in duration-500"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="scan-screen">
+            
+            <div class="max-w-sm w-full space-y-8 text-center">
+                <!-- Protocol title -->
+                <div>
+                    <p class="text-[10px] font-mono text-stealth-text uppercase tracking-[0.3em] mb-3">Protocol Initializing</p>
+                    <h1 class="text-2xl font-black font-mono tracking-tight text-white uppercase">
+                        800-CLUB
+                    </h1>
                 </div>
 
-                <button @click="exitOnboarding()" 
-                        class="group relative inline-flex items-center justify-center px-8 py-4 font-black text-white transition-all duration-200 bg-transparent border-2 border-stealth-blue rounded-none hover:bg-stealth-blue hover:text-black hover:shadow-[0_0_20px_rgba(0,240,255,0.6)] animate-pulse-fast mt-8 cursor-pointer">
-                    <span class="mr-2">[</span> INITIATE PROTOCOL <span class="ml-2">]</span>
-                </button>
+                <!-- Scan progress bar -->
+                <div class="space-y-3">
+                    <div class="scan-bar-track mx-auto">
+                        <div class="scan-bar-fill" :style="'width: ' + scanProgress + '%'"></div>
+                    </div>
+                    <p class="scan-phase-text" :class="scanPhase < 4 ? 'scan-cursor' : ''" x-text="scanText"></p>
+                    <p class="text-[9px] font-mono text-stealth-text/40" x-text="scanProgress + '% complete'"></p>
+                </div>
+
+                <!-- Kill shot reveal (after scan completes) -->
+                <div x-show="scanComplete" x-cloak class="space-y-6 pt-4">
+                    <div class="scan-killshot space-y-3 border-l-2 border-stealth-blue pl-5 text-left">
+                        <p class="text-lg text-white font-bold leading-relaxed">
+                            Banks don't trust <span class="text-stealth-blue">you</span>.
+                        </p>
+                        <p class="text-lg text-white font-bold leading-relaxed">
+                            They trust <span class="text-stealth-blue">data</span>.
+                        </p>
+                        <p class="text-xs text-stealth-text mt-2 leading-relaxed">
+                            10 data points control your credit score. We just built your protocol to manipulate all 10.
+                        </p>
+                    </div>
+
+                    <div class="scan-btn-reveal">
+                        <button @click="exitScanScreen()" 
+                                class="group relative inline-flex items-center justify-center w-full px-8 py-4 font-black text-black transition-all duration-200 bg-stealth-blue rounded-xl hover:shadow-[0_0_25px_rgba(0,240,255,0.5)] cursor-pointer">
+                            SHOW ME THE PROTOCOL
+                        </button>
+                        <p class="text-[9px] text-stealth-text/40 font-mono mt-3">Personalized to your credit profile</p>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- ========================================== -->
-        <!-- CREDIT SCORE INPUT (Post-Onboarding)       -->
+        <!-- OPTIMIZATION 2: RETURNING USER POPUP      -->
+        <!-- (Conditional routing based on progress)    -->
+        <!-- ========================================== -->
+        <div x-show="showReturnPopup" x-cloak
+             x-transition:enter="transition ease-out duration-400"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="return-popup-overlay">
+            
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+
+            <!-- === STATE A: Already submitted email. Direct route to Budget Calculator === -->
+            <div x-show="returnState === 'completed'" x-cloak
+                 class="return-popup-card bg-stealth-card border-2 border-stealth-gold p-6 shadow-[0_0_30px_rgba(255,215,0,0.2)] z-10">
+                
+                <div class="text-center space-y-4">
+                    <div class="text-4xl">&#x1F3D7;&#xFE0F;</div>
+                    <div>
+                        <p class="text-[10px] font-mono text-stealth-gold uppercase tracking-[0.2em]">Welcome back</p>
+                        <h2 class="text-xl font-black uppercase text-white mt-1">Architect</h2>
+                    </div>
+                    <p class="text-xs text-gray-400 leading-relaxed">
+                        Your Wealth Blueprint is ready. Pick up where you left off.
+                    </p>
+                    <div class="space-y-2 pt-2">
+                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/budget-calculator.html"
+                           class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-stealth-gold hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all cursor-pointer no-underline">
+                            &#x1F513; OPEN WEALTH BLUEPRINT
+                        </a>
+                        <button @click="showReturnPopup = false" 
+                                class="w-full py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-stealth-text bg-transparent border border-stealth-border hover:border-stealth-text hover:text-white transition-all cursor-pointer">
+                            Review my 800-Club checklist
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- === STATE B: Progress >= 70%. Offer choice === -->
+            <div x-show="returnState === 'unlocked'" x-cloak
+                 class="return-popup-card bg-stealth-card border-2 border-stealth-gold p-6 shadow-[0_0_30px_rgba(255,215,0,0.15)] z-10">
+                
+                <div class="text-center space-y-4">
+                    <!-- Progress ring -->
+                    <div class="flex justify-center">
+                        <svg class="rp-progress-ring rp-gold" viewBox="0 0 80 80">
+                            <circle class="ring-bg" cx="40" cy="40" r="34"/>
+                            <circle class="ring-fill" cx="40" cy="40" r="34"
+                                    stroke-dasharray="213.6"
+                                    :stroke-dashoffset="213.6 - (213.6 * progress / 110)"/>
+                        </svg>
+                        <span class="absolute mt-6 text-xl font-black font-mono text-stealth-gold" x-text="progress + '%'"></span>
+                    </div>
+
+                    <div>
+                        <p class="text-[10px] font-mono text-stealth-gold uppercase tracking-[0.2em]">You're back</p>
+                        <h2 class="text-lg font-black uppercase text-white mt-1">Level 2 is Unlocked</h2>
+                        <p class="text-[11px] text-stealth-text mt-1">
+                            <span x-text="checkedCount"></span>/10 steps done. <span class="text-stealth-gold font-bold">Wealth Blueprint ready.</span>
+                        </p>
+                    </div>
+
+                    <p class="text-xs text-gray-400 leading-relaxed">
+                        You earned access to the Wealth Architect. Your credit protocol is solid. 
+                        Ready to see where every dollar of your paycheck should go?
+                    </p>
+
+                    <div class="space-y-2 pt-1">
+                        <button @click="showReturnPopup = false; showModal = true;" 
+                                class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-stealth-gold hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all cursor-pointer">
+                            &#x1F3D7;&#xFE0F; BUILD MY WEALTH BLUEPRINT
+                        </button>
+                        <button @click="showReturnPopup = false" 
+                                class="w-full py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-stealth-text bg-transparent border border-stealth-border hover:border-stealth-text hover:text-white transition-all cursor-pointer">
+                            Finish remaining steps first
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- === STATE C: Progress < 70%. Motivate completion === -->
+            <div x-show="returnState === 'inprogress'" x-cloak
+                 class="return-popup-card bg-stealth-card border-2 border-stealth-blue/40 p-6 shadow-[0_0_20px_rgba(0,240,255,0.1)] z-10">
+                
+                <div class="text-center space-y-4">
+                    <!-- Progress ring -->
+                    <div class="flex justify-center">
+                        <svg class="rp-progress-ring" viewBox="0 0 80 80">
+                            <circle class="ring-bg" cx="40" cy="40" r="34"/>
+                            <circle class="ring-fill" cx="40" cy="40" r="34"
+                                    stroke-dasharray="213.6"
+                                    :stroke-dashoffset="213.6 - (213.6 * progress / 100)"/>
+                        </svg>
+                        <span class="absolute mt-6 text-xl font-black font-mono text-stealth-blue" x-text="progress + '%'"></span>
+                    </div>
+
+                    <div>
+                        <p class="text-[10px] font-mono text-stealth-blue uppercase tracking-[0.2em]">Welcome back</p>
+                        <h2 class="text-lg font-black uppercase text-white mt-1">You're Not Done Yet</h2>
+                    </div>
+
+                    <div class="bg-black/40 border border-stealth-border rounded-lg p-3">
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            <span class="text-stealth-blue font-black text-lg" x-text="(70 - progress) + '%'"></span>
+                            <span class="text-stealth-text block text-[10px] mt-1">to unlock your Wealth Blueprint</span>
+                        </p>
+                        <div class="w-full h-1.5 bg-stealth-bg rounded-full overflow-hidden mt-2">
+                            <div class="h-full bg-stealth-blue rounded-full transition-all duration-1000 ease-out"
+                                 :style="'width: ' + Math.min(100, (progress / 70) * 100) + '%'"></div>
+                        </div>
+                    </div>
+
+                    <p class="text-[10px] text-stealth-text leading-relaxed">
+                        <span x-text="checkedCount"></span>/10 steps complete. Every checked box moves your credit score.
+                    </p>
+
+                    <button @click="showReturnPopup = false" 
+                            class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-stealth-blue hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all cursor-pointer">
+                        FINISH THE PROTOCOL
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- CREDIT SCORE INPUT (Post-Scan)             -->
         <!-- ========================================== -->
         <div x-show="showScoreInput" x-cloak
              x-transition:enter="transition ease-out duration-500"
@@ -358,19 +596,10 @@
         </div>
 
         <div class="w-full max-w-lg mx-auto">
-            
-            <!-- RETURNING USER BANNER -->
-            <div x-show="isReturningUser && !onboarding && !showScoreInput" class="returning-banner" x-cloak>
-                <div>
-                    <div class="b-text">&#x1F504; Your progress is loaded.</div>
-                    <div class="b-sub"><span x-text="checkedCount"></span>/10 completed. <span x-text="lastVisitLabel"></span></div>
-                </div>
-                <button @click="resetProgress()">Start Over</button>
-            </div>
 
             <!-- STICKY HEADER -->
             <div class="sticky top-0 z-40 bg-stealth-bg/95 backdrop-blur-md border-b border-stealth-border pb-4 pt-4 px-4 shadow-2xl transition-opacity duration-1000"
-                 :class="onboarding || showScoreInput ? 'opacity-0' : 'opacity-100'">
+                 :class="(showScanScreen || showScoreInput || showReturnPopup) ? 'opacity-0' : 'opacity-100'">
                 <div class="flex justify-between items-end mb-2">
                     <div>
                         <h1 class="font-mono text-xs text-stealth-text tracking-widest uppercase">Credit Protocol</h1>
@@ -403,7 +632,7 @@
                     </div>
                 </div>
 
-                <p x-show="progress >= 80 && !bonus.checked && !onboarding" x-cloak
+                <p x-show="progress >= 80 && !bonus.checked && !showScanScreen" x-cloak
                    class="text-[10px] text-stealth-gold font-mono mt-2 text-center animate-pulse">
                     &darr; Secret hack below: unlock GOD MODE (110%)
                 </p>
@@ -505,7 +734,7 @@
 
         <!-- CTA BAR -->
         <div class="fixed bottom-0 left-0 w-full z-50 p-4 bg-stealth-bg/90 backdrop-blur-md border-t border-stealth-border"
-             x-show="!onboarding && !showScoreInput"
+             x-show="!showScanScreen && !showScoreInput && !showReturnPopup"
              x-transition:enter="transition ease-out duration-1000"
              x-transition:enter-start="translate-y-full"
              x-transition:enter-end="translate-y-0">
@@ -621,9 +850,18 @@
     <script>
         function creditProtocol() {
             return {
-                onboarding: true,
+                // Screen states
+                showScanScreen: false,    // NEW: fake delay scan
                 showScoreInput: false,
+                showReturnPopup: false,   // NEW: returning user popup
+                returnState: '',          // NEW: 'completed' | 'unlocked' | 'inprogress'
                 showModal: false,
+                
+                // Scan sequence state
+                scanProgress: 15,         // Starts at 15% (Goal Gradient)
+                scanPhase: 0,
+                scanText: '',
+                scanComplete: false,
                 
                 userCreditScore: 650,
                 
@@ -686,6 +924,83 @@
                 celebrated: false,
 
                 // ===========================
+                // SCAN SEQUENCE (Optimization 1)
+                // ===========================
+                scanPhases: [
+                    { text: 'Scanning credit bureau protocols...', target: 35 },
+                    { text: 'Analyzing 10-step credit algorithm...', target: 60 },
+                    { text: 'Cross-referencing FICO scoring model...', target: 82 },
+                    { text: 'Building your personalized protocol...', target: 100 },
+                ],
+
+                startScanSequence() {
+                    this.showScanScreen = true;
+                    this.scanProgress = 15;
+                    this.scanPhase = 0;
+                    this.scanComplete = false;
+                    this.scanText = '';
+
+                    // Small initial delay before first phase
+                    setTimeout(() => { this.runScanPhase(0); }, 600);
+                },
+
+                runScanPhase(index) {
+                    if (index >= this.scanPhases.length) {
+                        // All phases done. Reveal the kill shot.
+                        this.scanText = 'Protocol ready.';
+                        this.scanPhase = 4;
+                        setTimeout(() => {
+                            this.scanComplete = true;
+                        }, 400);
+                        return;
+                    }
+
+                    const phase = this.scanPhases[index];
+                    this.scanPhase = index;
+                    this.scanText = phase.text;
+                    
+                    // Animate progress bar to target
+                    setTimeout(() => {
+                        this.scanProgress = phase.target;
+                    }, 100);
+
+                    // Duration varies per phase for realism
+                    const durations = [1200, 1400, 1000, 800];
+                    setTimeout(() => {
+                        this.runScanPhase(index + 1);
+                    }, durations[index]);
+                },
+
+                exitScanScreen() {
+                    this.showScanScreen = false;
+                    // Transition to credit score input
+                    setTimeout(() => {
+                        this.showScoreInput = true;
+                    }, 300);
+                },
+
+                // ===========================
+                // RETURNING USER ROUTING (Optimization 2)
+                // ===========================
+                determineReturnState() {
+                    // Check if user already submitted email
+                    try {
+                        const hasEmail = localStorage.getItem('eightclub_email');
+                        if (hasEmail === 'true') {
+                            this.returnState = 'completed';
+                            return;
+                        }
+                    } catch(e) {}
+
+                    // Route based on progress
+                    if (this.progress >= 70) {
+                        this.returnState = 'unlocked';
+                    } else {
+                        this.returnState = 'inprogress';
+                    }
+                },
+
+                // ===========================
                 // CREDIT SCORE HELPERS
                 // ===========================
                 getScoreColor(score) {
@@ -710,14 +1025,6 @@
                     if (score >= 670) return '+$2,400 extra interest';
                     if (score >= 580) return '+$4,800 extra interest';
                     return '+$7,200+ extra interest';
-                },
-
-                exitOnboarding() {
-                    this.onboarding = false;
-                    // Show score input for new users only
-                    if (!this.isReturningUser) {
-                        this.showScoreInput = true;
-                    }
                 },
 
                 submitScore() {
@@ -786,10 +1093,13 @@
                     this.modalAutoTriggered = false;
                     this.previousStatus = 'GHOST';
                     this.userCreditScore = 650;
+                    this.showReturnPopup = false;
+                    this.returnState = '';
                     try {
                         localStorage.removeItem('credit_protocol_state');
                         localStorage.removeItem('credit_protocol_score');
                         localStorage.removeItem('eightclub_completed');
+                        localStorage.removeItem('eightclub_email');
                     } catch(e) {}
                 },
 
@@ -804,11 +1114,17 @@
                     const hasSaved = this.loadProgress();
                     
                     if (hasSaved && this.progress > 0) {
+                        // RETURNING USER: Show conditional popup
                         this.isReturningUser = true;
-                        this.onboarding = false;
-                        this.showScoreInput = false;
                         this.previousStatus = this.statusText;
                         if (this.progress >= 100) this.celebrated = true;
+                        
+                        // Determine which return state to show
+                        this.determineReturnState();
+                        this.showReturnPopup = true;
+                    } else {
+                        // NEW USER: Launch fake delay scan sequence
+                        this.startScanSequence();
                     }
 
                     this.$watch('showModal', (isOpen) => {
