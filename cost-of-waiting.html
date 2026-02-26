@@ -124,32 +124,108 @@
         
         [x-cloak] { display: none !important; }
 
-        /* Returning user banner */
-        .returning-banner {
-            background: linear-gradient(135deg, rgba(0,255,65,0.08), rgba(0,255,65,0.02));
-            border: 1px solid rgba(0,255,65,0.3);
-            border-radius: 8px;
-            padding: 10px 14px;
-            margin-bottom: 16px;
+        /* ========================================== */
+        /* OPTIMIZATION 1: SCAN SEQUENCE              */
+        /* ========================================== */
+        .scan-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 65;
+            background: #050505;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .scan-bar-track {
+            width: 100%;
+            max-width: 280px;
+            height: 4px;
+            background: #111111;
+            border-radius: 2px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+        .scan-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF0000 0%, #FF0000 70%, rgba(255,0,0,0.4) 100%);
+            border-radius: 2px;
+            transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 0 12px rgba(255, 0, 0, 0.4);
+        }
+        .scan-phase-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #FF0000;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            transition: opacity 0.3s ease;
+            min-height: 18px;
+        }
+        .scan-cursor::after {
+            content: '|';
+            animation: cursorBlink 0.6s step-end infinite;
+            color: #FF0000;
+            margin-left: 2px;
+        }
+        @keyframes cursorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .scan-killshot {
+            animation: killshotReveal 0.8s ease-out forwards;
+        }
+        @keyframes killshotReveal {
+            0% { opacity: 0; transform: scale(0.95) translateY(8px); }
+            60% { opacity: 1; transform: scale(1.02) translateY(-2px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .scan-btn-reveal {
+            animation: btnReveal 0.5s ease-out 0.3s forwards;
+            opacity: 0;
+        }
+        @keyframes btnReveal {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Pulsing red warning ring during scan */
+        .scan-warning-ring {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 0, 0, 0.3);
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            animation: fadeIn 0.5s ease;
+            justify-content: center;
+            animation: warningPulse 1.5s ease-in-out infinite;
         }
-        .returning-banner .banner-text { font-size: 11px; color: #00FF41; font-weight: 600; }
-        .returning-banner .banner-sub { font-size: 10px; color: #666; }
-        .returning-banner button { 
-            font-size: 10px; padding: 4px 10px; border-radius: 4px; cursor: pointer;
-            font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
-            transition: all 0.2s;
+        @keyframes warningPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,0,0,0.2); }
+            50% { box-shadow: 0 0 0 12px rgba(255,0,0,0); }
         }
-        .returning-banner .btn-reset { background: transparent; border: 1px solid #333; color: #666; }
-        .returning-banner .btn-reset:hover { border-color: #FF0000; color: #FF0000; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        /* ========================================== */
+        /* OPTIMIZATION 2: RETURNING USER POPUP       */
+        /* ========================================== */
+        .return-popup-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .return-popup-card {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 16px;
+            overflow: hidden;
+        }
 
-        /* Already-subscribed popup */
+        /* Already-subscribed popup (legacy, keeping for CTA click) */
         .sub-popup {
             background: linear-gradient(135deg, rgba(0,240,255,0.06), rgba(0,255,65,0.04));
             border: 1px solid rgba(0,240,255,0.4);
@@ -194,7 +270,6 @@
             transition: color 0.2s;
         }
         .site-footer a:hover { color: #FFFFFF; }
-
     </style>
 </head>
 <body class="bg-cyber-black text-white font-sans antialiased min-h-screen flex flex-col items-center justify-center p-4">
@@ -207,54 +282,153 @@
              class="damage-flash">
         </div>
 
-        <!-- ========================================= -->
-        <!-- IDLE STATE: Gatekeeper (First Visit Only) -->
-        <!-- ========================================= -->
-        <div x-show="state === 'idle'" 
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:leave="transition ease-in duration-200 opacity-0"
-             class="text-center space-y-8">
+        <!-- ========================================== -->
+        <!-- OPTIMIZATION 1: UNIFIED SCAN SEQUENCE      -->
+        <!-- (Replaces BOTH static splash + processing) -->
+        <!-- ========================================== -->
+        <div x-show="showScanScreen" x-cloak
+             x-transition:leave="transition ease-in duration-500"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="scan-screen">
             
-            <div class="space-y-2">
-                <h1 class="text-5xl font-black tracking-tighter text-white glitch" data-text="SYSTEM HALTED">
-                    SYSTEM HALTED
-                </h1>
-                <p class="text-cyber-gray font-mono text-xs uppercase tracking-[0.2em]">
-                    Compound Interest Engine Offline
-                </p>
+            <div class="max-w-sm w-full space-y-8 text-center">
+                <!-- Warning icon -->
+                <div class="flex justify-center">
+                    <div class="scan-warning-ring">
+                        <span class="text-2xl">&#x26A0;&#xFE0F;</span>
+                    </div>
+                </div>
+
+                <!-- Title -->
+                <div>
+                    <p class="text-[10px] font-mono text-cyber-red/60 uppercase tracking-[0.3em] mb-2">Financial Decay Engine</p>
+                    <h1 class="text-2xl font-black font-mono tracking-tight text-white uppercase">
+                        COST OF WAITING
+                    </h1>
+                </div>
+
+                <!-- Scan progress -->
+                <div class="space-y-3">
+                    <div class="scan-bar-track mx-auto">
+                        <div class="scan-bar-fill" :style="'width: ' + scanProgress + '%'"></div>
+                    </div>
+                    <p class="scan-phase-text" :class="scanPhase < 5 ? 'scan-cursor' : ''" x-text="scanText"></p>
+                    <p class="text-[9px] font-mono text-cyber-gray/40" x-text="scanProgress + '% complete'"></p>
+                </div>
+
+                <!-- Kill shot (after scan completes) -->
+                <div x-show="scanComplete" x-cloak class="space-y-6 pt-2">
+                    <div class="scan-killshot space-y-3 border-l-2 border-cyber-red pl-5 text-left">
+                        <p class="text-lg text-white font-bold leading-relaxed">
+                            Every day you wait has a <span class="text-cyber-red">price tag</span>.
+                        </p>
+                        <p class="text-lg text-white font-bold leading-relaxed">
+                            This engine calculates the <span class="text-cyber-red">exact dollar amount</span>.
+                        </p>
+                        <p class="text-xs text-cyber-gray mt-2 leading-relaxed">
+                            Your compound interest model is loaded. The numbers will not be comfortable.
+                        </p>
+                    </div>
+
+                    <div class="scan-btn-reveal">
+                        <button @click="exitScanScreen()" 
+                                class="group relative inline-flex items-center justify-center w-full px-8 py-4 font-black text-white transition-all duration-200 bg-cyber-red rounded-xl hover:shadow-[0_0_25px_rgba(255,0,0,0.5)] cursor-pointer">
+                            SHOW ME THE DAMAGE
+                        </button>
+                        <p class="text-[9px] text-cyber-gray/40 font-mono mt-3">8% annual return. S&P 500 historical average. Real math.</p>
+                    </div>
+                </div>
             </div>
-
-            <button @click="ignite()" 
-                    class="group relative inline-flex items-center justify-center px-8 py-6 overflow-hidden font-mono font-bold text-white transition-all duration-300 bg-transparent border-2 border-cyber-red rounded-none hover:bg-cyber-red/10 focus:outline-none cursor-pointer">
-                <span class="absolute w-0 h-0 transition-all duration-500 ease-out bg-cyber-red rounded-full group-hover:w-80 group-hover:h-80 opacity-10"></span>
-                <span class="relative flex items-center gap-4 text-xl tracking-widest uppercase">
-                    <span class="animate-pulse">&#x26A0;&#xFE0F;</span> Initialize Engine
-                </span>
-            </button>
-
-            <p class="text-[10px] text-cyber-gray/50 max-w-xs mx-auto mt-8 font-mono">
-                WARNING: This tool projects irreversible financial decay. Proceed with caution.
-            </p>
         </div>
 
-        <!-- ========================================= -->
-        <!-- PROCESSING STATE: Honest Theater          -->
-        <!-- ========================================= -->
-        <div x-show="state === 'processing'" x-cloak
-             class="absolute inset-0 flex flex-col items-center justify-center z-50">
-            <div class="w-full max-w-xs space-y-4">
-                <div class="font-mono text-xs text-cyber-green space-y-1 h-32 overflow-hidden border-l-2 border-cyber-gray pl-4 flex flex-col justify-end">
-                    <template x-for="log in logs" :key="log">
-                        <div x-text="'> ' + log" class="opacity-80"></div>
-                    </template>
-                    <div class="animate-pulse">_</div>
-                </div>
+        <!-- ========================================== -->
+        <!-- OPTIMIZATION 2: RETURNING USER POPUP       -->
+        <!-- ========================================== -->
+        <div x-show="showReturnPopup" x-cloak
+             x-transition:enter="transition ease-out duration-400"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="return-popup-overlay">
+            
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+
+            <!-- STATE A: Already submitted email. Direct to Investment Simplifier -->
+            <div x-show="returnState === 'subscribed'" x-cloak
+                 class="return-popup-card bg-cyber-dark border-2 border-cyber-green p-6 shadow-[0_0_30px_rgba(0,255,65,0.15)] z-10">
                 
-                <div class="w-full h-1 bg-cyber-gray rounded-full overflow-hidden">
-                    <div class="h-full bg-cyber-red transition-all duration-300 ease-out" :style="'width: ' + progress + '%'"></div>
+                <div class="text-center space-y-4">
+                    <div class="inline-flex items-center gap-2 bg-cyber-green/10 border border-cyber-green/40 px-3 py-1 rounded-full">
+                        <span class="w-2 h-2 bg-cyber-green rounded-full animate-pulse"></span>
+                        <span class="text-[10px] font-bold text-cyber-green uppercase tracking-widest">Access Active</span>
+                    </div>
+
+                    <div>
+                        <p class="text-[10px] font-mono text-cyber-green uppercase tracking-[0.2em]">Welcome back</p>
+                        <h2 class="text-xl font-black uppercase text-white mt-1">Your Portfolio Tool is Ready</h2>
+                    </div>
+
+                    <p class="text-xs text-gray-400 leading-relaxed">
+                        You already unlocked the Investment Simplifier. Pick up where you left off, or run new numbers.
+                    </p>
+
+                    <!-- Show their last numbers -->
+                    <div class="bg-black/60 border border-cyber-gray rounded-lg p-3" x-show="lastSavedLoss > 0">
+                        <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-1">Last calculation:</p>
+                        <p class="text-lg font-black font-mono text-cyber-red" x-text="'-' + formatMoney(lastSavedLoss)"></p>
+                        <p class="text-[9px] text-cyber-gray mt-1">burned by waiting <span x-text="waitYears"></span> year(s)</p>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html"
+                           class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-cyber-green hover:shadow-[0_0_20px_rgba(0,255,65,0.4)] transition-all cursor-pointer no-underline shadow-[0_0_15px_rgba(0,255,65,0.3)]">
+                            OPEN INVESTMENT SIMPLIFIER &#x279C;
+                        </a>
+                        <button @click="showReturnPopup = false" 
+                                class="w-full py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-cyber-gray bg-transparent border border-cyber-gray hover:border-white hover:text-white transition-all cursor-pointer">
+                            Run new numbers
+                        </button>
+                    </div>
                 </div>
+            </div>
+
+            <!-- STATE B: Has saved data, hasn't subscribed -->
+            <div x-show="returnState === 'calculator'" x-cloak
+                 class="return-popup-card bg-cyber-dark border-2 border-cyber-red/40 p-6 shadow-[0_0_20px_rgba(255,0,0,0.1)] z-10">
                 
-                <p class="text-center font-mono text-white text-sm tracking-widest animate-pulse" x-text="statusText"></p>
+                <div class="text-center space-y-4">
+                    <div class="text-3xl">&#x26A0;&#xFE0F;</div>
+
+                    <div>
+                        <p class="text-[10px] font-mono text-cyber-red uppercase tracking-[0.2em]">Engine still running</p>
+                        <h2 class="text-xl font-black uppercase text-white mt-1">Your Numbers Are Loaded</h2>
+                    </div>
+
+                    <!-- Show their last numbers as urgency reinforcement -->
+                    <div class="bg-black/60 border border-cyber-red/30 rounded-lg p-3" x-show="lastSavedLoss > 0">
+                        <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-1">Last time you checked:</p>
+                        <p class="text-2xl font-black font-mono text-cyber-red" x-text="'-' + formatMoney(lastSavedLoss)"></p>
+                        <p class="text-[9px] text-cyber-red/60 mt-1 font-bold">That number grew while you were gone.</p>
+                    </div>
+
+                    <p class="text-xs text-gray-400 leading-relaxed">
+                        You saw the damage. The next step is building the vehicle to reverse it.
+                    </p>
+
+                    <div class="space-y-2 pt-1">
+                        <button @click="showReturnPopup = false; showModal = true;" 
+                                class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-cyber-green hover:shadow-[0_0_20px_rgba(0,255,65,0.4)] transition-all cursor-pointer shadow-[0_0_15px_rgba(0,255,65,0.2)]">
+                            &#x1F527; SEE YOUR ETF PORTFOLIO
+                        </button>
+                        <button @click="showReturnPopup = false" 
+                                class="w-full py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-cyber-gray bg-transparent border border-cyber-gray hover:border-white hover:text-white transition-all cursor-pointer">
+                            Recalculate first
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -267,15 +441,6 @@
              x-transition:enter-end="opacity-100 translate-y-0 scale-100"
              x-cloak
              class="w-full">
-
-            <!-- Returning user banner (skip gatekeeper) -->
-            <div x-show="isReturningUser" class="returning-banner">
-                <div>
-                    <div class="banner-text">&#x1F504; Your previous numbers are loaded.</div>
-                    <div class="banner-sub">Last calculated <span x-text="lastVisitLabel"></span></div>
-                </div>
-                <button class="btn-reset" @click="resetToDefaults()">Start Fresh</button>
-            </div>
 
             <div class="mb-8 text-center">
                 <h1 class="text-4xl font-black tracking-tighter uppercase glitch" data-text="PROJECT TICKER">
@@ -349,7 +514,6 @@
 
                 <div>
                     <p class="text-xs font-bold text-cyber-red uppercase tracking-widest mb-1">Wealth You Burned</p>
-                    <!-- PEAK-END: Animated loss counter -->
                     <div class="text-4xl sm:text-5xl font-black font-mono text-cyber-red tracking-tight" 
                          x-text="'-' + formatMoney(displayLoss)"></div>
                 </div>
@@ -360,7 +524,7 @@
                        x-text="getFeedback()"></p>
                 </div>
 
-                <!-- Daily cost on MAIN screen -->
+                <!-- Daily cost -->
                 <div x-show="dailyCost > 0" class="mt-4 pt-4 border-t border-dashed border-cyber-gray/50 text-center">
                     <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-1">To Erase This Damage:</p>
                     <div class="text-2xl font-black text-cyber-green font-mono">
@@ -369,7 +533,7 @@
                     <p class="text-[10px] text-gray-500 mt-1" x-text="getDailyCostMessage()"></p>
                 </div>
                 
-                <!-- OPERATIONAL TRANSPARENCY: Show The Math -->
+                <!-- Show The Math -->
                 <div class="mt-4 pt-4 border-t border-dashed border-cyber-gray/50" x-show="waitYears > 0">
                     <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">The Math:</p>
                     <div class="text-[10px] text-gray-500 font-mono space-y-1 text-center">
@@ -396,7 +560,7 @@
             </p>
 
             <!-- ============================================== -->
-            <!-- ALREADY SUBSCRIBED POPUP                       -->
+            <!-- ALREADY SUBSCRIBED POPUP (via CTA click)       -->
             <!-- ============================================== -->
             <div x-cloak x-show="showSubPopup"
                  class="fixed inset-0 z-[70] flex items-center justify-center p-3"
@@ -444,7 +608,7 @@
             </div>
 
             <!-- ============================================== -->
-            <!-- EMAIL GATE: COST OF WAITING -> INVESTMENT SIMPLIFIER -->
+            <!-- EMAIL GATE: COST OF WAITING -> INV SIMPLIFIER  -->
             <!-- ============================================== -->
             <div x-cloak x-show="showModal" 
                  class="fixed inset-0 z-[70] flex items-center justify-center p-3"
@@ -457,7 +621,6 @@
                 
                 <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showModal = false"></div>
                 
-                <!-- GREEN BORDER: Pattern interrupt from red anxiety -->
                 <div class="relative bg-cyber-dark border-2 border-cyber-green rounded-2xl p-4 w-full max-w-md shadow-[0_0_30px_rgba(0,255,65,0.2)] max-h-[95vh] overflow-y-auto"
                      x-transition:enter="transition ease-out duration-300"
                      x-transition:enter-start="opacity-0 scale-90"
@@ -470,7 +633,6 @@
                         </svg>
                     </button>
 
-                    <!-- HEADLINE -->
                     <div class="text-center mb-3">
                         <div class="inline-flex items-center gap-2 bg-cyber-green/10 border border-cyber-green/50 px-3 py-1 rounded-full mb-2">
                             <span class="w-2 h-2 bg-cyber-green rounded-full animate-pulse"></span>
@@ -484,7 +646,6 @@
                         </p>
                     </div>
 
-                    <!-- DAILY COST CALCULATOR: REINFORCED IN MODAL -->
                     <div class="bg-black border-2 border-cyber-green/50 rounded-lg p-4 mb-3 text-center" x-show="dailyCost > 0">
                         <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">To Erase This Damage:</p>
                         <div class="text-4xl font-black text-cyber-green font-mono drop-shadow-[0_0_15px_rgba(0,255,65,0.5)]">
@@ -493,14 +654,12 @@
                         <p class="text-[10px] text-gray-500 mt-2 leading-tight" x-text="getDailyCostMessage()"></p>
                     </div>
 
-                    <!-- BRIDGE COPY -->
                     <div class="text-center mb-3">
                         <p class="text-xs text-gray-300 leading-relaxed">
                             You know the cost. Now you need the destination. The <span class="text-cyber-green font-bold">Investment Simplifier</span> shows you exactly which ETFs to buy based on your risk tolerance. 3 questions. 60 seconds. Your exact tickers.
                         </p>
                     </div>
                     
-                    <!-- ROADMAP -->
                     <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-4">
                         <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">What Happens Next:</p>
                         <div class="flex items-center gap-2 text-[10px]">
@@ -523,7 +682,6 @@
 
                     <!-- BEEHIIV EMBED -->
                     <div class="flex justify-center pb-2">
-                        <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
                         <iframe id="beehiivFrame"
                                 src="https://subscribe-forms.beehiiv.com/63ac9ac6-ada8-47a5-b5b6-654bdf88a7b6" 
                                 class="beehiiv-embed" 
@@ -532,61 +690,8 @@
                                 scrolling="no" 
                                 style="width: 400px; height: 285px; margin: 0; border-radius: 16px 16px 16px 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
                     </div>
+                    <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
 
-                    <!-- BEEHIIV REDIRECT HANDLER -->
-                    <script>
-                    (function() {
-                        const REDIRECT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html';
-                        let hasRedirected = false;
-
-                        function doRedirect() {
-                            if (hasRedirected) return;
-                            hasRedirected = true;
-                            try {
-                                localStorage.setItem('waiting_completed', 'true');
-                                localStorage.setItem('cost_of_waiting_email', 'true');
-                            } catch(e) {}
-                            window.top.location.href = REDIRECT_URL;
-                        }
-
-                        window.addEventListener('message', function(event) {
-                            if (event.origin && event.origin.includes('beehiiv.com')) {
-                                const data = event.data;
-                                if (typeof data === 'string') {
-                                    if (data.includes('subscribed') || data.includes('success') || data.includes('confirmed')) {
-                                        doRedirect();
-                                    }
-                                }
-                                if (typeof data === 'object' && data !== null) {
-                                    if (data.type === 'beehiiv:subscribe:success' || 
-                                        data.event === 'subscribed' || 
-                                        data.subscribed === true ||
-                                        data.type === 'subscribe_success') {
-                                        doRedirect();
-                                    }
-                                }
-                            }
-                        });
-
-                        const iframe = document.getElementById('beehiivFrame');
-                        if (iframe) {
-                            let initialHeight = iframe.style.height;
-                            const heightObserver = new MutationObserver(function(mutations) {
-                                mutations.forEach(function(mutation) {
-                                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                                        const newHeight = iframe.style.height;
-                                        if (newHeight !== initialHeight && initialHeight) {
-                                            setTimeout(doRedirect, 1500);
-                                        }
-                                    }
-                                });
-                            });
-                            heightObserver.observe(iframe, { attributes: true, attributeFilter: ['style', 'height'] });
-                        }
-                    })();
-                    </script>
-
-                    <!-- TRUST LINE -->
                     <div class="text-center mt-2 pb-2">
                         <p class="text-[10px] text-gray-500 font-mono tracking-wide">
                             Instant access. Your exact ETFs. Zero spam.
@@ -597,9 +702,7 @@
 
         </div>
 
-        <!-- ========================================= -->
-        <!-- FOOTER: Brand Attribution                 -->
-        <!-- ========================================= -->
+        <!-- FOOTER -->
         <footer class="site-footer w-full" x-show="state === 'active'">
             <a href="https://instagram.com/koutalksmoney" target="_blank" rel="noopener noreferrer" class="font-mono text-xs">
                 @koutalksmoney
@@ -614,18 +717,27 @@
     <script>
         function costEngine() {
             return {
+                // Screen states
+                showScanScreen: false,
+                showReturnPopup: false,
+                returnState: '',          // 'subscribed' | 'calculator'
+                lastSavedLoss: 0,
+
                 showModal: false,
                 showSubPopup: false,
+                state: 'idle',            // 'idle' (hidden), 'active'
+                
                 age: 20,
                 contribution: 100,
                 currentWealth: 0,
                 waitYears: 0,
                 
-                state: 'idle', 
-                statusText: '',
-                logs: [],
-                progress: 0,
-                
+                // Scan sequence
+                scanProgress: 15,
+                scanPhase: 0,
+                scanText: '',
+                scanComplete: false,
+
                 displayLoss: 0,
                 lossAnimationFrame: null,
                 _lastAnimStart: 0,
@@ -638,6 +750,75 @@
                 lastVisitLabel: '',
                 
                 saveDebounceTimer: null,
+
+                // ===========================
+                // SCAN SEQUENCE (Optimization 1)
+                // ===========================
+                scanPhases: [
+                    { text: 'Loading compound interest model...', target: 30 },
+                    { text: 'Setting base return: 8% annual (S&P 500)...', target: 50 },
+                    { text: 'Calibrating monthly compounding...', target: 70 },
+                    { text: 'Projecting opportunity cost decay...', target: 88 },
+                    { text: 'Rendering damage report...', target: 100 },
+                ],
+
+                startScanSequence() {
+                    this.showScanScreen = true;
+                    this.scanProgress = 15;
+                    this.scanPhase = 0;
+                    this.scanComplete = false;
+                    this.scanText = '';
+
+                    setTimeout(() => { this.runScanPhase(0); }, 700);
+                },
+
+                runScanPhase(index) {
+                    if (index >= this.scanPhases.length) {
+                        this.scanText = 'Engine ready.';
+                        this.scanPhase = 5;
+                        setTimeout(() => {
+                            this.scanComplete = true;
+                        }, 400);
+                        return;
+                    }
+
+                    const phase = this.scanPhases[index];
+                    this.scanPhase = index;
+                    this.scanText = phase.text;
+                    
+                    setTimeout(() => {
+                        this.scanProgress = phase.target;
+                    }, 100);
+
+                    // Varied durations for realism
+                    const durations = [1000, 1200, 900, 1100, 700];
+                    setTimeout(() => {
+                        this.runScanPhase(index + 1);
+                    }, durations[index]);
+                },
+
+                exitScanScreen() {
+                    this.showScanScreen = false;
+                    setTimeout(() => {
+                        this.state = 'active';
+                        this.saveState();
+                        this.displayLoss = this.loss;
+                    }, 300);
+                },
+
+                // ===========================
+                // RETURNING USER ROUTING (Optimization 2)
+                // ===========================
+                determineReturnState() {
+                    try {
+                        const hasEmail = localStorage.getItem('cost_of_waiting_email');
+                        if (hasEmail === 'true') {
+                            this.returnState = 'subscribed';
+                            return;
+                        }
+                    } catch(e) {}
+                    this.returnState = 'calculator';
+                },
 
                 // ===========================
                 // localStorage PERSISTENCE
@@ -668,6 +849,7 @@
                         if (data.contribution) this.contribution = data.contribution;
                         if (data.currentWealth) this.currentWealth = data.currentWealth;
                         if (data.waitYears !== undefined) this.waitYears = data.waitYears;
+                        if (data.loss) this.lastSavedLoss = data.loss;
                         this.previousWaitYears = this.waitYears;
                         
                         if (data.calculatedAt) {
@@ -695,13 +877,16 @@
                     this.waitYears = 1;
                     this.previousWaitYears = 1;
                     this.isReturningUser = false;
+                    this.lastSavedLoss = 0;
                     this.displayLoss = this.loss;
-                    try { localStorage.removeItem('cost_of_waiting_data'); } catch(e) {}
+                    try { 
+                        localStorage.removeItem('cost_of_waiting_data'); 
+                        localStorage.removeItem('waiting_completed');
+                        localStorage.removeItem('cost_of_waiting_email');
+                    } catch(e) {}
                 },
 
-                // ===========================
                 // Cross-app Freedom Calculator prefill
-                // ===========================
                 prefillFromFreedomCalc() {
                     try {
                         const freedomData = localStorage.getItem('freedom_calculator_result');
@@ -714,9 +899,7 @@
                     } catch(e) { return false; }
                 },
 
-                // ===========================
-                // CTA click handler: routes based on subscription status
-                // ===========================
+                // CTA click handler
                 handleCtaClick() {
                     try {
                         const alreadySubscribed = localStorage.getItem('cost_of_waiting_email') === 'true';
@@ -733,13 +916,22 @@
                 // ===========================
                 // INIT: Smart routing
                 // ===========================
+                _redirectHandler: null,
+                _heightObserver: null,
+                _hasRedirected: false,
+
                 init() {
                     const hasSavedState = this.loadState();
                     
                     if (hasSavedState) {
+                        // RETURNING USER: Show conditional popup
                         this.isReturningUser = true;
                         this.state = 'active';
                         this.displayLoss = 0;
+                        
+                        this.determineReturnState();
+                        this.showReturnPopup = true;
+
                         requestAnimationFrame(() => {
                             this.animateLossCounter(0, this.loss);
                             if (this.loss > 500000) {
@@ -747,7 +939,9 @@
                             }
                         });
                     } else {
+                        // NEW USER: Launch scan sequence
                         this.prefillFromFreedomCalc();
+                        this.startScanSequence();
                     }
 
                     this.$watch('loss', (newLoss, oldLoss) => {
@@ -764,8 +958,88 @@
                             requestAnimationFrame(() => this.triggerDamageFlash());
                         }
                     });
+
+                    // Watch modal for beehiiv redirect
+                    this.$watch('showModal', (isOpen) => {
+                        if (isOpen) {
+                            this.activateRedirectHandler();
+                        } else {
+                            this.deactivateRedirectHandler();
+                        }
+                    });
                 },
 
+                // ===========================
+                // BEEHIIV REDIRECT (moved into Alpine)
+                // ===========================
+                doBeehiivRedirect() {
+                    if (this._hasRedirected) return;
+                    this._hasRedirected = true;
+                    try {
+                        localStorage.setItem('waiting_completed', 'true');
+                        localStorage.setItem('cost_of_waiting_email', 'true');
+                    } catch(e) {}
+                    window.top.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html';
+                },
+
+                activateRedirectHandler() {
+                    const self = this;
+
+                    this._redirectHandler = function(event) {
+                        if (!self.showModal) return;
+                        if (event.origin && event.origin.includes('beehiiv.com')) {
+                            const data = event.data;
+                            if (typeof data === 'string') {
+                                if (data.includes('subscribed') || data.includes('success') || data.includes('confirmed')) {
+                                    self.doBeehiivRedirect();
+                                }
+                            }
+                            if (typeof data === 'object' && data !== null) {
+                                if (data.type === 'beehiiv:subscribe:success' || 
+                                    data.event === 'subscribed' || 
+                                    data.subscribed === true ||
+                                    data.type === 'subscribe_success') {
+                                    self.doBeehiivRedirect();
+                                }
+                            }
+                        }
+                    };
+                    window.addEventListener('message', this._redirectHandler);
+
+                    const iframe = document.getElementById('beehiivFrame');
+                    if (iframe) {
+                        const initialHeight = iframe.style.height;
+                        const observerActivatedAt = Date.now();
+                        this._heightObserver = new MutationObserver(function(mutations) {
+                            if (!self.showModal) return;
+                            if (Date.now() - observerActivatedAt < 3000) return;
+                            mutations.forEach(function(mutation) {
+                                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                                    const newHeight = iframe.style.height;
+                                    if (newHeight !== initialHeight && initialHeight) {
+                                        setTimeout(function() { self.doBeehiivRedirect(); }, 1500);
+                                    }
+                                }
+                            });
+                        });
+                        this._heightObserver.observe(iframe, { attributes: true, attributeFilter: ['style', 'height'] });
+                    }
+                },
+
+                deactivateRedirectHandler() {
+                    if (this._redirectHandler) {
+                        window.removeEventListener('message', this._redirectHandler);
+                        this._redirectHandler = null;
+                    }
+                    if (this._heightObserver) {
+                        this._heightObserver.disconnect();
+                        this._heightObserver = null;
+                    }
+                },
+
+                // ===========================
+                // ANIMATION HELPERS
+                // ===========================
                 animateLossCounter(from, to) {
                     if (this.lossAnimationFrame) {
                         cancelAnimationFrame(this.lossAnimationFrame);
@@ -805,38 +1079,6 @@
                 onSliderChange() {
                     this.previousWaitYears = this.waitYears;
                     this.debounceSave();
-                },
-
-                // ===========================
-                // Processing theater
-                // ===========================
-                ignite() {
-                    this.state = 'processing';
-                    this.progress = 0;
-                    this.logs = [];
-                    
-                    const sequence = [
-                        { text: "LOADING COMPOUND INTEREST MODEL...", delay: 500, prog: 15 },
-                        { text: "SETTING BASE RETURN: 8% ANNUAL (S&P 500 AVG)...", delay: 1200, prog: 35 },
-                        { text: "CALIBRATING MONTHLY COMPOUNDING (8% / 12)...", delay: 2000, prog: 55 },
-                        { text: "PROJECTING OPPORTUNITY COST MODEL...", delay: 2800, prog: 80 },
-                        { text: "RENDERING RESULTS...", delay: 3500, prog: 100 }
-                    ];
-
-                    sequence.forEach(step => {
-                        setTimeout(() => {
-                            this.statusText = step.text;
-                            this.logs.push(step.text);
-                            this.progress = step.prog;
-                            if (this.logs.length > 5) this.logs.shift();
-                        }, step.delay);
-                    });
-
-                    setTimeout(() => {
-                        this.state = 'active';
-                        this.saveState();
-                        this.displayLoss = this.loss;
-                    }, 4100);
                 },
 
                 // ===========================
