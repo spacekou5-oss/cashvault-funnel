@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HIGH-LEVERAGE SYSTEMS BLUEPRINT // Kou Talks Money</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f; --bg2: #111119; --bg3: #18182a; --border: #1e1e2e; --border2: #2a2a3e;
+    --blue: #3b82f6; --electric: #60a5fa; --cyan: #22d3ee; --green: #10b981;
+    --amber: #f59e0b; --red: #ef4444; --purple: #c084fc; --orange: #f97316;
+    --text: #f0f0f5; --text2: #8888a0; --text3: #55556a;
+    --mono: 'Space Mono', monospace; --display: 'Outfit', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--display); min-height: 100vh; }
+  .page { max-width: 920px; margin: 0 auto; padding: 28px 20px 100px; }
+
+  /* TAPE */
+  .tape {
+    background: linear-gradient(135deg, #1e3a6e, #2d5bb9, #3b82f6);
+    border-radius: 2px; padding: 16px 24px; margin-bottom: 28px;
+    transform: rotate(-0.3deg); box-shadow: 0 4px 24px rgba(59,130,246,0.2);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+  }
+  .tape-label { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+  .tape-num { font-family: var(--mono); font-size: 28px; font-weight: 700; color: #fff; }
+  .tape-num span { font-size: 12px; opacity: 0.6; margin-left: 6px; }
+
+  /* HEADER */
+  .header {
+    text-align: center; margin-bottom: 28px; padding: 32px 24px;
+    background: var(--bg2); border: 1px solid rgba(249,115,22,0.25);
+    border-radius: 14px; position: relative; overflow: hidden;
+  }
+  .header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(249,115,22,0.08), transparent 70%);
+    pointer-events: none;
+  }
+  .header .badge { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--orange); margin-bottom: 10px; position: relative; }
+  .header h1 { font-size: 26px; font-weight: 900; color: var(--text); position: relative; margin-bottom: 8px; }
+  .header .sub { font-size: 13px; color: var(--text2); font-weight: 300; position: relative; line-height: 1.6; max-width: 640px; margin: 0 auto; }
+
+  /* MANDATE */
+  .mandate {
+    padding: 20px 24px; background: var(--bg2); border: 1px solid var(--border);
+    border-left: 3px solid var(--orange); border-radius: 0 10px 10px 0; margin-bottom: 28px;
+  }
+  .mandate .label {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--orange); margin-bottom: 8px;
+  }
+  .mandate p { font-size: 13px; color: var(--text); line-height: 1.7; font-weight: 300; }
+  .mandate strong { font-weight: 600; }
+  .hl { color: var(--cyan); font-weight: 500; }
+  .hl-o { color: var(--orange); font-weight: 500; }
+  .hl-g { color: var(--green); font-weight: 500; }
+  .hl-r { color: var(--red); font-weight: 500; }
+  .hl-a { color: var(--amber); font-weight: 500; }
+  .hl-p { color: var(--purple); font-weight: 500; }
+
+  /* MASTER INDEX */
+  .master-index {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px 24px; margin-bottom: 28px;
+  }
+  .master-index .mi-label {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--cyan); margin-bottom: 14px;
+  }
+  .mi-grid { display: flex; flex-direction: column; gap: 4px; }
+  .mi-row {
+    display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+    border-radius: 6px; transition: background 0.2s; cursor: default;
+  }
+  .mi-row:hover { background: var(--bg3); }
+  .mi-num {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+    border-radius: 5px; color: #fff; flex-shrink: 0;
+  }
+  .mi-info { flex: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .mi-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .mi-phase {
+    font-family: var(--mono); font-size: 8px; letter-spacing: 1px; padding: 2px 6px;
+    border-radius: 3px; text-transform: uppercase;
+  }
+  .mi-time { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-left: auto; white-space: nowrap; }
+  .mi-type {
+    font-family: var(--mono); font-size: 8px; letter-spacing: 1px; padding: 2px 6px;
+    border-radius: 3px; text-transform: uppercase;
+  }
+  .type-auto { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.15); }
+  .type-infra { background: rgba(59,130,246,0.1); color: var(--electric); border: 1px solid rgba(59,130,246,0.15); }
+  .type-doc { background: rgba(192,132,252,0.1); color: var(--purple); border: 1px solid rgba(192,132,252,0.15); }
+  .type-rev { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.12); }
+  .type-ops { background: rgba(245,158,11,0.1); color: var(--amber); border: 1px solid rgba(245,158,11,0.15); }
+
+  /* PHASE DIVIDER */
+  .phase-div {
+    margin: 36px 0 20px; padding: 18px 24px; border-radius: 10px;
+    border: 1px solid; position: relative; overflow: hidden;
+  }
+  .phase-div::before {
+    content: ''; position: absolute; inset: 0; opacity: 0.06; pointer-events: none;
+  }
+  .phase-div .phase-tag {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .phase-div h2 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+  .phase-div .phase-meta { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 1px; }
+  .phase-div .phase-context { font-size: 12px; color: var(--text2); line-height: 1.6; margin-top: 8px; }
+
+  /* SYSTEM CARD */
+  .sys-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; margin-bottom: 16px; overflow: hidden;
+  }
+  .sys-head {
+    padding: 16px 20px; display: flex; align-items: flex-start; gap: 14px;
+  }
+  .sys-num {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; color: #fff; flex-shrink: 0; margin-top: 2px;
+  }
+  .sys-title-area { flex: 1; }
+  .sys-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .sys-subtitle { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .sys-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .sys-tag {
+    font-family: var(--mono); font-size: 8px; letter-spacing: 1px; padding: 2px 7px;
+    border-radius: 3px; text-transform: uppercase;
+  }
+  .sys-time-badge {
+    font-family: var(--mono); font-size: 10px; color: var(--text3);
+    white-space: nowrap; margin-top: 4px; text-align: right;
+  }
+  .sys-time-badge strong { color: var(--amber); font-weight: 700; }
+
+  .sys-body {
+    padding: 0 20px 20px; border-top: 1px solid var(--border); margin-top: 0;
+    padding-top: 16px; margin-left: 20px; margin-right: 20px;
+  }
+
+  /* WHAT IT DOES / HOW TO BUILD / AFTER */
+  .sys-section {
+    margin-bottom: 14px;
+  }
+  .sys-section-label {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text3); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+  }
+  .sys-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .sys-section p { font-size: 12px; color: var(--text2); line-height: 1.7; margin-bottom: 6px; }
+  .sys-section strong { color: var(--text); font-weight: 600; }
+
+  /* BUILD STEPS */
+  .build-steps { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .build-steps li {
+    padding: 10px 14px; background: var(--bg3); border-radius: 6px;
+    border-left: 2px solid var(--border2); font-size: 12px; color: var(--text2); line-height: 1.6;
+  }
+  .build-steps li strong { color: var(--text); }
+
+  /* SIGNALS */
+  .signal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .signal-box { padding: 10px 14px; border-radius: 6px; border: 1px solid; }
+  .signal-box.good { background: rgba(16,185,129,0.05); border-color: rgba(16,185,129,0.2); }
+  .signal-box.bad { background: rgba(239,68,68,0.05); border-color: rgba(239,68,68,0.2); }
+  .signal-box .sig-label { font-family: var(--mono); font-size: 8px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+  .signal-box.good .sig-label { color: var(--green); }
+  .signal-box.bad .sig-label { color: var(--red); }
+  .signal-box p { font-size: 11px; color: var(--text2); line-height: 1.5; }
+
+  /* DEPENDENCY */
+  .dep-note {
+    padding: 10px 14px; border-radius: 6px; margin-top: 10px;
+    background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.15);
+  }
+  .dep-note .dep-label { font-family: var(--mono); font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--amber); margin-bottom: 4px; }
+  .dep-note p { font-size: 11px; color: var(--text2); line-height: 1.5; }
+
+  /* AUTOMATION BADGE */
+  .auto-badge {
+    display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px;
+    border-radius: 4px; font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  }
+  .auto-badge.forever { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+  .auto-badge.weekly { background: rgba(245,158,11,0.1); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+  .auto-badge.once { background: rgba(59,130,246,0.1); color: var(--electric); border: 1px solid rgba(59,130,246,0.2); }
+
+  /* CALLOUT */
+  .callout {
+    padding: 16px 20px; border-radius: 10px; margin: 16px 0;
+    border-left: 3px solid;
+  }
+  .callout.blue { background: rgba(59,130,246,0.06); border-color: var(--blue); }
+  .callout.green { background: rgba(16,185,129,0.06); border-color: var(--green); }
+  .callout.red { background: rgba(239,68,68,0.06); border-color: var(--red); }
+  .callout.amber { background: rgba(245,158,11,0.06); border-color: var(--amber); }
+  .callout.orange { background: rgba(249,115,22,0.06); border-color: var(--orange); }
+  .callout p { font-size: 13px; color: var(--text); line-height: 1.7; }
+  .callout strong { font-weight: 700; }
+
+  /* TIME TOTALS */
+  .time-total {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 20px; margin: 20px 0;
+  }
+  .time-total .tt-label {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--amber); margin-bottom: 10px;
+  }
+  .tt-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .tt-row:last-child { border-bottom: none; }
+  .tt-row .tt-name { color: var(--text2); }
+  .tt-row .tt-val { font-family: var(--mono); font-weight: 600; color: var(--text); }
+
+  /* BOTTOM */
+  .bottom {
+    margin-top: 40px; padding: 28px; background: var(--bg2);
+    border: 1px solid rgba(249,115,22,0.2); border-radius: 14px; text-align: center;
+  }
+  .bottom p { font-family: var(--mono); font-size: 11px; color: var(--text2); letter-spacing: 1px; line-height: 1.8; }
+  .bottom .final { color: var(--orange); font-weight: 700; }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .signal-row { grid-template-columns: 1fr; }
+    .sys-head { flex-direction: column; gap: 8px; }
+    .sys-time-badge { text-align: left; }
+    .mi-time { margin-left: 0; }
+    .mi-row { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- TAPE -->
+  <div class="tape">
+    <div>
+      <div class="tape-label">Blue Tape // Days to $1M</div>
+      <div class="tape-num" id="days">---<span>DAYS</span></div>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.5);text-align:right;letter-spacing:1px;">SYSTEMS BLUEPRINT<br>v1.0</div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="badge">Build Once // Runs Forever</div>
+    <h1>HIGH-LEVERAGE SYSTEMS BLUEPRINT</h1>
+    <div class="sub">Every system you must build, in exact order, to make the business run without your hands on it. 21 systems across 5 phases. Each one is built once and produces output indefinitely. This is the COO's construction manifest.</div>
+  </div>
+
+  <!-- MANDATE -->
+  <div class="mandate">
+    <div class="label">The Operating Logic</div>
+    <p>You have <strong>5-8 hours per week.</strong> That is 260-416 hours per year. Every hour spent on a task that could be automated is an hour stolen from content creation, which is the ONLY activity that compounds your revenue. These 21 systems exist to ensure that <strong class="hl">the only thing you touch weekly is a camera and a Sunday scorecard.</strong> Everything else runs on infrastructure you build once.</p>
+    <p style="margin-top:10px;"><strong>Build order matters.</strong> System 1 feeds System 2. System 2 feeds System 3. Skip one and the downstream systems break. Follow the sequence. Do not jump ahead. Each system has a time estimate calibrated to your constraint. Most take 1-3 hours. Some take 30 minutes. None take more than 5.</p>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MASTER INDEX -->
+  <!-- ============================================ -->
+  <div class="master-index">
+    <div class="mi-label">Master Build Order // 21 Systems</div>
+    <div class="mi-grid">
+
+      <!-- PHASE 0 -->
+      <div class="mi-row" style="padding-top:12px;">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--orange);text-transform:uppercase;width:100%;">Phase 0: Clear the Runway (Weeks 0-2)</div>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--orange);">01</div>
+        <div class="mi-info">
+          <span class="mi-name">Beehiiv Email Infrastructure</span>
+          <span class="mi-type type-infra">Infrastructure</span>
+        </div>
+        <span class="mi-time">1.5 hrs</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--orange);">02</div>
+        <div class="mi-info">
+          <span class="mi-name">ManyChat IG Connection</span>
+          <span class="mi-type type-infra">Infrastructure</span>
+        </div>
+        <span class="mi-time">1 hr</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--orange);">03</div>
+        <div class="mi-info">
+          <span class="mi-name">Tool-to-Email Capture Pipeline Verification</span>
+          <span class="mi-type type-infra">Infrastructure</span>
+        </div>
+        <span class="mi-time">2 hrs</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--orange);">04</div>
+        <div class="mi-info">
+          <span class="mi-name">Competitive Intelligence System</span>
+          <span class="mi-type type-doc">Document</span>
+        </div>
+        <span class="mi-time">2 hrs</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--orange);">05</div>
+        <div class="mi-info">
+          <span class="mi-name">Audience Seeding Engine</span>
+          <span class="mi-type type-ops">Operations</span>
+        </div>
+        <span class="mi-time">15 min/day</span>
+      </div>
+
+      <!-- PHASE 1 -->
+      <div class="mi-row" style="padding-top:16px;">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--red);text-transform:uppercase;width:100%;">Phase 1: Prove the Pipes (Months 1-3)</div>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--red);">06</div>
+        <div class="mi-info">
+          <span class="mi-name">ManyChat 5-Keyword Automation</span>
+          <span class="mi-type type-auto">Automation</span>
+        </div>
+        <span class="mi-time">2 hrs</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--red);">07</div>
+        <div class="mi-info">
+          <span class="mi-name">3-Email Welcome Sequence</span>
+          <span class="mi-type type-auto">Automation</span>
+        </div>
+        <span class="mi-time">3 hrs</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--red);">08</div>
+        <div class="mi-info">
+          <span class="mi-name">Content Scheduling Machine</span>
+          <span class="mi-type type-auto">Automation</span>
+        </div>
+        <span class="mi-time">1 hr</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--red);">09</div>
+        <div class="mi-info">
+          <span class="mi-name">Metrics Tracking Dashboard</span>
+          <span class="mi-type type-ops">Operations</span>
+        </div>
+        <span class="mi-time">1.5 hrs</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--red);">10</div>
+        <div class="mi-info">
+          <span class="mi-name">Weekly Operating Checklist</span>
+          <span class="mi-type type-doc">Document</span>
+        </div>
+        <span class="mi-time">1 hr</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--red);">11</div>
+        <div class="mi-info">
+          <span class="mi-name">CEO Sunday Audit Ritual</span>
+          <span class="mi-type type-ops">Operations</span>
+        </div>
+        <span class="mi-time">30 min</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--red);">12</div>
+        <div class="mi-info">
+          <span class="mi-name">3 MVO Landing Pages</span>
+          <span class="mi-type type-rev">Revenue</span>
+        </div>
+        <span class="mi-time">3 hrs</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--red);">13</div>
+        <div class="mi-info">
+          <span class="mi-name">Payment + Digital Delivery System</span>
+          <span class="mi-type type-rev">Revenue</span>
+        </div>
+        <span class="mi-time">2 hrs</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--red);">14</div>
+        <div class="mi-info">
+          <span class="mi-name">Launch Email Sequence</span>
+          <span class="mi-type type-auto">Automation</span>
+        </div>
+        <span class="mi-time">3 hrs</span>
+      </div>
+
+      <!-- PHASE 2 -->
+      <div class="mi-row" style="padding-top:16px;">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--amber);text-transform:uppercase;width:100%;">Phase 2: Make It Repeatable (Months 4-9)</div>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--amber);">15</div>
+        <div class="mi-info">
+          <span class="mi-name">Evergreen Sales Funnel</span>
+          <span class="mi-type type-auto">Automation</span>
+        </div>
+        <span class="mi-time">3 hrs</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--amber);">16</div>
+        <div class="mi-info">
+          <span class="mi-name">Email Segmentation + Re-Engagement Engine</span>
+          <span class="mi-type type-auto">Automation</span>
+        </div>
+        <span class="mi-time">2 hrs</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--amber);">17</div>
+        <div class="mi-info">
+          <span class="mi-name">Post-Purchase Upsell Automation</span>
+          <span class="mi-type type-auto">Automation</span>
+        </div>
+        <span class="mi-time">2 hrs</span>
+      </div>
+
+      <!-- PHASE 3 -->
+      <div class="mi-row" style="padding-top:16px;">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--blue);text-transform:uppercase;width:100%;">Phase 3: Scale (Months 10-18)</div>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--blue);">18</div>
+        <div class="mi-info">
+          <span class="mi-name">SOP Library (Full Process Documentation)</span>
+          <span class="mi-type type-doc">Document</span>
+        </div>
+        <span class="mi-time">4 hrs</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--blue);">19</div>
+        <div class="mi-info">
+          <span class="mi-name">Brand Partnership Operations Kit</span>
+          <span class="mi-type type-rev">Revenue</span>
+        </div>
+        <span class="mi-time">3 hrs</span>
+      </div>
+
+      <!-- PHASE 4-5 -->
+      <div class="mi-row" style="padding-top:16px;">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--green);text-transform:uppercase;width:100%;">Phase 4-5: Leverage + Compound (Months 18-57)</div>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--green);">20</div>
+        <div class="mi-info">
+          <span class="mi-name">Community Platform + Onboarding Automation</span>
+          <span class="mi-type type-rev">Revenue</span>
+        </div>
+        <span class="mi-time">5 hrs</span>
+      </div>
+      <div class="mi-row">
+        <div class="mi-num" style="background:var(--green);">21</div>
+        <div class="mi-info">
+          <span class="mi-name">Revenue Allocation Pipeline</span>
+          <span class="mi-type type-auto">Automation</span>
+        </div>
+        <span class="mi-time">2 hrs</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIME ESTIMATE -->
+  <div class="time-total">
+    <div class="tt-label">Total Build Time Estimate // Across All Phases</div>
+    <div class="tt-row"><span class="tt-name">Phase 0: Clear the Runway (Systems 1-5)</span><span class="tt-val" style="color:var(--orange);">~8 hrs + daily seeding</span></div>
+    <div class="tt-row"><span class="tt-name">Phase 1: Prove the Pipes (Systems 6-14)</span><span class="tt-val" style="color:var(--red);">~17 hrs over 12 weeks</span></div>
+    <div class="tt-row"><span class="tt-name">Phase 2: Make It Repeatable (Systems 15-17)</span><span class="tt-val" style="color:var(--amber);">~7 hrs over 6 months</span></div>
+    <div class="tt-row"><span class="tt-name">Phase 3: Scale (Systems 18-19)</span><span class="tt-val" style="color:var(--blue);">~7 hrs over 9 months</span></div>
+    <div class="tt-row"><span class="tt-name">Phase 4-5: Leverage + Compound (Systems 20-21)</span><span class="tt-val" style="color:var(--green);">~7 hrs over 18+ months</span></div>
+    <div class="tt-row" style="border-top:2px solid var(--border2);padding-top:10px;margin-top:4px;"><span class="tt-name" style="color:var(--text);font-weight:600;">TOTAL ONE-TIME BUILD INVESTMENT</span><span class="tt-val" style="color:var(--cyan);font-size:14px;">~46 hrs</span></div>
+    <div class="tt-row"><span class="tt-name" style="color:var(--text);font-weight:600;">ONGOING WEEKLY MAINTENANCE (AFTER ALL BUILT)</span><span class="tt-val" style="color:var(--green);font-size:14px;">~30 min</span></div>
+  </div>
+
+  <div class="callout orange">
+    <p><strong>46 hours of build time converts into 200+ hours saved per year.</strong> At your rate of $18/hr, that is $3,600+ in reclaimed labor annually, redirected entirely into content creation (the only activity that compounds revenue). The ROI is not close. It is mathematically obscene. Every system below is a permanent employee that works for free, never calls in sick, and never forgets a step.</p>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- PHASE 0: CLEAR THE RUNWAY -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="phase-div" style="border-color:rgba(249,115,22,0.3);background:linear-gradient(135deg,rgba(249,115,22,0.06),transparent);">
+    <div class="phase-tag" style="color:var(--orange);">Phase 0 // Weeks 0-2 // Revenue: $0 (by design)</div>
+    <h2>Clear the Runway</h2>
+    <div class="phase-meta">5 Systems | ~8 hours one-time + daily seeding | Goal: Zero broken pipes when traffic arrives</div>
+    <div class="phase-context">Every system in Phase 1-5 is built on top of these 5 foundations. A broken Beehiiv connection discovered after your first viral video is a catastrophic leak. A broken Beehiiv connection discovered now is a 10-minute fix. This phase exists to make that distinction irrelevant.</div>
+  </div>
+
+  <!-- SYSTEM 01 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--orange);">01</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Beehiiv Email Infrastructure</div>
+        <div class="sys-subtitle">The central nervous system of your entire revenue model. Every dollar you will ever make flows through email first.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-infra">Infrastructure</span>
+          <span class="auto-badge once">Build Once</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>1.5 hrs</strong><br>Maintain: 0 hrs/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">What This System Does</div>
+        <p>Creates the foundation that every email automation in your business depends on. Without a verified Beehiiv account with correct domain settings and subscriber tagging, Systems 3, 7, 14, 15, 16, and 17 all fail. This is the single most critical dependency in the entire blueprint.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Create Beehiiv account.</strong> Use your primary email. Select the free tier (covers up to 2,500 subscribers, which lasts through Phase 1 and most of Phase 2).</li>
+          <li><strong>Verify sending domain.</strong> If using a custom domain: add the 3 DNS records Beehiiv provides (SPF, DKIM, DMARC). If not: confirm the default Beehiiv sending address. Custom domain recommended because it improves deliverability and brand recognition.</li>
+          <li><strong>Create subscriber tags.</strong> Set up these tags now (you will use them across all future systems): <strong>source-freedom-calc, source-cost-of-waiting, source-800-club, source-autopilot, source-prompt-vault, source-budget-calc, source-investment-simp, source-manychat, mvo-kit, mvo-pro, mvo-blueprint, buyer-bronze, buyer-silver, inactive-30d</strong></li>
+          <li><strong>Send yourself a test email.</strong> Create a blank broadcast. Send to yourself. Confirm it lands in your primary inbox, NOT spam. If it lands in spam, your domain DNS records are misconfigured. Fix before proceeding.</li>
+          <li><strong>Add a test subscriber manually.</strong> Use a secondary email. Apply the tag "source-freedom-calc". Confirm the tag is visible in the subscriber profile. This proves tagging works.</li>
+        </ul>
+      </div>
+      <div class="signal-row">
+        <div class="signal-box good">
+          <div class="sig-label">Working</div>
+          <p>Test email in your inbox (not spam). Test subscriber visible with correct tag in Beehiiv dashboard. Account shows "verified" status.</p>
+        </div>
+        <div class="signal-box bad">
+          <div class="sig-label">Broken</div>
+          <p>Test email in spam folder (DNS records wrong). Tags not appearing on subscriber (setup error). Account flagged or unverified.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 02 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--orange);">02</div>
+      <div class="sys-title-area">
+        <div class="sys-title">ManyChat IG Connection</div>
+        <div class="sys-subtitle">The DM automation layer. Every keyword CTA in your videos depends on this connection being alive.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-infra">Infrastructure</span>
+          <span class="auto-badge once">Build Once</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>1 hr</strong><br>Maintain: 0 hrs/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">What This System Does</div>
+        <p>Connects ManyChat to your Instagram account so automated DM replies can fire when someone sends a keyword. This is the bridge between "viewer watches a video" and "viewer uses your tool." Without it, your CTA is "DM me MYNUMBER" and then... silence. Dead air. Lost lead.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Verify Instagram account type.</strong> Open Instagram Settings > Account > Account type. Must be "Business" or "Creator." Personal accounts do NOT work with ManyChat. Switch now if needed.</li>
+          <li><strong>Create ManyChat account.</strong> Go to manychat.com. Sign up. Select Instagram as the platform. Authorize the connection to your IG account.</li>
+          <li><strong>Set up a test keyword.</strong> Create a new automation. Trigger: "User sends message containing TEST". Action: send reply "Connection verified. The machine is online." Save and publish.</li>
+          <li><strong>Test from a separate account.</strong> Use a friend's phone or a secondary IG account. DM your account with the word "TEST". Confirm ManyChat detects it and auto-replies within 5 seconds.</li>
+        </ul>
+      </div>
+      <div class="signal-row">
+        <div class="signal-box good">
+          <div class="sig-label">Working</div>
+          <p>DM "TEST" from separate account. Auto-reply received within seconds. ManyChat dashboard shows the trigger fired.</p>
+        </div>
+        <div class="signal-box bad">
+          <div class="sig-label">Broken</div>
+          <p>No auto-reply (IG account is Personal, not Business/Creator). ManyChat shows "disconnected" (re-authorize). Reply delayed 10+ minutes (ManyChat free tier delay, acceptable).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 03 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--orange);">03</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Tool-to-Email Capture Pipeline Verification</div>
+        <div class="sys-subtitle">The end-to-end pipe test. Popup fires on tool > email enters Beehiiv with correct tag. On all 7 apps.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-infra">Infrastructure</span>
+          <span class="auto-badge once">Build Once</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>2 hrs</strong><br>Maintain: 0 hrs/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">What This System Does</div>
+        <p>Verifies that the most critical conversion moment in your entire funnel actually works: user finishes using a tool, popup appears, they enter their email, and that email lands in Beehiiv with the correct source tag. This is the moment where anonymous traffic becomes an owned relationship. If this is broken, every video you make is pouring water into a bucket with no bottom.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Open each tool on your actual phone (not desktop).</strong> Walk through the full user experience: enter sample data > view result > wait for popup. Test all 7:
+            <br>Freedom Calculator, Cost of Waiting Calculator, 800-Club Checklist, Autopilot Architecture Map, Prompt Vault, Investment Simplifier, Budget Calculator.</li>
+          <li><strong>For each tool, verify the Psychological Warfare Suite:</strong>
+            <br>(1) Fake loading screen fires BEFORE result (Idleness Aversion).
+            <br>(2) Progress bar starts at 15%, not 0% (Goal Gradient).
+            <br>(3) Popup fires AFTER result delivery, not before.
+            <br>(4) Button text is specific ("Send My Full Report"), not generic ("Submit").
+            <br>Document any tool that fails any of these 4 checks.</li>
+          <li><strong>Enter a test email in the popup on each tool.</strong> Use a unique email per tool (e.g., test-freedom@youremail.com) so you can identify which source tag maps to which tool. Confirm each email appears in Beehiiv with the matching source tag.</li>
+          <li><strong>Document failures in a priority list:</strong> Critical (popup does not fire at all or email does not reach Beehiiv), Major (popup fires at wrong time or tag is missing), Minor (cosmetic issues). Fix all Critical before advancing to System 04.</li>
+        </ul>
+      </div>
+      <div class="signal-row">
+        <div class="signal-box good">
+          <div class="sig-label">Working</div>
+          <p>All 7 tools: popup fires after result, button is specific, test email appears in Beehiiv with correct source tag. Zero Critical issues.</p>
+        </div>
+        <div class="signal-box bad">
+          <div class="sig-label">Broken</div>
+          <p>Popup does not fire (JavaScript error, check browser console). Email not in Beehiiv (embed code missing or Beehiiv form ID wrong). Wrong tag applied (form configuration error).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 04 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--orange);">04</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Competitive Intelligence System</div>
+        <div class="sys-subtitle">A living document that maps what everyone else does so you can do what nobody does.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-doc">Document</span>
+          <span class="auto-badge weekly">Update Quarterly</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>2 hrs</strong><br>Maintain: 1 hr/quarter</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">What This System Does</div>
+        <p>Produces a gap analysis that directly informs your MVO concepts in System 12. Without this, your 3 product concepts are guesses. With it, they are bets placed against a mapped terrain. The deliverable is a Google Sheet with competitor data and a 1-paragraph attack vector statement.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Create a Google Sheet with columns:</strong> Account Name | Follower Count | Content Format (video/text/carousels) | What They Sell (free/low-ticket/high-ticket) | Price Points | CTA Structure (bio link > where?) | Pain They Address | Engagement Feel (active comments vs. ghost) | Unique Angle | Gap (what they are NOT doing)</li>
+          <li><strong>Identify 8-12 Gen Z finance creators.</strong> Search Instagram for #genzmoney, #moneytok, #financialliteracy. Find accounts between 1K-100K followers (your competitive band). Exclude anyone above 500K (different game).</li>
+          <li><strong>Fill in the sheet for each account.</strong> Spend no more than 10 minutes per account. You are mapping the terrain, not studying for an exam.</li>
+          <li><strong>Write the attack vector.</strong> At the bottom of the sheet, one paragraph: "Every competitor does X. Nobody does Y. Our attack vector is Y." This Y must be specific. "Better content" is not an attack vector. "Interactive personalized tools that calculate YOUR number, not generic advice" is.</li>
+          <li><strong>Bonus: flag 3-5 collaboration targets.</strong> Creators at your level or slightly above who share your audience but do not compete directly. These become outreach targets for Phase 3.</li>
+        </ul>
+      </div>
+      <div class="signal-row">
+        <div class="signal-box good">
+          <div class="sig-label">Working</div>
+          <p>8+ competitors documented. Attack vector statement is specific and actionable. Sheet saved and accessible. MVO concepts in System 12 can directly reference this data.</p>
+        </div>
+        <div class="signal-box bad">
+          <div class="sig-label">Broken</div>
+          <p>Fewer than 6 competitors analyzed (not enough data). Attack vector is vague ("be different" tells you nothing). No price point data collected (you cannot position your MVO without knowing the market).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 05 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--orange);">05</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Audience Seeding Engine</div>
+        <div class="sys-subtitle">30-80 followers before the first video drops so the algorithm sees engagement, not a void.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-ops">Operations</span>
+          <span class="auto-badge weekly">15 min/day for 14 days</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>30 min setup</strong><br>Run: 15 min/day x 14 days</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">What This System Does</div>
+        <p>Solves the cold start problem. Zero followers + great content = zero distribution. The algorithm needs initial engagement signals (likes, comments, shares) within the first 30-60 minutes of a post going live. This system plants the kindling so your first video has a warm audience to ignite.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Pull 50 accounts from your competitive intelligence sheet (System 04).</strong> Include the 8-12 competitors PLUS accounts from their comment sections that seem like your target audience. Save as a list in your Notes app for daily reference.</li>
+          <li><strong>Daily ritual (15 min, non-negotiable):</strong> Follow 5-8 new accounts. Leave 2-3 genuine comments on their content (not "great post." Something that adds value or shows you actually engaged with their content). DM 1-2 creators with a real compliment or question.</li>
+          <li><strong>Track:</strong> Record follower count at start of Phase 0 and at end. Goal: 30-80 organic followers by Day 14. These are real people who recognize your name before your first video.</li>
+        </ul>
+      </div>
+      <div class="dep-note">
+        <div class="dep-label">This System Expires</div>
+        <p>Audience seeding runs for 14 days during Phase 0 only. Once your first content drops and content-driven growth begins, this daily ritual is replaced by the engagement blocks in the Weekly Operating Checklist (System 10). It is kindling, not fuel.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 0 GATE -->
+  <div class="callout red" style="margin:24px 0;">
+    <p><strong>PHASE 0 GATE CHECK.</strong> Do NOT build System 06 until all 5 Phase 0 systems are verified. The gate checklist: (1) Beehiiv account verified, test email in inbox. (2) ManyChat connected, test keyword fires. (3) All 7 tool popups push email to Beehiiv with correct tags. (4) Competitive gap analysis complete with attack vector. (5) 30+ organic followers seeded. If ANY of these fail, stay in Phase 0 and fix it. The cost of a 3-day delay now is nothing. The cost of a broken pipe after 10,000 views is catastrophic.</p>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- PHASE 1: PROVE THE PIPES -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="phase-div" style="border-color:rgba(239,68,68,0.3);background:linear-gradient(135deg,rgba(239,68,68,0.06),transparent);">
+    <div class="phase-tag" style="color:var(--red);">Phase 1 // Months 1-3 // Revenue Target: First $100</div>
+    <h2>Prove the Pipes</h2>
+    <div class="phase-meta">9 Systems | ~17 hours over 12 weeks | Goal: First dollar from a stranger</div>
+    <div class="phase-context">Every system in this phase serves one purpose: prove someone will pay you. The email machine captures leads. The scheduling machine distributes content. The MVO pages test product concepts. The payment system collects money. When this phase is complete, you have a functioning business, not a hobby.</div>
+  </div>
+
+  <!-- SYSTEM 06 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--red);">06</div>
+      <div class="sys-title-area">
+        <div class="sys-title">ManyChat 5-Keyword Automation</div>
+        <div class="sys-subtitle">5 keywords. 5 auto-replies. Every video CTA you will ever say routes through here.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-auto">Automation</span>
+          <span class="auto-badge forever">Runs Forever</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>2 hrs</strong><br>Maintain: 0 hrs/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">What This System Does</div>
+        <p>When you say "DM me MYNUMBER" in a video, this system auto-replies with the Freedom Calculator link, waits 30 seconds, then sends a follow-up nudge to enter their email on the tool. You build this once. It handles every DM for every keyword for the rest of the business's life. Zero manual DMs ever again.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Create 5 keyword flows in ManyChat.</strong> Each flow has the same 3-step structure:
+            <br>Step 1: Keyword detected.
+            <br>Step 2: Immediate reply with tool link + one-line hook.
+            <br>Step 3: 30-second delay > follow-up message: "Want the full breakdown? Drop your email on the tool and I'll send the deep dive."</li>
+          <li><strong>AUTOPILOT:</strong> "Here's the system that moves your money before you can spend it:" + Autopilot Architecture Map link</li>
+          <li><strong>LEAK:</strong> "This calculator shows exactly how much money you're losing every day you wait:" + Cost of Waiting Calculator link</li>
+          <li><strong>ELITE800:</strong> "Here's the exact checklist to hit an 800 credit score:" + 800-Club Checklist link</li>
+          <li><strong>MYNUMBER:</strong> "10 seconds. One number. You'll never think about money the same way:" + Freedom Calculator link</li>
+          <li><strong>CHEAT:</strong> "Here are the exact AI prompts I use to run my finances in 10 min/week:" + Prompt Vault link</li>
+          <li><strong>Test every keyword from a separate account.</strong> Confirm each flow fires correctly with the right link and follow-up delay.</li>
+        </ul>
+      </div>
+      <div class="signal-row">
+        <div class="signal-box good">
+          <div class="sig-label">Working</div>
+          <p>All 5 keywords trigger instantly. Correct tool link in each reply. 30-second delay follow-up arrives. Links are clickable and open the correct tool.</p>
+        </div>
+        <div class="signal-box bad">
+          <div class="sig-label">Broken</div>
+          <p>Keyword not detected (flow not published or keyword misspelled). Wrong link sent (copy-paste error). Follow-up never arrives (delay node misconfigured).</p>
+        </div>
+      </div>
+      <div class="dep-note">
+        <div class="dep-label">Dependency</div>
+        <p>Requires System 02 (ManyChat IG Connection). If ManyChat is not connected to IG, no keyword triggers will fire.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 07 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--red);">07</div>
+      <div class="sys-title-area">
+        <div class="sys-title">3-Email Welcome Sequence</div>
+        <div class="sys-subtitle">The trust-building machine. Every new subscriber enters this sequence automatically for the rest of time.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-auto">Automation</span>
+          <span class="auto-badge forever">Runs Forever</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>3 hrs</strong><br>Maintain: 0 hrs/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">What This System Does</div>
+        <p>Converts a cold email address into a warm relationship over 5 days. Every person who enters their email on any of your 7 tools automatically receives 3 emails: immediate value delivery, Day 2 deeper insight, Day 5 relationship bridge or soft offer. This sequence runs without you. It is the trust engine that makes System 14 (Launch Emails) and System 15 (Evergreen Funnel) possible.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>In Beehiiv, create an Automation.</strong> Trigger: "New subscriber added." This fires for EVERY new subscriber regardless of source.</li>
+          <li><strong>Email 1 (Immediate):</strong> Subject line includes the specific tool they used (use merge tag if available, or default to: "Your number is ready"). Body: deliver the result/insight they signed up for. Short. Personal. End with a question that invites a reply ("Hit reply and tell me: what surprised you most about your number?"). Replies train the algorithm that your emails are conversations, not spam.</li>
+          <li><strong>Email 2 (Day 2 delay):</strong> Subject: something that creates curiosity about the math behind their result. Body: go deeper on the system. Show the compound math. Show the Operational Transparency (Glass Box: "Here's exactly how I calculated that number"). End with a bridge to a second tool ("Now that you know your Freedom Number, here's what it costs you every day you don't act on it:" + Cost of Waiting link).</li>
+          <li><strong>Email 3 (Day 5 delay):</strong> Subject: relationship bridge. Body: your story. Why you are building this. The Blue Tape. The $1M countdown. Human connection. End with ONE CTA: either a soft product offer (if MVO is live) or a prompt to explore another tool. Single button. Not multiple links.</li>
+          <li><strong>Test the entire sequence.</strong> Subscribe with a test email. Confirm Email 1 arrives immediately. Wait and confirm Email 2 arrives on Day 2. Confirm Email 3 arrives on Day 5. Check rendering on mobile.</li>
+        </ul>
+      </div>
+      <div class="signal-row">
+        <div class="signal-box good">
+          <div class="sig-label">Working</div>
+          <p>All 3 emails fire on schedule. Open rate above 50% on Email 1. Emails render correctly on mobile. At least 1 reply received from early subscribers (proves engagement).</p>
+        </div>
+        <div class="signal-box bad">
+          <div class="sig-label">Broken</div>
+          <p>Emails not firing (automation not published or trigger misconfigured). Open rate below 30% (subject lines are generic, rewrite). Emails in spam (deliverability issue, check System 01 domain settings).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 08 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--red);">08</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Content Scheduling Machine</div>
+        <div class="sys-subtitle">Batch record once. Auto-post for 2 weeks. Eliminate the daily "open app and post" friction.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-auto">Automation</span>
+          <span class="auto-badge forever">Runs Forever</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>1 hr</strong><br>Maintain: 30 min/2 wks</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">What This System Does</div>
+        <p>Separates content creation from content distribution. You batch-record 2-4 videos in one session. Then you upload and schedule them across 2 weeks. Monday and Thursday posting cadence runs on autopilot. You never have to think "I should post today" again. That decision is made once, in advance, by the system.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Pick a scheduling tool.</strong> Later (free tier: 30 posts/month), Buffer (free tier: 3 channels), or native IG scheduler (free, limited features). Later is recommended for the visual calendar view.</li>
+          <li><strong>Connect Instagram + YouTube.</strong> Authorize the tool to post on your behalf. Verify a test post schedules and publishes correctly.</li>
+          <li><strong>Set up the cadence template:</strong> Monday 11AM EST, Thursday 11AM EST. Same times every week. Consistency trains the algorithm and your audience.</li>
+          <li><strong>Create the workflow:</strong> Biweekly batch record (Saturday) > Upload to scheduling tool (same day) > Schedule 4 videos across next 2 weeks > Done. Hands off until next batch session.</li>
+        </ul>
+      </div>
+      <div class="signal-row">
+        <div class="signal-box good">
+          <div class="sig-label">Working</div>
+          <p>Videos publish automatically on Monday/Thursday without you touching your phone. Content goes live even when you are in class or at work.</p>
+        </div>
+        <div class="signal-box bad">
+          <div class="sig-label">Broken</div>
+          <p>Scheduled post fails to publish (IG authorization expired, re-connect). Reels do not schedule on free tier (some tools require paid for Reels, verify before committing).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 09 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--red);">09</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Metrics Tracking Dashboard</div>
+        <div class="sys-subtitle">One Google Sheet. Updated every Sunday. The only numbers that matter, in one place.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-ops">Operations</span>
+          <span class="auto-badge weekly">5 min/week</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>1.5 hrs</strong><br>Maintain: 5 min/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">What This System Does</div>
+        <p>Without data, the Sunday CEO audit (System 11) is guesswork. This dashboard is the single source of truth for your business health. It tracks 9 metrics weekly and auto-calculates trends. You update it in 5 minutes on Sunday before the audit. It tells you what is working and what is leaking.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Create a Google Sheet with these columns (one row per week):</strong> Week # | Date | New Email Subscribers | Total Email List Size | Email Open Rate | Email Click Rate | IG Follower Count | Avg Views Per Video | Engagement Rate | ManyChat Keyword Triggers | Waitlist/Product Signups | Revenue | Notes</li>
+          <li><strong>Add a "Trends" row</strong> that auto-calculates week-over-week change for each metric using a simple formula: =(this week - last week)/last week. Color code: green if positive, red if negative.</li>
+          <li><strong>Add a "Health" summary at the top:</strong> Total subs, total revenue, average growth rate. This is what you glance at during the Sunday audit.</li>
+          <li><strong>Bookmark the sheet on your phone.</strong> Sunday evening: open sheet, pull numbers from Beehiiv, IG, and ManyChat dashboards, enter them, done. 5 minutes max.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 10 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--red);">10</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Weekly Operating Checklist</div>
+        <div class="sys-subtitle">The single-page document that tells you exactly what to do every day. Zero decisions required.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-doc">Document</span>
+          <span class="auto-badge once">Build Once</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>1 hr</strong><br>Maintain: 0 hrs/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">What This System Does</div>
+        <p>Eliminates decision fatigue. You never wake up wondering "what should I work on today?" The checklist tells you. Print it. Tape it to the wall. Follow it. Every day has a defined purpose, a time box, and a specific action. This is how 5-8 hours/week produces the output of 20.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">The Checklist</div>
+        <ul class="build-steps">
+          <li><strong>MONDAY:</strong> Video 1 auto-publishes (System 08). Engage 15 min (comment on 5-10 target accounts from System 05 list). Review any ManyChat messages that need manual follow-up (rare).</li>
+          <li><strong>TUESDAY:</strong> Engage 15 min. DM 3-5 target accounts (relationship building, not pitching). Reply to any email responses from welcome sequence.</li>
+          <li><strong>WEDNESDAY:</strong> Send weekly email to list (one value piece or tool bridge). Engage 15 min.</li>
+          <li><strong>THURSDAY:</strong> Video 2 auto-publishes (System 08). Engage 15 min. Check ManyChat for any triggered keyword issues.</li>
+          <li><strong>FRIDAY:</strong> Engage 15 min. DM 3-5 target accounts. Review email open rate from Wednesday send.</li>
+          <li><strong>SATURDAY (Biweekly):</strong> Batch record 2-4 videos. Upload to scheduler (System 08). Schedule for next 2 weeks. On off-Saturdays: PMF testing / DM conversations / product work.</li>
+          <li><strong>SUNDAY (15 min):</strong> Update Metrics Dashboard (System 09). Run CEO Scorecard Audit (System 11). Identify lowest-scoring duty. That becomes next week's focus area. Schedule next week's email.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 11 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--red);">11</div>
+      <div class="sys-title-area">
+        <div class="sys-title">CEO Sunday Audit Ritual</div>
+        <div class="sys-subtitle">15 minutes. 12 duties scored. Lowest score = next week's focus. The accountability loop that prevents drift.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-ops">Operations</span>
+          <span class="auto-badge weekly">15 min/week</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>30 min</strong><br>Maintain: 15 min/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Set a recurring calendar reminder:</strong> Sunday 8PM. Non-negotiable. Title: "CEO Audit. 15 minutes. No excuses."</li>
+          <li><strong>Open the CEO Self-Audit Scorecard app.</strong> Rate all 12 duties. Lock in the audit. The lowest-scoring duty becomes the single focus improvement for the following week.</li>
+          <li><strong>Update the Metrics Dashboard (System 09) immediately before the audit</strong> so the data is fresh when you score yourself.</li>
+          <li><strong>Track audit completion streak.</strong> Goal: never break the chain. 4+ consecutive Sundays means the habit is locked. If you miss one, that is the priority fix for the following week, above everything else.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 12 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--red);">12</div>
+      <div class="sys-title-area">
+        <div class="sys-title">3 MVO Landing Pages</div>
+        <div class="sys-subtitle">The PMF test. 3 product concepts. 3 landing pages. Data decides the winner.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-rev">Revenue</span>
+          <span class="auto-badge once">Build Once</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>3 hrs</strong><br>Maintain: 0 hrs/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">What This System Does</div>
+        <p>Tests 3 product concepts simultaneously using real traffic. Each page has a pain-based headline, 3-5 bullets of what is included, a price, and a "Join the Waitlist" button connected to Beehiiv. The concept with the highest waitlist conversion rate wins. You build only the winning product. This saves months of building something nobody wants.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Create 3 HTML pages under your existing GitHub Pages repo.</strong> Keep them simple. The variable being tested is the OFFER, not the design. Same layout for all 3. Different headline, bullets, and price.</li>
+          <li><strong>Concept A: Autopilot Money Kit ($19).</strong> Pre-built budget spreadsheet + automation setup guide + credit checklist. Pain: "You keep saying you'll save but there's nothing left by month end."</li>
+          <li><strong>Concept B: Investment Simplifier Pro ($29).</strong> Premium calculator + personalized recommendations + 5-day email mini-course. Pain: "You've been told to invest but nobody showed you HOW with $25/week."</li>
+          <li><strong>Concept C: Capital Blueprint ($24).</strong> Comprehensive ebook + toolkit + 3 video walkthroughs. Pain: "Financial freedom feels like a fantasy because nobody gave you the actual math."</li>
+          <li><strong>Each "Join Waitlist" button connects to Beehiiv</strong> with a unique tag: mvo-kit, mvo-pro, mvo-blueprint. This lets you measure which concept gets the most signups relative to page visits.</li>
+          <li><strong>After 3 weeks of traffic (driven by content):</strong> Pull data. Compare conversion rates. The winner gets built. The losers get archived.</li>
+        </ul>
+      </div>
+      <div class="dep-note">
+        <div class="dep-label">Dependencies</div>
+        <p>Requires System 01 (Beehiiv) for waitlist forms and System 04 (Competitive Intelligence) to inform concept positioning. Content Creator drives traffic by mentioning concepts in 2 videos/week.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 13 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--red);">13</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Payment + Digital Delivery System</div>
+        <div class="sys-subtitle">Customer pays > product delivered instantly > zero manual steps. The revenue pipe.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-rev">Revenue</span>
+          <span class="auto-badge forever">Runs Forever</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>2 hrs</strong><br>Maintain: 0 hrs/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Select platform:</strong> Gumroad (simplest, 10% fee), Lemon Squeezy (modern, 5% + 50c), or Stripe + custom delivery (most control, 2.9% + 30c). For Phase 1: Gumroad or Lemon Squeezy. Minimize setup time. Switch to Stripe when volume justifies the complexity.</li>
+          <li><strong>Create the product listing for the winning MVO concept.</strong> Upload the digital deliverable (PDF, spreadsheet, video links). Set price. Write the product page copy.</li>
+          <li><strong>Configure instant delivery.</strong> After payment: customer receives download link immediately via email. Test this end-to-end with a $0 test purchase. Confirm the product arrives within 60 seconds of payment.</li>
+          <li><strong>Connect to Beehiiv.</strong> When someone purchases, auto-tag them in Beehiiv as "buyer-bronze." This tag is critical for System 17 (Post-Purchase Upsell). If your platform supports webhooks or Zapier, set this up now.</li>
+          <li><strong>Build the sales page.</strong> Host on GitHub Pages (free). Structure: headline (pain) > proof (what they get) > price > buy button > FAQ. Single CTA. No distractions.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 14 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--red);">14</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Launch Email Sequence</div>
+        <div class="sys-subtitle">3-5 emails over 7 days that turn your first subscriber list into your first paying customers.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-auto">Automation</span>
+          <span class="auto-badge once">Build Once, Reusable</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>3 hrs</strong><br>Maintain: 0 hrs/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Email 1 (Day 1, "The Tease"):</strong> Something is coming. Reference the pain your product solves. Do NOT reveal the product yet. Create anticipation. End with: "Tomorrow I'm sharing the exact system I built to fix this."</li>
+          <li><strong>Email 2 (Day 2, "The Reveal"):</strong> Announce the product. Explain what it is, who it is for, and what result it produces. Include the price. Link to sales page. Keep it under 300 words.</li>
+          <li><strong>Email 3 (Day 4, "Social Proof"):</strong> If beta testers used it: share their feedback. If no beta data: share your own result from using the system. Show the Operational Transparency. End with sales page link.</li>
+          <li><strong>Email 4 (Day 6, "Urgency/Bonus"):</strong> Limited-time bonus (extra template, video walkthrough, or access to a second tool). Deadline creates action. "This bonus disappears in 48 hours" is acceptable. Manufactured scarcity on an infinite digital product is NOT. Use bonuses, not fake limits.</li>
+          <li><strong>Email 5 (Day 7, "Last Call"):</strong> Final reminder. Short. 5-7 sentences max. Restate the result. Restate the price. One link. Done.</li>
+          <li><strong>This sequence becomes the template for every future launch.</strong> Silver launch, Gold launch, community launch. Same 5-email structure, different product. Build it right once.</li>
+        </ul>
+      </div>
+      <div class="dep-note">
+        <div class="dep-label">Dependencies</div>
+        <p>Requires System 01 (Beehiiv), System 07 (Welcome Sequence must have already warmed the list), and System 13 (Payment + Delivery must be live before Email 2 sends).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 1 GATE -->
+  <div class="callout red" style="margin:24px 0;">
+    <p><strong>PHASE 1 EXIT CRITERIA.</strong> Do NOT advance to Phase 2 systems until: (1) 5+ sales from organic traffic. (2) All funnel paths tested: IG Reel > keyword DM > ManyChat > tool > popup > email > welcome sequence > launch emails > purchase > delivery. (3) Email list at 150-300 subscribers. (4) Welcome sequence open rate above 40%. (5) Zero manual DM interventions needed for keyword triggers. If ANY of these fail, iterate in Phase 1. Do not stack more systems on a cracked foundation.</p>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- PHASE 2: MAKE IT REPEATABLE -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="phase-div" style="border-color:rgba(245,158,11,0.3);background:linear-gradient(135deg,rgba(245,158,11,0.06),transparent);">
+    <div class="phase-tag" style="color:var(--amber);">Phase 2 // Months 4-9 // Revenue Target: $500-2,000/mo</div>
+    <h2>Make It Repeatable</h2>
+    <div class="phase-meta">3 Systems | ~7 hours total | Goal: Revenue arrives without manual launches</div>
+    <div class="phase-context">Phase 1 proved someone will pay. Phase 2 makes that payment automatic. The evergreen funnel sells daily without you touching it. The segmentation engine sends the right message to the right person. The upsell automation converts Bronze buyers into Silver buyers while you sleep.</div>
+  </div>
+
+  <!-- SYSTEM 15 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--amber);">15</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Evergreen Sales Funnel</div>
+        <div class="sys-subtitle">Every new subscriber automatically receives the Bronze offer on Day 7-10. Sales happen daily on autopilot.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-auto">Automation</span>
+          <span class="auto-badge forever">Runs Forever</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>3 hrs</strong><br>Maintain: 0 hrs/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">What This System Does</div>
+        <p>Converts the Phase 1 launch sequence (System 14) into a permanent automated funnel. Instead of manual launches, every new subscriber enters the welcome sequence (System 07) and then, on Day 7-10, automatically receives a condensed version of the launch emails. Sales happen daily. No manual sends. No launch stress. The funnel runs itself.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>In Beehiiv, extend the existing welcome sequence automation.</strong> After Email 3 (Day 5): add a Day 7 delay > then 3 evergreen sales emails over 5 days (condensed from the 5-email launch sequence). These are the same emails, lightly rewritten to remove time-specific language ("launching today" becomes "I built this for people in your exact situation").</li>
+          <li><strong>Add social proof to the sales page.</strong> Update monthly with: total buyer count, testimonials, specific results. Real numbers, not vague praise.</li>
+          <li><strong>Exclude existing buyers.</strong> Add a condition: if subscriber has tag "buyer-bronze", skip the sales emails. They already bought. Sending them a sales pitch for something they own destroys trust.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 16 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--amber);">16</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Email Segmentation + Re-Engagement Engine</div>
+        <div class="sys-subtitle">Right message to right person. Dead subscribers cleaned automatically.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-auto">Automation</span>
+          <span class="auto-badge forever">Runs Forever</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>2 hrs</strong><br>Maintain: 0 hrs/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Set up 3 segmentation layers in Beehiiv:</strong>
+            <br>Layer 1: Entry Point (which tool they used). Already tagged from System 03.
+            <br>Layer 2: Buyer Status (non-buyer, buyer-bronze, buyer-silver). Tagged from System 13.
+            <br>Layer 3: Engagement (active = opened email in last 30 days, inactive = no opens in 30 days).</li>
+          <li><strong>Build a re-engagement sequence for inactive subscribers.</strong> Trigger: no email opened in 30 days. Send 2 emails: Email 1: "Still interested in building your financial machine?" with a high-value tool link. Email 2 (3 days later): "No hard feelings. Reply YES to stay, or I'll clean up the list." If no reply after 7 more days: auto-remove. Dead subscribers hurt deliverability for everyone else.</li>
+          <li><strong>Use segments for future sends.</strong> Weekly email goes to Active subscribers only. Product offers go to non-buyers only. Upsell offers go to Bronze buyers only. Segmented emails perform 2-3x better than blasts.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 17 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--amber);">17</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Post-Purchase Upsell Automation</div>
+        <div class="sys-subtitle">Bronze buyers automatically see Silver offer 14-30 days after purchase. Zero manual selling.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-auto">Automation</span>
+          <span class="auto-badge forever">Runs Forever</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>2 hrs</strong><br>Maintain: 0 hrs/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Create a new automation in Beehiiv.</strong> Trigger: subscriber receives tag "buyer-bronze." Delay: 14-30 days (enough time for them to use the product and hit the next problem).</li>
+          <li><strong>Send 3 upsell emails:</strong>
+            <br>Email 1: "You've set up the Bronze system. Here's the next bottleneck you're going to hit." (Identify the problem Silver solves.)
+            <br>Email 2 (Day 2): "Here's exactly what's inside the Silver tier and how it picks up where Bronze left off."
+            <br>Email 3 (Day 4): "Last chance at the upgrade price." Include one clear CTA to the Silver sales page.</li>
+          <li><strong>Target upsell rate: 15-25%.</strong> If a Bronze buyer paid $19 and 20% upgrade to Silver at $49, that is an automatic $9.80 additional revenue per Bronze buyer, extracted with zero extra content or effort.</li>
+        </ul>
+      </div>
+      <div class="dep-note">
+        <div class="dep-label">Dependencies</div>
+        <p>Requires System 13 (buyer tagging) and a live Silver product (Phase 2 product development, separate from systems build).</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- PHASE 3: SCALE -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="phase-div" style="border-color:rgba(59,130,246,0.3);background:linear-gradient(135deg,rgba(59,130,246,0.06),transparent);">
+    <div class="phase-tag" style="color:var(--blue);">Phase 3 // Months 10-18 // Revenue Target: $2,000-5,000/mo</div>
+    <h2>Scale</h2>
+    <div class="phase-meta">2 Systems | ~7 hours total | Goal: Every repeatable task documented, brand deals operational</div>
+    <div class="phase-context">The product ladder is running. The funnels are converting. Now the bottleneck is your time. These 2 systems ensure that every task that has been done 10+ times is documented (SOPs), and that brand partnerships have a professional intake process instead of chaotic DMs.</div>
+  </div>
+
+  <!-- SYSTEM 18 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--blue);">18</div>
+      <div class="sys-title-area">
+        <div class="sys-title">SOP Library (Full Process Documentation)</div>
+        <div class="sys-subtitle">Every task that has been done 10+ times gets a written process. Delegation-ready from Day 1.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-doc">Document</span>
+          <span class="auto-badge once">Build Once, Update as Needed</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>4 hrs</strong><br>Maintain: 30 min/quarter</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">What This System Does</div>
+        <p>Captures every repeatable process in a documented format that anyone (a VA, a future hire, or future-you who forgot the steps) can follow. This is the prerequisite for Phase 4-5 delegation. Without SOPs, you cannot hire help without spending equal time training them. With SOPs, onboarding takes hours instead of weeks.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">SOPs to Document</div>
+        <ul class="build-steps">
+          <li><strong>Content Scheduling SOP:</strong> How to upload videos to scheduling tool, set times, cross-post to YouTube.</li>
+          <li><strong>Metrics Pulling SOP:</strong> Where to find each number (Beehiiv dashboard, IG Insights, ManyChat analytics), how to enter into the dashboard.</li>
+          <li><strong>Email Management SOP:</strong> How to write and schedule the weekly email, how to check deliverability, how to handle bounce/spam issues.</li>
+          <li><strong>Funnel Audit SOP:</strong> Monthly walkthrough of every funnel path on mobile, checklist of what to verify, how to document and fix breaks.</li>
+          <li><strong>Product Delivery SOP:</strong> How to update product files, how to handle customer support (refund process, delivery failure troubleshooting).</li>
+          <li><strong>CEO Audit SOP:</strong> Step-by-step Sunday ritual (update metrics > open Scorecard > score > identify focus > schedule next week's email).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 19 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--blue);">19</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Brand Partnership Operations Kit</div>
+        <div class="sys-subtitle">Media kit + vetting checklist + rate card + inquiry system. Professional from first contact.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-rev">Revenue</span>
+          <span class="auto-badge once">Build Once, Update Quarterly</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>3 hrs</strong><br>Maintain: 1 hr/quarter</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Media Kit (1-page PDF):</strong> Audience demographics (age, income range, platform split). Engagement metrics (avg views, email list size, open rate). Brand voice summary ("anti-guru, systems-obsessed, proof-based"). Content examples (top 3 performing videos). Contact info.</li>
+          <li><strong>Vetting Checklist (3 questions):</strong> (1) Does this brand align with the anti-guru ethos? (2) Would I use this product personally? (3) Would my audience trust this recommendation? If any answer is no: decline, regardless of payment. One bad partnership destroys 18 months of trust.</li>
+          <li><strong>Rate Card:</strong> Sponsored Reel: $X. Dedicated video: $X. Email mention: $X. Affiliate minimum commission: 20%. (Fill in rates when you have traffic data to justify them. In early Phase 3, $500-2,000/post is realistic with 5K+ engaged followers.)</li>
+          <li><strong>Inquiry System:</strong> Simple Google Form or dedicated email (partnerships@yourdomain.com). Link in your IG bio under "For Brands." Professional intake > auto-response acknowledging receipt > you review and respond within 48 hours.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- PHASE 4-5: LEVERAGE + COMPOUND -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="phase-div" style="border-color:rgba(16,185,129,0.3);background:linear-gradient(135deg,rgba(16,185,129,0.06),transparent);">
+    <div class="phase-tag" style="color:var(--green);">Phase 4-5 // Months 18-57 // Revenue Target: $5,000-30,000+/mo</div>
+    <h2>Leverage + Compound</h2>
+    <div class="phase-meta">2 Systems | ~7 hours total | Goal: Recurring revenue + money working as hard as you do</div>
+    <div class="phase-context">These are the final two systems. They only get built when the email list exceeds 5,000 (community) and monthly revenue exceeds $5,000 (revenue allocation). Building them earlier is premature optimization. Building them at the right time is the difference between a business that plateaus and one that compounds.</div>
+  </div>
+
+  <!-- SYSTEM 20 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--green);">20</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Community Platform + Onboarding Automation</div>
+        <div class="sys-subtitle">$19-29/month recurring revenue. Auto-onboarding. The MRR engine.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-rev">Revenue</span>
+          <span class="auto-badge forever">Runs Forever</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>5 hrs</strong><br>Maintain: 2 hrs/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">Trigger: Do NOT Build Until</div>
+        <p>Email list exceeds 5,000 subscribers. At 5,000 subs with a 3-5% community conversion rate, you launch with 150-250 founding members. Below that, the community feels dead and churn kills it. This is a math gate, not a motivation gate.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Select platform:</strong> Skool ($99/mo, all-in-one, simplest) or Discord (free, more setup, younger audience). Skool is recommended if revenue justifies the cost.</li>
+          <li><strong>Build onboarding automation:</strong> New member joins > auto-welcome DM with orientation guide > first-week engagement prompts (introduce yourself, complete this challenge, attend this week's live session). This runs without you.</li>
+          <li><strong>Set up content schedule:</strong> Weekly live session (1 hr/week, your only recurring time commitment). Accountability threads (auto-posted). Exclusive tool access or early product previews.</li>
+          <li><strong>Launch email sequence (use System 14 template):</strong> Announce to email list. Founding member pricing. Limited spots creates real urgency (you genuinely want to cap early membership to maintain quality).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM 21 -->
+  <div class="sys-card">
+    <div class="sys-head">
+      <div class="sys-num" style="background:var(--green);">21</div>
+      <div class="sys-title-area">
+        <div class="sys-title">Revenue Allocation Pipeline</div>
+        <div class="sys-subtitle">Practice what you preach. Business revenue auto-routes into investment, tax, and reinvestment buckets.</div>
+        <div class="sys-tags">
+          <span class="sys-tag type-auto">Automation</span>
+          <span class="auto-badge forever">Runs Forever</span>
+        </div>
+      </div>
+      <div class="sys-time-badge">Build: <strong>2 hrs</strong><br>Maintain: 0 hrs/wk</div>
+    </div>
+    <div class="sys-body">
+      <div class="sys-section">
+        <div class="sys-section-label">Trigger: Do NOT Build Until</div>
+        <p>Monthly revenue consistently exceeds $5,000. Below that, the allocation amounts are too small to justify the infrastructure. Above that, failing to allocate means you are sitting on cash that should be compounding.</p>
+      </div>
+      <div class="sys-section">
+        <div class="sys-section-label">How to Build</div>
+        <ul class="build-steps">
+          <li><strong>Open a business bank account</strong> (separate from personal). All business revenue deposits here first.</li>
+          <li><strong>Set up automated monthly transfers:</strong>
+            <br>30% > Tax set-aside savings account (quarterly estimated payments).
+            <br>20% > Index fund investment account (Fidelity/Schwab/Vanguard auto-invest).
+            <br>20% > Business reinvestment (tools, team, ads when ready).
+            <br>30% > Founder compensation (your paycheck).</li>
+          <li><strong>Set up QuickBooks or Wave</strong> (Wave is free) for monthly bookkeeping. Categorize every transaction. Generate a monthly P&L report. 15 minutes/month.</li>
+          <li><strong>This is the Blue Tape philosophy in infrastructure form.</strong> The business revenue compounds alongside your personal investment portfolio toward the $1M target. The machine feeds itself.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- THE BUILD SCHEDULE -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="phase-div" style="border-color:rgba(34,211,238,0.3);background:linear-gradient(135deg,rgba(34,211,238,0.06),transparent);">
+    <div class="phase-tag" style="color:var(--cyan);">Execution Timeline // Calibrated to 5-8 hrs/week</div>
+    <h2>The Build Schedule</h2>
+    <div class="phase-meta">How to build all 21 systems without exceeding your time constraint</div>
+  </div>
+
+  <div class="sys-card">
+    <div class="sys-body" style="border-top:none;margin-top:0;padding-top:20px;">
+      <ul class="build-steps">
+        <li><strong style="color:var(--orange);">WEEK 1 (6 hrs):</strong> Systems 01-03. Beehiiv infrastructure + ManyChat connection + tool pipeline verification. This is the pre-flight check. Nothing else happens until these 3 are verified.</li>
+        <li><strong style="color:var(--orange);">WEEK 2 (5 hrs):</strong> Systems 04-05 (start). Competitive intelligence + begin audience seeding daily ritual. Seeding continues through Week 3.</li>
+        <li><strong style="color:var(--red);">WEEK 3 (5 hrs):</strong> Systems 06-07. ManyChat 5-keyword automation + start drafting 3-email welcome sequence. System 05 seeding continues in background (15 min/day).</li>
+        <li><strong style="color:var(--red);">WEEK 4 (5 hrs):</strong> Finish System 07 + Systems 08-10. Welcome sequence live + scheduling machine configured + metrics dashboard built + weekly checklist designed.</li>
+        <li><strong style="color:var(--red);">WEEK 5 (3.5 hrs):</strong> Systems 11-12. Sunday audit ritual activated + begin building MVO landing pages.</li>
+        <li><strong style="color:var(--red);">WEEKS 6-8:</strong> Finish System 12 + begin content-driven traffic to MVO pages. Collect waitlist data for 3 weeks. Weekly time: 5-8 hrs split between content creation and system monitoring.</li>
+        <li><strong style="color:var(--red);">WEEKS 9-10 (5 hrs):</strong> System 13. Build payment + delivery for winning MVO concept. Sales page live.</li>
+        <li><strong style="color:var(--red);">WEEKS 11-12 (3 hrs):</strong> System 14. Write and schedule launch email sequence. Execute first launch.</li>
+        <li><strong style="color:var(--amber);">MONTHS 4-6 (7 hrs spread):</strong> Systems 15-17. Evergreen funnel + segmentation + upsell automation. One system per 2-week sprint.</li>
+        <li><strong style="color:var(--blue);">MONTHS 10-14 (7 hrs spread):</strong> Systems 18-19. SOP library + brand partnership kit. Build as processes mature.</li>
+        <li><strong style="color:var(--green);">MONTHS 18+ (7 hrs spread):</strong> Systems 20-21. Community platform + revenue allocation. Build when triggers are met (5K subs, $5K/mo revenue).</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- AFTER ALL BUILT -->
+  <div class="callout green" style="margin:24px 0;">
+    <p><strong>AFTER ALL 21 SYSTEMS ARE BUILT, your weekly time allocation looks like this:</strong></p>
+    <p style="margin-top:8px;">Content creation (record + edit): 3-4 hrs/week.
+    <br>Engagement (comments + DMs): 1.5 hrs/week (15 min/day, 7 days).
+    <br>Sunday audit + metrics update: 20 min/week.
+    <br>Weekly email draft: 20 min/week.
+    <br>Manual operations: 0 hrs/week.
+    <br><br><strong style="color:var(--cyan);">Total: ~5.5 hrs/week. Everything else is automated.</strong></p>
+    <p style="margin-top:8px;">The ManyChat replies: automated. The welcome sequence: automated. The evergreen sales funnel: automated. The upsell emails: automated. The re-engagement sequence: automated. The content scheduling: automated. The revenue allocation: automated. You touch a camera and a Sunday checklist. The machine does the rest.</p>
+  </div>
+
+
+  <!-- BOTTOM -->
+  <div class="bottom">
+    <p>
+      21 SYSTEMS. 46 HOURS TO BUILD. 200+ HOURS SAVED PER YEAR.<br>
+      Build them in order. Do not skip. Do not jump ahead.<br>
+      Every system feeds the next. Every system runs without you.<br>
+      <span class="final">The machine gets built once. It runs forever.</span>
+    </p>
+  </div>
+
+</div>
+
+<script>
+  const target = new Date('2030-11-30T23:59:59');
+  const now = new Date();
+  const days = Math.ceil((target - now) / (1000*60*60*24));
+  document.getElementById('days').innerHTML = days.toLocaleString() + '<span>DAYS</span>';
+</script>
+</body>
+</html>
