@@ -128,7 +128,6 @@
             margin:0 auto 24px;
         }
         .intro-icon svg{width:40px;height:40px;stroke:var(--accent);fill:none;stroke-width:1.5;}
-        /* Upstream welcome badge */
         .intro-upstream-badge{
             display:inline-block;padding:6px 14px;border-radius:20px;
             font-family:'JetBrains Mono',monospace;font-size:0.65rem;font-weight:700;
@@ -258,6 +257,17 @@
             display:none;
         }
         .dash-banner.visible{display:block;animation:fadeSlide 0.4s ease;}
+
+        /* OPT-6: Trust strip */
+        .trust-strip{
+            display:flex;justify-content:center;gap:16px;padding:10px 16px;
+            font-size:0.65rem;color:var(--text-muted);
+            border-bottom:1px solid var(--border-light);
+            background:rgba(16,185,129,0.03);
+        }
+        .trust-strip-item{display:flex;align-items:center;gap:4px;}
+        .trust-strip-icon{font-size:0.75rem;}
+
         .dash-header{
             padding:24px;text-align:center;
             background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(245,158,11,0.02));
@@ -266,9 +276,32 @@
         .dash-archetype{font-size:clamp(1.3rem,4vw,1.7rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:2px;}
         .dash-system-name{font-size:0.85rem;color:var(--text-secondary);}
         .dash-body{padding:24px;}
-        .income-section{background:var(--bg-card);border:1px solid var(--border-light);border-radius:12px;padding:16px 20px;margin-bottom:24px;}
+
+        /* Income section with OPT-3 glow state */
+        .income-section{
+            background:var(--bg-card);border:1px solid var(--border-light);
+            border-radius:12px;padding:16px 20px;margin-bottom:24px;
+            transition:border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        .income-section.has-income{
+            border-color:rgba(245,158,11,0.25);
+            box-shadow:0 0 20px rgba(245,158,11,0.06);
+        }
         .income-label{font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.12em;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
         .income-imported{font-size:0.6rem;color:var(--green);font-weight:600;background:rgba(16,185,129,0.1);padding:2px 8px;border-radius:10px;}
+        /* OPT-3: Personalized badge */
+        .income-personalized{
+            display:none;font-size:0.6rem;color:var(--green);font-weight:600;
+            background:rgba(16,185,129,0.1);padding:2px 8px;border-radius:10px;
+            animation:fadeSlide 0.3s ease;
+        }
+        .income-personalized.show{display:inline-block;}
+        /* OPT-1: Income nudge micro-copy */
+        .income-nudge{
+            font-size:0.72rem;color:var(--text-secondary);margin-bottom:12px;
+            line-height:1.5;transition:all 0.3s;
+        }
+        .income-nudge .nudge-highlight{color:var(--accent);font-weight:600;}
         .income-row{display:flex;gap:10px;align-items:stretch;}
         .income-field{flex:1;position:relative;}
         .income-field span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.9rem;}
@@ -280,19 +313,21 @@
         }
         .income-field input:focus{border-color:var(--accent);}
         .income-field input::placeholder{color:var(--text-muted);font-weight:400;}
-        .income-toggle{display:flex;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-shrink:0;position:relative;}
+        /* FIX-1 (SILHOUETTE): Clean toggle. No position:relative. No extra spans. No pseudo-elements. */
+        .income-toggle{
+            display:flex;background:var(--bg-input);border:1px solid var(--border);
+            border-radius:8px;overflow:hidden;flex-shrink:0;
+        }
         .income-toggle button{padding:10px 16px;font-size:0.75rem;font-weight:600;background:transparent;border:none;color:var(--text-muted);cursor:pointer;transition:all 0.2s;white-space:nowrap;}
         .income-toggle button.active{background:var(--accent);color:#000;}
-        /* OPT-4: Monthly recommended badge */
-        .income-toggle-rec{
-            position:absolute;top:-8px;left:4px;
-            font-family:'JetBrains Mono',monospace;font-size:0.45rem;
-            color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;
-            background:var(--bg-secondary);padding:1px 5px;border-radius:3px;
-            font-weight:700;pointer-events:none;
-        }
+        /* FIX-1: .income-toggle-rec CSS DELETED ENTIRELY. No ghost text. */
+
         .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
-        @media(max-width:640px){.dash-grid{grid-template-columns:1fr;}}
+        /* OPT-2: Mobile reorder: doughnut FIRST */
+        @media(max-width:640px){
+            .dash-grid{grid-template-columns:1fr;}
+            .dash-col-chart{order:-1;}
+        }
         .dash-col h3{font-size:0.95rem;font-weight:700;margin-bottom:8px;}
         .dash-desc{font-size:0.85rem;color:var(--text-secondary);line-height:1.6;}
         .dash-why{font-size:0.85rem;color:rgba(245,158,11,0.85);line-height:1.6;}
@@ -302,8 +337,16 @@
         .doughnut-container{position:relative;width:240px;height:240px;}
         .doughnut-ring{width:100%;height:100%;border-radius:50%;transition:background 0.5s ease;-webkit-mask:radial-gradient(circle,transparent 56%,black 57%);mask:radial-gradient(circle,transparent 56%,black 57%);}
         .doughnut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
-        .doughnut-center-value{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:800;color:var(--text-primary);}
+        .doughnut-center-value{
+            font-family:'JetBrains Mono',monospace;font-size:1.2rem;
+            font-weight:800;color:var(--text-primary);transition:color 0.3s;
+        }
+        .doughnut-center-value.active{color:var(--accent);}
         .doughnut-center-label{font-size:0.65rem;color:var(--text-muted);margin-top:2px;}
+        .doughnut-center-brand{
+            font-family:'JetBrains Mono',monospace;font-size:0.5rem;
+            color:rgba(245,158,11,0.5);margin-top:6px;letter-spacing:0.04em;font-weight:600;
+        }
         .doughnut-legend{display:flex;flex-direction:column;gap:6px;margin-top:12px;}
         .doughnut-legend-item{display:flex;align-items:center;justify-content:space-between;font-size:0.8rem;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border-light);border-radius:8px;}
         .doughnut-legend-left{display:flex;align-items:center;gap:8px;}
@@ -332,7 +375,6 @@
         .sys-tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
         .sys-tab-score{font-family:'JetBrains Mono',monospace;font-size:0.6rem;margin-left:4px;opacity:0.7;}
 
-        /* OPT-7: Cross-sell now routes to Command Center */
         .cross-sell{background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(245,158,11,0.02));border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:20px;text-align:center;margin-bottom:24px;}
         .cross-sell-eyebrow{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;font-weight:700;}
         .cross-sell-title{font-size:1rem;font-weight:700;margin-bottom:4px;}
@@ -343,7 +385,6 @@
 
         .card-section{border-top:1px solid var(--border-light);padding-top:20px;}
         .card-section-title{text-align:center;font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;font-weight:700;}
-        /* OPT-8: DNA Card explainer */
         .card-section-explainer{text-align:center;font-size:0.75rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.5;}
         .card-section-explainer strong{color:var(--accent);font-weight:700;}
         .id-card{width:100%;max-width:400px;margin:0 auto;aspect-ratio:1.586/1;border-radius:16px;overflow:hidden;position:relative;background:linear-gradient(135deg,#0c0e1a 0%,#1a1d32 50%,#0e1020 100%);border:1px solid rgba(245,158,11,0.2);padding:24px;display:flex;flex-direction:column;justify-content:space-between;}
@@ -364,10 +405,21 @@
         .id-card-income-lbl{font-size:0.5rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;}
         .id-card-footer-brand{font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:var(--accent);font-weight:700;}
         .card-actions{display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;}
-        .card-download-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#000;padding:10px 20px;border:none;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:700;cursor:pointer;transition:all 0.3s;text-transform:uppercase;}
-        .card-download-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px var(--accent-glow);}
-        .card-download-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+        .card-download-btn, .card-share-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#000;padding:10px 20px;border:none;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:700;cursor:pointer;transition:all 0.3s;text-transform:uppercase;}
+        .card-download-btn:hover, .card-share-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px var(--accent-glow);}
+        .card-download-btn:disabled, .card-share-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+        .card-share-btn{background:transparent;color:var(--accent);border:1px solid rgba(245,158,11,0.3);}
+        .card-share-btn:hover{background:var(--accent-dim);}
         .card-share-hint{text-align:center;font-size:0.7rem;color:var(--text-muted);margin-top:10px;}
+        .card-share-hint strong{color:var(--accent);font-weight:600;}
+
+        /* OPT-3: Doughnut pulse */
+        @keyframes doughnutPulse{
+            0%{box-shadow:0 0 0 0 rgba(245,158,11,0.2);}
+            70%{box-shadow:0 0 0 12px rgba(245,158,11,0);}
+            100%{box-shadow:0 0 0 0 rgba(245,158,11,0);}
+        }
+        .doughnut-container.pulse{animation:doughnutPulse 0.6s ease-out;}
 
         /* ========== FOOTER ========== */
         .footer{text-align:center;padding:24px 0 16px;margin-top:28px;border-top:1px solid var(--border-light);}
@@ -391,6 +443,7 @@
             .gate-beehiiv iframe{min-height:360px;height:56vh;max-height:520px;}
             .gate-wrapper{min-height:520px;}
             .upstream-theater{padding:40px 20px;}
+            .trust-strip{flex-wrap:wrap;gap:8px;}
         }
     </style>
 </head>
@@ -401,7 +454,6 @@
         <header class="header">
             <div class="header-brand"><a href="https://instagram.com/koutalksmoney" target="_blank">Built by Kou. Tested with real money.</a></div>
             <h1 class="header-title" id="headerTitle">Discover Your Financial DNA</h1>
-            <!-- OPT-2: Improved subtitle with customer's own language -->
             <p class="header-sub" id="headerSub">Answer 6 questions. We analyze your psychology, goals, and income to build a blueprint that tells you exactly where every dollar should go.</p>
         </header>
 
@@ -429,7 +481,6 @@
                     <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
                 </div>
                 <h2 id="introTitle">Stop guessing where your money should go.</h2>
-                <!-- OPT-2: Better intro text using customer language -->
                 <p id="introText">Answer 6 questions about your psychology, goals, and income pattern. We match you to 1 of 5 financial archetypes and build a blueprint that tells you exactly how much of every paycheck goes where for optimal growth.</p>
                 <div class="intro-stats">
                     <div class="intro-stat"><div class="intro-stat-val">6</div><div class="intro-stat-label">Questions</div></div>
@@ -470,7 +521,6 @@
                         <div class="gate-lock-icon">
                             <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
                         </div>
-                        <!-- OPT-6: Reframed gate copy with value stack -->
                         <div class="gate-title" id="gateTitle">Your blueprint is ready.</div>
                         <div class="gate-text" id="gateText">Your archetype is matched. Your allocation is calculated. Enter your email to unlock everything:</div>
                         <div class="gate-value-stack" id="gateValueStack">
@@ -482,7 +532,6 @@
                         <div class="gate-beehiiv">
                             <iframe id="beehiivFrame" src="https://subscribe-forms.beehiiv.com/e01f8d58-517b-4b46-afbf-78c51d559c90" scrolling="no"></iframe>
                         </div>
-                        <!-- OPT-3: "Already submitted? Click here" REMOVED -->
                     </div>
                     <div class="dash-preview" id="dashPreview">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -498,32 +547,42 @@
             <!-- DASHBOARD -->
             <section id="s-dashboard" class="section dashboard">
                 <div class="dash-banner" id="dashBanner">&#10003; Blueprint Unlocked. Your personalized system is ready.</div>
+                <!-- OPT-6: Trust strip -->
+                <div class="trust-strip">
+                    <div class="trust-strip-item"><span class="trust-strip-icon">&#128274;</span> Data stays on your device</div>
+                    <div class="trust-strip-item"><span class="trust-strip-icon">&#9889;</span> Calculated in real-time</div>
+                </div>
                 <div class="dash-header">
                     <div class="reveal-eyebrow">Your Financial Archetype</div>
                     <div class="dash-archetype" id="dashArchetype"></div>
                     <div class="dash-system-name" id="dashSystemName"></div>
                 </div>
                 <div class="dash-body">
-                    <div class="income-section">
+                    <div class="income-section" id="incomeSection">
                         <div class="income-label">
                             <span>Enter Your Income</span>
                             <span class="income-imported" id="incomeImported" style="display:none;">Imported from Autopilot</span>
+                            <!-- OPT-3: Personalized badge -->
+                            <span class="income-personalized" id="incomePersonalized">&#10003; Personalized</span>
+                        </div>
+                        <!-- OPT-1: Income nudge micro-copy -->
+                        <div class="income-nudge" id="incomeNudge">
+                            Enter your paycheck to see <span class="nudge-highlight">exact dollar amounts</span> for every bucket in your system.
                         </div>
                         <div class="income-row">
                             <div class="income-field">
                                 <span>$</span>
                                 <input type="number" id="incomeInput" placeholder="e.g. 2400" inputmode="numeric">
                             </div>
-                            <!-- OPT-4: Monthly toggle with "recommended" micro-label -->
+                            <!-- FIX-1 (SILHOUETTE): Clean toggle. NO extra spans. NO .income-toggle-rec. -->
                             <div class="income-toggle">
-                                <span class="income-toggle-rec">recommended</span>
                                 <button id="btnMonthly" class="active" onclick="setPeriod('monthly')">Monthly</button>
                                 <button id="btnAnnual" onclick="setPeriod('annual')">Annual</button>
                             </div>
                         </div>
                     </div>
                     <div class="dash-grid">
-                        <div class="dash-col">
+                        <div class="dash-col dash-col-text">
                             <h3>How it works</h3>
                             <div class="dash-desc" id="dashDesc"></div>
                             <div style="height:16px;"></div>
@@ -531,14 +590,16 @@
                             <div class="dash-why" id="dashWhy"></div>
                             <div class="dash-why-dynamic" id="dashWhyDynamic"></div>
                         </div>
-                        <div class="dash-col">
+                        <!-- OPT-2: dash-col-chart class for mobile reorder -->
+                        <div class="dash-col dash-col-chart">
                             <div class="doughnut-wrap">
                                 <div>
-                                    <div class="doughnut-container">
+                                    <div class="doughnut-container" id="doughnutContainer">
                                         <div class="doughnut-ring" id="doughnutRing"></div>
                                         <div class="doughnut-center">
                                             <div class="doughnut-center-value" id="doughnutValue">--</div>
                                             <div class="doughnut-center-label" id="doughnutLabel">Enter income</div>
+                                            <div class="doughnut-center-brand">@koutalksmoney</div>
                                         </div>
                                     </div>
                                 </div>
@@ -546,11 +607,7 @@
                             <div class="doughnut-legend" id="doughnutLegend"></div>
                         </div>
                     </div>
-                    <div class="tabs-section">
-                        <div class="tabs-title">Explore All Archetypes</div>
-                        <div class="tabs-row" id="tabsRow"></div>
-                    </div>
-                    <!-- OPT-7: Cross-sell routes to Command Center -->
+                    <!-- OPT-4: Cross-sell ABOVE tabs -->
                     <div class="cross-sell" id="crossSell">
                         <div class="cross-sell-eyebrow">Next Step: Your Complete Toolkit</div>
                         <div class="cross-sell-title" id="crossSellTitle">You built the blueprint. Now access every tool in the system.</div>
@@ -558,10 +615,15 @@
                         <div class="cross-sell-amount" id="crossSellAmount"></div>
                         <a href="https://spacekou5-oss.github.io/cashvault-funnel/command-center.html" class="cross-sell-btn" id="crossSellBtn">Open Command Center &#8594;</a>
                     </div>
+                    <!-- Tabs below cross-sell -->
+                    <div class="tabs-section">
+                        <div class="tabs-title">Explore All Archetypes</div>
+                        <div class="tabs-row" id="tabsRow"></div>
+                    </div>
                     <div class="card-section">
                         <div class="card-section-title">Your Financial DNA Card</div>
-                        <!-- OPT-8: Card explainer with Prompt Vault hook -->
-                        <div class="card-section-explainer">Download and share your archetype. Tag <strong>@koutalksmoney</strong> on social and DM <strong>"CHEAT"</strong> to unlock the Prompt Vault.</div>
+                        <!-- OPT-7: Share CTA with DM keyword -->
+                        <div class="card-section-explainer">Download your card. Post it. Tag <strong>@koutalksmoney</strong> and DM <strong>"CHEAT"</strong> to unlock the Prompt Vault.</div>
                         <div class="id-card" id="idCard">
                             <div class="id-card-holo"></div>
                             <div class="id-card-top">
@@ -583,16 +645,19 @@
                         </div>
                         <div class="card-actions">
                             <button class="card-download-btn" id="cardDownloadBtn" onclick="downloadCard()">
-                                <span id="cardBtnText">Download Card</span>
+                                <span id="cardBtnText">&#11015; Download Card</span>
+                            </button>
+                            <!-- OPT-7: Native share button -->
+                            <button class="card-share-btn" id="cardShareBtn" onclick="shareCard()" style="display:none;">
+                                <span>&#8599; Share</span>
                             </button>
                         </div>
-                        <div class="card-share-hint">Share your Financial DNA on Instagram, LinkedIn, or TikTok</div>
+                        <div class="card-share-hint">Post your DNA card on Instagram or TikTok. Tag <strong>@koutalksmoney</strong>.</div>
                     </div>
                 </div>
             </section>
         </main>
 
-        <!-- OPT-5: Footer app links REMOVED. Social links kept. -->
         <footer class="footer">
             <div class="footer-privacy">Your data stays on your device. Nothing is sent to our servers.</div>
             <div class="footer-social">
@@ -621,41 +686,43 @@
             desc: '50% Needs. 30% Wants. 20% Savings and Debt. Three buckets. No overthinking. The system that works because it removes every decision except one: which bucket does this go in?',
             advantage: 'You get guardrails without a straitjacket. Wants are not eliminated, they are contained. Savings are not optional, they are automatic. This is the system for people who want structure without suffocation.',
             segments: [{ label: 'Needs', pct: 50, color: '#f59e0b' },{ label: 'Wants', pct: 30, color: '#818cf8' },{ label: 'Savings & Debt', pct: 20, color: '#60a5fa' }],
-            investPct: 20, investLabel: 'savings/debt allocation'
+            investPct: 20, investLabel: 'savings/debt allocation',
+            ctaVerb: 'Automate Your 20%'
         },
         'wealth-builder': {
             archetype: 'THE COMPOUND COMMANDER', title: 'Wealth Builder',
             desc: '50% Needs. 30% Investing. 10% Wants. 10% Emergency. Four buckets engineered for one outcome: your money compounds faster than your lifestyle inflates.',
             advantage: 'Your future net worth is the priority. Wants get a hard ceiling. Investing gets more than most people spend on entertainment. This is the system for people who treat wealth like a construction project, not a side effect.',
             segments: [{ label: 'Needs', pct: 50, color: '#f59e0b' },{ label: 'Investing', pct: 30, color: '#10b981' },{ label: 'Wants', pct: 10, color: '#818cf8' },{ label: 'Emergency', pct: 10, color: '#60a5fa' }],
-            investPct: 30, investLabel: 'investing allocation'
+            investPct: 30, investLabel: 'investing allocation',
+            ctaVerb: 'Automate Your 30%'
         },
         'pay-yourself-first': {
             archetype: 'THE AUTOMATION GHOST', title: 'Pay Yourself First (30/70)',
             desc: '30% auto-transferred to savings or investing the instant income lands. Before rent. Before food. Before anything. The remaining 70% is yours to manage however you want.',
             advantage: 'One auto-transfer at 30%. Aggressive, but invisible. Your future self takes nearly a third of every paycheck before your present self can touch it. This is for people who want wealth on autopilot, not people who want the easiest possible system.',
             segments: [{ label: 'Auto-Save/Invest', pct: 30, color: '#60a5fa' },{ label: 'Everything Else', pct: 70, color: '#818cf8' }],
-            investPct: 30, investLabel: 'auto-save allocation'
+            investPct: 30, investLabel: 'auto-save allocation',
+            ctaVerb: 'Build the Autopilot'
         },
         '80-20': {
             archetype: 'THE MINIMALIST OPERATOR', title: '80/20 Anti-Budget',
             desc: 'Save 20%. Spend the other 80% on whatever you want. No categories. No tracking. No spreadsheets. No guilt. One rule. Maximum freedom.',
             advantage: 'Zero mental overhead. You hate budgeting, so this system hates it for you. The 20% savings is non-negotiable, but the other 80% has no rules. This is for people who want financial progress without becoming an accountant.',
             segments: [{ label: 'Savings & Debt', pct: 20, color: '#60a5fa' },{ label: 'Everything Else', pct: 80, color: '#818cf8' }],
-            investPct: 20, investLabel: 'savings/debt allocation'
+            investPct: 20, investLabel: 'savings/debt allocation',
+            ctaVerb: 'Automate Your 20%'
         },
         'envelope': {
             archetype: 'THE CASH WARLORD', title: 'Envelope System',
             desc: 'Hard spending limits per category. When the envelope is empty, spending stops. No exceptions. No negotiations. No "I will make up for it next month." Every dollar gets a job before you spend it.',
             advantage: 'The nuclear option for people who know they overspend. Forces real-time awareness: you watch the balance drop with every swipe. This is for people who need the financial equivalent of a physical fence, not a suggestion.',
             segments: [{ label: 'Fixed Expenses', pct: 50, color: '#64748b', editable: true },{ label: 'Groceries', pct: 15, color: '#f472b6', editable: true },{ label: 'Savings & Debt', pct: 15, color: '#60a5fa', editable: false },{ label: 'Fun & Shopping', pct: 10, color: '#a78bfa', editable: false },{ label: 'Buffer', pct: 10, color: '#34d399', editable: false }],
-            investPct: 15, investLabel: 'savings component'
+            investPct: 15, investLabel: 'savings component',
+            ctaVerb: 'Lock In Your Envelopes'
         }
     };
 
-    // =========================================
-    // 2. QUIZ QUESTIONS (6)
-    // =========================================
     var QUESTIONS = [
         { text: 'What is your #1 money goal for the next 12 months?', options: [
             { label: 'Get control of overspending', score: { 'envelope': 5, '50-30-20': 2 }, reason: 'controlling overspending is your top priority' },
@@ -714,180 +781,101 @@
         envelopeOverrides: null
     };
 
+    var incomeHasBeenEntered = false;
     var $ = function(id) { return document.getElementById(id); };
+    function fmt(n) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0); }
+    function getMonthly() { return state.incomePeriod === 'annual' ? state.income / 12 : state.income; }
 
-    function fmt(n) {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0);
-    }
-    function getMonthly() {
-        return state.incomePeriod === 'annual' ? state.income / 12 : state.income;
-    }
+    function isFrom800Club() { try { return localStorage.getItem('eightclub_email') === 'true'; } catch(e) { return false; } }
+    function isReturningUser() { try { return localStorage.getItem('budget_unlocked') === 'true'; } catch(e) { return false; } }
 
     // =========================================
-    // UPSTREAM EMAIL CHECK (READ-ONLY)
-    // =========================================
-    function isFrom800Club() {
-        try { return localStorage.getItem('eightclub_email') === 'true'; } catch(e) { return false; }
-    }
-
-    function isReturningUser() {
-        try { return localStorage.getItem('budget_unlocked') === 'true'; } catch(e) { return false; }
-    }
-
-    // =========================================
-    // OPT-1: UPSTREAM LOADING THEATER
-    // Full-card theater for 800-Club users.
-    // Bridges the psychological gap between apps.
-    // Runs BEFORE intro, then transitions.
+    // UPSTREAM LOADING THEATER
     // =========================================
     function runUpstreamTheater(callback) {
         showSection('s-upstream-theater');
         var steps = document.querySelectorAll('.upstream-step');
         var bar = $('upstreamBar');
-        var i = 0;
-        var total = steps.length;
+        var i = 0; var total = steps.length;
         var interval = setInterval(function() {
-            if (i > 0) {
-                steps[i-1].classList.remove('active');
-                steps[i-1].classList.add('done');
-                steps[i-1].querySelector('.upstream-check').innerHTML = '&#10003;';
-            }
-            if (i < total) {
-                steps[i].classList.add('active');
-                bar.style.width = ((i + 1) / total * 100) + '%';
-                i++;
-            } else {
-                clearInterval(interval);
-                setTimeout(function() {
-                    if (callback) callback();
-                }, 500);
-            }
-        }, 700);
+            if (i > 0) { steps[i-1].classList.remove('active'); steps[i-1].classList.add('done'); steps[i-1].querySelector('.upstream-check').innerHTML = '&#10003;'; }
+            if (i < total) { steps[i].classList.add('active'); bar.style.width = ((i + 1) / total * 100) + '%'; i++; }
+            else { clearInterval(interval); setTimeout(function() { if (callback) callback(); }, 500); }
+        }, 600);
     }
 
-    // =========================================
-    // UPSTREAM PERSONALIZATION
-    // Swaps intro + gate copy for 800-Club users.
-    // =========================================
     function personalizeForUpstream() {
         if (!isFrom800Club()) return;
-
-        var badge = $('introUpstreamBadge');
-        var title = $('introTitle');
-        var text = $('introText');
-        var btn = $('startBtn');
-
+        var badge = $('introUpstreamBadge'); var title = $('introTitle'); var text = $('introText'); var btn = $('startBtn');
         if (badge) { badge.style.display = 'inline-block'; badge.textContent = 'Phase 2 of 2 \u2022 Credit Done. Cash Flow Next.'; }
         if (title) title.textContent = 'Your Credit is Handled. Now Engineer Your Cash Flow.';
         if (text) text.textContent = 'You completed the 800-Club Protocol. Phase 1 is locked in. Now answer 6 questions to discover which budget archetype matches your psychology, then build the allocation blueprint.';
         if (btn) btn.textContent = 'Start Phase 2 \u2192';
-
-        var gateTitle = $('gateTitle');
-        var gateText = $('gateText');
-        var revealEyebrow = $('revealEyebrow');
-
+        var gateTitle = $('gateTitle'); var gateText = $('gateText'); var revealEyebrow = $('revealEyebrow');
         if (gateTitle) gateTitle.textContent = 'Phase 2 complete. Your blueprint is ready.';
         if (gateText) gateText.textContent = 'Credit protocol complete. Archetype matched. Enter your email to unlock your full cash flow breakdown:';
         if (revealEyebrow) revealEyebrow.textContent = 'Phase 2 Complete \u2022 Based on 6 answers, you are';
     }
 
     // =========================================
-    // BEEHIIV GATE REDIRECT HANDLER
-    // OPT-3: Skip button removed. Redirect
-    // logic preserved for actual email submissions.
+    // BEEHIIV GATE REDIRECT
     // =========================================
     var _gateRedirected = false;
-
     function doGateRedirect() {
-        if (_gateRedirected) return;
-        _gateRedirected = true;
-        try {
-            localStorage.setItem('budget_unlocked', 'true');
-            localStorage.setItem('budget_completed', 'true');
-            localStorage.setItem('budgetCalc_gate_email', 'true');
-        } catch(e) {}
+        if (_gateRedirected) return; _gateRedirected = true;
+        try { localStorage.setItem('budget_unlocked', 'true'); localStorage.setItem('budget_completed', 'true'); localStorage.setItem('budgetCalc_gate_email', 'true'); } catch(e) {}
         window.location.href = BRIDGE_URL;
     }
-
     function activateGateRedirect() {
         window.addEventListener('message', function(event) {
             if (event.origin && event.origin.includes('beehiiv.com')) {
                 var data = event.data;
-                if (typeof data === 'string') {
-                    if (data.includes('subscribed') || data.includes('success') || data.includes('confirmed')) {
-                        doGateRedirect();
-                    }
-                }
-                if (typeof data === 'object' && data !== null) {
-                    if (data.type === 'beehiiv:subscribe:success' ||
-                        data.event === 'subscribed' ||
-                        data.subscribed === true ||
-                        data.type === 'subscribe_success') {
-                        doGateRedirect();
-                    }
-                }
+                if (typeof data === 'string') { if (data.includes('subscribed') || data.includes('success') || data.includes('confirmed')) { doGateRedirect(); } }
+                if (typeof data === 'object' && data !== null) { if (data.type === 'beehiiv:subscribe:success' || data.event === 'subscribed' || data.subscribed === true || data.type === 'subscribe_success') { doGateRedirect(); } }
             }
         });
-
         var iframe = $('beehiivFrame');
         if (iframe) {
-            var initialHeight = iframe.style.height || '';
-            var observerActivatedAt = Date.now();
+            var initialHeight = iframe.style.height || ''; var observerActivatedAt = Date.now();
             var observer = new MutationObserver(function(mutations) {
                 if (Date.now() - observerActivatedAt < 3000) return;
-                mutations.forEach(function(mutation) {
-                    if (mutation.type === 'attributes') {
-                        var newHeight = iframe.style.height || '';
-                        if (newHeight !== initialHeight && initialHeight) {
-                            setTimeout(doGateRedirect, 1500);
-                        }
-                    }
-                });
+                mutations.forEach(function(mutation) { if (mutation.type === 'attributes') { var newHeight = iframe.style.height || ''; if (newHeight !== initialHeight && initialHeight) { setTimeout(doGateRedirect, 1500); } } });
             });
             observer.observe(iframe, { attributes: true, attributeFilter: ['style', 'height'] });
         }
     }
 
     // =========================================
-    // 6. SECTION MANAGEMENT
+    // SECTION MANAGEMENT
     // =========================================
     function showSection(id) {
         state.currentSection = id;
         document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
         $(id).classList.add('active');
         var sub = $('headerSub');
-        if (id === 's-dashboard') {
-            sub.textContent = 'Your personalized financial blueprint.';
-        } else if (id === 's-upstream-theater') {
-            sub.textContent = 'Syncing your financial profile...';
-        } else {
-            sub.textContent = 'Answer 6 questions. We analyze your psychology, goals, and income to build a blueprint that tells you exactly where every dollar should go.';
-        }
+        if (id === 's-dashboard') { sub.textContent = 'Your personalized financial blueprint.'; }
+        else if (id === 's-upstream-theater') { sub.textContent = 'Syncing your financial profile...'; }
+        else { sub.textContent = 'Answer 6 questions. We analyze your psychology, goals, and income to build a blueprint that tells you exactly where every dollar should go.'; }
     }
 
     // =========================================
-    // 7. QUIZ ENGINE
+    // QUIZ ENGINE
     // =========================================
     function renderQuestion() {
-        var q = QUESTIONS[state.questionIndex];
-        var total = QUESTIONS.length;
-        var pct = (state.questionIndex / total) * 100;
-        $('quizBar').style.width = pct + '%';
+        var q = QUESTIONS[state.questionIndex]; var total = QUESTIONS.length;
+        $('quizBar').style.width = (state.questionIndex / total * 100) + '%';
         $('quizStep').textContent = 'Question ' + (state.questionIndex + 1) + ' of ' + total;
         $('quizQ').textContent = q.text;
         var backBtn = $('quizBack');
         if (state.questionIndex > 0) backBtn.classList.add('visible'); else backBtn.classList.remove('visible');
-        var container = $('quizOpts');
-        container.innerHTML = '';
+        var container = $('quizOpts'); container.innerHTML = '';
         q.options.forEach(function(opt, oi) {
-            var btn = document.createElement('div');
-            btn.className = 'quiz-opt';
+            var btn = document.createElement('div'); btn.className = 'quiz-opt';
             btn.innerHTML = '<span class="quiz-opt-text">' + opt.label + '</span><span class="quiz-opt-arrow">&#8594;</span>';
             btn.onclick = function() { selectAnswer(state.questionIndex, oi); };
             container.appendChild(btn);
         });
     }
-
     function selectAnswer(qi, oi) {
         var opt = QUESTIONS[qi].options[oi];
         state.answerHistory.push({ qi: qi, oi: oi, scoreMap: Object.assign({}, opt.score) });
@@ -895,96 +883,82 @@
         if (state.questionIndex < QUESTIONS.length - 1) { state.questionIndex++; renderQuestion(); }
         else { finishQuiz(); }
     }
-
     function goBack() {
         if (state.answerHistory.length === 0) return;
         var last = state.answerHistory.pop();
         Object.keys(last.scoreMap).forEach(function(sys) { state.scores[sys] -= last.scoreMap[sys]; });
-        state.questionIndex--;
-        renderQuestion();
+        state.questionIndex--; renderQuestion();
     }
 
     // =========================================
-    // 8. QUIZ COMPLETION
+    // QUIZ COMPLETION
     // =========================================
     function finishQuiz() {
-        var winner = '50-30-20';
-        var maxScore = -1;
-        Object.keys(state.scores).forEach(function(sys) {
-            if (state.scores[sys] > maxScore) { maxScore = state.scores[sys]; winner = sys; }
-        });
+        var winner = '50-30-20'; var maxScore = -1;
+        Object.keys(state.scores).forEach(function(sys) { if (state.scores[sys] > maxScore) { maxScore = state.scores[sys]; winner = sys; } });
         state.selectedSystem = winner;
         localStorage.setItem('budget_quiz_completed', 'true');
         localStorage.setItem('budget_selected_system', winner);
         localStorage.setItem('budget_scores', JSON.stringify(state.scores));
         localStorage.setItem('budget_answers', JSON.stringify(state.answerHistory));
-        showSection('s-processing');
-        runProcessingTheater();
+        showSection('s-processing'); runProcessingTheater();
     }
 
     // =========================================
-    // 9. PROCESSING THEATER
+    // PROCESSING THEATER (OPT-8: Faster intervals)
     // =========================================
     function runProcessingTheater() {
-        var container = $('procSteps');
-        container.innerHTML = '';
+        var container = $('procSteps'); container.innerHTML = '';
         PROC_STEPS.forEach(function(text) {
-            var el = document.createElement('div');
-            el.className = 'proc-step-item';
-            el.innerHTML = '<div class="proc-check"></div><span>' + text + '</span>';
-            container.appendChild(el);
+            var el = document.createElement('div'); el.className = 'proc-step-item';
+            el.innerHTML = '<div class="proc-check"></div><span>' + text + '</span>'; container.appendChild(el);
         });
-        var items = container.querySelectorAll('.proc-step-item');
-        var i = 0;
+        var items = container.querySelectorAll('.proc-step-item'); var i = 0;
         var interval = setInterval(function() {
             if (i > 0) { items[i-1].classList.remove('active'); items[i-1].classList.add('done'); items[i-1].querySelector('.proc-check').innerHTML = '&#10003;'; }
             if (i < items.length) { items[i].classList.add('active'); $('procLabel').textContent = PROC_STEPS[i]; i++; }
             else { clearInterval(interval); setTimeout(showReveal, 400); }
-        }, 750);
+        }, 550);
     }
 
     // =========================================
-    // 10. REVEAL + GATE
-    // OPT-3: Skip button removed entirely.
+    // REVEAL + GATE
     // =========================================
     function showReveal() {
         if (isReturningUser() || isFrom800Club()) {
-            if (isFrom800Club() && !isReturningUser()) {
-                try { localStorage.setItem('budget_unlocked', 'true'); } catch(e) {}
-            }
-            state.isUnlocked = true;
-            renderDashboard();
-            showSection('s-dashboard');
-            var banner = $('dashBanner');
-            if (banner) { banner.classList.add('visible'); }
-            return;
+            if (isFrom800Club() && !isReturningUser()) { try { localStorage.setItem('budget_unlocked', 'true'); } catch(e) {} }
+            state.isUnlocked = true; renderDashboard(); showSection('s-dashboard');
+            var banner = $('dashBanner'); if (banner) { banner.classList.add('visible'); } return;
         }
-
         var sys = SYSTEMS[state.selectedSystem];
-        $('revealArchetype').textContent = sys.archetype;
-        $('revealSystem').textContent = sys.title;
-
-        var contributions = state.answerHistory
-            .map(function(a) {
-                var opt = QUESTIONS[a.qi].options[a.oi];
-                return { reason: opt.reason, pts: opt.score[state.selectedSystem] || 0 };
-            })
-            .filter(function(c) { return c.pts > 0; })
-            .sort(function(a, b) { return b.pts - a.pts; })
-            .slice(0, 3);
-
+        $('revealArchetype').textContent = sys.archetype; $('revealSystem').textContent = sys.title;
+        var contributions = state.answerHistory.map(function(a) { var opt = QUESTIONS[a.qi].options[a.oi]; return { reason: opt.reason, pts: opt.score[state.selectedSystem] || 0 }; })
+            .filter(function(c) { return c.pts > 0; }).sort(function(a, b) { return b.pts - a.pts; }).slice(0, 3);
         if (contributions.length > 0) {
             var reasons = contributions.map(function(c, i) { return '<strong>(' + (i + 1) + ')</strong> ' + c.reason; });
             $('revealWhy').innerHTML = 'You told us: ' + reasons.join('. ') + '. This archetype is built for that exact profile.';
         }
-
-        showSection('s-reveal');
-        activateGateRedirect();
-        // OPT-3: No skip button timeout. Gate is the only path.
+        showSection('s-reveal'); activateGateRedirect();
     }
 
     // =========================================
-    // 12. DASHBOARD RENDERER
+    // OPT-3: INCOME UI FEEDBACK SYSTEM
+    // =========================================
+    function updateIncomeUI() {
+        var monthly = getMonthly();
+        var section = $('incomeSection'); var nudge = $('incomeNudge'); var badge = $('incomePersonalized');
+        if (monthly > 0) { section.classList.add('has-income'); nudge.style.display = 'none'; badge.classList.add('show'); }
+        else { section.classList.remove('has-income'); nudge.style.display = 'block'; badge.classList.remove('show'); }
+    }
+    function triggerDoughnutPulse() {
+        var container = $('doughnutContainer'); container.classList.remove('pulse');
+        void container.offsetWidth; container.classList.add('pulse');
+        var centerVal = $('doughnutValue'); centerVal.classList.add('active');
+        setTimeout(function() { centerVal.classList.remove('active'); }, 600);
+    }
+
+    // =========================================
+    // DASHBOARD RENDERER
     // =========================================
     function renderDashboard() {
         var sys = SYSTEMS[state.selectedSystem];
@@ -992,64 +966,46 @@
         $('dashSystemName').textContent = sys.title;
         $('dashDesc').textContent = sys.desc;
         $('dashWhy').textContent = sys.advantage;
-        renderDynamicWhy();
-        renderTabs();
-        updateChartAndLegend();
-        updateCrossSell();
-        updateIdCard();
+        renderDynamicWhy(); renderTabs(); updateChartAndLegend(); updateCrossSell(); updateIdCard(); updateIncomeUI();
     }
 
     function renderDynamicWhy() {
-        var el = $('dashWhyDynamic');
-        var answers = state.answerHistory;
-        if (!answers || answers.length === 0) {
-            try { var saved = JSON.parse(localStorage.getItem('budget_answers') || '[]'); if (saved.length > 0) answers = saved; } catch(e) {}
-        }
+        var el = $('dashWhyDynamic'); var answers = state.answerHistory;
+        if (!answers || answers.length === 0) { try { var saved = JSON.parse(localStorage.getItem('budget_answers') || '[]'); if (saved.length > 0) answers = saved; } catch(e) {} }
         if (!answers || answers.length === 0) { el.style.display = 'none'; return; }
         el.style.display = 'block';
-        var contributions = answers
-            .map(function(a) { var opt = QUESTIONS[a.qi] ? QUESTIONS[a.qi].options[a.oi] : null; if (!opt) return null; return { reason: opt.reason, pts: opt.score[state.selectedSystem] || 0 }; })
-            .filter(function(c) { return c && c.pts > 0; })
-            .sort(function(a, b) { return b.pts - a.pts; })
-            .slice(0, 3);
+        var contributions = answers.map(function(a) { var opt = QUESTIONS[a.qi] ? QUESTIONS[a.qi].options[a.oi] : null; if (!opt) return null; return { reason: opt.reason, pts: opt.score[state.selectedSystem] || 0 }; })
+            .filter(function(c) { return c && c.pts > 0; }).sort(function(a, b) { return b.pts - a.pts; }).slice(0, 3);
         if (contributions.length === 0) { el.style.display = 'none'; return; }
         var lines = contributions.map(function(c, i) { return '<strong>(' + (i + 1) + ')</strong> ' + c.reason; });
         el.innerHTML = 'Based on your answers: ' + lines.join('. ') + '.';
     }
 
     function renderTabs() {
-        var row = $('tabsRow');
-        row.innerHTML = '';
+        var row = $('tabsRow'); row.innerHTML = '';
         var savedScores = state.scores;
-        if (!savedScores || Object.values(savedScores).every(function(v){return v === 0;})) {
-            try { savedScores = JSON.parse(localStorage.getItem('budget_scores') || '{}'); } catch(e) {}
-        }
+        if (!savedScores || Object.values(savedScores).every(function(v){return v === 0;})) { try { savedScores = JSON.parse(localStorage.getItem('budget_scores') || '{}'); } catch(e) {} }
         Object.keys(SYSTEMS).forEach(function(key) {
-            var sys = SYSTEMS[key];
-            var btn = document.createElement('button');
+            var sys = SYSTEMS[key]; var btn = document.createElement('button');
             btn.className = 'sys-tab' + (key === state.selectedSystem ? ' active' : '');
             var scoreText = savedScores[key] ? '<span class="sys-tab-score">(' + savedScores[key] + ')</span>' : '';
             btn.innerHTML = sys.archetype.replace('THE ', '') + scoreText;
-            btn.onclick = function() { state.selectedSystem = key; localStorage.setItem('budget_selected_system', key); renderDashboard(); };
+            btn.onclick = function() { state.selectedSystem = key; state.envelopeOverrides = null; localStorage.removeItem('budget_envelope_overrides'); localStorage.setItem('budget_selected_system', key); renderDashboard(); };
             row.appendChild(btn);
         });
     }
 
     // =========================================
-    // 13. CSS DOUGHNUT CHART + LEGEND
+    // DOUGHNUT CHART + LEGEND
     // =========================================
     function initEnvelopeDefaults() {
         var sys = SYSTEMS['envelope']; var monthly = getMonthly();
         if (monthly <= 0) { state.envelopeOverrides = null; return; }
-        if (!state.envelopeOverrides) {
-            state.envelopeOverrides = {};
-            sys.segments.forEach(function(seg, i) { if (seg.editable) { state.envelopeOverrides[i] = Math.round(monthly * seg.pct / 100); } });
-        }
+        if (!state.envelopeOverrides) { state.envelopeOverrides = {}; sys.segments.forEach(function(seg, i) { if (seg.editable) { state.envelopeOverrides[i] = Math.round(monthly * seg.pct / 100); } }); }
     }
     function getEnvelopeTotal() {
         var sys = SYSTEMS['envelope']; var monthly = getMonthly(); if (monthly <= 0) return 0; var total = 0;
-        sys.segments.forEach(function(seg, i) { if (seg.editable && state.envelopeOverrides) { total += (state.envelopeOverrides[i] || 0); } else { total += Math.round(monthly * seg.pct / 100); } });
-        return total;
+        sys.segments.forEach(function(seg, i) { if (seg.editable && state.envelopeOverrides) { total += (state.envelopeOverrides[i] || 0); } else { total += Math.round(monthly * seg.pct / 100); } }); return total;
     }
     function onEnvelopeInput(index, value) {
         var parsed = parseFloat(value); state.envelopeOverrides[index] = isNaN(parsed) ? 0 : Math.round(parsed);
@@ -1059,10 +1015,7 @@
     function updateEnvelopeDoughnut() {
         var sys = SYSTEMS['envelope']; var ring = $('doughnutRing'); var centerVal = $('doughnutValue'); var centerLbl = $('doughnutLabel');
         var monthly = getMonthly(); var total = getEnvelopeTotal(); var stops = []; var cum = 0;
-        sys.segments.forEach(function(seg, i) {
-            var amt; if (seg.editable && state.envelopeOverrides) { amt = state.envelopeOverrides[i] || 0; } else { amt = Math.round(monthly * seg.pct / 100); }
-            var pct = monthly > 0 ? (amt / monthly) * 100 : seg.pct; stops.push(seg.color + ' ' + cum + '% ' + (cum + pct) + '%'); cum += pct;
-        });
+        sys.segments.forEach(function(seg, i) { var amt; if (seg.editable && state.envelopeOverrides) { amt = state.envelopeOverrides[i] || 0; } else { amt = Math.round(monthly * seg.pct / 100); } var pct = monthly > 0 ? (amt / monthly) * 100 : seg.pct; stops.push(seg.color + ' ' + cum + '% ' + (cum + pct) + '%'); cum += pct; });
         if (cum < 100) { stops.push('rgba(100,116,139,0.2) ' + cum + '% 100%'); }
         ring.style.background = 'conic-gradient(' + stops.join(', ') + ')';
         centerVal.textContent = fmt(total); centerLbl.textContent = Math.abs(total - monthly) < 1 ? 'Fully Allocated' : 'Allocated';
@@ -1077,11 +1030,9 @@
     }
     function updateEnvelopePctBadges() {
         var monthly = getMonthly(); if (monthly <= 0) return; var sys = SYSTEMS['envelope'];
-        sys.segments.forEach(function(seg, i) {
-            if (!seg.editable) return; var badge = document.getElementById('envPct_' + i); var input = document.getElementById('envInput_' + i);
+        sys.segments.forEach(function(seg, i) { if (!seg.editable) return; var badge = document.getElementById('envPct_' + i); var input = document.getElementById('envInput_' + i);
             if (!badge || !input) return; var amt = state.envelopeOverrides[i] || 0; var pct = Math.round((amt / monthly) * 100); badge.textContent = pct + '%';
-            var defaultAmt = Math.round(monthly * seg.pct / 100); if (amt > defaultAmt * 1.5) { input.classList.add('over-budget'); } else { input.classList.remove('over-budget'); }
-        });
+            var defaultAmt = Math.round(monthly * seg.pct / 100); if (amt > defaultAmt * 1.5) { input.classList.add('over-budget'); } else { input.classList.remove('over-budget'); } });
     }
 
     function updateChartAndLegend() {
@@ -1125,23 +1076,26 @@
     }
 
     // =========================================
-    // 14. CROSS-SELL CTA (OPT-7: Command Center)
+    // OPT-5: CROSS-SELL WITH ARCHETYPE-SPECIFIC CTA
     // =========================================
     function updateCrossSell() {
         var sys = SYSTEMS[state.selectedSystem]; var monthly = getMonthly(); var investAmt = Math.round(monthly * sys.investPct / 100);
         if (monthly > 0) {
             $('crossSellTitle').textContent = 'Your ' + sys.archetype + ' system allocates ' + sys.investPct + '% to ' + sys.investLabel + '. That is ' + fmt(investAmt) + '/mo.';
-            $('crossSellAmount').textContent = 'Automate it. Track it. Scale it.'; $('crossSellAmount').style.display = 'block';
+            $('crossSellAmount').textContent = fmt(investAmt) + '/mo ready to compound.'; $('crossSellAmount').style.display = 'block';
+            $('crossSellBtn').innerHTML = sys.ctaVerb + ' (' + fmt(investAmt) + '/mo) &#8594;';
             $('crossSellBtn').href = COMMAND_CENTER_URL + '?source=budget&monthly=' + investAmt;
         } else {
             $('crossSellTitle').textContent = 'You built the blueprint. Now access every tool in the system.';
-            $('crossSellAmount').style.display = 'none'; $('crossSellBtn').href = COMMAND_CENTER_URL + '?source=budget';
+            $('crossSellAmount').style.display = 'none';
+            $('crossSellBtn').innerHTML = 'Open Command Center &#8594;';
+            $('crossSellBtn').href = COMMAND_CENTER_URL + '?source=budget';
         }
         $('crossSellText').textContent = 'Autopilot automation, credit protocol, investment calculator, and more. All in one control room.';
     }
 
     // =========================================
-    // 15. IDENTITY CARD
+    // IDENTITY CARD
     // =========================================
     function updateIdCard() {
         var sys = SYSTEMS[state.selectedSystem]; var monthly = getMonthly();
@@ -1161,37 +1115,59 @@
     }
 
     function downloadCard() {
-        var btn = $('cardDownloadBtn'); var btnText = $('cardBtnText'); btn.disabled = true; btnText.textContent = 'Generating...';
+        var btn = $('cardDownloadBtn'); var btnText = $('cardBtnText'); btn.disabled = true; btnText.innerHTML = 'Generating...';
         if (window.html2canvas) { captureCard(); } else {
             var script = document.createElement('script'); script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-            script.onload = captureCard; script.onerror = function() { btnText.textContent = 'Download Failed'; setTimeout(function(){ btn.disabled = false; btnText.textContent = 'Download Card'; }, 2000); };
+            script.onload = captureCard; script.onerror = function() { btnText.innerHTML = 'Download Failed'; setTimeout(function(){ btn.disabled = false; btnText.innerHTML = '&#11015; Download Card'; }, 2000); };
             document.head.appendChild(script);
         }
     }
     function captureCard() {
         html2canvas($('idCard'), { scale: 3, backgroundColor: '#0c0e1a', useCORS: true, logging: false }).then(function(canvas) {
             var link = document.createElement('a'); link.download = 'financial-dna-' + SYSTEMS[state.selectedSystem].archetype.replace(/\s+/g, '-').toLowerCase() + '.png';
-            link.href = canvas.toDataURL('image/png'); link.click(); $('cardBtnText').textContent = 'Downloaded!';
-            setTimeout(function(){ $('cardDownloadBtn').disabled = false; $('cardBtnText').textContent = 'Download Card'; }, 2000);
-        }).catch(function() { $('cardBtnText').textContent = 'Download Failed'; setTimeout(function(){ $('cardDownloadBtn').disabled = false; $('cardBtnText').textContent = 'Download Card'; }, 2000); });
+            link.href = canvas.toDataURL('image/png'); link.click(); $('cardBtnText').innerHTML = '&#10003; Downloaded!';
+            setTimeout(function(){ $('cardDownloadBtn').disabled = false; $('cardBtnText').innerHTML = '&#11015; Download Card'; }, 2000);
+        }).catch(function() { $('cardBtnText').innerHTML = 'Download Failed'; setTimeout(function(){ $('cardDownloadBtn').disabled = false; $('cardBtnText').innerHTML = '&#11015; Download Card'; }, 2000); });
     }
 
     // =========================================
-    // 16. INCOME INPUT HANDLERS
+    // OPT-7: NATIVE SHARE
+    // =========================================
+    function shareCard() {
+        var sys = SYSTEMS[state.selectedSystem]; var monthly = getMonthly();
+        var shareText = 'My Financial DNA: ' + sys.archetype + ' (' + sys.title + ')';
+        if (monthly > 0) shareText += '. ' + fmt(monthly) + '/mo allocated.';
+        shareText += ' Find yours at koutalksmoney. DM "CHEAT" for the Prompt Vault.';
+        if (navigator.share) {
+            if (window.html2canvas) {
+                html2canvas($('idCard'), { scale: 2, backgroundColor: '#0c0e1a', useCORS: true, logging: false }).then(function(canvas) {
+                    canvas.toBlob(function(blob) {
+                        var file = new File([blob], 'financial-dna.png', { type: 'image/png' });
+                        navigator.share({ text: shareText, files: [file] }).catch(function() { navigator.share({ text: shareText }).catch(function(){}); });
+                    });
+                }).catch(function() { navigator.share({ text: shareText }).catch(function(){}); });
+            } else { navigator.share({ text: shareText }).catch(function(){}); }
+        }
+    }
+    if (navigator.share) { var shareBtn = $('cardShareBtn'); if (shareBtn) shareBtn.style.display = 'inline-flex'; }
+
+    // =========================================
+    // INCOME INPUT HANDLERS
     // =========================================
     $('incomeInput').addEventListener('input', function(e) {
         var val = parseFloat(e.target.value); state.income = isNaN(val) ? 0 : val;
         localStorage.setItem('budget_income', state.income.toString()); state.envelopeOverrides = null;
-        localStorage.removeItem('budget_envelope_overrides'); updateChartAndLegend(); updateCrossSell(); updateIdCard();
+        localStorage.removeItem('budget_envelope_overrides'); updateChartAndLegend(); updateCrossSell(); updateIdCard(); updateIncomeUI();
+        if (state.income > 0) { triggerDoughnutPulse(); incomeHasBeenEntered = true; }
     });
     function setPeriod(p) {
         state.incomePeriod = p; localStorage.setItem('budget_income_period', p);
         $('btnMonthly').classList.toggle('active', p === 'monthly'); $('btnAnnual').classList.toggle('active', p === 'annual');
-        state.envelopeOverrides = null; localStorage.removeItem('budget_envelope_overrides'); updateChartAndLegend(); updateCrossSell(); updateIdCard();
+        state.envelopeOverrides = null; localStorage.removeItem('budget_envelope_overrides'); updateChartAndLegend(); updateCrossSell(); updateIdCard(); updateIncomeUI();
     }
 
     // =========================================
-    // 17. START BUTTON
+    // START BUTTON
     // =========================================
     $('startBtn').addEventListener('click', function() {
         state.questionIndex = 0;
@@ -1200,9 +1176,7 @@
     });
 
     // =========================================
-    // 18. INITIALIZATION
-    // OPT-1: 800-Club users see loading theater
-    // before intro, then personalized intro.
+    // INITIALIZATION
     // =========================================
     (function init() {
         var quizDone = localStorage.getItem('budget_quiz_completed') === 'true';
@@ -1235,38 +1209,23 @@
         if (savedAnswers) state.answerHistory = savedAnswers;
         if (savedEnvelopeOverrides) state.envelopeOverrides = savedEnvelopeOverrides;
 
-        if (state.income > 0) { $('incomeInput').value = state.income; if (autopilotImported) $('incomeImported').style.display = 'inline-block'; }
+        if (state.income > 0) { $('incomeInput').value = state.income; incomeHasBeenEntered = true; if (autopilotImported) $('incomeImported').style.display = 'inline-block'; }
         if (state.incomePeriod === 'annual') { $('btnAnnual').classList.add('active'); $('btnMonthly').classList.remove('active'); }
 
-        // Personalize for 800-Club upstream users
         personalizeForUpstream();
 
-        // Route to correct section
         if (quizDone && isUnlocked) {
-            state.isUnlocked = true;
-            renderDashboard();
-            showSection('s-dashboard');
+            state.isUnlocked = true; renderDashboard(); showSection('s-dashboard');
         } else if (quizDone && !isUnlocked && isFrom800Club()) {
             try { localStorage.setItem('budget_unlocked', 'true'); } catch(e) {}
-            state.isUnlocked = true;
-            renderDashboard();
-            showSection('s-dashboard');
+            state.isUnlocked = true; renderDashboard(); showSection('s-dashboard');
         } else if (quizDone && !isUnlocked) {
             var sys = SYSTEMS[state.selectedSystem];
-            $('revealArchetype').textContent = sys.archetype;
-            $('revealSystem').textContent = sys.title;
-            renderDynamicWhyForReveal();
-            showSection('s-reveal');
-            activateGateRedirect();
+            $('revealArchetype').textContent = sys.archetype; $('revealSystem').textContent = sys.title;
+            renderDynamicWhyForReveal(); showSection('s-reveal'); activateGateRedirect();
         } else {
-            // OPT-1: 800-Club users see upstream theater FIRST
-            if (isFrom800Club() && !quizDone) {
-                runUpstreamTheater(function() {
-                    showSection('s-intro');
-                });
-            } else {
-                showSection('s-intro');
-            }
+            if (isFrom800Club() && !quizDone) { runUpstreamTheater(function() { showSection('s-intro'); }); }
+            else { showSection('s-intro'); }
         }
     })();
 
