@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KTM Conversion Flow System v2.2</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body, #root { height: 100%; width: 100%; overflow: hidden; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #0a0a0f; }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useRef } = React;
+
+// ═══════════════════════════════════════════════
+// COLOR SYSTEM
+// ═══════════════════════════════════════════════
+const C = {
+  AUTOPILOT: "#10b981",
+  LEAK: "#f59e0b",
+  ELITE800: "#8b5cf6",
+  MYNUMBER: "#3b82f6",
+  CHEAT: "#ef4444",
+  BUILD50: "#06b6d4",
+  PAYDAY: "#ec4899",
+  STORYTAG: "#f97316",
+  INNERLOOP: "#a855f7",
+  WELCOME: "#22d3ee",
+};
+
+const BASE = "https://spacekou5-oss.github.io/cashvault-funnel/";
+
+// ═══════════════════════════════════════════════
+// NEW FOLLOWER WELCOME FLOW
+// ═══════════════════════════════════════════════
+const WELCOME_FLOW = {
+  color: C.WELCOME,
+  label: "WELCOME",
+  pillar: "NEW FOLLOWER ONBOARDING",
+  angle: "Every new follower gets routed to their highest-leverage tool in under 60 seconds.",
+  trigger: "New Instagram follow (2-minute delay)",
+  opener: "I build free money tools for people our age. No courses. No guru stuff. Just systems that work at $14-18/hr. Quick question so I send you the right one:",
+  question: "What's your biggest problem with money right now?",
+  buttons: [
+    {
+      label: "My paycheck vanishes before Wednesday",
+      routes: "AUTOPILOT",
+      bridge: "That's the most common one. Your paycheck has holes and the fix takes 10 minutes. I built a system for this.",
+    },
+    {
+      label: "I don't know where my money goes",
+      routes: "PAYDAY",
+      bridge: "Most people can't name where $680 disappears to. I built a calculator that shows you every dollar. Prepare for the \"oh my god\" moment.",
+    },
+    {
+      label: "I should be investing but haven't started",
+      routes: "LEAK",
+      bridge: "Every year you wait costs roughly $17,000 in compound growth. That's not motivational talk. That's math. I built a calculator that runs YOUR number.",
+    },
+    {
+      label: "Credit makes zero sense to me",
+      routes: "ELITE800",
+      bridge: "Nobody explained it to you because nobody explained it to them. Credit is 8 steps, not a mystery. I built the exact checklist.",
+    },
+    {
+      label: "I just feel behind with money",
+      routes: "MYNUMBER",
+      bridge: "That feeling has a fix: one specific number. Your Freedom Number is the exact monthly amount where passive income covers your bills. Takes 10 seconds to calculate.",
+    },
+  ],
+  noResponse: {
+    delay: "24 hours",
+    msg: "No pressure on the question above. If you ever want a free money tool, just DM me one of these words: AUTOPILOT, LEAK, ELITE800, MYNUMBER, PAYDAY, CHEAT, or BUILD50. Each one sends you a different tool instantly.",
+  },
+};
+
+// ═══════════════════════════════════════════════
+// ALL 7 KEYWORD FLOWS
+// ═══════════════════════════════════════════════
+const FLOWS = {
+  AUTOPILOT: {
+    color: C.AUTOPILOT, label: "AUTOPILOT", pillar: "THE MACHINE",
+    angle: "Willpower is for losers. Build a machine.",
+    url: `${BASE}autopilot-system.html`,
+    reelCTA: {
+      gain: "Manual saving fails 92% in 90 days. Comment AUTOPILOT.",
+      loss: "If your $680 vanishes by Wednesday, comment AUTOPILOT.",
+    },
+    expandedCTA: {
+      gain: "Manual saving has a 92% failure rate. Comment AUTOPILOT and I'll DM you the 10-minute system.",
+      loss: "Your $680 vanishes by Wednesday because you save last. Comment AUTOPILOT. I'll send the architecture fix.",
+      wordCount: { gain: 17, loss: 16 },
+    },
+    commentReplies: [
+      "Sent it. Check DMs. 10-minute setup, runs forever.",
+      "DM'd you the blueprint. Automate once, never worry again.",
+      "Just sent the system. Your money moves before you wake up.",
+    ],
+    dm: {
+      hook: "Every month you \"try to save\" manually, you're running a system with a 92% failure rate. Not because you're bad with money. Because willpower was never designed to manage money. This 10-minute setup builds an automatic machine that routes your paycheck before you can touch it.",
+      cta: "Tap below to see the Autopilot Architecture Map.",
+      primaryBtn: "Open The Autopilot Map",
+      objection: "I don't have enough to save",
+      objectionReply: "That's exactly why the system starts at $25. It's not about amount. It's about installing the habit before the money disappears. Even $10/paycheck proves the machine works.",
+    },
+    followUp: {
+      day1: { msg: "The Autopilot Map is still unlocked for you. One setup, 10 minutes, then your money moves on every payday without you touching it.", btn: "Open The Autopilot Map" },
+      day3: { msg: "Still thinking about it? The tool is here whenever you're ready.", btn: "Open The Autopilot Map", valueDrop: "Quick win you can use right now: flip your paycheck order. Savings first, bills second, spending last. Most people reverse it. That single change stops the bleed before any automation." },
+      day7: { msg: "Last check on the Autopilot setup. It's still unlocked. One tap, 10 minutes, done forever.", btn: "Open The Autopilot Map", requalify: true },
+    },
+    crossSell: "CHEAT", crossSellReason: "Systems need AI optimization",
+    crossSellMsg: "Now that your money moves automatically, want to see the AI prompts I use to audit where it goes? Comment CHEAT and I'll send you the vault.",
+  },
+  LEAK: {
+    color: C.LEAK, label: "LEAK", pillar: "THE FUEL",
+    angle: "Every day you wait costs you real money.",
+    url: `${BASE}cost-of-waiting.html`,
+    reelCTA: {
+      gain: "$25/week at 19 turns into $48,726. Comment LEAK.",
+      loss: "Every day you delay costs $47. Comment LEAK.",
+    },
+    expandedCTA: {
+      gain: "$25/week at 19 becomes $48,726 by 40. Comment LEAK and I'll send you the calculator.",
+      loss: "Every year you delay investing costs roughly $17,000. Comment LEAK. I'll DM you the math at your income.",
+      wordCount: { gain: 16, loss: 17 },
+    },
+    commentReplies: [
+      "Sent it. Your personal cost-of-delay number is in DMs.",
+      "DM'd you. The number will change how you think about waiting.",
+      "Just sent the calculator. Enter your age and watch the math hit.",
+    ],
+    dm: {
+      hook: "Every year you delay investing $25/week, the final number drops by roughly $17,000. Not because you lose money. Because the compounding you would have earned disappears. This calculator runs YOUR number at YOUR income.",
+      cta: "Tap below to calculate your Cost of Waiting.",
+      primaryBtn: "See My Cost of Waiting",
+      objection: "I don't have money to invest",
+      objectionReply: "The calculator starts at $25/week. That's one Chipotle bowl. The point isn't the amount, it's seeing what that small number becomes over 20 years. The math changes how you think about \"too little.\"",
+    },
+    followUp: {
+      day1: { msg: "Your Cost of Waiting calculator is ready. Enter your age and income. One number that changes how you see every dollar you don't invest.", btn: "See My Cost of Waiting" },
+      day3: { msg: "The calculator is still here whenever you want to run your number.", btn: "See My Cost of Waiting", valueDrop: "Free insight: you don't need to pick stocks or follow the market. One index fund (it holds 500 companies at once), $25/week on repeat. That's the entire strategy. The simplicity is the advantage." },
+      day7: { msg: "Final reminder: every week you delay that first $25, roughly $47 in future compound value disappears. The calculator link is still active.", btn: "See My Cost of Waiting", requalify: true },
+    },
+    crossSell: "AUTOPILOT", crossSellReason: "Cost awareness needs system fix",
+    crossSellMsg: "Now that you see what delay costs, the next move is automating the first $25/week so you never have to \"remember\" to invest. Comment AUTOPILOT and I'll send you the setup.",
+  },
+  ELITE800: {
+    color: C.ELITE800, label: "ELITE800", pillar: "THE LEVERAGE",
+    angle: "Stop guessing. Hit 800.",
+    url: `${BASE}800-club.html`,
+    reelCTA: {
+      gain: "If nobody explained credit to you, comment ELITE800.",
+      loss: "A 650 score costs $3,000 extra on your first car. Comment ELITE800.",
+    },
+    expandedCTA: {
+      gain: "Credit is 8 steps, not a mystery. Comment ELITE800 and I'll DM you the full interactive checklist.",
+      loss: "A 650 score costs $3,000 extra on your first car. Comment ELITE800. I'll send you the 800-Club protocol.",
+      wordCount: { gain: 17, loss: 17 },
+    },
+    commentReplies: [
+      "Sent. 8 steps. Your score starts moving this week.",
+      "DM'd the full checklist. Step 1 takes under 10 minutes.",
+      "Just sent it. Credit is 8 actions in order, not a mystery.",
+    ],
+    dm: {
+      hook: "Credit is not a mystery. It is 8 specific actions in a specific order. This interactive checklist breaks each one into a step you can finish in under 10 minutes. A 650 score costs you $3,200 more on your first car loan than an 800.",
+      cta: "Tap below to open the 800-Club Protocol.",
+      primaryBtn: "Open The 800-Club Checklist",
+      objection: "I don't even have a credit card yet",
+      objectionReply: "Perfect. Step 1 on the checklist is literally how to pick your first card. The protocol works whether you're starting from zero or fixing damage. Most people's biggest mistake is starting without a sequence.",
+    },
+    followUp: {
+      day1: { msg: "The 800-Club checklist is still ready. 8 steps, each takes under 10 minutes. Start with step 1 and your score starts moving this week.", btn: "Open The 800-Club Checklist" },
+      day3: { msg: "The protocol is here whenever you're ready to start.", btn: "Open The 800-Club Checklist", valueDrop: "One credit concept that changes everything: utilization ratio. If your limit is $500 and you spend $400, your score drops. Not because of debt. Because the ratio hit 80%. Keep it under 30%. Under 10% is where scores climb fastest." },
+      day7: { msg: "Last check: the 800-Club checklist is still unlocked. A 650 vs 800 = $3,200 difference on your first car loan. The fix takes 10 minutes per step.", btn: "Open The 800-Club Checklist", requalify: true },
+    },
+    crossSell: "PAYDAY", crossSellReason: "Credit connects to cash flow",
+    crossSellMsg: "Your credit is moving. Next step that connects: knowing where your paycheck actually goes. Comment PAYDAY and I'll send you the breakdown calculator.",
+  },
+  MYNUMBER: {
+    color: C.MYNUMBER, label: "MYNUMBER", pillar: "THE MIND",
+    angle: "Financial Freedom is just a math problem.",
+    url: `${BASE}freedom-calculator.html`,
+    reelCTA: {
+      gain: "Your Freedom Number takes 10 seconds. Comment MYNUMBER.",
+      loss: "If you check your balance 5x daily, comment MYNUMBER.",
+    },
+    expandedCTA: {
+      gain: "Your Freedom Number is one calculation, 10 seconds. Comment MYNUMBER and I'll send you the calculator.",
+      loss: "Checking your bank 5x daily means you don't know your number yet. Comment MYNUMBER. I'll DM it to you.",
+      wordCount: { gain: 16, loss: 17 },
+    },
+    commentReplies: [
+      "Sent. 10 seconds and you'll never think about money the same.",
+      "DM'd you. One number replaces all the financial anxiety.",
+      "Just sent the calculator. Your Freedom Number is one input away.",
+    ],
+    dm: {
+      hook: "\"Financial freedom\" is not a fantasy. It is one specific number: the exact monthly amount where passive income covers your bills permanently. This calculator finds yours in 10 seconds. Once you know it, every dollar has a direction.",
+      cta: "Tap below to find your Freedom Number.",
+      primaryBtn: "Calculate My Freedom Number",
+      objection: "I'm too young to think about this",
+      objectionReply: "You're the exact right age. At 19, your Freedom Number is smaller than you think, and the time to reach it is longer. That combination is the entire advantage. 10 seconds to see it.",
+    },
+    followUp: {
+      day1: { msg: "Your Freedom Number calculator is still unlocked. 10 seconds. One number that replaces the vague anxiety with a specific, measurable target.", btn: "Calculate My Freedom Number" },
+      day3: { msg: "The calculator is here whenever you're ready to find your number.", btn: "Calculate My Freedom Number", valueDrop: "How to think about the number once you have it: say yours is $2,400/month. That's not one impossible leap. That's $600 from investments + $800 from a side system + $1,000 from a skill. You build income sources that stack." },
+      day7: { msg: "Last check. Your Freedom Number takes 10 seconds. Everyone who's calculated it says the same thing: \"I wish I'd done this earlier.\" The link is still active.", btn: "Calculate My Freedom Number", requalify: true },
+    },
+    crossSell: "AUTOPILOT", crossSellReason: "Freedom Number needs infrastructure",
+    crossSellMsg: "Now that you know your number, the fastest way to move it is automating $25/week. Comment AUTOPILOT and I'll send you the 10-minute setup that runs without you.",
+  },
+  CHEAT: {
+    color: C.CHEAT, label: "CHEAT", pillar: "THE TECH",
+    angle: "Don't work hard. Copy my homework.",
+    url: `${BASE}prompt-vault.html`,
+    reelCTA: {
+      gain: "One AI prompt replaced 3 hours of my week. Comment CHEAT.",
+      loss: "If you still budget manually in 2026, comment CHEAT.",
+    },
+    expandedCTA: {
+      gain: "One AI prompt saves me 3 hours/week on finances. Comment CHEAT and I'll send you the full vault.",
+      loss: "Still budgeting manually in 2026? Comment CHEAT. I'll DM you the AI prompts that run my money.",
+      wordCount: { gain: 17, loss: 16 },
+    },
+    commentReplies: [
+      "Sent. Start with Prompt #1. 90 seconds and it finds your leaks.",
+      "DM'd the full vault. Copy, paste, get answers. No learning curve.",
+      "Just sent it. These are the exact prompts running my finances.",
+    ],
+    dm: {
+      hook: "These are the exact AI prompts I use to run my finances in under 10 minutes a week. Not theory. Not \"learn AI.\" Copy, paste, get an answer. Start with Prompt #1: the spending audit. It finds your leaks in 90 seconds flat.",
+      cta: "Tap below to open the Prompt Vault.",
+      primaryBtn: "Open The Prompt Vault",
+      objection: "I don't know how to use AI",
+      objectionReply: "You don't need to. You literally copy a prompt, paste it into ChatGPT (free version works), and paste your bank transactions. The AI does the thinking. Prompt #1 takes 90 seconds start to finish.",
+    },
+    followUp: {
+      day1: { msg: "The Prompt Vault is still unlocked. Start with Prompt #1 (the spending audit). Copy it, paste into ChatGPT, see your top 3 money leaks in 90 seconds.", btn: "Open The Prompt Vault" },
+      day3: { msg: "The vault is here whenever you want to try Prompt #1.", btn: "Open The Prompt Vault", valueDrop: "How Prompt #1 works: paste your last 30 days of transactions from your bank app. The AI sorts them, finds recurring charges you forgot, shows your top 3 biggest leaks by dollar amount. No spreadsheet. No math. It does the thinking." },
+      day7: { msg: "Last check. When I ran Prompt #1 last month it found $73/month in forgotten subscriptions. That's $876/year. At $18/hr, that's 48 hours of my life. The vault is still unlocked.", btn: "Open The Prompt Vault", requalify: true },
+    },
+    crossSell: "BUILD50", crossSellReason: "Prompts reveal investing opportunity",
+    crossSellMsg: "Prompt #1 found your leaks. Now put that recovered money to work. Comment BUILD50 and I'll walk you through automating $25/week into an index fund.",
+  },
+  BUILD50: {
+    color: C.BUILD50, label: "BUILD50", pillar: "INVESTMENT SIMPLIFIER",
+    angle: "From zero to automated in one session.",
+    url: `${BASE}Investment-Simplifier.html`,
+    reelCTA: {
+      gain: "$25/week automated in one session. Comment BUILD50.",
+      loss: "If 'I don't know how to start investing' is you, comment BUILD50.",
+    },
+    expandedCTA: {
+      gain: "$25/week automated in one session. Comment BUILD50 and I'll walk you through the exact setup.",
+      loss: "\"I don't know how to start investing\" ends today. Comment BUILD50. I'll send you the step-by-step guide.",
+      wordCount: { gain: 16, loss: 16 },
+    },
+    commentReplies: [
+      "Sent. One session, three decisions, you're set.",
+      "DM'd the full setup guide. $25/week on autopilot after this.",
+      "Just sent it. Which app, which fund, how to automate. All covered.",
+    ],
+    dm: {
+      hook: "This setup guide takes you from \"I know I should invest\" to \"it runs automatically.\" It walks through which app (Fidelity or Schwab, both free), which fund (one index fund), and how to set $25/week on repeat. One session. Zero guessing.",
+      cta: "Tap below to open the Investment Simplifier.",
+      primaryBtn: "Open The Investment Simplifier",
+      objection: "$25/week sounds like nothing",
+      objectionReply: "$25/week at 19 turns into $48,726 by 40. You deposited $27,300. The other $21,426 showed up because you started, not because you started with a lot. The math doesn't care about the amount. It cares about the time.",
+    },
+    followUp: {
+      day1: { msg: "The Investment Simplifier is still ready. Three decisions (where, what, how much), one session, and your $25/week runs automatically from there.", btn: "Open The Investment Simplifier" },
+      day3: { msg: "Still here if you want to start the setup.", btn: "Open The Investment Simplifier", valueDrop: "Preview of the 3 decisions: (1) Where: Fidelity or Schwab, $0 minimum, no fees. (2) What: one total market index fund. (3) How much: $25/week. That's the whole thing. Three choices and you're set." },
+      day7: { msg: "Final check. Every week you delay that $25 transfer, roughly $47 in future compound value vanishes. It doesn't pause while you think about it. The Simplifier is still unlocked.", btn: "Open The Investment Simplifier", requalify: true },
+    },
+    crossSell: "AUTOPILOT", crossSellReason: "Investment needs automation backbone",
+    crossSellMsg: "Your investment is running. Now automate the rest of your paycheck so savings, bills, and spending all route automatically. Comment AUTOPILOT for the 10-minute setup.",
+  },
+  PAYDAY: {
+    color: C.PAYDAY, label: "PAYDAY", pillar: "BUDGET CALCULATOR",
+    angle: "See where every dollar actually goes.",
+    url: `${BASE}Kou's-Budget-Calculator.html`,
+    reelCTA: {
+      gain: "You work 60 hours/year for apps you forgot. Comment PAYDAY.",
+      loss: "If you can't name where your last paycheck went, comment PAYDAY.",
+    },
+    expandedCTA: {
+      gain: "60 hours of your work per year going to forgotten apps. Comment PAYDAY and I'll send you the paycheck mirror.",
+      loss: "You can't name where your last paycheck went. Comment PAYDAY. I'll DM you the full breakdown tool.",
+      wordCount: { gain: 18, loss: 16 },
+    },
+    commentReplies: [
+      "Sent. Prepare for the \"oh my god\" moment when you see the breakdown.",
+      "DM'd the calculator. Every dollar of your paycheck, mapped and visible.",
+      "Just sent it. This mirror shows what nobody else will tell you.",
+    ],
+    dm: {
+      hook: "This calculator shows you exactly where every dollar of your paycheck goes. Not a budget template. Not a spending plan. A mirror. Most people find $40-90/month in forgotten subscriptions alone. At $14/hr, that's 60 hours of work per year for apps you don't open.",
+      cta: "Tap below to see your real paycheck breakdown.",
+      primaryBtn: "Open The Budget Calculator",
+      objection: "I already know I spend too much",
+      objectionReply: "Knowing you spend too much and seeing exactly where each dollar goes are two completely different things. The calculator doesn't judge. It shows. Most people's faces change when they see the subscription number.",
+    },
+    followUp: {
+      day1: { msg: "Your paycheck mirror is still ready. Enter your income and expenses. The breakdown shows you exactly where every dollar of your $680 goes.", btn: "Open The Budget Calculator" },
+      day3: { msg: "The calculator is here whenever you want to see the real numbers.", btn: "Open The Budget Calculator", valueDrop: "Top 3 paycheck killers at our income level: (1) food outside home, $180-240/mo. (2) Subscriptions you forgot, $40-90/mo. (3) Impulse purchases under $15 that stack to $200+/mo. Number 2 is the one that makes people's faces change." },
+      day7: { msg: "Last check. $70/month in forgotten subscriptions = 60 hours of work per year at $14/hr. The calculator finds yours in under 2 minutes. Still unlocked.", btn: "Open The Budget Calculator", requalify: true },
+    },
+    crossSell: "LEAK", crossSellReason: "Budget reveals investing gap",
+    crossSellMsg: "Now you can see where the money goes. The next question: what would $25/week of it become if you invested it? Comment LEAK and I'll send you the compound math.",
+  },
+};
+
+const SPECIAL = {
+  STORYTAG: {
+    color: C.STORYTAG, label: "STORY TAG", pillar: "SOCIAL FLYWHEEL",
+    angle: "User tags you on story. Flywheel activates.",
+    trigger: "Instagram story mention/tag",
+    dm: {
+      hook: "You just shared your results with your people. That's the move. Most people find out they have a money problem and keep it to themselves. You made it social. Here's your unlock code: CERTIFIED. Paste it in the Command Center to access the next level.",
+      code: "CERTIFIED", destination: "Command Center (deeper access)",
+      url: `${BASE}command-center.html`,
+    },
+  },
+  INNERLOOP: {
+    color: C.INNERLOOP, label: "INNERLOOP", pillar: "RETENTION ENGINE",
+    angle: "Hidden keyword inside Command Center.",
+    trigger: "Hidden keyword discovered inside Command Center",
+    dm: {
+      hook: "You found the hidden door. Most people scroll past it. The fact that you're here means you're building, not browsing. Here's your unlock code: CASHFLOW. This opens the Budget Calculator with your data pre-loaded from the Command Center.",
+      code: "CASHFLOW", destination: "Budget Calculator (pre-loaded data)",
+      url: `${BASE}Kou's-Budget-Calculator.html`,
+    },
+  },
+};
+
+const CHAIN = [
+  { from: "AUTOPILOT", to: "CHEAT", label: "Systems need AI optimization" },
+  { from: "CHEAT", to: "BUILD50", label: "Prompts reveal investing opportunity" },
+  { from: "BUILD50", to: "AUTOPILOT", label: "Investment needs automation backbone" },
+  { from: "LEAK", to: "AUTOPILOT", label: "Cost awareness needs system fix" },
+  { from: "ELITE800", to: "PAYDAY", label: "Credit connects to cash flow" },
+  { from: "PAYDAY", to: "LEAK", label: "Budget reveals investing gap" },
+  { from: "MYNUMBER", to: "AUTOPILOT", label: "Freedom Number needs infrastructure" },
+];
+
+const REQUALIFY = [
+  { label: "I can't save anything", routes: "AUTOPILOT" },
+  { label: "I don't know how to invest", routes: "BUILD50" },
+  { label: "My credit confuses me", routes: "ELITE800" },
+  { label: "I don't know where my money goes", routes: "PAYDAY" },
+  { label: "I just feel behind", routes: "MYNUMBER" },
+];
+
+const FLYWHEEL = [
+  { label: "Command Center", color: C.MYNUMBER, icon: "\u26A1" },
+  { label: "INNERLOOP trigger", color: C.INNERLOOP, icon: "\uD83D\uDD11" },
+  { label: "CASHFLOW code", color: C.PAYDAY, icon: "\uD83D\uDCB0" },
+  { label: "Budget Calculator", color: C.PAYDAY, icon: "\uD83D\uDCCA" },
+  { label: "User screenshots results", color: C.STORYTAG, icon: "\uD83D\uDCF1" },
+  { label: "Story tag", color: C.STORYTAG, icon: "\uD83D\uDCE2" },
+  { label: "CERTIFIED code", color: C.AUTOPILOT, icon: "\u2705" },
+  { label: "Deeper Command Center access", color: C.INNERLOOP, icon: "\uD83D\uDD13" },
+];
+
+// ═══════════════════════════════════════════════
+// UI COMPONENTS
+// ═══════════════════════════════════════════════
+
+function Badge({ num, color, label }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+      <div style={{
+        width: 30, height: 30, borderRadius: "50%", background: color,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 13, fontWeight: 900, color: "#0a0a0f", flexShrink: 0,
+        boxShadow: `0 0 14px ${color}44`,
+      }}>{num}</div>
+      <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.8, color, textTransform: "uppercase" }}>{label}</span>
+    </div>
+  );
+}
+
+function Bubble({ children, variant = "dark", style: extra = {} }) {
+  const bgs = {
+    dark: ["#252532", "#33333380"], accent: ["#1a1a24", "#33333360"],
+    success: ["#10b98112", "#10b98130"], warning: ["#f59e0b10", "#f59e0b28"],
+    info: ["#3b82f610", "#3b82f628"], danger: ["#ef444410", "#ef444428"],
+    purple: ["#8b5cf610", "#8b5cf628"], pink: ["#ec489910", "#ec489928"],
+    cyan: ["#22d3ee10", "#22d3ee28"],
+  };
+  const [bg, bd] = bgs[variant] || bgs.dark;
+  return (
+    <div style={{
+      background: bg, border: `1px solid ${bd}`, borderRadius: 10,
+      padding: "11px 15px", fontSize: 12.5, lineHeight: 1.6, color: "#d1d5db", marginBottom: 6, ...extra,
+    }}>{children}</div>
+  );
+}
+
+function Btn({ label, color, variant = "solid", small, url }) {
+  const solid = variant === "solid";
+  return (
+    <div style={{ display: "inline-flex", flexDirection: "column", gap: 2 }}>
+      <div style={{
+        display: "inline-flex", alignItems: "center", gap: 6,
+        padding: small ? "5px 12px" : "8px 16px", borderRadius: 8,
+        background: solid ? color : "transparent",
+        border: solid ? "none" : `1px solid ${color}50`,
+        color: solid ? "#0a0a0f" : color,
+        fontSize: small ? 10.5 : 12, fontWeight: 700, letterSpacing: 0.3,
+        boxShadow: solid ? `0 0 16px ${color}25` : "none",
+      }}>{label}</div>
+      {url && (
+        <span style={{ fontSize: 8.5, color: "#4b5563", fontFamily: "monospace", maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {url.replace("https://spacekou5-oss.github.io/cashvault-funnel/", ".../")}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function Arrow({ color = "#333", label = "" }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", margin: "6px 0" }}>
+      <div style={{ width: 2, height: 14, background: `${color}50` }} />
+      {label && <span style={{ fontSize: 9, color: `${color}99`, fontWeight: 600, letterSpacing: 0.5, margin: "2px 0", textAlign: "center", maxWidth: 220 }}>{label}</span>}
+      <div style={{ width: 0, height: 0, borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: `6px solid ${color}50` }} />
+    </div>
+  );
+}
+
+function Tag({ text, color, bg }) {
+  return (
+    <span style={{
+      fontSize: 9, fontWeight: 700, color: color || "#9ca3af", background: bg || "#252532",
+      padding: "2px 8px", borderRadius: 4, letterSpacing: 0.8, display: "inline-block",
+    }}>{text}</span>
+  );
+}
+
+function UrlRef({ url }) {
+  return (
+    <div style={{
+      fontSize: 10, color: "#4b5563", fontFamily: "monospace", padding: "4px 10px",
+      background: "#1a1a24", borderRadius: 6, marginTop: 4, wordBreak: "break-all",
+      border: "1px solid #252532",
+    }}>
+      <span style={{ color: "#6b7280" }}>URL: </span>{url}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// WELCOME FLOW DETAIL VIEW
+// ═══════════════════════════════════════════════
+
+function WelcomeDetail() {
+  const w = WELCOME_FLOW;
+  const c = w.color;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      {/* Header */}
+      <div style={{ marginBottom: 22 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
+          <span style={{ fontSize: 24, fontWeight: 900, color: c, letterSpacing: 1 }}>NEW FOLLOWER</span>
+          <Tag text={w.pillar} color={c} bg={`${c}15`} />
+        </div>
+        <p style={{ fontSize: 12, color: "#6b7280", fontStyle: "italic", margin: "0 0 8px" }}>"{w.angle}"</p>
+        <div style={{
+          display: "flex", alignItems: "center", gap: 8, padding: "8px 14px",
+          background: "#1a1a24", border: "1px solid #252532", borderRadius: 8,
+        }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: c, boxShadow: `0 0 8px ${c}` }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: c }}>TRIGGER:</span>
+          <span style={{ fontSize: 11, color: "#9ca3af" }}>{w.trigger}</span>
+        </div>
+      </div>
+
+      {/* STAGE 1: OPENER */}
+      <Badge num={1} color={c} label="Welcome Message (after 2-min delay)" />
+      <div style={{ paddingLeft: 40, marginBottom: 4 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <Tag text="2-MINUTE DELAY" color={c} bg={`${c}15`} />
+          <span style={{ fontSize: 9, color: "#4b5563" }}>Fires automatically on new follow</span>
+        </div>
+        <Bubble variant="cyan">{w.opener}</Bubble>
+        <div style={{ marginTop: 6 }}>
+          <Bubble variant="cyan" style={{ borderLeft: `3px solid ${c}`, fontWeight: 600 }}>{w.question}</Bubble>
+        </div>
+      </div>
+
+      <Arrow color={c} label="BRANDON SEES 5 QUICK-REPLY BUTTONS" />
+
+      {/* STAGE 2: SELF-SELECTION BUTTONS */}
+      <Badge num={2} color={c} label="Self-Selection (Pain Statement Buttons)" />
+      <div style={{ paddingLeft: 40, marginBottom: 4 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {w.buttons.map((btn, i) => {
+            const routeColor = FLOWS[btn.routes]?.color || "#666";
+            return (
+              <div key={i} style={{
+                padding: "10px 14px", background: `${routeColor}08`,
+                border: `1px solid ${routeColor}22`, borderRadius: 10,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+                  <Btn label={btn.label} color={routeColor} variant="outline" small />
+                  <span style={{ fontSize: 10, color: "#4b5563" }}>\u2192</span>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: routeColor }}>{btn.routes}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <Arrow color={c} label="BRANDON TAPS A BUTTON" />
+
+      {/* STAGE 3: BRIDGE MESSAGES */}
+      <Badge num={3} color={c} label="Bridge Message (1 sentence, then Initial DM)" />
+      <div style={{ paddingLeft: 40, marginBottom: 4 }}>
+        <p style={{ fontSize: 10, color: "#4b5563", marginBottom: 10 }}>
+          Each button triggers a unique bridge message that acknowledges Brandon's specific pain, then immediately feeds into that pillar's existing Initial DM sequence.
+        </p>
+        {w.buttons.map((btn, i) => {
+          const routeColor = FLOWS[btn.routes]?.color || "#666";
+          const f = FLOWS[btn.routes];
+          return (
+            <div key={i} style={{ marginBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                <Tag text={btn.routes} color={routeColor} bg={`${routeColor}18`} />
+                <span style={{ fontSize: 9, color: "#4b5563" }}>"{btn.label}"</span>
+              </div>
+              {/* Bridge message */}
+              <Bubble variant="accent" style={{ borderLeft: `3px solid ${routeColor}` }}>
+                <span style={{ color: routeColor, fontWeight: 600 }}>Bridge: </span>
+                {btn.bridge}
+              </Bubble>
+              {/* Then routes to Initial DM */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "4px 0 4px 12px" }}>
+                <div style={{ width: 2, height: 16, background: `${routeColor}30` }} />
+                <span style={{ fontSize: 9, color: "#4b5563", fontStyle: "italic" }}>3-second delay, then Initial DM fires:</span>
+              </div>
+              <Bubble style={{ opacity: 0.7, fontSize: 11 }}>
+                {f?.dm?.hook?.substring(0, 120)}...
+              </Bubble>
+              <div style={{ marginTop: 4 }}>
+                <Btn label={f?.dm?.primaryBtn} color={routeColor} small url={f?.url} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <Arrow color={c} label="IF NO BUTTON TAPPED" />
+
+      {/* STAGE 4: NO-RESPONSE FALLBACK */}
+      <Badge num={4} color={c} label="No-Response Fallback (24hr)" />
+      <div style={{ paddingLeft: 40 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <Tag text="24-HOUR DELAY" color="#f59e0b" bg="#f59e0b12" />
+          <span style={{ fontSize: 9, color: "#4b5563" }}>Only fires if Brandon never tapped a button</span>
+        </div>
+        <Bubble variant="warning">{w.noResponse.msg}</Bubble>
+        <p style={{ fontSize: 9, color: "#4b5563", fontStyle: "italic", marginTop: 6 }}>
+          This catches silent followers by listing all 7 keywords. Any future DM keyword triggers the matching flow. Brandon stays in the system permanently.
+        </p>
+      </div>
+
+      {/* ARCHITECTURE NOTE */}
+      <div style={{
+        marginTop: 24, padding: "14px 18px", background: "#1a1a24",
+        border: `1px solid ${c}20`, borderRadius: 10,
+      }}>
+        <div style={{ fontSize: 12, fontWeight: 800, color: c, marginBottom: 8, letterSpacing: 0.5 }}>
+          ARCHITECTURE NOTE
+        </div>
+        <div style={{ fontSize: 11, color: "#9ca3af", lineHeight: 1.7 }}>
+          The Welcome Flow is the top of the funnel for organic follows. It catches every new follower who did NOT come from a Reel CTA keyword comment. Once Brandon selects a pain button, they enter the same conversion infrastructure as keyword-triggered users: Initial DM \u2192 Objection Handler \u2192 Day 1/3/7 Recovery \u2192 Cross-Sell. No separate path needed. The bridge message is the only unique piece. Everything downstream reuses existing flows.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// KEYWORD FLOW DETAIL VIEW
+// ═══════════════════════════════════════════════
+
+function FlowDetail({ flowKey }) {
+  const f = FLOWS[flowKey];
+  if (!f) return null;
+  const c = f.color;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <div style={{ marginBottom: 22 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
+          <span style={{ fontSize: 24, fontWeight: 900, color: c, letterSpacing: 1 }}>{f.label}</span>
+          <Tag text={f.pillar} />
+        </div>
+        <p style={{ fontSize: 12, color: "#6b7280", fontStyle: "italic", margin: "0 0 8px" }}>"{f.angle}"</p>
+        <UrlRef url={f.url} />
+      </div>
+
+      {/* STAGE 1: REEL CTAs */}
+      <Badge num={1} color={c} label="Reel CTA (A/B Variants)" />
+      <div style={{ paddingLeft: 40, marginBottom: 4 }}>
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <Tag text="OVERLAY / SPOKEN" color="#9ca3af" bg="#1a1a24" />
+            <span style={{ fontSize: 9, color: "#4b5563" }}>6-9 words</span>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: "#10b981", marginBottom: 4, letterSpacing: 1 }}>GAIN</div>
+              <Bubble variant="success">{f.reelCTA.gain}</Bubble>
+            </div>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: "#ef4444", marginBottom: 4, letterSpacing: 1 }}>LOSS</div>
+              <Bubble variant="danger">{f.reelCTA.loss}</Bubble>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <Tag text="CAPTION / PINNED COMMENT" color={c} bg={`${c}18`} />
+            <span style={{ fontSize: 9, color: "#4b5563" }}>14-17 words</span>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: "#10b981", marginBottom: 4, letterSpacing: 1 }}>GAIN ({f.expandedCTA.wordCount.gain}w)</div>
+              <Bubble variant="success" style={{ borderLeft: `3px solid ${c}` }}>{f.expandedCTA.gain}</Bubble>
+            </div>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: "#ef4444", marginBottom: 4, letterSpacing: 1 }}>LOSS ({f.expandedCTA.wordCount.loss}w)</div>
+              <Bubble variant="danger" style={{ borderLeft: `3px solid ${c}` }}>{f.expandedCTA.loss}</Bubble>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Arrow color={c} label="COMMENT TRIGGERS MANYCHAT" />
+
+      {/* STAGE 2: COMMENT REPLIES */}
+      <Badge num={2} color={c} label="Public Comment Reply (3 Random)" />
+      <div style={{ paddingLeft: 40, marginBottom: 4 }}>
+        {f.commentReplies.map((r, i) => <Bubble key={i} variant="accent">{i + 1}. {r}</Bubble>)}
+      </div>
+
+      <Arrow color={c} label="DM FIRES AUTOMATICALLY" />
+
+      {/* STAGE 3: INITIAL DM */}
+      <Badge num={3} color={c} label="Initial DM Sequence" />
+      <div style={{ paddingLeft: 40 }}>
+        <Tag text="MSG 1: HOOK + VALUE" color="#9ca3af" />
+        <div style={{ height: 4 }} />
+        <Bubble>{f.dm.hook}</Bubble>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "10px 0 4px" }}>
+          <Tag text="MSG 2: CTA" color="#9ca3af" />
+          <span style={{ fontSize: 9, color: "#4b5563" }}>3-second delay</span>
+        </div>
+        <Bubble variant="info">{f.dm.cta}</Bubble>
+        <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap", alignItems: "flex-start" }}>
+          <Btn label={f.dm.primaryBtn} color={c} url={f.url} />
+          <Btn label={`"${f.dm.objection}"`} color="#f59e0b" variant="outline" />
+        </div>
+        <div style={{ marginTop: 14 }}>
+          <Tag text="OBJECTION HANDLER" color="#f59e0b" bg="#f59e0b15" />
+          <div style={{ height: 4 }} />
+          <Bubble variant="warning">{f.dm.objectionReply}</Bubble>
+          <div style={{ marginTop: 6 }}>
+            <Btn label={f.dm.primaryBtn} color={c} small url={f.url} />
+          </div>
+        </div>
+      </div>
+
+      <Arrow color={c} label="IF NO CLICK ON PRIMARY BUTTON" />
+
+      {/* STAGE 4: FOLLOW-UP TRACK */}
+      <Badge num={4} color={c} label="Follow-Up Recovery Track" />
+      <div style={{ paddingLeft: 40 }}>
+        {/* Day 1 */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <span style={{ fontSize: 10, fontWeight: 900, color: "#0a0a0f", background: c, padding: "2px 10px", borderRadius: 4 }}>DAY 1</span>
+            <span style={{ fontSize: 9, color: "#4b5563" }}>Single button, no exit</span>
+          </div>
+          <Bubble>{f.followUp.day1.msg}</Bubble>
+          <Btn label={f.followUp.day1.btn} color={c} small url={f.url} />
+        </div>
+        {/* Day 3 */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <span style={{ fontSize: 10, fontWeight: 900, color: "#0a0a0f", background: c, padding: "2px 10px", borderRadius: 4 }}>DAY 3</span>
+            <span style={{ fontSize: 9, color: "#4b5563" }}>Button + "Not Now" value drop</span>
+          </div>
+          <Bubble>{f.followUp.day3.msg}</Bubble>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
+            <Btn label={f.followUp.day3.btn} color={c} small url={f.url} />
+            <Btn label="Not Now" color="#6b7280" variant="outline" small />
+          </div>
+          <div style={{ marginTop: 10 }}>
+            <Tag text="VALUE DROP ON 'NOT NOW'" color="#3b82f6" bg="#3b82f612" />
+            <div style={{ height: 4 }} />
+            <Bubble variant="info">{f.followUp.day3.valueDrop}</Bubble>
+          </div>
+        </div>
+        {/* Day 7 */}
+        <div style={{ marginBottom: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <span style={{ fontSize: 10, fontWeight: 900, color: "#0a0a0f", background: c, padding: "2px 10px", borderRadius: 4 }}>DAY 7</span>
+            <span style={{ fontSize: 9, color: "#4b5563" }}>Button + "Maybe Later" requalify</span>
+          </div>
+          <Bubble>{f.followUp.day7.msg}</Bubble>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
+            <Btn label={f.followUp.day7.btn} color={c} small url={f.url} />
+            <Btn label="Maybe Later" color="#a855f7" variant="outline" small />
+          </div>
+          <div style={{ marginTop: 10 }}>
+            <Tag text="RE-QUALIFICATION ON 'MAYBE LATER'" color="#a855f7" bg="#a855f712" />
+            <div style={{ height: 4 }} />
+            <Bubble variant="purple">No worries. Quick question: what's your biggest money challenge right now?</Bubble>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
+              {REQUALIFY.map((opt, i) => (
+                <Btn key={i} label={opt.label} color={FLOWS[opt.routes]?.color} variant="outline" small />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Arrow color={c} label="24HR AFTER COMPLETION" />
+
+      {/* STAGE 5: CROSS-SELL */}
+      <Badge num={5} color={c} label="Cross-Sell" />
+      <div style={{ paddingLeft: 40 }}>
+        <div style={{
+          padding: "12px 16px", background: `${FLOWS[f.crossSell]?.color || "#666"}08`,
+          border: `1px solid ${FLOWS[f.crossSell]?.color || "#666"}25`, borderRadius: 10,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+            <span style={{ fontSize: 12, color: "#6b7280" }}>Next flow:</span>
+            <span style={{ fontSize: 16, fontWeight: 900, color: FLOWS[f.crossSell]?.color }}>{f.crossSell}</span>
+            <Tag text={f.crossSellReason} color="#6b7280" />
+          </div>
+          <Bubble variant="accent">{f.crossSellMsg}</Bubble>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// SPECIAL FLOW + FLYWHEEL (unchanged from v2.1)
+// ═══════════════════════════════════════════════
+
+function SpecialDetail({ flowKey }) {
+  const f = SPECIAL[flowKey];
+  if (!f) return null;
+  const c = f.color;
+  return (
+    <div>
+      <div style={{ marginBottom: 22 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
+          <span style={{ fontSize: 24, fontWeight: 900, color: c, letterSpacing: 1 }}>{f.label}</span>
+          <Tag text={f.pillar} />
+        </div>
+        <p style={{ fontSize: 12, color: "#6b7280", fontStyle: "italic", margin: "0 0 8px" }}>"{f.angle}"</p>
+        <UrlRef url={f.dm.url} />
+      </div>
+      <Badge num="!" color={c} label={`Trigger: ${f.trigger}`} />
+      <div style={{ paddingLeft: 40, marginTop: 4 }}>
+        <Bubble>{f.dm.hook}</Bubble>
+        <div style={{ marginTop: 12, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{
+            padding: "8px 16px", background: `${c}15`, border: `1px dashed ${c}`,
+            borderRadius: 8, fontSize: 15, fontWeight: 900, color: c, letterSpacing: 3,
+          }}>CODE: {f.dm.code}</div>
+          <span style={{ fontSize: 11, color: "#6b7280" }}>{f.dm.destination}</span>
+        </div>
+        <UrlRef url={f.dm.url} />
+      </div>
+    </div>
+  );
+}
+
+function FlywheelView() {
+  return (
+    <div>
+      <div style={{ marginBottom: 22 }}>
+        <span style={{ fontSize: 24, fontWeight: 900, color: "#f59e0b", letterSpacing: 1 }}>THE FLYWHEEL</span>
+        <p style={{ fontSize: 12, color: "#6b7280", fontStyle: "italic", margin: "4px 0 0" }}>
+          Self-perpetuating organic growth engine. Zero paid distribution.
+        </p>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 0, marginBottom: 28 }}>
+        {FLYWHEEL.map((step, i) => (
+          <div key={i}>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 12, padding: "10px 16px",
+              background: `${step.color}08`, border: `1px solid ${step.color}20`, borderRadius: 10,
+            }}>
+              <span style={{ fontSize: 18 }}>{step.icon}</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: step.color, flex: 1 }}>{step.label}</span>
+              <span style={{
+                fontSize: 10, fontWeight: 900, color: "#0a0a0f", background: step.color,
+                padding: "2px 10px", borderRadius: 4,
+              }}>STEP {i + 1}</span>
+            </div>
+            {i < FLYWHEEL.length - 1 && (
+              <div style={{ display: "flex", justifyContent: "center", padding: "2px 0" }}>
+                <div style={{ width: 2, height: 10, background: "#333" }} />
+              </div>
+            )}
+          </div>
+        ))}
+        <div style={{ textAlign: "center", padding: "10px 0", fontSize: 11, fontWeight: 700, color: "#f59e0b", letterSpacing: 1 }}>
+          LOOPS BACK TO STEP 1. EACH CYCLE = ORGANIC IMPRESSIONS.
+        </div>
+      </div>
+      <div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: "#d1d5db", marginBottom: 14 }}>CROSS-SELL CHAIN</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {CHAIN.map((link, i) => (
+            <div key={i} style={{
+              display: "flex", alignItems: "center", gap: 8, padding: "8px 14px",
+              background: "#1a1a24", borderRadius: 8, fontSize: 12, flexWrap: "wrap",
+            }}>
+              <span style={{ fontWeight: 900, color: FLOWS[link.from]?.color, minWidth: 85 }}>{link.from}</span>
+              <span style={{ color: "#444", fontSize: 14 }}>\u2192</span>
+              <span style={{ fontWeight: 900, color: FLOWS[link.to]?.color, minWidth: 85 }}>{link.to}</span>
+              <span style={{ color: "#6b7280", fontSize: 10, fontStyle: "italic" }}>{link.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ marginTop: 24 }}>
+        <div style={{ fontSize: 13, fontWeight: 800, color: "#d1d5db", marginBottom: 10 }}>CLOSED LOOPS</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ padding: "10px 14px", background: "#10b98108", border: "1px solid #10b98120", borderRadius: 8, fontSize: 11, color: "#9ca3af" }}>
+            <span style={{ fontWeight: 800, color: C.AUTOPILOT }}>AUTOPILOT</span> \u2192{" "}
+            <span style={{ fontWeight: 800, color: C.CHEAT }}>CHEAT</span> \u2192{" "}
+            <span style={{ fontWeight: 800, color: C.BUILD50 }}>BUILD50</span> \u2192{" "}
+            <span style={{ fontWeight: 800, color: C.AUTOPILOT }}>AUTOPILOT</span>
+            <span style={{ marginLeft: 8, color: "#4b5563" }}>(primary triangle)</span>
+          </div>
+          <div style={{ padding: "10px 14px", background: "#8b5cf608", border: "1px solid #8b5cf620", borderRadius: 8, fontSize: 11, color: "#9ca3af" }}>
+            <span style={{ fontWeight: 800, color: C.ELITE800 }}>ELITE800</span> \u2192{" "}
+            <span style={{ fontWeight: 800, color: C.PAYDAY }}>PAYDAY</span> \u2192{" "}
+            <span style={{ fontWeight: 800, color: C.LEAK }}>LEAK</span> \u2192{" "}
+            <span style={{ fontWeight: 800, color: C.AUTOPILOT }}>AUTOPILOT</span>
+            <span style={{ marginLeft: 8, color: "#4b5563" }}>(secondary chain)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// MAIN APP
+// ═══════════════════════════════════════════════
+
+function App() {
+  const tabs = ["WELCOME", ...Object.keys(FLOWS), "STORYTAG", "INNERLOOP", "FLYWHEEL"];
+  const [active, setActive] = useState("WELCOME");
+  const ref = useRef(null);
+
+  useEffect(() => { if (ref.current) ref.current.scrollTop = 0; }, [active]);
+
+  const getColor = (t) => {
+    if (t === "WELCOME") return C.WELCOME;
+    if (t === "FLYWHEEL") return "#f59e0b";
+    return FLOWS[t]?.color || SPECIAL[t]?.color || "#555";
+  };
+  const getLabel = (t) => {
+    if (t === "WELCOME") return "WELCOME";
+    if (t === "STORYTAG") return "STORY TAG";
+    if (t === "FLYWHEEL") return "FLYWHEEL";
+    return t;
+  };
+
+  return (
+    <div style={{
+      background: "#0a0a0f", minHeight: "100vh", color: "#d1d5db",
+      fontFamily: "'SF Pro Display', 'Segoe UI', system-ui, -apple-system, sans-serif",
+      display: "flex", flexDirection: "column",
+    }}>
+      {/* Top bar */}
+      <div style={{
+        padding: "12px 20px", borderBottom: "1px solid #1a1a24",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        flexShrink: 0, background: "#0d0d14",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{
+            width: 8, height: 8, borderRadius: "50%", background: "#10b981",
+            boxShadow: "0 0 8px #10b981", animation: "pulse 2s infinite",
+          }} />
+          <span style={{ fontSize: 13, fontWeight: 900, letterSpacing: 2, color: "#d1d5db" }}>KOU TALKS MONEY</span>
+          <span style={{ fontSize: 11, color: "#4b5563" }}>CONVERSION FLOW SYSTEM v2.2</span>
+        </div>
+        <div style={{ fontSize: 10, color: "#6b7280", letterSpacing: 0.5 }}>
+          WELCOME + 7 KEYWORDS + 2 SPECIAL + FLYWHEEL
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+        {/* Sidebar */}
+        <div style={{
+          width: 135, flexShrink: 0, borderRight: "1px solid #1a1a24",
+          background: "#0d0d14", overflowY: "auto", padding: "6px 0",
+        }}>
+          {tabs.map((t) => {
+            const isActive = active === t;
+            const color = getColor(t);
+            const sep = t === "AUTOPILOT" || t === "STORYTAG" || t === "FLYWHEEL";
+            return (
+              <div key={t}>
+                {sep && <div style={{ height: 1, background: "#1a1a24", margin: "5px 12px" }} />}
+                <button onClick={() => setActive(t)} style={{
+                  display: "flex", alignItems: "center", gap: 8, width: "100%",
+                  padding: "7px 12px", border: "none",
+                  background: isActive ? `${color}12` : "transparent",
+                  borderRight: isActive ? `3px solid ${color}` : "3px solid transparent",
+                  cursor: "pointer",
+                }}>
+                  <div style={{
+                    width: 6, height: 6, borderRadius: "50%", background: color, flexShrink: 0,
+                    boxShadow: isActive ? `0 0 8px ${color}` : "none",
+                  }} />
+                  <span style={{
+                    fontSize: 10, fontWeight: isActive ? 800 : 600,
+                    color: isActive ? color : "#6b7280", letterSpacing: 0.8, textAlign: "left",
+                  }}>{getLabel(t)}</span>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Content */}
+        <div ref={ref} style={{ flex: 1, overflowY: "auto", padding: "24px 28px", background: "#12121a" }}>
+          {active === "WELCOME" && <WelcomeDetail />}
+          {FLOWS[active] && <FlowDetail flowKey={active} />}
+          {SPECIAL[active] && <SpecialDetail flowKey={active} />}
+          {active === "FLYWHEEL" && <FlywheelView />}
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        ::-webkit-scrollbar{width:6px}
+        ::-webkit-scrollbar-track{background:#0a0a0f}
+        ::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+        *{box-sizing:border-box;margin:0}
+      `}</style>
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById("root"));
+</script>
+</body>
+</html>
