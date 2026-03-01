@@ -3,14 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KTM Conversion Flow System v2.2</title>
+<title>KTM Conversion Flow System v2.3 // PMV Research Layer</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body, #root { height: 100%; width: 100%; overflow: hidden; }
+  html, body, #root { height: 100%; width: 100%; overflow: auto; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  @keyframes glow { 0%, 100% { box-shadow: 0 0 8px var(--glow-color, #22d3ee); } 50% { box-shadow: 0 0 20px var(--glow-color, #22d3ee); } }
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: #0a0a0f; }
   ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
@@ -35,18 +36,46 @@ const C = {
   STORYTAG: "#f97316",
   INNERLOOP: "#a855f7",
   WELCOME: "#22d3ee",
+  PMV: "#f97316",
 };
 
 const BASE = "https://spacekou5-oss.github.io/cashvault-funnel/";
 
 // ═══════════════════════════════════════════════
-// NEW FOLLOWER WELCOME FLOW
+// PMV RESEARCH CONCEPTS
+// ═══════════════════════════════════════════════
+const PMV_CONCEPTS = {
+  A: {
+    name: "IMPLEMENTATION BRIDGE",
+    short: "Walk me through it",
+    color: "#10b981",
+    icon: "\u{1F6A7}",
+    description: "Help them DO it. Step-by-step hand-holding from numbers to action.",
+  },
+  B: {
+    name: "TRACKING SYSTEM",
+    short: "Track my progress",
+    color: "#3b82f6",
+    icon: "\u{1F4C8}",
+    description: "Help them MEASURE it. Dashboard that shows if numbers are improving.",
+  },
+  C: {
+    name: "PERSONALIZED PLAYBOOK",
+    short: "My exact plan",
+    color: "#a855f7",
+    icon: "\u{1F3AF}",
+    description: "Tell them EXACTLY what to do. 90-day action plan from their data.",
+  },
+};
+
+// ═══════════════════════════════════════════════
+// NEW FOLLOWER WELCOME FLOW (v2.3 w/ RESEARCH LAYER)
 // ═══════════════════════════════════════════════
 const WELCOME_FLOW = {
   color: C.WELCOME,
   label: "WELCOME",
   pillar: "NEW FOLLOWER ONBOARDING",
-  angle: "Every new follower gets routed to their highest-leverage tool in under 60 seconds.",
+  angle: "Every new follower gets routed to their highest-leverage tool in under 60 seconds. Every reply feeds PMV intelligence.",
   trigger: "New Instagram follow (2-minute delay)",
   opener: "I build free money tools for people our age. No courses. No guru stuff. Just systems that work at $14-18/hr. Quick question so I send you the right one:",
   question: "What's your biggest problem with money right now?",
@@ -74,9 +103,61 @@ const WELCOME_FLOW = {
     {
       label: "I just feel behind with money",
       routes: "MYNUMBER",
-      bridge: "That feeling has a fix: one specific number. Your Freedom Number is the exact monthly amount where passive income covers your bills. Takes 10 seconds to calculate.",
+      bridge: "That feeling has a fix: one specific number. Your Freedom Number is the exact monthly monthly amount where passive income covers your bills. Takes 10 seconds to calculate.",
     },
   ],
+  researchProbe: {
+    delay: "4 hours after tool link clicked",
+    triggerCondition: "User clicked the tool link (confirmed by ManyChat click tracking)",
+    message: "Glad you checked it out. Building more tools and I want to make the next one stupid useful. One quick question:",
+    question: "After seeing your numbers, what would actually help you most right now?",
+    buttons: [
+      {
+        label: "Walk me through actually doing it step by step",
+        concept: "A",
+        color: PMV_CONCEPTS.A.color,
+      },
+      {
+        label: "A way to track if my money is getting better each month",
+        concept: "B",
+        color: PMV_CONCEPTS.B.color,
+      },
+      {
+        label: "A personalized plan based on MY exact situation",
+        concept: "C",
+        color: PMV_CONCEPTS.C.color,
+      },
+    ],
+    responses: {
+      A: {
+        msg: "That keeps coming up. The \"I know what to do but haven't done it\" gap. I'm building something for exactly this. Want me to message you when it's ready?",
+        captureBtn: "Yeah, let me know",
+        declineBtn: "I'm good for now",
+      },
+      B: {
+        msg: "You're not the first person to say that. Knowing your number once is step 1. Tracking it monthly is where the real shift happens. Working on something for this. Want first access?",
+        captureBtn: "Yeah, I want in",
+        declineBtn: "Maybe later",
+      },
+      C: {
+        msg: "Makes sense. Generic advice is useless at our income level. A plan that accounts for YOUR rent, YOUR paycheck, YOUR debt hits different. Building this now. Want me to hit you when it drops?",
+        captureBtn: "Yeah, send it my way",
+        declineBtn: "I'll think about it",
+      },
+    },
+    emailCapture: {
+      trigger: "User taps the positive capture button",
+      msg: "Drop your best email and you'll be first in line. No spam, just one message when it's live:",
+      inputPlaceholder: "your email",
+      submitBtn: "Lock In Early Access",
+      confirmation: "Locked in. You'll hear from me before anyone else.",
+      beehiivTag: "pmv-early-access",
+      conceptTag: "pmv-concept-{A/B/C}",
+    },
+    noProbeResponse: {
+      action: "No follow-up. User already received tool value. Research probe is bonus data, not a conversion requirement. Do not chase.",
+    },
+  },
   noResponse: {
     delay: "24 hours",
     msg: "No pressure on the question above. If you ever want a free money tool, just DM me one of these words: AUTOPILOT, LEAK, ELITE800, MYNUMBER, PAYDAY, CHEAT, or BUILD50. Each one sends you a different tool instantly.",
@@ -84,7 +165,7 @@ const WELCOME_FLOW = {
 };
 
 // ═══════════════════════════════════════════════
-// ALL 7 KEYWORD FLOWS
+// ALL 7 KEYWORD FLOWS (unchanged from v2.2)
 // ═══════════════════════════════════════════════
 const FLOWS = {
   AUTOPILOT: {
@@ -396,7 +477,7 @@ function Bubble({ children, variant = "dark", style: extra = {} }) {
     success: ["#10b98112", "#10b98130"], warning: ["#f59e0b10", "#f59e0b28"],
     info: ["#3b82f610", "#3b82f628"], danger: ["#ef444410", "#ef444428"],
     purple: ["#8b5cf610", "#8b5cf628"], pink: ["#ec489910", "#ec489928"],
-    cyan: ["#22d3ee10", "#22d3ee28"],
+    cyan: ["#22d3ee10", "#22d3ee28"], orange: ["#f9731610", "#f9731628"],
   };
   const [bg, bd] = bgs[variant] || bgs.dark;
   return (
@@ -433,7 +514,7 @@ function Arrow({ color = "#333", label = "" }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", margin: "6px 0" }}>
       <div style={{ width: 2, height: 14, background: `${color}50` }} />
-      {label && <span style={{ fontSize: 9, color: `${color}99`, fontWeight: 600, letterSpacing: 0.5, margin: "2px 0", textAlign: "center", maxWidth: 220 }}>{label}</span>}
+      {label && <span style={{ fontSize: 9, color: `${color}99`, fontWeight: 600, letterSpacing: 0.5, margin: "2px 0", textAlign: "center", maxWidth: 260 }}>{label}</span>}
       <div style={{ width: 0, height: 0, borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: `6px solid ${color}50` }} />
     </div>
   );
@@ -461,20 +542,202 @@ function UrlRef({ url }) {
 }
 
 // ═══════════════════════════════════════════════
-// WELCOME FLOW DETAIL VIEW
+// PMV TRACKER VIEW
+// ═══════════════════════════════════════════════
+function PMVTracker() {
+  return (
+    <div>
+      <div style={{ marginBottom: 22 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
+          <span style={{ fontSize: 24, fontWeight: 900, color: C.PMV, letterSpacing: 1 }}>PMV TRACKER</span>
+          <Tag text="PRODUCT-MARKET VALIDATION" color={C.PMV} bg={`${C.PMV}15`} />
+        </div>
+        <p style={{ fontSize: 12, color: "#6b7280", fontStyle: "italic", margin: "4px 0 0" }}>
+          Every Welcome Flow reply feeds this intelligence system. The concept with the most "yes" responses wins.
+        </p>
+      </div>
+
+      {/* How it works */}
+      <div style={{
+        padding: "16px 20px", background: "#1a1a24", border: "1px solid #252532",
+        borderRadius: 10, marginBottom: 20,
+      }}>
+        <div style={{ fontSize: 12, fontWeight: 800, color: "#d1d5db", marginBottom: 10, letterSpacing: 0.5 }}>
+          HOW THE DATA FLOWS
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {[
+            { step: "1", label: "New follower triggers Welcome Flow", color: C.WELCOME },
+            { step: "2", label: "Brandon picks a pain button, receives tool", color: C.WELCOME },
+            { step: "3", label: "4 hours later: Research Probe fires (3 concept buttons)", color: C.PMV },
+            { step: "4", label: "Brandon picks a concept. Response logs to tracker.", color: C.PMV },
+            { step: "5", label: "If interested: email captured with concept tag in Beehiiv", color: "#10b981" },
+          ].map((s, i) => (
+            <div key={i} style={{
+              display: "flex", alignItems: "center", gap: 10, padding: "8px 12px",
+              background: `${s.color}06`, border: `1px solid ${s.color}15`, borderRadius: 8,
+            }}>
+              <span style={{
+                fontSize: 10, fontWeight: 900, color: "#0a0a0f", background: s.color,
+                width: 22, height: 22, borderRadius: 4, display: "flex", alignItems: "center",
+                justifyContent: "center", flexShrink: 0,
+              }}>{s.step}</span>
+              <span style={{ fontSize: 11.5, color: "#9ca3af" }}>{s.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 3 Concepts */}
+      <div style={{ fontSize: 14, fontWeight: 800, color: "#d1d5db", marginBottom: 12 }}>THE 3 CONCEPTS BEING TESTED</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
+        {Object.entries(PMV_CONCEPTS).map(([key, concept]) => (
+          <div key={key} style={{
+            padding: "16px 20px", background: `${concept.color}06`,
+            border: `1px solid ${concept.color}20`, borderRadius: 12,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+              <span style={{ fontSize: 20 }}>{concept.icon}</span>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 14, fontWeight: 900, color: concept.color }}>CONCEPT {key}</span>
+                  <Tag text={concept.name} color={concept.color} bg={`${concept.color}15`} />
+                </div>
+              </div>
+            </div>
+            <p style={{ fontSize: 12, color: "#9ca3af", lineHeight: 1.6, marginBottom: 10 }}>{concept.description}</p>
+            <div style={{
+              padding: "8px 12px", background: "#0a0a0f", borderRadius: 6,
+              border: `1px solid ${concept.color}15`,
+            }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#4b5563", letterSpacing: 1 }}>BUTTON TEXT IN RESEARCH PROBE:</span>
+              <p style={{ fontSize: 11.5, color: concept.color, fontWeight: 600, marginTop: 4 }}>
+                "{WELCOME_FLOW.researchProbe.buttons.find(b => b.concept === key)?.label}"
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Decision Criteria */}
+      <div style={{ fontSize: 14, fontWeight: 800, color: "#d1d5db", marginBottom: 12 }}>DECISION CRITERIA</div>
+      <div style={{
+        padding: "16px 20px", background: "#1a1a24", border: "1px solid #252532",
+        borderRadius: 10, marginBottom: 20,
+      }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ padding: "10px 14px", background: "#10b98108", border: "1px solid #10b98120", borderRadius: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: "#10b981", marginBottom: 4 }}>GREEN LIGHT: BUILD IT</div>
+            <p style={{ fontSize: 11, color: "#9ca3af", lineHeight: 1.5 }}>
+              One concept captures 50%+ of responses AND 5%+ of those people tap "let me know" AND provide email. That's demand + willingness to act.
+            </p>
+          </div>
+          <div style={{ padding: "10px 14px", background: "#f59e0b08", border: "1px solid #f59e0b20", borderRadius: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: "#f59e0b", marginBottom: 4 }}>YELLOW: REFINE AND RETEST</div>
+            <p style={{ fontSize: 11, color: "#9ca3af", lineHeight: 1.5 }}>
+              No clear winner (all concepts within 10% of each other). Rewrite the button text to sharpen differentiation. Or: clear winner on concept but low email capture (offer framing is weak, not the concept).
+            </p>
+          </div>
+          <div style={{ padding: "10px 14px", background: "#ef444408", border: "1px solid #ef444420", borderRadius: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: "#ef4444", marginBottom: 4 }}>RED: PIVOT</div>
+            <p style={{ fontSize: 11, color: "#9ca3af", lineHeight: 1.5 }}>
+              Under 10% response rate on the research probe after 50+ tool deliveries. The audience is not engaged enough to provide data. Fix the Welcome Flow engagement first, then retest.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Beehiiv Tag Structure */}
+      <div style={{ fontSize: 14, fontWeight: 800, color: "#d1d5db", marginBottom: 12 }}>BEEHIIV TAG STRUCTURE</div>
+      <div style={{
+        padding: "16px 20px", background: "#1a1a24", border: "1px solid #252532",
+        borderRadius: 10, marginBottom: 20,
+      }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {[
+            { tag: "pmv-early-access", desc: "All research probe email captures (master list)" },
+            { tag: "pmv-concept-A", desc: "Chose Implementation Bridge" },
+            { tag: "pmv-concept-B", desc: "Chose Tracking System" },
+            { tag: "pmv-concept-C", desc: "Chose Personalized Playbook" },
+            { tag: "pmv-pain-{keyword}", desc: "Original pain button (AUTOPILOT, PAYDAY, etc.)" },
+          ].map((t, i) => (
+            <div key={i} style={{
+              display: "flex", alignItems: "center", gap: 12, padding: "6px 10px",
+              background: "#12121a", borderRadius: 6,
+            }}>
+              <code style={{
+                fontSize: 10.5, fontWeight: 700, color: C.PMV, background: `${C.PMV}10`,
+                padding: "2px 8px", borderRadius: 4, fontFamily: "monospace", whiteSpace: "nowrap",
+              }}>{t.tag}</code>
+              <span style={{ fontSize: 10.5, color: "#6b7280" }}>{t.desc}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Tracking Sheet Template */}
+      <div style={{ fontSize: 14, fontWeight: 800, color: "#d1d5db", marginBottom: 12 }}>MANUAL TRACKING SHEET (until volume justifies automation)</div>
+      <div style={{
+        padding: "16px 20px", background: "#1a1a24", border: "1px solid #252532",
+        borderRadius: 10, overflowX: "auto",
+      }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5 }}>
+          <thead>
+            <tr>
+              {["Date", "Username", "Pain Button", "Concept Picked", "Email?", "Notes"].map(h => (
+                <th key={h} style={{
+                  padding: "8px 10px", textAlign: "left", color: "#4b5563",
+                  borderBottom: "1px solid #252532", fontWeight: 700, letterSpacing: 1,
+                  textTransform: "uppercase", fontSize: 9, whiteSpace: "nowrap",
+                }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ["2/28", "@user1", "Paycheck vanishes", "A", "Y", "Said 'I know what to do but...'"],
+              ["2/28", "@user2", "Should be investing", "C", "Y", "Wants plan for $16/hr income"],
+              ["3/1", "@user3", "Feel behind", "B", "N", "Engaged but declined email"],
+              ["3/1", "@user4", "Credit confused", "A", "Y", "Never opened a brokerage"],
+              ["...", "...", "...", "...", "...", "Minimum 20 rows before decision"],
+            ].map((row, i) => (
+              <tr key={i} style={{ opacity: i === 4 ? 0.4 : 1 }}>
+                {row.map((cell, j) => (
+                  <td key={j} style={{
+                    padding: "6px 10px", borderBottom: "1px solid #1a1a24",
+                    color: j === 3 ? PMV_CONCEPTS[cell]?.color || "#6b7280" : "#9ca3af",
+                    fontWeight: j === 3 ? 700 : 400, whiteSpace: "nowrap",
+                  }}>{cell}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p style={{ fontSize: 10, color: "#4b5563", fontStyle: "italic", marginTop: 10 }}>
+          Minimum sample: 20 research probe responses before making MVO decision. Target: 50+ for high confidence.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// WELCOME FLOW DETAIL VIEW (v2.3 with Research Layer)
 // ═══════════════════════════════════════════════
 
 function WelcomeDetail() {
   const w = WELCOME_FLOW;
   const c = w.color;
+  const rp = w.researchProbe;
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       {/* Header */}
       <div style={{ marginBottom: 22 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6, flexWrap: "wrap" }}>
           <span style={{ fontSize: 24, fontWeight: 900, color: c, letterSpacing: 1 }}>NEW FOLLOWER</span>
           <Tag text={w.pillar} color={c} bg={`${c}15`} />
+          <Tag text="PMV RESEARCH ACTIVE" color={C.PMV} bg={`${C.PMV}15`} />
         </div>
         <p style={{ fontSize: 12, color: "#6b7280", fontStyle: "italic", margin: "0 0 8px" }}>"{w.angle}"</p>
         <div style={{
@@ -484,6 +747,19 @@ function WelcomeDetail() {
           <div style={{ width: 8, height: 8, borderRadius: "50%", background: c, boxShadow: `0 0 8px ${c}` }} />
           <span style={{ fontSize: 11, fontWeight: 700, color: c }}>TRIGGER:</span>
           <span style={{ fontSize: 11, color: "#9ca3af" }}>{w.trigger}</span>
+        </div>
+      </div>
+
+      {/* v2.3 CALLOUT */}
+      <div style={{
+        padding: "14px 18px", background: `${C.PMV}08`, border: `1px solid ${C.PMV}25`,
+        borderRadius: 10, marginBottom: 20,
+      }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: C.PMV, marginBottom: 6, letterSpacing: 0.5 }}>
+          v2.3 UPGRADE: DUAL-PURPOSE FLOW
+        </div>
+        <div style={{ fontSize: 11.5, color: "#9ca3af", lineHeight: 1.7 }}>
+          This flow now serves two functions simultaneously. <span style={{ color: c, fontWeight: 600 }}>Purpose 1 (permanent):</span> Route new followers to their highest-leverage tool. <span style={{ color: C.PMV, fontWeight: 600 }}>Purpose 2 (Phase 0 research):</span> Extract product validation data from every reply. The research probe fires 4 hours after tool delivery. It does not interrupt the conversion flow. It rides on top of it.
         </div>
       </div>
 
@@ -527,7 +803,7 @@ function WelcomeDetail() {
       <Arrow color={c} label="BRANDON TAPS A BUTTON" />
 
       {/* STAGE 3: BRIDGE MESSAGES */}
-      <Badge num={3} color={c} label="Bridge Message (1 sentence, then Initial DM)" />
+      <Badge num={3} color={c} label="Bridge Message + Tool Delivery" />
       <div style={{ paddingLeft: 40, marginBottom: 4 }}>
         <p style={{ fontSize: 10, color: "#4b5563", marginBottom: 10 }}>
           Each button triggers a unique bridge message that acknowledges Brandon's specific pain, then immediately feeds into that pillar's existing Initial DM sequence.
@@ -541,12 +817,10 @@ function WelcomeDetail() {
                 <Tag text={btn.routes} color={routeColor} bg={`${routeColor}18`} />
                 <span style={{ fontSize: 9, color: "#4b5563" }}>"{btn.label}"</span>
               </div>
-              {/* Bridge message */}
               <Bubble variant="accent" style={{ borderLeft: `3px solid ${routeColor}` }}>
                 <span style={{ color: routeColor, fontWeight: 600 }}>Bridge: </span>
                 {btn.bridge}
               </Bubble>
-              {/* Then routes to Initial DM */}
               <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "4px 0 4px 12px" }}>
                 <div style={{ width: 2, height: 16, background: `${routeColor}30` }} />
                 <span style={{ fontSize: 9, color: "#4b5563", fontStyle: "italic" }}>3-second delay, then Initial DM fires:</span>
@@ -562,14 +836,137 @@ function WelcomeDetail() {
         })}
       </div>
 
-      <Arrow color={c} label="IF NO BUTTON TAPPED" />
+      <Arrow color={C.PMV} label="4 HOURS AFTER TOOL LINK CLICKED (ManyChat click tracking)" />
 
-      {/* STAGE 4: NO-RESPONSE FALLBACK */}
-      <Badge num={4} color={c} label="No-Response Fallback (24hr)" />
+      {/* ═══════════════════════════════════════════════ */}
+      {/* STAGE 4: RESEARCH PROBE (NEW IN v2.3) */}
+      {/* ═══════════════════════════════════════════════ */}
+      <div style={{
+        padding: "3px", borderRadius: 14, marginBottom: 6,
+        background: `linear-gradient(135deg, ${C.PMV}40, ${C.PMV}10, ${C.PMV}40)`,
+      }}>
+        <div style={{ background: "#12121a", borderRadius: 12, padding: "16px 0 0" }}>
+          <div style={{ paddingLeft: 16 }}>
+            <Badge num={4} color={C.PMV} label="Research Probe (PMV Intelligence Layer)" />
+          </div>
+          <div style={{ paddingLeft: 40, paddingRight: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+              <Tag text="4-HOUR DELAY" color={C.PMV} bg={`${C.PMV}15`} />
+              <Tag text="ONLY IF LINK CLICKED" color="#6b7280" bg="#252532" />
+              <Tag text="PMV DATA COLLECTION" color={C.PMV} bg={`${C.PMV}15`} />
+            </div>
+            <p style={{ fontSize: 10, color: "#4b5563", marginBottom: 10 }}>
+              This message ONLY fires if Brandon clicked the tool link (ManyChat tracks this). If they never clicked, no probe is sent. We don't ask for feedback on something they didn't use.
+            </p>
+
+            {/* Research message */}
+            <Bubble variant="orange">{rp.message}</Bubble>
+            <Bubble variant="orange" style={{ borderLeft: `3px solid ${C.PMV}`, fontWeight: 600 }}>
+              {rp.question}
+            </Bubble>
+
+            {/* 3 Concept buttons */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, margin: "12px 0" }}>
+              {rp.buttons.map((btn, i) => {
+                const concept = PMV_CONCEPTS[btn.concept];
+                return (
+                  <div key={i} style={{
+                    padding: "12px 16px", background: `${concept.color}06`,
+                    border: `1px solid ${concept.color}20`, borderRadius: 10,
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 16 }}>{concept.icon}</span>
+                      <Btn label={btn.label} color={concept.color} variant="outline" small />
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: 10, color: "#4b5563" }}>Maps to:</span>
+                      <span style={{ fontSize: 11, fontWeight: 900, color: concept.color }}>CONCEPT {btn.concept}</span>
+                      <Tag text={concept.name} color={concept.color} bg={`${concept.color}12`} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <Arrow color={C.PMV} label="BRANDON PICKS A CONCEPT" />
+
+            {/* Concept-specific responses */}
+            <div style={{ fontSize: 11, fontWeight: 800, color: C.PMV, marginBottom: 8, letterSpacing: 0.5 }}>
+              RESPONSE PER CONCEPT (acknowledges + captures interest)
+            </div>
+            {Object.entries(rp.responses).map(([key, resp]) => {
+              const concept = PMV_CONCEPTS[key];
+              return (
+                <div key={key} style={{ marginBottom: 14 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                    <Tag text={`CONCEPT ${key}`} color={concept.color} bg={`${concept.color}18`} />
+                    <span style={{ fontSize: 9, color: "#4b5563" }}>{concept.name}</span>
+                  </div>
+                  <Bubble variant="accent" style={{ borderLeft: `3px solid ${concept.color}` }}>
+                    {resp.msg}
+                  </Bubble>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
+                    <Btn label={resp.captureBtn} color={concept.color} small />
+                    <Btn label={resp.declineBtn} color="#4b5563" variant="outline" small />
+                  </div>
+                </div>
+              );
+            })}
+
+            <Arrow color="#10b981" label="IF BRANDON TAPS THE POSITIVE BUTTON" />
+
+            {/* Email capture */}
+            <div style={{ fontSize: 11, fontWeight: 800, color: "#10b981", marginBottom: 8, letterSpacing: 0.5 }}>
+              EMAIL CAPTURE (DEMAND + WILLINGNESS SIGNAL)
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <Bubble variant="success">{rp.emailCapture.msg}</Bubble>
+              <div style={{
+                display: "flex", alignItems: "center", gap: 6, padding: "8px 14px",
+                background: "#10b98108", border: "1px solid #10b98120", borderRadius: 8,
+                marginTop: 6,
+              }}>
+                <div style={{
+                  flex: 1, padding: "6px 12px", background: "#1a1a24", borderRadius: 6,
+                  fontSize: 11, color: "#4b5563", border: "1px solid #252532",
+                }}>{rp.emailCapture.inputPlaceholder}</div>
+                <Btn label={rp.emailCapture.submitBtn} color="#10b981" small />
+              </div>
+              <div style={{ marginTop: 8 }}>
+                <Bubble variant="success" style={{ borderLeft: "3px solid #10b981" }}>
+                  {rp.emailCapture.confirmation}
+                </Bubble>
+              </div>
+              <div style={{ marginTop: 10, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                <Tag text={`BEEHIIV: ${rp.emailCapture.beehiivTag}`} color="#10b981" bg="#10b98112" />
+                <Tag text={`BEEHIIV: ${rp.emailCapture.conceptTag}`} color={C.PMV} bg={`${C.PMV}12`} />
+              </div>
+              <p style={{ fontSize: 9, color: "#4b5563", fontStyle: "italic", marginTop: 8 }}>
+                Dual-tagged: master early-access list + specific concept chosen. When the winning concept is identified, the launch email goes ONLY to that concept's tag. Hyper-targeted.
+              </p>
+            </div>
+
+            {/* No response handling */}
+            <div style={{
+              padding: "10px 14px", background: "#252532", borderRadius: 8, marginBottom: 16,
+            }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#4b5563", letterSpacing: 1, marginBottom: 4 }}>IF NO PROBE RESPONSE</div>
+              <p style={{ fontSize: 11, color: "#6b7280", lineHeight: 1.5 }}>
+                {rp.noProbeResponse.action}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Arrow color={c} label="IF NO PAIN BUTTON TAPPED (ORIGINAL FLOW)" />
+
+      {/* STAGE 5: NO-RESPONSE FALLBACK (was Stage 4 in v2.2) */}
+      <Badge num={5} color={c} label="No-Response Fallback (24hr)" />
       <div style={{ paddingLeft: 40 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
           <Tag text="24-HOUR DELAY" color="#f59e0b" bg="#f59e0b12" />
-          <span style={{ fontSize: 9, color: "#4b5563" }}>Only fires if Brandon never tapped a button</span>
+          <span style={{ fontSize: 9, color: "#4b5563" }}>Only fires if Brandon never tapped a pain button</span>
         </div>
         <Bubble variant="warning">{w.noResponse.msg}</Bubble>
         <p style={{ fontSize: 9, color: "#4b5563", fontStyle: "italic", marginTop: 6 }}>
@@ -580,13 +977,22 @@ function WelcomeDetail() {
       {/* ARCHITECTURE NOTE */}
       <div style={{
         marginTop: 24, padding: "14px 18px", background: "#1a1a24",
-        border: `1px solid ${c}20`, borderRadius: 10,
+        border: `1px solid ${C.PMV}20`, borderRadius: 10,
       }}>
-        <div style={{ fontSize: 12, fontWeight: 800, color: c, marginBottom: 8, letterSpacing: 0.5 }}>
-          ARCHITECTURE NOTE
+        <div style={{ fontSize: 12, fontWeight: 800, color: C.PMV, marginBottom: 8, letterSpacing: 0.5 }}>
+          v2.3 ARCHITECTURE: DUAL-PURPOSE INTELLIGENCE
         </div>
         <div style={{ fontSize: 11, color: "#9ca3af", lineHeight: 1.7 }}>
-          The Welcome Flow is the top of the funnel for organic follows. It catches every new follower who did NOT come from a Reel CTA keyword comment. Once Brandon selects a pain button, they enter the same conversion infrastructure as keyword-triggered users: Initial DM \u2192 Objection Handler \u2192 Day 1/3/7 Recovery \u2192 Cross-Sell. No separate path needed. The bridge message is the only unique piece. Everything downstream reuses existing flows.
+          The research probe is a <strong style={{ color: "#d1d5db" }}>non-blocking overlay</strong> on the existing conversion flow. It fires only after value is delivered (tool link clicked). It asks one question with three buttons (zero typing friction). It captures email only from people who express interest (highest-intent signal). If nobody responds, the conversion flow is unharmed. This is the difference between a survey (which asks before giving value) and intelligence extraction (which asks after). The former annoys. The latter converts.
+        </div>
+        <div style={{
+          marginTop: 12, padding: "10px 14px", background: `${C.PMV}06`,
+          border: `1px solid ${C.PMV}15`, borderRadius: 8,
+        }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: C.PMV, marginBottom: 4, letterSpacing: 0.5 }}>DATA OUTPUT</div>
+          <div style={{ fontSize: 11, color: "#9ca3af", lineHeight: 1.6 }}>
+            Every research probe response gives you THREE data points: (1) which pain button they originally chose (segmentation), (2) which concept they want most (product direction), (3) whether they gave their email (willingness to act). Compound these across 20+ responses and you have a statistically directional PMV signal with zero dollars spent on testing.
+          </div>
         </div>
       </div>
     </div>
@@ -594,7 +1000,7 @@ function WelcomeDetail() {
 }
 
 // ═══════════════════════════════════════════════
-// KEYWORD FLOW DETAIL VIEW
+// KEYWORD FLOW DETAIL VIEW (unchanged from v2.2)
 // ═══════════════════════════════════════════════
 
 function FlowDetail({ flowKey }) {
@@ -613,7 +1019,6 @@ function FlowDetail({ flowKey }) {
         <UrlRef url={f.url} />
       </div>
 
-      {/* STAGE 1: REEL CTAs */}
       <Badge num={1} color={c} label="Reel CTA (A/B Variants)" />
       <div style={{ paddingLeft: 40, marginBottom: 4 }}>
         <div style={{ marginBottom: 12 }}>
@@ -652,7 +1057,6 @@ function FlowDetail({ flowKey }) {
 
       <Arrow color={c} label="COMMENT TRIGGERS MANYCHAT" />
 
-      {/* STAGE 2: COMMENT REPLIES */}
       <Badge num={2} color={c} label="Public Comment Reply (3 Random)" />
       <div style={{ paddingLeft: 40, marginBottom: 4 }}>
         {f.commentReplies.map((r, i) => <Bubble key={i} variant="accent">{i + 1}. {r}</Bubble>)}
@@ -660,7 +1064,6 @@ function FlowDetail({ flowKey }) {
 
       <Arrow color={c} label="DM FIRES AUTOMATICALLY" />
 
-      {/* STAGE 3: INITIAL DM */}
       <Badge num={3} color={c} label="Initial DM Sequence" />
       <div style={{ paddingLeft: 40 }}>
         <Tag text="MSG 1: HOOK + VALUE" color="#9ca3af" />
@@ -687,10 +1090,8 @@ function FlowDetail({ flowKey }) {
 
       <Arrow color={c} label="IF NO CLICK ON PRIMARY BUTTON" />
 
-      {/* STAGE 4: FOLLOW-UP TRACK */}
       <Badge num={4} color={c} label="Follow-Up Recovery Track" />
       <div style={{ paddingLeft: 40 }}>
-        {/* Day 1 */}
         <div style={{ marginBottom: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
             <span style={{ fontSize: 10, fontWeight: 900, color: "#0a0a0f", background: c, padding: "2px 10px", borderRadius: 4 }}>DAY 1</span>
@@ -699,7 +1100,6 @@ function FlowDetail({ flowKey }) {
           <Bubble>{f.followUp.day1.msg}</Bubble>
           <Btn label={f.followUp.day1.btn} color={c} small url={f.url} />
         </div>
-        {/* Day 3 */}
         <div style={{ marginBottom: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
             <span style={{ fontSize: 10, fontWeight: 900, color: "#0a0a0f", background: c, padding: "2px 10px", borderRadius: 4 }}>DAY 3</span>
@@ -716,7 +1116,6 @@ function FlowDetail({ flowKey }) {
             <Bubble variant="info">{f.followUp.day3.valueDrop}</Bubble>
           </div>
         </div>
-        {/* Day 7 */}
         <div style={{ marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
             <span style={{ fontSize: 10, fontWeight: 900, color: "#0a0a0f", background: c, padding: "2px 10px", borderRadius: 4 }}>DAY 7</span>
@@ -742,7 +1141,6 @@ function FlowDetail({ flowKey }) {
 
       <Arrow color={c} label="24HR AFTER COMPLETION" />
 
-      {/* STAGE 5: CROSS-SELL */}
       <Badge num={5} color={c} label="Cross-Sell" />
       <div style={{ paddingLeft: 40 }}>
         <div style={{
@@ -762,7 +1160,7 @@ function FlowDetail({ flowKey }) {
 }
 
 // ═══════════════════════════════════════════════
-// SPECIAL FLOW + FLYWHEEL (unchanged from v2.1)
+// SPECIAL FLOW + FLYWHEEL
 // ═══════════════════════════════════════════════
 
 function SpecialDetail({ flowKey }) {
@@ -873,7 +1271,7 @@ function FlywheelView() {
 // ═══════════════════════════════════════════════
 
 function App() {
-  const tabs = ["WELCOME", ...Object.keys(FLOWS), "STORYTAG", "INNERLOOP", "FLYWHEEL"];
+  const tabs = ["WELCOME", ...Object.keys(FLOWS), "STORYTAG", "INNERLOOP", "FLYWHEEL", "PMV"];
   const [active, setActive] = useState("WELCOME");
   const ref = useRef(null);
 
@@ -882,18 +1280,20 @@ function App() {
   const getColor = (t) => {
     if (t === "WELCOME") return C.WELCOME;
     if (t === "FLYWHEEL") return "#f59e0b";
+    if (t === "PMV") return C.PMV;
     return FLOWS[t]?.color || SPECIAL[t]?.color || "#555";
   };
   const getLabel = (t) => {
     if (t === "WELCOME") return "WELCOME";
     if (t === "STORYTAG") return "STORY TAG";
     if (t === "FLYWHEEL") return "FLYWHEEL";
+    if (t === "PMV") return "PMV TRACKER";
     return t;
   };
 
   return (
     <div style={{
-      background: "#0a0a0f", minHeight: "100vh", color: "#d1d5db",
+      background: "#0a0a0f", height: "100vh", color: "#d1d5db",
       fontFamily: "'SF Pro Display', 'Segoe UI', system-ui, -apple-system, sans-serif",
       display: "flex", flexDirection: "column",
     }}>
@@ -901,7 +1301,7 @@ function App() {
       <div style={{
         padding: "12px 20px", borderBottom: "1px solid #1a1a24",
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        flexShrink: 0, background: "#0d0d14",
+        flexShrink: 0, background: "#0d0d14", flexWrap: "wrap", gap: 8,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{
@@ -909,23 +1309,29 @@ function App() {
             boxShadow: "0 0 8px #10b981", animation: "pulse 2s infinite",
           }} />
           <span style={{ fontSize: 13, fontWeight: 900, letterSpacing: 2, color: "#d1d5db" }}>KOU TALKS MONEY</span>
-          <span style={{ fontSize: 11, color: "#4b5563" }}>CONVERSION FLOW SYSTEM v2.2</span>
+          <span style={{ fontSize: 11, color: "#4b5563" }}>CONVERSION FLOW SYSTEM v2.3</span>
         </div>
-        <div style={{ fontSize: 10, color: "#6b7280", letterSpacing: 0.5 }}>
-          WELCOME + 7 KEYWORDS + 2 SPECIAL + FLYWHEEL
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{
+            fontSize: 9, fontWeight: 700, color: C.PMV, background: `${C.PMV}15`,
+            padding: "3px 10px", borderRadius: 4, letterSpacing: 1, border: `1px solid ${C.PMV}30`,
+          }}>PMV RESEARCH LAYER ACTIVE</div>
+          <div style={{ fontSize: 10, color: "#6b7280", letterSpacing: 0.5 }}>
+            WELCOME + 7 KW + 2 SPECIAL + FLYWHEEL + PMV
+          </div>
         </div>
       </div>
 
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         {/* Sidebar */}
         <div style={{
-          width: 135, flexShrink: 0, borderRight: "1px solid #1a1a24",
+          width: 140, flexShrink: 0, borderRight: "1px solid #1a1a24",
           background: "#0d0d14", overflowY: "auto", padding: "6px 0",
         }}>
           {tabs.map((t) => {
             const isActive = active === t;
             const color = getColor(t);
-            const sep = t === "AUTOPILOT" || t === "STORYTAG" || t === "FLYWHEEL";
+            const sep = t === "AUTOPILOT" || t === "STORYTAG" || t === "FLYWHEEL" || t === "PMV";
             return (
               <div key={t}>
                 {sep && <div style={{ height: 1, background: "#1a1a24", margin: "5px 12px" }} />}
@@ -953,19 +1359,12 @@ function App() {
         {/* Content */}
         <div ref={ref} style={{ flex: 1, overflowY: "auto", padding: "24px 28px", background: "#12121a" }}>
           {active === "WELCOME" && <WelcomeDetail />}
+          {active === "PMV" && <PMVTracker />}
           {FLOWS[active] && <FlowDetail flowKey={active} />}
           {SPECIAL[active] && <SpecialDetail flowKey={active} />}
           {active === "FLYWHEEL" && <FlywheelView />}
         </div>
       </div>
-
-      <style>{`
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-        ::-webkit-scrollbar{width:6px}
-        ::-webkit-scrollbar-track{background:#0a0a0f}
-        ::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
-        *{box-sizing:border-box;margin:0}
-      `}</style>
     </div>
   );
 }
