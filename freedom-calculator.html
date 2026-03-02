@@ -673,8 +673,8 @@
                     &darr; Enter your email. Your personalized ETF portfolio loads instantly.
                 </p>
 
-                <!-- BEEHIIV EMBED -->
-                <div class="flex justify-center pb-2">
+                <!-- BEEHIIV EMBED (primary) -->
+                <div id="beehiivContainer" class="flex justify-center pb-2">
                     <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
                     <iframe id="beehiivFrame"
                             src="https://subscribe-forms.beehiiv.com/76441368-8855-465e-a25d-e7a3a75db50a" 
@@ -682,8 +682,134 @@
                             data-test-id="beehiiv-embed" 
                             frameborder="0" 
                             scrolling="no" 
-                            style="width: 400px; height: 271px; margin: 0; border-radius: 16px 16px 16px 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
+                            style="width: 100%; max-width: 400px; height: 247px; margin: 0; border-radius: 16px !important; background-color: transparent; box-shadow: 0 0 #0000;"
+                            onload="window._beehiivLoaded = true;"></iframe>
                 </div>
+
+                <!-- NATIVE EMAIL FALLBACK (shows if iframe fails) -->
+                <div id="nativeFallbackForm" style="display: none;" class="pb-2">
+                    <div style="background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 12px; padding: 16px;">
+                        <p style="font-size: 10px; color: #666; text-align: center; margin-bottom: 10px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em;">
+                            Enter your email to unlock
+                        </p>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="email" id="fallbackEmailInput" 
+                                   placeholder="you@email.com"
+                                   style="flex: 1; background: #050505; border: 2px solid #333; color: #fff; font-family: 'Inter', sans-serif; font-size: 14px; padding: 12px 14px; border-radius: 8px; outline: none; transition: border-color 0.2s;"
+                                   onfocus="this.style.borderColor='#00FF41'" 
+                                   onblur="this.style.borderColor='#333'"
+                                   onkeydown="if(event.key==='Enter'){event.preventDefault(); document.getElementById('fallbackSubmitBtn').click();}">
+                            <button id="fallbackSubmitBtn" onclick="submitFallbackEmail()" 
+                                    style="background: #00FF41; color: #000; font-weight: 800; font-size: 12px; padding: 12px 18px; border-radius: 8px; border: none; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; transition: all 0.2s;"
+                                    onmouseover="this.style.boxShadow='0 0 20px rgba(0,255,65,0.4)'"
+                                    onmouseout="this.style.boxShadow='none'">
+                                Unlock
+                            </button>
+                        </div>
+                        <p id="fallbackEmailError" style="display: none; font-size: 10px; color: #FF0000; text-align: center; margin-top: 6px;">
+                            Enter a valid email address.
+                        </p>
+                        <p style="font-size: 9px; color: #444; text-align: center; margin-top: 8px;">
+                            Zero spam. Unsubscribe anytime.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Hidden iframe for Beehiiv form submission -->
+                <iframe name="beehiivHiddenTarget" id="beehiivHiddenTarget" style="display:none; width:0; height:0; border:0;"></iframe>
+
+                <!-- FALLBACK DETECTION + NATIVE SUBMIT LOGIC -->
+                <script>
+                (function() {
+                    // Detect if Beehiiv iframe failed to load/render after 3 seconds
+                    window._beehiivLoaded = false;
+                    setTimeout(function() {
+                        var iframe = document.getElementById('beehiivFrame');
+                        var container = document.getElementById('beehiivContainer');
+                        var fallback = document.getElementById('nativeFallbackForm');
+                        
+                        if (!iframe || !fallback) return;
+                        
+                        // Check multiple signals for iframe failure
+                        var iframeVisible = false;
+                        try {
+                            var rect = iframe.getBoundingClientRect();
+                            iframeVisible = rect.height > 50 && rect.width > 50 && window._beehiivLoaded;
+                        } catch(e) {}
+                        
+                        if (!iframeVisible) {
+                            // Hide the broken iframe, show native form
+                            container.style.display = 'none';
+                            fallback.style.display = 'block';
+                        }
+                    }, 3000);
+
+                    // Also show fallback if iframe errors
+                    var iframe = document.getElementById('beehiivFrame');
+                    if (iframe) {
+                        iframe.addEventListener('error', function() {
+                            var container = document.getElementById('beehiivContainer');
+                            var fallback = document.getElementById('nativeFallbackForm');
+                            if (container) container.style.display = 'none';
+                            if (fallback) fallback.style.display = 'block';
+                        });
+                    }
+                })();
+
+                // Native email submission
+                function submitFallbackEmail() {
+                    var input = document.getElementById('fallbackEmailInput');
+                    var error = document.getElementById('fallbackEmailError');
+                    var btn = document.getElementById('fallbackSubmitBtn');
+                    var email = (input.value || '').trim();
+                    
+                    // Validate
+                    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!email || !emailRegex.test(email)) {
+                        error.style.display = 'block';
+                        input.style.borderColor = '#FF0000';
+                        return;
+                    }
+                    error.style.display = 'none';
+                    
+                    // Show processing state
+                    btn.textContent = 'UNLOCKING...';
+                    btn.style.background = '#333';
+                    btn.style.color = '#fff';
+                    btn.disabled = true;
+                    input.disabled = true;
+
+                    // Store email + set flags
+                    try {
+                        localStorage.setItem('freedom_captured_email', email);
+                        localStorage.setItem('freedom_completed', 'true');
+                        localStorage.setItem('freedom_email', 'true');
+                    } catch(e) {}
+
+                    // Attempt Beehiiv subscription via hidden iframe form POST
+                    try {
+                        var hiddenForm = document.createElement('form');
+                        hiddenForm.method = 'POST';
+                        hiddenForm.action = 'https://subscribe-forms.beehiiv.com/76441368-8855-465e-a25d-e7a3a75db50a';
+                        hiddenForm.target = 'beehiivHiddenTarget';
+                        hiddenForm.style.display = 'none';
+                        
+                        var emailField = document.createElement('input');
+                        emailField.type = 'email';
+                        emailField.name = 'email';
+                        emailField.value = email;
+                        hiddenForm.appendChild(emailField);
+                        
+                        document.body.appendChild(hiddenForm);
+                        hiddenForm.submit();
+                    } catch(e) {}
+
+                    // Redirect to Investment Simplifier after short delay
+                    setTimeout(function() {
+                        window.top.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=freedom';
+                    }, 1500);
+                }
+                </script>
 
                 <!-- BEEHIIV REDIRECT HANDLER [REDIRECT GUARD APPLIED] -->
                 <script>
