@@ -212,6 +212,51 @@
             animation: fadeIn 0.5s ease;
         }
 
+        /* Budget import badge [FIX 5] */
+        .budget-import-badge {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            color: #00FF41;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Inline wage input [FIX 1+7] */
+        .wage-chip {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(51, 51, 51, 0.5);
+            border-radius: 4px;
+            padding: 1px 4px;
+            transition: border-color 0.2s;
+        }
+        .wage-chip:focus-within {
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+        .wage-chip input {
+            width: 2rem;
+            background: transparent;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            text-align: center;
+            border: none;
+            outline: none;
+            padding: 0;
+            -moz-appearance: textfield;
+        }
+        .wage-chip input::-webkit-outer-spin-button,
+        .wage-chip input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
         /* Standardized footer */
         .site-footer {
             text-align: center;
@@ -324,6 +369,14 @@
             <button @click="clearDefaults()" class="text-[9px] text-gray-500 hover:text-cyber-gold transition-colors underline cursor-pointer">
                 Clear &amp; enter mine
             </button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- BUDGET IMPORT BADGE [FIX 5]                -->
+        <!-- ========================================== -->
+        <div x-show="showBudgetImportBadge" x-cloak class="flex items-center justify-center gap-2 mb-3">
+            <span class="budget-import-badge">&#10003; Imported from Budget Calculator</span>
+            <span class="text-[9px] text-gray-500 italic">One system feeding the next.</span>
         </div>
 
         <!-- ========================================== -->
@@ -444,6 +497,65 @@
                     <p class="text-[9px] text-cyber-gray/50 mt-1">
                         Rule of 25: Invest 25x your annual spending so the 4% safe withdrawal rate covers your life. Forever.
                     </p>
+
+                    <!-- ======================================== -->
+                    <!-- TRANSLATION LAYER [FIX 1+7]              -->
+                    <!-- Hours-at-Wage + Compound Interest Reframe -->
+                    <!-- ======================================== -->
+                    <div x-show="hasValidInputs && hourlyWage > 0 && freedomNumber > 0" class="mt-4 space-y-3 text-left">
+                        
+                        <!-- Hours of work translation with editable wage -->
+                        <div class="flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5 text-[10px] text-gray-400 leading-relaxed">
+                            <span x-text="formatMoney(freedomNumber)"></span>
+                            <span>at</span>
+                            <span class="wage-chip">
+                                <span class="text-gray-500 text-[9px]">$</span>
+                                <input type="number" x-model.number="hourlyWage" @input="onInputChange()"
+                                       min="1" placeholder="18">
+                                <span class="text-gray-500 text-[9px]">/hr</span>
+                            </span>
+                            <span>=</span>
+                            <span class="text-white font-bold font-mono" x-text="hoursForFreedom.toLocaleString()"></span>
+                            <span>hours.</span>
+                            <span class="text-white font-bold" x-text="yearsOfWorkEquivalent + ' years'"></span>
+                            <span>of full-time labor.</span>
+                        </div>
+
+                        <!-- Contributions vs Market Growth (only when timeline is achievable) -->
+                        <div x-show="yearsToGoal < 100 && yearsToGoal > 0 && totalContributions > 0">
+                            <p class="text-[9px] text-cyber-green font-bold uppercase tracking-[0.2em] text-center mb-2">
+                                Compound interest rewrites the math
+                            </p>
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 text-center bg-black/50 rounded-lg p-2.5 border border-cyber-gray/30">
+                                    <p class="text-[9px] text-gray-500 uppercase tracking-wider">You put in</p>
+                                    <p class="text-sm text-white font-bold font-mono mt-0.5" 
+                                       x-text="formatMoney(totalContributions)"></p>
+                                </div>
+                                <div class="text-cyber-green font-bold text-base flex-shrink-0">&rarr;</div>
+                                <div class="flex-1 text-center bg-black/50 rounded-lg p-2.5 border border-cyber-green/20">
+                                    <p class="text-[9px] text-gray-500 uppercase tracking-wider">Market adds</p>
+                                    <p class="text-sm text-cyber-green font-bold font-mono mt-0.5" 
+                                       x-text="formatMoney(marketContribution)"></p>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-gray-400 mt-2 text-center leading-relaxed">
+                                The market does 
+                                <span class="text-cyber-green font-bold" x-text="marketPercent + '%'"></span> 
+                                of the heavy lifting. You show up with 
+                                <span class="text-white font-mono" x-text="formatMoney(monthlyInvest)"></span>/mo
+                                (<span class="text-white font-mono" x-text="monthlyInvestHours"></span> hrs of work).
+                            </p>
+                        </div>
+
+                        <!-- NEVER scenario: just the hours gut-punch -->
+                        <div x-show="yearsToGoal >= 100" class="text-center">
+                            <p class="text-[10px] text-cyber-red/80">
+                                That's why you need the right vehicle. Not more hours.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- END TRANSLATION LAYER -->
                 </div>
 
                 <!-- Exit Age display -->
@@ -466,7 +578,7 @@
                     </p>
                 </div>
 
-                <!-- Status message -->
+                <!-- Status message [FIX 3: Now includes user's actual numbers] -->
                 <div x-show="hasValidInputs" class="bg-black border border-gray-800 rounded p-4 text-center">
                     <p class="text-xs font-bold uppercase tracking-widest"
                        :class="getStatusColor()"
@@ -566,7 +678,7 @@
                     </div>
                 </div>
 
-                <!-- Portfolio preview teaser -->
+                <!-- Portfolio preview teaser [FIX 4: Added teaserContext] -->
                 <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-3">
                     <p class="text-[10px] text-cyber-gold uppercase tracking-widest mb-2 text-center font-bold">Your Portfolio Strategy Preview</p>
                     <div class="flex items-center justify-between text-[10px] mb-2">
@@ -587,6 +699,8 @@
                     </div>
                     <div class="mt-2 pt-2 border-t border-cyber-gray/30 text-center">
                         <p class="text-[10px] text-gray-500">Top pick for your profile: <span class="text-cyber-gold font-bold" x-text="portfolioStrategy.teaser"></span></p>
+                        <!-- [FIX 4] ETF context — what this ticker actually IS -->
+                        <p class="text-[9px] text-gray-400 mt-1 leading-relaxed" x-text="portfolioStrategy.teaserContext"></p>
                         <p class="text-[9px] text-gray-600 mt-1">+ 3 more ETFs matched to your age and risk tolerance</p>
                     </div>
                 </div>
@@ -710,6 +824,7 @@
                 currentWealth: null,
                 desiredIncome: null,
                 monthlyInvest: null,
+                hourlyWage: 18, // [FIX 1+7] Default Brandon wage
                 
                 annualReturn: 0.08,
                 
@@ -732,6 +847,7 @@
                 isReturningUser: false,
                 isReturningSubscriber: false,
                 isUsingDefaults: false,
+                showBudgetImportBadge: false, // [FIX 5]
                 lastVisitLabel: '',
 
                 // Smart router cached values
@@ -756,6 +872,7 @@
                             monthlyInvest: this.monthlyInvest,
                             age: this.age,
                             currentWealth: this.currentWealth,
+                            hourlyWage: this.hourlyWage, // [FIX 1+7]
                             calculatedAt: new Date().toISOString()
                         };
                         localStorage.setItem('freedom_calculator_result', JSON.stringify(result));
@@ -772,6 +889,7 @@
                         if (data.currentWealth !== undefined) this.currentWealth = data.currentWealth;
                         if (data.desiredIncome) this.desiredIncome = data.desiredIncome;
                         if (data.monthlyInvest) this.monthlyInvest = data.monthlyInvest;
+                        if (data.hourlyWage) this.hourlyWage = data.hourlyWage; // [FIX 1+7]
                         this._hasCalculatedOnce = true;
 
                         // Cache for smart router display
@@ -805,10 +923,12 @@
                     this.currentWealth = null;
                     this.desiredIncome = null;
                     this.monthlyInvest = null;
+                    this.hourlyWage = 18; // [FIX 1+7]
                     this._hasCalculatedOnce = false;
                     this.isReturningUser = false;
                     this.isReturningSubscriber = false;
                     this.isUsingDefaults = false;
+                    this.showBudgetImportBadge = false; // [FIX 5]
                     this.previousExitAge = 999;
                     try { localStorage.removeItem('freedom_calculator_result'); } catch(e) {}
                 },
@@ -820,6 +940,8 @@
                         const bd = JSON.parse(budgetData);
                         if (bd.monthlyInvestment) this.monthlyInvest = bd.monthlyInvestment;
                         if (bd.age) this.age = bd.age;
+                        if (bd.hourlyWage) this.hourlyWage = bd.hourlyWage; // [FIX 1+7] Cross-tool wage
+                        this.showBudgetImportBadge = true; // [FIX 5] Visible acknowledgment
                         return true;
                     } catch(e) { return false; }
                 },
@@ -829,6 +951,7 @@
                     this.currentWealth = 500;
                     this.desiredIncome = 5000;
                     this.monthlyInvest = 200;
+                    this.hourlyWage = 18; // [FIX 1+7]
                     this.isUsingDefaults = true;
                 },
 
@@ -837,7 +960,9 @@
                     this.currentWealth = null;
                     this.desiredIncome = null;
                     this.monthlyInvest = null;
+                    this.hourlyWage = 18; // [FIX 1+7]
                     this.isUsingDefaults = false;
+                    this.showBudgetImportBadge = false; // [FIX 5]
                     this._hasCalculatedOnce = false;
                 },
 
@@ -984,6 +1109,7 @@
 
                 // ===========================
                 // PORTFOLIO STRATEGY (Age-Based)
+                // [FIX 4: Added teaserContext]
                 // ===========================
                 get portfolioStrategy() {
                     const a = this.age || 20;
@@ -995,6 +1121,7 @@
                             { name: 'Bonds', pct: 5, color: 'bg-cyber-gold' }
                         ],
                         teaser: 'VTI (Vanguard Total Stock Market)',
+                        teaserContext: 'One ETF. 4,000+ companies. Zero stock picking. This is "set it and forget it" in one ticker.',
                         description: 'Your 30+ year horizon is your biggest weapon. Maximum equity exposure with minimal bond drag.'
                     };
                     if (a < 35) return {
@@ -1005,6 +1132,7 @@
                             { name: 'Bonds', pct: 10, color: 'bg-cyber-gold' }
                         ],
                         teaser: 'VOO (Vanguard S&P 500)',
+                        teaserContext: 'One ETF tracking the 500 biggest US companies. The same fund billionaires tell their kids to buy.',
                         description: 'Strong equity foundation with a stabilizing index layer.'
                     };
                     if (a < 45) return {
@@ -1015,6 +1143,7 @@
                             { name: 'Bonds', pct: 20, color: 'bg-cyber-gold' }
                         ],
                         teaser: 'VTI (Vanguard Total Stock Market)',
+                        teaserContext: 'One ETF. Entire US stock market in a single purchase. Maximum diversification, minimum effort.',
                         description: 'Balanced approach: growth engine with a meaningful bond cushion.'
                     };
                     if (a < 55) return {
@@ -1025,6 +1154,7 @@
                             { name: 'Bonds', pct: 30, color: 'bg-cyber-gold' }
                         ],
                         teaser: 'SCHD (Schwab US Dividend)',
+                        teaserContext: 'One ETF that pays you dividends every quarter. Your money starts sending you money.',
                         description: 'Shifting toward income generation while maintaining growth potential.'
                     };
                     return {
@@ -1035,6 +1165,7 @@
                             { name: 'Bonds', pct: 50, color: 'bg-cyber-gold' }
                         ],
                         teaser: 'BND (Vanguard Total Bond)',
+                        teaserContext: 'One ETF holding thousands of bonds. Steady income, minimal drama.',
                         description: 'Prioritizing capital preservation with steady income generation.'
                     };
                 },
@@ -1108,13 +1239,52 @@
                     return Math.min(100, Math.max(5, (completed / totalJourney) * 100));
                 },
 
+                // ===========================
+                // [FIX 1+7] TRANSLATION LAYER COMPUTED
+                // ===========================
+                get totalContributions() {
+                    if (this.yearsToGoal >= 100 || this.yearsToGoal <= 0) return 0;
+                    return ((this.monthlyInvest || 0) * 12 * this.yearsToGoal) + (this.currentWealth || 0);
+                },
+
+                get marketContribution() {
+                    return Math.max(0, this.freedomNumber - this.totalContributions);
+                },
+
+                get marketPercent() {
+                    if (this.freedomNumber <= 0 || this.totalContributions <= 0) return 0;
+                    const pct = (this.marketContribution / this.freedomNumber) * 100;
+                    return Math.min(99, Math.max(0, Math.round(pct)));
+                },
+
+                get hoursForFreedom() {
+                    if (!this.hourlyWage || this.hourlyWage <= 0) return 0;
+                    return Math.round(this.freedomNumber / this.hourlyWage);
+                },
+
+                get monthlyInvestHours() {
+                    if (!this.hourlyWage || this.hourlyWage <= 0 || !this.monthlyInvest) return 0;
+                    return Math.round((this.monthlyInvest / this.hourlyWage) * 10) / 10;
+                },
+
+                get yearsOfWorkEquivalent() {
+                    if (!this.hourlyWage || this.hourlyWage <= 0) return 0;
+                    return Math.round(this.hoursForFreedom / 2080); // 40hrs/week x 52 weeks
+                },
+
+                // ===========================
+                // [FIX 3] STATUS MESSAGE WITH REAL NUMBERS
+                // ===========================
                 get statusMessage() {
                     if (!this.hasValidInputs) return "";
                     if (this.yearsToGoal >= 100) return "YOU HAVE THE TARGET. NOW YOU NEED THE VEHICLE.";
                     const age = this.exitAge;
-                    if (age < 30) return "STATUS: LEGENDARY. YOU CRACKED THE CODE.";
-                    if (age < 40) return "STATUS: ELITE. NOW BUILD THE PORTFOLIO TO LOCK IT IN.";
-                    if (age < 55) return "STATUS: STANDARD. THE RIGHT ETFs CAN SHAVE 10 YEARS OFF.";
+                    const monthly = this.formatMoney(this.monthlyInvest);
+                    const years = Math.round(this.yearsToGoal);
+                    const exitRound = Math.round(age);
+                    if (age < 30) return `LEGENDARY. ${monthly}/MO \u00D7 ${years} YRS = FREEDOM AT ${exitRound}. YOU CRACKED THE CODE.`;
+                    if (age < 40) return `ELITE. ${monthly}/MO \u00D7 ${years} YRS = PERMANENT FREEDOM AT ${exitRound}.`;
+                    if (age < 55) return `STANDARD. ${monthly}/MO GETS YOU THERE AT ${exitRound}. THE RIGHT ETFs SHAVE YEARS OFF.`;
                     return "YOU HAVE THE TARGET. NOW YOU NEED THE VEHICLE.";
                 },
 
