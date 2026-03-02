@@ -643,7 +643,7 @@
             
             <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showModal = false"></div>
             
-            <div class="relative bg-cyber-dark border-2 rounded-2xl p-3 w-full max-w-md max-h-[95vh] overflow-y-auto" 
+            <div class="relative bg-cyber-dark border-2 rounded-2xl p-4 w-full max-w-md max-h-[95vh] overflow-y-auto" 
                  :class="yearsToGoal >= 100 || exitAge >= 55 ? 'border-cyber-red shadow-[0_0_30px_rgba(255,0,0,0.3)]' : exitAge < 40 ? 'border-cyber-green shadow-[0_0_30px_rgba(0,255,65,0.3)]' : 'border-cyber-gold shadow-[0_0_30px_rgba(255,215,0,0.3)]'"
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 scale-90"
@@ -656,16 +656,16 @@
                     </svg>
                 </button>
 
-                <div class="text-center mb-2">
+                <div class="text-center mb-3">
                     <p class="text-[9px] font-mono text-gray-500 uppercase tracking-[0.2em] mb-1">PHASE 1 COMPLETE: YOUR TARGET IS SET</p>
-                    <h2 class="text-lg sm:text-xl font-black uppercase tracking-tight drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]"
+                    <h2 class="text-xl sm:text-2xl font-black uppercase tracking-tight drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]"
                         :class="yearsToGoal >= 100 || exitAge >= 55 ? 'text-cyber-red' : exitAge < 40 ? 'text-cyber-green' : 'text-cyber-gold'"
                         x-text="modalHeadline">
                     </h2>
                     <p class="text-[9px] font-mono text-gray-500 uppercase tracking-[0.2em] mt-1">PHASE 2: BUILD THE PORTFOLIO THAT GETS YOU THERE</p>
                 </div>
 
-                <div class="bg-black/50 border border-cyber-gray rounded-lg p-2 mb-2">
+                <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-3">
                     <div class="grid grid-cols-2 gap-2 text-center text-[10px]">
                         <div>
                             <p class="text-cyber-gold font-mono font-bold" x-text="formatMoney(freedomNumber)"></p>
@@ -678,13 +678,14 @@
                     </div>
                 </div>
 
-                <!-- Portfolio preview teaser [FIX 4: Added teaserContext] -->
-                <div class="bg-black/50 border border-cyber-gray rounded-lg p-2 mb-2">
-                    <div class="flex items-center justify-between text-[10px] mb-1.5">
-                        <span class="text-[9px] text-cyber-gold uppercase tracking-widest font-bold">Portfolio Preview</span>
+                <!-- Portfolio preview teaser -->
+                <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-3">
+                    <p class="text-[10px] text-cyber-gold uppercase tracking-widest mb-2 text-center font-bold">Your Portfolio Strategy Preview</p>
+                    <div class="flex items-center justify-between text-[10px] mb-2">
+                        <span class="text-gray-400">Risk Profile:</span>
                         <span class="text-white font-bold" x-text="portfolioStrategy.label"></span>
                     </div>
-                    <div class="space-y-1">
+                    <div class="space-y-1.5">
                         <template x-for="alloc in portfolioStrategy.allocations" :key="alloc.name">
                             <div class="flex items-center gap-2">
                                 <div class="flex-1 bg-black rounded-full h-1.5 overflow-hidden">
@@ -696,37 +697,45 @@
                             </div>
                         </template>
                     </div>
-                    <div class="mt-1.5 pt-1.5 border-t border-cyber-gray/30 text-center">
-                        <p class="text-[10px] text-gray-500">Top pick: <span class="text-cyber-gold font-bold" x-text="portfolioStrategy.teaser"></span></p>
+                    <div class="mt-2 pt-2 border-t border-cyber-gray/30 text-center">
+                        <p class="text-[10px] text-gray-500">Top pick for your profile: <span class="text-cyber-gold font-bold" x-text="portfolioStrategy.teaser"></span></p>
                         <!-- [FIX 4] ETF context sentence -->
-                        <p class="text-[9px] text-gray-400 mt-0.5 leading-snug" x-text="portfolioStrategy.teaserContext"></p>
+                        <p class="text-[9px] text-gray-400 mt-1 leading-relaxed" x-text="portfolioStrategy.teaserContext"></p>
+                        <p class="text-[9px] text-gray-600 mt-1">+ 3 more ETFs matched to your age and risk tolerance</p>
                     </div>
                 </div>
 
-                <!-- Phase progress (compact) -->
-                <div class="flex items-center gap-2 text-[9px] mb-2 px-2">
-                    <div class="flex flex-col items-center">
-                        <div class="w-5 h-5 rounded-full bg-cyber-green/20 border border-cyber-green flex items-center justify-center text-cyber-green text-[9px] font-bold">&#10003;</div>
-                        <span class="text-gray-500 mt-0.5">Target</span>
-                    </div>
-                    <div class="flex-1 h-px bg-cyber-green"></div>
-                    <div class="flex flex-col items-center">
-                        <div class="w-5 h-5 rounded-full bg-cyber-gold/30 border-2 border-cyber-gold flex items-center justify-center text-cyber-gold text-[9px] font-bold animate-pulse">2</div>
-                        <span class="text-cyber-gold mt-0.5 font-bold">Portfolio</span>
-                    </div>
-                    <div class="flex-1 h-px bg-cyber-gray"></div>
-                    <div class="flex flex-col items-center">
-                        <div class="w-5 h-5 rounded-full bg-cyber-gray/20 border border-cyber-gray flex items-center justify-center text-gray-500 text-[9px] font-bold">3</div>
-                        <span class="text-gray-500 mt-0.5">Invest</span>
+                <div class="text-center mb-3">
+                    <p class="text-xs text-gray-300 leading-relaxed" x-text="modalSubhead"></p>
+                </div>
+
+                <!-- Phase progress -->
+                <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-4">
+                    <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">Your Progress</p>
+                    <div class="flex items-center gap-2 text-[10px]">
+                        <div class="flex flex-col items-center">
+                            <div class="w-6 h-6 rounded-full bg-cyber-green/20 border border-cyber-green flex items-center justify-center text-cyber-green font-bold">&#10003;</div>
+                            <span class="text-gray-500 mt-1">Target</span>
+                        </div>
+                        <div class="flex-1 h-px bg-cyber-green"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-6 h-6 rounded-full bg-cyber-gold/30 border-2 border-cyber-gold flex items-center justify-center text-cyber-gold font-bold animate-pulse">2</div>
+                            <span class="text-cyber-gold mt-1 font-bold">Portfolio</span>
+                        </div>
+                        <div class="flex-1 h-px bg-cyber-gray"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-6 h-6 rounded-full bg-cyber-gray/20 border border-cyber-gray flex items-center justify-center text-gray-500 font-bold">3</div>
+                            <span class="text-gray-500 mt-1">Invest</span>
+                        </div>
                     </div>
                 </div>
 
-                <p class="text-[11px] text-center text-cyber-gold font-bold mb-1">
+                <p class="text-xs text-center text-cyber-gold font-bold mb-2">
                     &darr; Enter your email. Your personalized ETF portfolio loads instantly.
                 </p>
 
                 <!-- BEEHIIV EMBED -->
-                <div class="flex justify-center pb-1">
+                <div class="flex justify-center pb-2">
                     <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
                     <iframe id="beehiivFrame"
                             src="https://subscribe-forms.beehiiv.com/76441368-8855-465e-a25d-e7a3a75db50a" 
@@ -740,8 +749,7 @@
                 <!-- BEEHIIV REDIRECT HANDLER -->
                 <script>
                 (function() {
-                    // Skip redirect handler entirely for returning email subscribers.
-                    // They get the Smart Router with options instead of an auto-redirect.
+                    // Skip redirect for returning subscribers. They get the Smart Router instead.
                     try {
                         if (localStorage.getItem('freedom_email') === 'true') return;
                     } catch(e) {}
@@ -796,14 +804,14 @@
                 })();
                 </script>
 
-                <div class="text-center mt-2 pb-1">
-                    <p class="text-[9px] text-gray-500 font-mono tracking-wide mb-1">
-                        Instant access. Zero spam.
+                <div class="text-center mt-3 pb-2">
+                    <p class="text-[10px] text-gray-500 font-mono tracking-wide mb-2">
+                        Instant access. Shows you exactly what to buy. Zero spam.
                     </p>
                     <div x-show="showFallbackLink" x-cloak>
-                        <p class="text-[9px] text-gray-400 mb-1">Already submitted your email?</p>
+                        <p class="text-[10px] text-gray-400 mb-2">Already submitted your email?</p>
                         <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" 
-                           class="inline-block text-[10px] font-bold text-cyber-gold hover:text-white transition-colors uppercase tracking-widest">
+                           class="inline-block text-[11px] font-bold text-cyber-gold hover:text-white transition-colors uppercase tracking-widest">
                             Open Portfolio Builder &rarr;
                         </a>
                     </div>
