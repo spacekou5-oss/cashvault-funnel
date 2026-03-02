@@ -674,15 +674,15 @@
                 </p>
 
                 <!-- BEEHIIV EMBED (primary) -->
-                <div id="beehiivContainer" class="flex justify-center pb-2">
+                <div id="beehiivContainer" class="flex justify-center pb-2 w-full">
                     <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
                     <iframe id="beehiivFrame"
                             src="https://subscribe-forms.beehiiv.com/76441368-8855-465e-a25d-e7a3a75db50a" 
-                            class="beehiiv-embed" 
+                            class="beehiiv-embed w-full" 
                             data-test-id="beehiiv-embed" 
                             frameborder="0" 
                             scrolling="no" 
-                            style="width: 100%; max-width: 400px; height: 247px; margin: 0; border-radius: 16px !important; background-color: transparent; box-shadow: 0 0 #0000;"
+                            style="width: 100%; max-width: 400px; height: 100%; min-height: 380px; margin: 0; border-radius: 16px !important; background-color: transparent; box-shadow: 0 0 #0000;"
                             onload="window._beehiivLoaded = true;"></iframe>
                 </div>
 
@@ -832,6 +832,7 @@
                         window.top.location.href = REDIRECT_URL;
                     }
 
+                    // This safely listens for the official Beehiiv success signal
                     window.addEventListener('message', function(event) {
                         if (event.origin && event.origin.includes('beehiiv.com')) {
                             const data = event.data;
@@ -850,22 +851,6 @@
                             }
                         }
                     });
-
-                    const iframe = document.getElementById('beehiivFrame');
-                    if (iframe) {
-                        let initialHeight = iframe.style.height;
-                        const heightObserver = new MutationObserver(function(mutations) {
-                            mutations.forEach(function(mutation) {
-                                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                                    const newHeight = iframe.style.height;
-                                    if (newHeight !== initialHeight && initialHeight) {
-                                        setTimeout(doRedirect, 1500);
-                                    }
-                                }
-                            });
-                        });
-                        heightObserver.observe(iframe, { attributes: true, attributeFilter: ['style', 'height'] });
-                    }
                 })();
                 </script>
 
@@ -882,39 +867,6 @@
                     </div>
                 </div>
 
-                <!-- BEEHIIV "ALREADY SUBSCRIBED" STATE DETECTOR -->
-                <script>
-                (function() {
-                    var iframe = document.getElementById('beehiivFrame');
-                    if (!iframe) return;
-                    var initialHeight = iframe.style.height;
-                    var modalOpened = Date.now();
-                    // If iframe height changes within 4s of load (before any user interaction),
-                    // Beehiiv auto-loaded the "already subscribed" confirmation wall.
-                    // Surface the direct link immediately instead of the 15s timer.
-                    var earlyChangeDetector = new MutationObserver(function(mutations) {
-                        var elapsed = Date.now() - modalOpened;
-                        if (elapsed < 4000) {
-                            var newHeight = iframe.style.height;
-                            if (newHeight !== initialHeight && initialHeight) {
-                                // Beehiiv swapped the form for the confirmation state
-                                try {
-                                    var app = document.querySelector('[x-data]');
-                                    if (app && app.__x) {
-                                        app.__x.$data.showFallbackLink = true;
-                                    }
-                                } catch(e) {}
-                                earlyChangeDetector.disconnect();
-                            }
-                        } else {
-                            earlyChangeDetector.disconnect();
-                        }
-                    });
-                    earlyChangeDetector.observe(iframe, { attributes: true, attributeFilter: ['style', 'height'] });
-                    // Safety: disconnect after 5s regardless
-                    setTimeout(function() { earlyChangeDetector.disconnect(); }, 5000);
-                })();
-                </script>
             </div>
         </div>
 
