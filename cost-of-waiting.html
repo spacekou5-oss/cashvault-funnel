@@ -124,9 +124,6 @@
         
         [x-cloak] { display: none !important; }
 
-        /* ========================================== */
-        /* OPTIMIZATION 1: SCAN SEQUENCE              */
-        /* ========================================== */
         .scan-screen {
             position: fixed;
             inset: 0;
@@ -189,7 +186,6 @@
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Pulsing red warning ring during scan */
         .scan-warning-ring {
             width: 64px;
             height: 64px;
@@ -205,9 +201,6 @@
             50% { box-shadow: 0 0 0 12px rgba(255,0,0,0); }
         }
 
-        /* ========================================== */
-        /* OPTIMIZATION 2: RETURNING USER POPUP       */
-        /* ========================================== */
         .return-popup-overlay {
             position: fixed;
             inset: 0;
@@ -225,7 +218,6 @@
             overflow: hidden;
         }
 
-        /* Already-subscribed popup (legacy, keeping for CTA click) */
         .sub-popup {
             background: linear-gradient(135deg, rgba(0,240,255,0.06), rgba(0,255,65,0.04));
             border: 1px solid rgba(0,240,255,0.4);
@@ -256,7 +248,6 @@
             border-radius: 50%;
         }
 
-        /* Footer */
         .site-footer {
             text-align: center;
             padding: 24px 16px 16px;
@@ -276,16 +267,11 @@
 
     <main x-data="costEngine()" class="w-full max-w-lg relative min-h-[600px] flex flex-col justify-center">
 
-        <!-- PEAK-END: Damage Flash Effect -->
         <div x-show="showDamageFlash" 
              x-transition:leave="transition ease-out duration-600"
              class="damage-flash">
         </div>
 
-        <!-- ========================================== -->
-        <!-- OPTIMIZATION 1: UNIFIED SCAN SEQUENCE      -->
-        <!-- (Replaces BOTH static splash + processing) -->
-        <!-- ========================================== -->
         <div x-show="showScanScreen" x-cloak
              x-transition:leave="transition ease-in duration-500"
              x-transition:leave-start="opacity-100"
@@ -293,14 +279,12 @@
              class="scan-screen">
             
             <div class="max-w-sm w-full space-y-8 text-center">
-                <!-- Warning icon -->
                 <div class="flex justify-center">
                     <div class="scan-warning-ring">
                         <span class="text-2xl">&#x26A0;&#xFE0F;</span>
                     </div>
                 </div>
 
-                <!-- Title -->
                 <div>
                     <p class="text-[10px] font-mono text-cyber-red/60 uppercase tracking-[0.3em] mb-2">Financial Decay Engine</p>
                     <h1 class="text-2xl font-black font-mono tracking-tight text-white uppercase">
@@ -308,7 +292,6 @@
                     </h1>
                 </div>
 
-                <!-- Scan progress -->
                 <div class="space-y-3">
                     <div class="scan-bar-track mx-auto">
                         <div class="scan-bar-fill" :style="'width: ' + scanProgress + '%'"></div>
@@ -317,7 +300,6 @@
                     <p class="text-[9px] font-mono text-cyber-gray/40" x-text="scanProgress + '% complete'"></p>
                 </div>
 
-                <!-- Kill shot (after scan completes) -->
                 <div x-show="scanComplete" x-cloak class="space-y-6 pt-2">
                     <div class="scan-killshot space-y-3 border-l-2 border-cyber-red pl-5 text-left">
                         <p class="text-lg text-white font-bold leading-relaxed">
@@ -342,9 +324,6 @@
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- OPTIMIZATION 2: RETURNING USER POPUP       -->
-        <!-- ========================================== -->
         <div x-show="showReturnPopup" x-cloak
              x-transition:enter="transition ease-out duration-400"
              x-transition:enter-start="opacity-0"
@@ -356,7 +335,7 @@
             
             <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
 
-            <!-- STATE A: Already submitted email. Direct to Investment Simplifier -->
+            <!-- STATE A: Already submitted email -->
             <div x-show="returnState === 'subscribed'" x-cloak
                  class="return-popup-card bg-cyber-dark border-2 border-cyber-green p-6 shadow-[0_0_30px_rgba(0,255,65,0.15)] z-10">
                 
@@ -375,7 +354,6 @@
                         You already unlocked the Investment Simplifier. Pick up where you left off, or run new numbers.
                     </p>
 
-                    <!-- Show their last numbers -->
                     <div class="bg-black/60 border border-cyber-gray rounded-lg p-3" x-show="lastSavedLoss > 0">
                         <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-1">Last calculation:</p>
                         <p class="text-lg font-black font-mono text-cyber-red" x-text="'-' + formatMoney(lastSavedLoss)"></p>
@@ -383,7 +361,7 @@
                     </div>
 
                     <div class="space-y-2 pt-2">
-                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html"
+                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=costofwaiting"
                            class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-cyber-green hover:shadow-[0_0_20px_rgba(0,255,65,0.4)] transition-all cursor-pointer no-underline shadow-[0_0_15px_rgba(0,255,65,0.3)]">
                             OPEN INVESTMENT SIMPLIFIER &#x279C;
                         </a>
@@ -407,7 +385,6 @@
                         <h2 class="text-xl font-black uppercase text-white mt-1">Your Numbers Are Loaded</h2>
                     </div>
 
-                    <!-- Show their last numbers as urgency reinforcement -->
                     <div class="bg-black/60 border border-cyber-red/30 rounded-lg p-3" x-show="lastSavedLoss > 0">
                         <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-1">Last time you checked:</p>
                         <p class="text-2xl font-black font-mono text-cyber-red" x-text="'-' + formatMoney(lastSavedLoss)"></p>
@@ -432,9 +409,7 @@
             </div>
         </div>
 
-        <!-- ========================================= -->
-        <!-- ACTIVE STATE: Calculator                  -->
-        <!-- ========================================= -->
+        <!-- ACTIVE STATE: Calculator -->
         <div x-show="state === 'active'" 
              x-transition:enter="transition ease-out duration-700 transform"
              x-transition:enter-start="opacity-0 translate-y-4 scale-95"
@@ -452,7 +427,6 @@
                 </div>
             </div>
 
-            <!-- Input Card -->
             <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 shadow-2xl">
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
@@ -472,7 +446,6 @@
                     </div>
                 </div>
 
-                <!-- Saved So Far input -->
                 <div class="mb-6">
                     <label class="block text-xs font-bold text-cyber-gray uppercase mb-2">Saved So Far</label>
                     <div class="relative">
@@ -494,7 +467,6 @@
                 </div>
             </div>
 
-            <!-- Results Card -->
             <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 relative overflow-hidden"
                  style="will-change: transform; contain: layout style;"
                  :class="{ 'animate-shake': isShaking }">
@@ -524,7 +496,6 @@
                        x-text="getFeedback()"></p>
                 </div>
 
-                <!-- Daily cost -->
                 <div x-show="dailyCost > 0" class="mt-4 pt-4 border-t border-dashed border-cyber-gray/50 text-center">
                     <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-1">To Erase This Damage:</p>
                     <div class="text-2xl font-black text-cyber-green font-mono">
@@ -533,7 +504,6 @@
                     <p class="text-[10px] text-gray-500 mt-1" x-text="getDailyCostMessage()"></p>
                 </div>
                 
-                <!-- Show The Math -->
                 <div class="mt-4 pt-4 border-t border-dashed border-cyber-gray/50" x-show="waitYears > 0">
                     <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">The Math:</p>
                     <div class="text-[10px] text-gray-500 font-mono space-y-1 text-center">
@@ -545,7 +515,6 @@
                 </div>
             </div>
 
-            <!-- Responsive CTA -->
             <button @click="handleCtaClick()" 
                 class="group block w-full text-center py-4 rounded-xl font-black uppercase tracking-widest transition-all hover:scale-[1.02] cursor-pointer"
                 :class="ctaStyle">
@@ -559,9 +528,7 @@
                 Assumes 8% annual return (S&P 500 historical average, inflation-adjusted) compounded monthly. Not financial advice.
             </p>
 
-            <!-- ============================================== -->
-            <!-- ALREADY SUBSCRIBED POPUP (via CTA click)       -->
-            <!-- ============================================== -->
+            <!-- ALREADY SUBSCRIBED POPUP -->
             <div x-cloak x-show="showSubPopup"
                  class="fixed inset-0 z-[70] flex items-center justify-center p-3"
                  x-transition:enter="transition ease-out duration-300"
@@ -595,7 +562,7 @@
                     </p>
 
                     <div class="space-y-3">
-                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html"
+                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=costofwaiting"
                            class="block w-full py-3 rounded-lg font-bold uppercase tracking-widest text-sm text-black bg-cyber-green hover:bg-green-400 transition-all cursor-pointer text-center shadow-[0_0_20px_rgba(0,255,65,0.3)]">
                             Open Investment Simplifier &#x279C;
                         </a>
@@ -607,9 +574,7 @@
                 </div>
             </div>
 
-            <!-- ============================================== -->
-            <!-- EMAIL GATE: COST OF WAITING -> INV SIMPLIFIER  -->
-            <!-- ============================================== -->
+            <!-- EMAIL GATE MODAL -->
             <div x-cloak x-show="showModal" 
                  class="fixed inset-0 z-[70] flex items-center justify-center p-3"
                  x-transition:enter="transition ease-out duration-300"
@@ -680,7 +645,6 @@
                         </div>
                     </div>
 
-                    <!-- BEEHIIV EMBED -->
                     <div class="flex justify-center pb-2">
                         <iframe id="beehiivFrame"
                                 src="https://subscribe-forms.beehiiv.com/63ac9ac6-ada8-47a5-b5b6-654bdf88a7b6" 
@@ -702,7 +666,6 @@
 
         </div>
 
-        <!-- FOOTER -->
         <footer class="site-footer w-full" x-show="state === 'active'">
             <a href="https://instagram.com/koutalksmoney" target="_blank" rel="noopener noreferrer" class="font-mono text-xs">
                 @koutalksmoney
@@ -717,22 +680,20 @@
     <script>
         function costEngine() {
             return {
-                // Screen states
                 showScanScreen: false,
                 showReturnPopup: false,
-                returnState: '',          // 'subscribed' | 'calculator'
+                returnState: '',
                 lastSavedLoss: 0,
 
                 showModal: false,
                 showSubPopup: false,
-                state: 'idle',            // 'idle' (hidden), 'active'
+                state: 'idle',
                 
                 age: 20,
                 contribution: 100,
                 currentWealth: 0,
                 waitYears: 0,
                 
-                // Scan sequence
                 scanProgress: 15,
                 scanPhase: 0,
                 scanText: '',
@@ -751,9 +712,6 @@
                 
                 saveDebounceTimer: null,
 
-                // ===========================
-                // SCAN SEQUENCE (Optimization 1)
-                // ===========================
                 scanPhases: [
                     { text: 'Loading compound interest model...', target: 30 },
                     { text: 'Setting base return: 8% annual (S&P 500)...', target: 50 },
@@ -768,7 +726,6 @@
                     this.scanPhase = 0;
                     this.scanComplete = false;
                     this.scanText = '';
-
                     setTimeout(() => { this.runScanPhase(0); }, 700);
                 },
 
@@ -776,25 +733,15 @@
                     if (index >= this.scanPhases.length) {
                         this.scanText = 'Engine ready.';
                         this.scanPhase = 5;
-                        setTimeout(() => {
-                            this.scanComplete = true;
-                        }, 400);
+                        setTimeout(() => { this.scanComplete = true; }, 400);
                         return;
                     }
-
                     const phase = this.scanPhases[index];
                     this.scanPhase = index;
                     this.scanText = phase.text;
-                    
-                    setTimeout(() => {
-                        this.scanProgress = phase.target;
-                    }, 100);
-
-                    // Varied durations for realism
+                    setTimeout(() => { this.scanProgress = phase.target; }, 100);
                     const durations = [1000, 1200, 900, 1100, 700];
-                    setTimeout(() => {
-                        this.runScanPhase(index + 1);
-                    }, durations[index]);
+                    setTimeout(() => { this.runScanPhase(index + 1); }, durations[index]);
                 },
 
                 exitScanScreen() {
@@ -806,33 +753,20 @@
                     }, 300);
                 },
 
-                // ===========================
-                // RETURNING USER ROUTING (Optimization 2)
-                // ===========================
                 determineReturnState() {
                     try {
                         const hasEmail = localStorage.getItem('cost_of_waiting_email');
-                        if (hasEmail === 'true') {
-                            this.returnState = 'subscribed';
-                            return;
-                        }
+                        if (hasEmail === 'true') { this.returnState = 'subscribed'; return; }
                     } catch(e) {}
                     this.returnState = 'calculator';
                 },
 
-                // ===========================
-                // localStorage PERSISTENCE
-                // ===========================
                 saveState() {
                     const data = {
-                        age: this.age,
-                        contribution: this.contribution,
-                        currentWealth: this.currentWealth,
-                        waitYears: this.waitYears,
-                        wealthNow: this.wealthNow,
-                        loss: this.loss,
-                        dailyCost: this.dailyCost,
-                        calculatedAt: new Date().toISOString()
+                        age: this.age, contribution: this.contribution,
+                        currentWealth: this.currentWealth, waitYears: this.waitYears,
+                        wealthNow: this.wealthNow, loss: this.loss,
+                        dailyCost: this.dailyCost, calculatedAt: new Date().toISOString()
                     };
                     try {
                         localStorage.setItem('cost_of_waiting_data', JSON.stringify(data));
@@ -851,7 +785,6 @@
                         if (data.waitYears !== undefined) this.waitYears = data.waitYears;
                         if (data.loss) this.lastSavedLoss = data.loss;
                         this.previousWaitYears = this.waitYears;
-                        
                         if (data.calculatedAt) {
                             const diff = Date.now() - new Date(data.calculatedAt).getTime();
                             const mins = Math.floor(diff / 60000);
@@ -871,13 +804,9 @@
                 },
 
                 resetToDefaults() {
-                    this.age = 20;
-                    this.contribution = 100;
-                    this.currentWealth = 0;
-                    this.waitYears = 1;
-                    this.previousWaitYears = 1;
-                    this.isReturningUser = false;
-                    this.lastSavedLoss = 0;
+                    this.age = 20; this.contribution = 100; this.currentWealth = 0;
+                    this.waitYears = 1; this.previousWaitYears = 1;
+                    this.isReturningUser = false; this.lastSavedLoss = 0;
                     this.displayLoss = this.loss;
                     try { 
                         localStorage.removeItem('cost_of_waiting_data'); 
@@ -886,7 +815,6 @@
                     } catch(e) {}
                 },
 
-                // Cross-app Freedom Calculator prefill
                 prefillFromFreedomCalc() {
                     try {
                         const freedomData = localStorage.getItem('freedom_calculator_result');
@@ -899,23 +827,14 @@
                     } catch(e) { return false; }
                 },
 
-                // CTA click handler
                 handleCtaClick() {
                     try {
                         const alreadySubscribed = localStorage.getItem('cost_of_waiting_email') === 'true';
-                        if (alreadySubscribed) {
-                            this.showSubPopup = true;
-                        } else {
-                            this.showModal = true;
-                        }
-                    } catch(e) {
-                        this.showModal = true;
-                    }
+                        if (alreadySubscribed) { this.showSubPopup = true; }
+                        else { this.showModal = true; }
+                    } catch(e) { this.showModal = true; }
                 },
 
-                // ===========================
-                // INIT: Smart routing
-                // ===========================
                 _redirectHandler: null,
                 _heightObserver: null,
                 _hasRedirected: false,
@@ -924,22 +843,16 @@
                     const hasSavedState = this.loadState();
                     
                     if (hasSavedState) {
-                        // RETURNING USER: Show conditional popup
                         this.isReturningUser = true;
                         this.state = 'active';
                         this.displayLoss = 0;
-                        
                         this.determineReturnState();
                         this.showReturnPopup = true;
-
                         requestAnimationFrame(() => {
                             this.animateLossCounter(0, this.loss);
-                            if (this.loss > 500000) {
-                                this.isShaking = true;
-                            }
+                            if (this.loss > 500000) this.isShaking = true;
                         });
                     } else {
-                        // NEW USER: Launch scan sequence
                         this.prefillFromFreedomCalc();
                         this.startScanSequence();
                     }
@@ -947,31 +860,22 @@
                     this.$watch('loss', (newLoss, oldLoss) => {
                         if (this.state !== 'active') return;
                         this.animateLossCounter(oldLoss, newLoss);
-                        
-                        if (newLoss > 500000 && !this.isShaking) {
-                            this.isShaking = true;
-                        } else if (newLoss <= 500000) {
-                            this.isShaking = false;
-                        }
-                        
+                        if (newLoss > 500000 && !this.isShaking) this.isShaking = true;
+                        else if (newLoss <= 500000) this.isShaking = false;
                         if (newLoss > 500000 && oldLoss <= 500000) {
                             requestAnimationFrame(() => this.triggerDamageFlash());
                         }
                     });
 
-                    // Watch modal for beehiiv redirect
                     this.$watch('showModal', (isOpen) => {
-                        if (isOpen) {
-                            this.activateRedirectHandler();
-                        } else {
-                            this.deactivateRedirectHandler();
-                        }
+                        if (isOpen) this.activateRedirectHandler();
+                        else this.deactivateRedirectHandler();
                     });
                 },
 
-                // ===========================
-                // BEEHIIV REDIRECT (moved into Alpine)
-                // ===========================
+                // ==========================================================
+                // [FLOW CONNECTION] Redirect to IS with ?from=costofwaiting
+                // ==========================================================
                 doBeehiivRedirect() {
                     if (this._hasRedirected) return;
                     this._hasRedirected = true;
@@ -979,12 +883,11 @@
                         localStorage.setItem('waiting_completed', 'true');
                         localStorage.setItem('cost_of_waiting_email', 'true');
                     } catch(e) {}
-                    window.top.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html';
+                    window.top.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=costofwaiting';
                 },
 
                 activateRedirectHandler() {
                     const self = this;
-
                     this._redirectHandler = function(event) {
                         if (!self.showModal) return;
                         if (event.origin && event.origin.includes('beehiiv.com')) {
@@ -995,10 +898,7 @@
                                 }
                             }
                             if (typeof data === 'object' && data !== null) {
-                                if (data.type === 'beehiiv:subscribe:success' || 
-                                    data.event === 'subscribed' || 
-                                    data.subscribed === true ||
-                                    data.type === 'subscribe_success') {
+                                if (data.type === 'beehiiv:subscribe:success' || data.event === 'subscribed' || data.subscribed === true || data.type === 'subscribe_success') {
                                     self.doBeehiivRedirect();
                                 }
                             }
@@ -1027,53 +927,31 @@
                 },
 
                 deactivateRedirectHandler() {
-                    if (this._redirectHandler) {
-                        window.removeEventListener('message', this._redirectHandler);
-                        this._redirectHandler = null;
-                    }
-                    if (this._heightObserver) {
-                        this._heightObserver.disconnect();
-                        this._heightObserver = null;
-                    }
+                    if (this._redirectHandler) { window.removeEventListener('message', this._redirectHandler); this._redirectHandler = null; }
+                    if (this._heightObserver) { this._heightObserver.disconnect(); this._heightObserver = null; }
                 },
 
-                // ===========================
-                // ANIMATION HELPERS
-                // ===========================
                 animateLossCounter(from, to) {
-                    if (this.lossAnimationFrame) {
-                        cancelAnimationFrame(this.lossAnimationFrame);
-                    }
-                    
+                    if (this.lossAnimationFrame) cancelAnimationFrame(this.lossAnimationFrame);
                     const now = performance.now();
                     const timeSinceLastAnim = now - (this._lastAnimStart || 0);
                     const duration = timeSinceLastAnim < 300 ? 200 : 600;
                     this._lastAnimStart = now;
-                    
                     const startTime = now;
-                    
                     const animate = (currentTime) => {
                         const elapsed = currentTime - startTime;
                         const progress = Math.min(elapsed / duration, 1);
                         const easeOut = 1 - Math.pow(1 - progress, 3);
-                        
                         this.displayLoss = from + (to - from) * easeOut;
-                        
-                        if (progress < 1) {
-                            this.lossAnimationFrame = requestAnimationFrame(animate);
-                        } else {
-                            this.displayLoss = to;
-                        }
+                        if (progress < 1) this.lossAnimationFrame = requestAnimationFrame(animate);
+                        else this.displayLoss = to;
                     };
-                    
                     this.lossAnimationFrame = requestAnimationFrame(animate);
                 },
                 
                 triggerDamageFlash() {
                     this.showDamageFlash = true;
-                    setTimeout(() => {
-                        this.showDamageFlash = false;
-                    }, 600);
+                    setTimeout(() => { this.showDamageFlash = false; }, 600);
                 },
                 
                 onSliderChange() {
@@ -1081,9 +959,6 @@
                     this.debounceSave();
                 },
 
-                // ===========================
-                // Core math
-                // ===========================
                 retirementAge: 65,
                 annualRate: 0.08,
 
@@ -1093,10 +968,8 @@
 
                 get dailyCost() {
                     const yearsRemaining = this.retirementAge - (this.age + this.waitYears);
-                    if (yearsRemaining <= 0) return 0;
-                    if (this.loss <= 0) return 0;
-                    const daysRemaining = yearsRemaining * 365;
-                    const daily = this.loss / daysRemaining;
+                    if (yearsRemaining <= 0 || this.loss <= 0) return 0;
+                    const daily = this.loss / (yearsRemaining * 365);
                     if (isNaN(daily) || !isFinite(daily)) return 0;
                     return daily;
                 },
@@ -1106,10 +979,8 @@
                     const years = this.retirementAge - startAge;
                     const months = years * 12;
                     const monthlyRate = this.annualRate / 12;
-                    
                     const fvSavings = (this.currentWealth || 0) * Math.pow(1 + monthlyRate, months);
                     const fvContributions = (this.contribution || 0) * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
-                    
                     return fvSavings + fvContributions;
                 },
 
@@ -1149,10 +1020,8 @@
                     if (isNaN(value) || !isFinite(value) || value === null) return "$0";
                     if (!this._moneyFmt) {
                         this._moneyFmt = new Intl.NumberFormat('en-US', {
-                            style: 'currency',
-                            currency: 'USD',
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0
+                            style: 'currency', currency: 'USD',
+                            minimumFractionDigits: 0, maximumFractionDigits: 0
                         });
                     }
                     return this._moneyFmt.format(value);
