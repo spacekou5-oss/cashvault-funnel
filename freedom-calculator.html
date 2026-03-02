@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -213,6 +212,20 @@
             animation: fadeIn 0.5s ease;
         }
 
+        /* Budget import badge [FIX 5] */
+        .budget-import-badge {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            color: #00FF41;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            animation: fadeIn 0.5s ease;
+        }
+
         /* Standardized footer */
         .site-footer {
             text-align: center;
@@ -325,6 +338,14 @@
             <button @click="clearDefaults()" class="text-[9px] text-gray-500 hover:text-cyber-gold transition-colors underline cursor-pointer">
                 Clear &amp; enter mine
             </button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- BUDGET IMPORT BADGE [FIX 5]                -->
+        <!-- ========================================== -->
+        <div x-show="showBudgetImportBadge" x-cloak class="flex items-center justify-center gap-2 mb-3">
+            <span class="budget-import-badge">&#10003; Imported from Budget Calculator</span>
+            <span class="text-[9px] text-gray-500 italic">One system feeding the next.</span>
         </div>
 
         <!-- ========================================== -->
@@ -467,7 +488,7 @@
                     </p>
                 </div>
 
-                <!-- Status message -->
+                <!-- Status message [FIX 3: Dynamic with user's actual numbers] -->
                 <div x-show="hasValidInputs" class="bg-black border border-gray-800 rounded p-4 text-center">
                     <p class="text-xs font-bold uppercase tracking-widest"
                        :class="getStatusColor()"
@@ -519,7 +540,7 @@
         </footer>
 
         <!-- ========================================== -->
-        <!-- EMAIL GATE MODAL                           -->
+        <!-- EMAIL GATE MODAL (UNTOUCHED)               -->
         <!-- ========================================== -->
         <div x-cloak x-show="showModal" 
              class="fixed inset-0 z-50 flex items-center justify-center p-3"
@@ -633,9 +654,14 @@
                             style="width: 400px; height: 271px; margin: 0; border-radius: 16px 16px 16px 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
                 </div>
 
-                <!-- BEEHIIV REDIRECT HANDLER -->
+                <!-- BEEHIIV REDIRECT HANDLER [REDIRECT GUARD APPLIED] -->
                 <script>
                 (function() {
+                    // [REDIRECT GUARD] Returning subscribers get Smart Router, not auto-redirect
+                    try {
+                        if (localStorage.getItem('freedom_email') === 'true') return;
+                    } catch(e) {}
+
                     const REDIRECT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html';
                     let hasRedirected = false;
 
@@ -733,6 +759,7 @@
                 isReturningUser: false,
                 isReturningSubscriber: false,
                 isUsingDefaults: false,
+                showBudgetImportBadge: false, // [FIX 5]
                 lastVisitLabel: '',
 
                 // Smart router cached values
@@ -810,6 +837,7 @@
                     this.isReturningUser = false;
                     this.isReturningSubscriber = false;
                     this.isUsingDefaults = false;
+                    this.showBudgetImportBadge = false; // [FIX 5]
                     this.previousExitAge = 999;
                     try { localStorage.removeItem('freedom_calculator_result'); } catch(e) {}
                 },
@@ -821,6 +849,7 @@
                         const bd = JSON.parse(budgetData);
                         if (bd.monthlyInvestment) this.monthlyInvest = bd.monthlyInvestment;
                         if (bd.age) this.age = bd.age;
+                        this.showBudgetImportBadge = true; // [FIX 5]
                         return true;
                     } catch(e) { return false; }
                 },
@@ -839,6 +868,7 @@
                     this.desiredIncome = null;
                     this.monthlyInvest = null;
                     this.isUsingDefaults = false;
+                    this.showBudgetImportBadge = false; // [FIX 5]
                     this._hasCalculatedOnce = false;
                 },
 
@@ -1109,13 +1139,17 @@
                     return Math.min(100, Math.max(5, (completed / totalJourney) * 100));
                 },
 
+                // [FIX 3] Dynamic status messages with user's actual numbers
                 get statusMessage() {
                     if (!this.hasValidInputs) return "";
                     if (this.yearsToGoal >= 100) return "YOU HAVE THE TARGET. NOW YOU NEED THE VEHICLE.";
                     const age = this.exitAge;
-                    if (age < 30) return "STATUS: LEGENDARY. YOU CRACKED THE CODE.";
-                    if (age < 40) return "STATUS: ELITE. NOW BUILD THE PORTFOLIO TO LOCK IT IN.";
-                    if (age < 55) return "STATUS: STANDARD. THE RIGHT ETFs CAN SHAVE 10 YEARS OFF.";
+                    const monthly = this.formatMoney(this.monthlyInvest);
+                    const years = Math.round(this.yearsToGoal);
+                    const exitRound = Math.round(age);
+                    if (age < 30) return "LEGENDARY. " + monthly + "/MO \u00D7 " + years + " YRS = FREEDOM AT " + exitRound + ". YOU CRACKED THE CODE.";
+                    if (age < 40) return "ELITE. " + monthly + "/MO \u00D7 " + years + " YRS = PERMANENT FREEDOM AT " + exitRound + ".";
+                    if (age < 55) return "STANDARD. " + monthly + "/MO GETS YOU THERE AT " + exitRound + ". THE RIGHT ETFs SHAVE YEARS OFF.";
                     return "YOU HAVE THE TARGET. NOW YOU NEED THE VEHICLE.";
                 },
 
