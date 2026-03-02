@@ -525,6 +525,34 @@
             font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em;
         }
 
+        /* Cost of Waiting recommendation banner */
+        .cow-rec-banner {
+            display: none; align-items: center; gap: 12px;
+            padding: 14px 18px; margin-bottom: 16px;
+            background: linear-gradient(135deg, rgba(255,0,0,0.08) 0%, rgba(255,0,0,0.02) 100%);
+            border: 1px solid rgba(255,0,0,0.3); border-radius: 12px;
+            animation: fadeIn 0.5s ease;
+        }
+        .cow-rec-banner.show { display: flex; }
+        .cow-rec-banner .rec-icon { font-size: 1.3rem; flex-shrink: 0; }
+        .cow-rec-banner .rec-text { flex: 1; }
+        .cow-rec-banner .rec-title { font-size: 0.8rem; font-weight: 700; color: var(--red); }
+        .cow-rec-banner .rec-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+        .cow-rec-banner .rec-loss { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--red); }
+
+        .strategy-chip.cow-recommended {
+            border-color: var(--red) !important;
+            background: rgba(255,0,0,0.06) !important;
+            position: relative;
+        }
+        .strategy-chip.cow-recommended::after {
+            content: 'STOP THE BLEED' !important;
+            position: absolute; top: -8px; right: 12px;
+            background: var(--red) !important; color: #fff !important;
+            padding: 2px 8px; border-radius: 4px;
+            font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em;
+        }
+
         .share-card-section {
             margin-top: 25px; padding: 25px;
             background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.05) 100%);
@@ -798,6 +826,14 @@
             <div class="rec-text">
                 <div class="rec-title" id="freedomRecTitle">Recommended: Set It and Forget It</div>
                 <div class="rec-desc" id="freedomRecDesc">Based on your Freedom Calculator profile. We highlighted the best match below.</div>
+            </div>
+        </div>
+
+        <div class="cow-rec-banner" id="cowRecBanner">
+            <div class="rec-icon">&#x1F6A8;</div>
+            <div class="rec-text">
+                <div class="rec-title" id="cowRecTitle">Recommended: Set It and Forget It</div>
+                <div class="rec-desc" id="cowRecDesc">Based on your Cost of Waiting profile. We matched the strategy to reverse the damage.</div>
             </div>
         </div>
 
@@ -1302,6 +1338,84 @@
             } catch(e) {}
         }
 
+        // ============================================================
+        // [BRIDGE] Cost of Waiting → Investment Simplifier
+        // Prefills age + monthly from CoW data, recommends strategy,
+        // shows urgency banner with the loss amount they calculated.
+        // ============================================================
+        function checkCostOfWaitingStrategy() {
+            try {
+                const cowData = localStorage.getItem('cost_of_waiting_data');
+                const fromCow = localStorage.getItem('cost_of_waiting_email') === 'true' || 
+                                localStorage.getItem('waiting_completed') === 'true';
+                
+                if (!fromCow || !cowData) return;
+                // Don't override if Freedom Calc already applied
+                if (freedomStrategyApplied) return;
+                
+                const data = JSON.parse(cowData);
+                const age = data.age || 20;
+                const loss = data.loss || 0;
+                const waitYears = data.waitYears || 0;
+                const contribution = data.contribution || 100;
+                
+                let chipId, strategyName, riskStyle;
+                
+                if (age < 25) {
+                    chipId = 'chip-vti';
+                    strategyName = 'Set It and Forget It';
+                    riskStyle = 'growth';
+                } else if (age < 35) {
+                    chipId = 'chip-buffett';
+                    strategyName = 'The Buffett Play';
+                    riskStyle = 'balanced';
+                } else if (age < 45) {
+                    chipId = 'chip-bogle';
+                    strategyName = 'World Portfolio';
+                    riskStyle = 'balanced';
+                } else {
+                    chipId = 'chip-income';
+                    strategyName = 'Cash Flow Machine';
+                    riskStyle = 'income';
+                }
+                
+                // Prefill age + monthly investment from CoW data
+                if (data.age) {
+                    document.getElementById('userAge').value = data.age;
+                    document.getElementById('ageRange').value = data.age;
+                }
+                
+                if (data.contribution) {
+                    document.getElementById('monthlyInvestment').value = data.contribution;
+                    document.getElementById('investRange').value = data.contribution;
+                }
+                
+                document.getElementById('riskStyle').value = riskStyle;
+                
+                // Highlight recommended chip with CoW urgency styling
+                const chip = document.getElementById(chipId);
+                if (chip) {
+                    if (chipId !== 'chip-vti') {
+                        document.getElementById('chip-vti').classList.remove('recommended');
+                    }
+                    chip.classList.add('cow-recommended');
+                }
+                
+                // Format the loss for the banner
+                const lossFormatted = loss > 0 ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(loss) : null;
+                
+                document.getElementById('cowRecTitle').textContent = 'Recommended: ' + strategyName;
+                
+                if (lossFormatted && waitYears > 0) {
+                    document.getElementById('cowRecDesc').innerHTML = 'You calculated <span class="rec-loss">' + lossFormatted + '</span> burned by waiting ' + waitYears + ' year(s). This strategy reverses the damage starting at $' + contribution + '/mo.';
+                } else {
+                    document.getElementById('cowRecDesc').textContent = 'Based on your Cost of Waiting profile (age ' + age + '). We matched the best strategy to start building now.';
+                }
+                document.getElementById('cowRecBanner').classList.add('show');
+                
+            } catch(e) {}
+        }
+
         function initGeoSocialProof() {
             const proofTexts = document.querySelectorAll('[id^="geoText"]');
             fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(3000) })
@@ -1587,16 +1701,19 @@
             setupEmailUnlockListener();
             
             // ============================================================
-            // [GATE-SKIP FIX] Freedom Calculator subscribers skip IS gate
-            // ONLY when arriving directly from Freedom Calc (?from=freedom).
-            // Without the URL param, normal gate applies even if they
-            // subscribed via Freedom Calc previously.
+            // [GATE-SKIP] Subscribers from upstream tools skip IS gate
+            // ONLY when arriving via active flow (?from=freedom or
+            // ?from=costofwaiting). Without URL param, normal gate applies.
+            // Once skipped, syncs bridge_email flag for permanent unlock.
             // ============================================================
             const bridgeEmail = localStorage.getItem('investmentSimplifier_bridge_email');
             const freedomEmail = localStorage.getItem('freedom_email');
-            const fromFreedomFlow = new URLSearchParams(window.location.search).get('from') === 'freedom';
-            if (bridgeEmail || (freedomEmail && fromFreedomFlow)) {
-                if (freedomEmail && fromFreedomFlow && !bridgeEmail) {
+            const costOfWaitingEmail = localStorage.getItem('cost_of_waiting_email');
+            const fromParam = new URLSearchParams(window.location.search).get('from');
+            const fromFreedomFlow = fromParam === 'freedom';
+            const fromCostOfWaitingFlow = fromParam === 'costofwaiting';
+            if (bridgeEmail || (freedomEmail && fromFreedomFlow) || (costOfWaitingEmail && fromCostOfWaitingFlow)) {
+                if (!bridgeEmail) {
                     localStorage.setItem('investmentSimplifier_bridge_email', 'true');
                 }
                 unlockPortfolio();
@@ -1618,6 +1735,7 @@
                 }
                 
                 checkFreedomCalculatorStrategy();
+                checkCostOfWaitingStrategy();
             }
             
             setupDualInput('userAge', 'ageRange', () => {});
