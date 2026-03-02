@@ -724,6 +724,40 @@
                         </a>
                     </div>
                 </div>
+
+                <!-- BEEHIIV "ALREADY SUBSCRIBED" STATE DETECTOR -->
+                <script>
+                (function() {
+                    var iframe = document.getElementById('beehiivFrame');
+                    if (!iframe) return;
+                    var initialHeight = iframe.style.height;
+                    var modalOpened = Date.now();
+                    // If iframe height changes within 4s of load (before any user interaction),
+                    // Beehiiv auto-loaded the "already subscribed" confirmation wall.
+                    // Surface the direct link immediately instead of the 15s timer.
+                    var earlyChangeDetector = new MutationObserver(function(mutations) {
+                        var elapsed = Date.now() - modalOpened;
+                        if (elapsed < 4000) {
+                            var newHeight = iframe.style.height;
+                            if (newHeight !== initialHeight && initialHeight) {
+                                // Beehiiv swapped the form for the confirmation state
+                                try {
+                                    var app = document.querySelector('[x-data]');
+                                    if (app && app.__x) {
+                                        app.__x.$data.showFallbackLink = true;
+                                    }
+                                } catch(e) {}
+                                earlyChangeDetector.disconnect();
+                            }
+                        } else {
+                            earlyChangeDetector.disconnect();
+                        }
+                    });
+                    earlyChangeDetector.observe(iframe, { attributes: true, attributeFilter: ['style', 'height'] });
+                    // Safety: disconnect after 5s regardless
+                    setTimeout(function() { earlyChangeDetector.disconnect(); }, 5000);
+                })();
+                </script>
             </div>
         </div>
 
