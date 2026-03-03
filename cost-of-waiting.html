@@ -13,6 +13,7 @@
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
         tailwind.config = {
@@ -261,6 +262,88 @@
             transition: color 0.2s;
         }
         .site-footer a:hover { color: #FFFFFF; }
+
+        .accordion-section {
+            border-bottom: 1px solid rgba(51,51,51,0.4);
+        }
+        .accordion-section:last-child {
+            border-bottom: none;
+        }
+        .accordion-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 12px 0;
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .accordion-trigger:hover {
+            color: #fff;
+        }
+        .accordion-arrow {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+        .accordion-body {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            max-height: 0;
+            opacity: 0;
+        }
+        .accordion-body.open {
+            max-height: 400px;
+            opacity: 1;
+        }
+        .accordion-body p {
+            padding: 0 0 14px 0;
+            font-size: 11px;
+            line-height: 1.7;
+            color: #888;
+        }
+
+        .share-card {
+            background: linear-gradient(145deg, #0a0a0a 0%, #111 50%, #0a0a0a 100%);
+            border: 1px solid rgba(255,0,0,0.25);
+            border-radius: 12px;
+            padding: 24px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .share-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #FF0000, transparent);
+            opacity: 0.6;
+        }
+        .share-card-loss {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 32px;
+            font-weight: 800;
+            color: #FF0000;
+            text-shadow: 0 0 20px rgba(255,0,0,0.3);
+            line-height: 1;
+        }
+        .share-card-brand {
+            color: #00F0FF;
+            font-weight: 700;
+            font-size: 11px;
+        }
     </style>
 </head>
 <body class="bg-cyber-black text-white font-sans antialiased min-h-screen flex flex-col items-center justify-center p-4">
@@ -272,6 +355,7 @@
              class="damage-flash">
         </div>
 
+        <!-- SCAN SCREEN -->
         <div x-show="showScanScreen" x-cloak
              x-transition:leave="transition ease-in duration-500"
              x-transition:leave-start="opacity-100"
@@ -324,6 +408,7 @@
             </div>
         </div>
 
+        <!-- RETURN POPUP -->
         <div x-show="showReturnPopup" x-cloak
              x-transition:enter="transition ease-out duration-400"
              x-transition:enter-start="opacity-0"
@@ -335,7 +420,6 @@
             
             <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
 
-            <!-- STATE A: Already submitted email -->
             <div x-show="returnState === 'subscribed'" x-cloak
                  class="return-popup-card bg-cyber-dark border-2 border-cyber-green p-6 shadow-[0_0_30px_rgba(0,255,65,0.15)] z-10">
                 
@@ -347,7 +431,7 @@
 
                     <div>
                         <p class="text-[10px] font-mono text-cyber-green uppercase tracking-[0.2em]">Welcome back</p>
-                        <h2 class="text-xl font-black uppercase text-white mt-1">Your Portfolio Tool is Ready</h2>
+                        <h2 class="text-xl font-black uppercase text-white mt-1">Your Investment Plan is Ready</h2>
                     </div>
 
                     <p class="text-xs text-gray-400 leading-relaxed">
@@ -363,7 +447,7 @@
                     <div class="space-y-2 pt-2">
                         <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=costofwaiting"
                            class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-cyber-green hover:shadow-[0_0_20px_rgba(0,255,65,0.4)] transition-all cursor-pointer no-underline shadow-[0_0_15px_rgba(0,255,65,0.3)]">
-                            OPEN INVESTMENT SIMPLIFIER &#x279C;
+                            SHOW ME WHAT TO BUY &#x279C;
                         </a>
                         <button @click="showReturnPopup = false" 
                                 class="w-full py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-cyber-gray bg-transparent border border-cyber-gray hover:border-white hover:text-white transition-all cursor-pointer">
@@ -373,7 +457,6 @@
                 </div>
             </div>
 
-            <!-- STATE B: Has saved data, hasn't subscribed -->
             <div x-show="returnState === 'calculator'" x-cloak
                  class="return-popup-card bg-cyber-dark border-2 border-cyber-red/40 p-6 shadow-[0_0_20px_rgba(255,0,0,0.1)] z-10">
                 
@@ -392,13 +475,13 @@
                     </div>
 
                     <p class="text-xs text-gray-400 leading-relaxed">
-                        You saw the damage. The next step is building the vehicle to reverse it.
+                        You saw the damage. Now see exactly what to buy to reverse it.
                     </p>
 
                     <div class="space-y-2 pt-1">
                         <button @click="showReturnPopup = false; showModal = true;" 
                                 class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-cyber-green hover:shadow-[0_0_20px_rgba(0,255,65,0.4)] transition-all cursor-pointer shadow-[0_0_15px_rgba(0,255,65,0.2)]">
-                            &#x1F527; SEE YOUR ETF PORTFOLIO
+                            SHOW ME WHAT TO BUY &#x279C;
                         </button>
                         <button @click="showReturnPopup = false" 
                                 class="w-full py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-cyber-gray bg-transparent border border-cyber-gray hover:border-white hover:text-white transition-all cursor-pointer">
@@ -418,8 +501,8 @@
              class="w-full">
 
             <div class="mb-8 text-center">
-                <h1 class="text-4xl font-black tracking-tighter uppercase glitch" data-text="PROJECT TICKER">
-                    PROJECT TICKER
+                <h1 class="text-4xl font-black tracking-tighter uppercase glitch" data-text="COST OF WAITING">
+                    COST OF WAITING
                 </h1>
                 <div class="flex items-center justify-center gap-2 mt-2">
                     <span class="w-2 h-2 bg-cyber-green rounded-full animate-pulse"></span>
@@ -427,7 +510,8 @@
                 </div>
             </div>
 
-            <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 shadow-2xl">
+            <!-- INPUT CARD -->
+            <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-4 shadow-2xl">
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-xs font-bold text-cyber-gray uppercase mb-2">Current Age</label>
@@ -467,7 +551,46 @@
                 </div>
             </div>
 
-            <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-6 relative overflow-hidden"
+            <!-- How This Works Accordion -->
+            <div class="bg-cyber-dark/50 border border-cyber-gray/40 rounded-xl px-5 py-1 mb-4" x-data="{ openSection: null }">
+                <div class="flex items-center gap-2 pt-3 pb-1">
+                    <svg class="w-3.5 h-3.5 text-cyber-blue opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="text-[10px] font-bold text-cyber-blue/60 uppercase tracking-[0.15em]">How This Works</span>
+                </div>
+
+                <div class="accordion-section">
+                    <button class="accordion-trigger" @click="openSection = openSection === 1 ? null : 1">
+                        <span>Why does waiting cost so much?</span>
+                        <svg class="accordion-arrow" :style="openSection === 1 ? 'transform: rotate(180deg)' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-body" :class="openSection === 1 ? 'open' : ''">
+                        <p>Your money earns money. That money earns more money. When you wait, you lose the earliest years of this chain reaction. Those earliest years are worth the most because they have the longest time to compound. One year of delay doesn't cost you one year of growth. It costs you the growth ON the growth ON the growth of that year. That's why a small wait creates a massive gap.</p>
+                    </div>
+                </div>
+
+                <div class="accordion-section">
+                    <button class="accordion-trigger" @click="openSection = openSection === 2 ? null : 2">
+                        <span>Where does the 8% number come from?</span>
+                        <svg class="accordion-arrow" :style="openSection === 2 ? 'transform: rotate(180deg)' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-body" :class="openSection === 2 ? 'open' : ''">
+                        <p>The S&P 500 has averaged roughly 10% annually before inflation, roughly 7-8% after inflation, over the past 50+ years. We use 8% as the pre-tax nominal benchmark. Your actual returns will vary year to year. Some years negative, some years 20%+. But over 20+ year windows, the average converges. This is the same assumption used by every retirement calculator on the internet. We just show you the cost of NOT using it.</p>
+                    </div>
+                </div>
+
+                <div class="accordion-section">
+                    <button class="accordion-trigger" @click="openSection = openSection === 3 ? null : 3">
+                        <span>Is this trying to scare me?</span>
+                        <svg class="accordion-arrow" :style="openSection === 3 ? 'transform: rotate(180deg)' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-body" :class="openSection === 3 ? 'open' : ''">
+                        <p>Yes. Because the math is scary. But the math is also real. We show every calculation below the results. You can verify it yourself with a spreadsheet or any compound interest calculator online. The only difference between this engine and every other retirement tool: we show you what you LOSE by waiting instead of what you GAIN by starting. Same math. Different frame. The loss frame hits harder because losses hurt twice as much as gains feel good. That's not manipulation. That's how your brain works. We're just not hiding it from you.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESULTS CARD -->
+            <div class="bg-cyber-dark border border-cyber-gray rounded-xl p-6 mb-4 relative overflow-hidden"
                  style="will-change: transform; contain: layout style;"
                  :class="{ 'animate-shake': isShaking }">
                 
@@ -481,16 +604,32 @@
                 <div class="mb-6 border-b border-dashed border-cyber-gray pb-6">
                     <p class="text-xs font-bold text-cyber-green uppercase tracking-widest mb-1">Your Potential Net Worth</p>
                     <div class="text-3xl sm:text-4xl font-black font-mono text-white tracking-tight" x-text="formatMoney(wealthNow)"></div>
-                    <p class="text-[10px] text-cyber-gray mt-1">At age 65 (8% avg. annual return, inflation-adjusted)</p>
+                    <p class="text-[10px] text-cyber-gray mt-1">At age 65 (8% avg. annual return)</p>
                 </div>
 
-                <div>
-                    <p class="text-xs font-bold text-cyber-red uppercase tracking-widest mb-1">Wealth You Burned</p>
+                <div class="mb-4">
+                    <p class="text-xs font-bold text-cyber-red uppercase tracking-widest mb-1" x-text="'Wealth You Burn by Age ' + freedomAge"></p>
                     <div class="text-4xl sm:text-5xl font-black font-mono text-cyber-red tracking-tight" 
+                         x-text="'-' + formatMoney(displayFreedomLoss)"></div>
+                    <p class="text-[10px] text-cyber-gray mt-1" x-show="hasFreedomData">Based on your Freedom Calculator exit age</p>
+                    <a x-show="!hasFreedomData" 
+                       href="https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html?from=costofwaiting"
+                       class="text-[10px] text-cyber-blue hover:text-white transition-colors mt-1 inline-block">
+                        Don't know your Freedom Age? Calculate it &#x2192;
+                    </a>
+                </div>
+
+                <div class="mb-6 pb-4 border-b border-dashed border-cyber-gray" x-show="freedomAge !== 65">
+                    <p class="text-[10px] font-bold text-cyber-red/60 uppercase tracking-widest mb-1">By Age 65</p>
+                    <div class="text-xl font-black font-mono text-cyber-red/70 tracking-tight" 
                          x-text="'-' + formatMoney(displayLoss)"></div>
                 </div>
 
-                <div class="mt-6 p-3 bg-black border border-cyber-red/30 rounded text-center">
+                <div class="mb-6 pb-4 border-b border-dashed border-cyber-gray" x-show="freedomAge === 65">
+                    <div class="sr-only" x-text="'-' + formatMoney(displayLoss)"></div>
+                </div>
+
+                <div class="p-3 bg-black border border-cyber-red/30 rounded text-center">
                     <p class="text-sm font-bold text-white uppercase" 
                        :class="{ 'text-cyber-red': isShaking }"
                        x-text="getFeedback()"></p>
@@ -515,6 +654,18 @@
                 </div>
             </div>
 
+            <!-- Share Card -->
+            <div class="share-card mb-4" x-show="waitYears > 0 && loss > 0">
+                <p class="text-[10px] text-cyber-gray uppercase tracking-[0.2em] mb-3">Screenshot this. Send it to one person who says "I'll invest later."</p>
+                <p class="text-xs text-gray-400 mb-1">I waited <span class="text-white font-bold" x-text="waitYears"></span> year<span x-show="waitYears !== 1">s</span>.</p>
+                <p class="text-xs text-gray-400 mb-2">It cost me:</p>
+                <div class="share-card-loss mb-2" x-text="'-' + formatMoney(freedomLoss)"></div>
+                <p class="text-xs text-gray-400 mb-3" x-text="getShareCardContext()"></p>
+                <div class="share-card-brand">@koutalksmoney built a calculator that proves it.</div>
+                <p class="text-[9px] text-cyber-gray/40 mt-3 font-mono">koutalksmoney.com</p>
+            </div>
+
+            <!-- CTA Button -->
             <button @click="handleCtaClick()" 
                 class="group block w-full text-center py-4 rounded-xl font-black uppercase tracking-widest transition-all hover:scale-[1.02] cursor-pointer"
                 :class="ctaStyle">
@@ -525,7 +676,7 @@
             </button>
 
             <p class="text-center text-[10px] text-cyber-gray mt-4 opacity-50">
-                Assumes 8% annual return (S&P 500 historical average, inflation-adjusted) compounded monthly. Not financial advice.
+                Assumes 8% annual return (S&P 500 historical average) compounded monthly. Not financial advice.
             </p>
 
             <!-- ALREADY SUBSCRIBED POPUP -->
@@ -558,7 +709,7 @@
                         You already unlocked this.
                     </h3>
                     <p class="text-xs text-gray-400 mb-5 leading-relaxed">
-                        Your Investment Simplifier access is ready. Pick up where you left off, or keep running numbers here.
+                        Your investment plan is ready. Pick up where you left off, or keep running numbers here.
                     </p>
 
                     <div class="space-y-3">
@@ -604,10 +755,10 @@
                             <span class="text-[10px] font-bold text-cyber-green uppercase tracking-widest">Damage Reversible</span>
                         </div>
                         <h2 class="text-xl sm:text-2xl font-black uppercase text-white tracking-tight">
-                            THE VEHICLE EXISTS.
+                            YOU KNOW THE COST.<br>HERE'S WHAT TO BUY.
                         </h2>
                         <p class="text-cyber-blue font-mono text-[10px] mt-1 uppercase tracking-widest">
-                            Phase 1 Complete &rarr; Phase 2: Portfolio
+                            Phase 1 Complete &rarr; Phase 2: Your Investment Plan
                         </p>
                     </div>
 
@@ -621,7 +772,9 @@
 
                     <div class="text-center mb-3">
                         <p class="text-xs text-gray-300 leading-relaxed">
-                            You know the cost. Now you need the destination. The <span class="text-cyber-green font-bold">Investment Simplifier</span> shows you exactly which ETFs to buy based on your risk tolerance. 3 questions. 60 seconds. Your exact tickers.
+                            3 questions. 60 seconds. I'll show you the exact funds to set up with your 
+                            <span class="text-cyber-green font-bold" x-text="formatMoney(contribution)"></span>/mo. 
+                            No jargon. No guessing.
                         </p>
                     </div>
                     
@@ -635,7 +788,7 @@
                             <div class="flex-1 h-px bg-cyber-gray"></div>
                             <div class="flex flex-col items-center">
                                 <div class="w-6 h-6 rounded-full bg-cyber-blue/20 border border-cyber-blue flex items-center justify-center text-cyber-blue font-bold">2</div>
-                                <span class="text-gray-500 mt-1">Tickers</span>
+                                <span class="text-gray-500 mt-1">Your Funds</span>
                             </div>
                             <div class="flex-1 h-px bg-cyber-gray"></div>
                             <div class="flex flex-col items-center">
@@ -655,10 +808,11 @@
                                 style="width: 400px; height: 285px; margin: 0; border-radius: 16px 16px 16px 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
                     </div>
                     <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+                    <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
 
                     <div class="text-center mt-2 pb-2">
                         <p class="text-[10px] text-gray-500 font-mono tracking-wide">
-                            Instant access. Your exact ETFs. Zero spam.
+                            Drop your email. Your <span x-text="formatMoney(contribution)"></span>/mo investment plan loads in 10 seconds.
                         </p>
                     </div>
                 </div>
@@ -678,6 +832,16 @@
     </main>
 
     <script>
+        // === SUPABASE TRACKING ===
+        const _supabase = window.supabase ? window.supabase.createClient(
+            'https://wokoxddotlyuasmwylpx.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg'
+        ) : null;
+        const _sessionId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+        function _getUTM() { try { const p = new URLSearchParams(window.location.search); return { utm_source: p.get('utm_source') || null, utm_medium: p.get('utm_medium') || null, utm_campaign: p.get('utm_campaign') || null }; } catch(e) { return {}; } }
+        function _getDevice() { const w = window.innerWidth; return w < 768 ? 'mobile' : w < 1024 ? 'tablet' : 'desktop'; }
+        async function trackEvent(event, data = {}) { try { if (!_supabase) return; const utm = _getUTM(); await _supabase.from('funnel_events').insert({ app: 'cost-of-waiting', event, session_id: _sessionId, device: _getDevice(), referrer: document.referrer || null, ...utm, ...data }); } catch(e) { console.warn('Tracking error:', e); } }
+
         function costEngine() {
             return {
                 showScanScreen: false,
@@ -700,7 +864,9 @@
                 scanComplete: false,
 
                 displayLoss: 0,
+                displayFreedomLoss: 0,
                 lossAnimationFrame: null,
+                freedomLossAnimationFrame: null,
                 _lastAnimStart: 0,
                 showDamageFlash: false,
                 isShaking: false,
@@ -711,6 +877,9 @@
                 lastVisitLabel: '',
                 
                 saveDebounceTimer: null,
+
+                freedomAge: 40,
+                hasFreedomData: false,
 
                 scanPhases: [
                     { text: 'Loading compound interest model...', target: 30 },
@@ -745,11 +914,13 @@
                 },
 
                 exitScanScreen() {
+                    trackEvent('scan_completed');
                     this.showScanScreen = false;
                     setTimeout(() => {
                         this.state = 'active';
                         this.saveState();
                         this.displayLoss = this.loss;
+                        this.displayFreedomLoss = this.freedomLoss;
                     }, 300);
                 },
 
@@ -766,6 +937,7 @@
                         age: this.age, contribution: this.contribution,
                         currentWealth: this.currentWealth, waitYears: this.waitYears,
                         wealthNow: this.wealthNow, loss: this.loss,
+                        freedomLoss: this.freedomLoss, freedomAge: this.freedomAge,
                         dailyCost: this.dailyCost, calculatedAt: new Date().toISOString()
                     };
                     try {
@@ -808,6 +980,7 @@
                     this.waitYears = 1; this.previousWaitYears = 1;
                     this.isReturningUser = false; this.lastSavedLoss = 0;
                     this.displayLoss = this.loss;
+                    this.displayFreedomLoss = this.freedomLoss;
                     try { 
                         localStorage.removeItem('cost_of_waiting_data'); 
                         localStorage.removeItem('waiting_completed');
@@ -823,6 +996,16 @@
                         if (fd.age) this.age = fd.age;
                         if (fd.monthlyInvest) this.contribution = fd.monthlyInvest;
                         if (fd.currentWealth) this.currentWealth = fd.currentWealth;
+                        if (fd.exitAge && fd.exitAge > 0 && fd.exitAge < 65) {
+                            this.freedomAge = fd.exitAge;
+                            this.hasFreedomData = true;
+                        } else if (fd.freedomYears && fd.age) {
+                            const calcExit = fd.age + fd.freedomYears;
+                            if (calcExit > fd.age && calcExit < 65) {
+                                this.freedomAge = calcExit;
+                                this.hasFreedomData = true;
+                            }
+                        }
                         return true;
                     } catch(e) { return false; }
                 },
@@ -831,7 +1014,7 @@
                     try {
                         const alreadySubscribed = localStorage.getItem('cost_of_waiting_email') === 'true';
                         if (alreadySubscribed) { this.showSubPopup = true; }
-                        else { this.showModal = true; }
+                        else { this.showModal = true; trackEvent('module_entered', { module_name: 'email_gate' }); }
                     } catch(e) { this.showModal = true; }
                 },
 
@@ -841,19 +1024,24 @@
 
                 init() {
                     const hasSavedState = this.loadState();
+                    trackEvent('app_opened');
                     
+                    // Always attempt Freedom Calculator prefill for exit age
+                    this.prefillFromFreedomCalc();
+
                     if (hasSavedState) {
                         this.isReturningUser = true;
                         this.state = 'active';
                         this.displayLoss = 0;
+                        this.displayFreedomLoss = 0;
                         this.determineReturnState();
                         this.showReturnPopup = true;
                         requestAnimationFrame(() => {
                             this.animateLossCounter(0, this.loss);
+                            this.animateFreedomLossCounter(0, this.freedomLoss);
                             if (this.loss > 500000) this.isShaking = true;
                         });
                     } else {
-                        this.prefillFromFreedomCalc();
                         this.startScanSequence();
                     }
 
@@ -867,18 +1055,21 @@
                         }
                     });
 
+                    this.$watch('freedomLoss', (newLoss, oldLoss) => {
+                        if (this.state !== 'active') return;
+                        this.animateFreedomLossCounter(oldLoss, newLoss);
+                    });
+
                     this.$watch('showModal', (isOpen) => {
                         if (isOpen) this.activateRedirectHandler();
                         else this.deactivateRedirectHandler();
                     });
                 },
 
-                // ==========================================================
-                // [FLOW CONNECTION] Redirect to IS with ?from=costofwaiting
-                // ==========================================================
                 doBeehiivRedirect() {
                     if (this._hasRedirected) return;
                     this._hasRedirected = true;
+                    trackEvent('email_captured', { income: this.contribution, invest_amount: this.contribution, module_name: 'cost_of_waiting' });
                     try {
                         localStorage.setItem('waiting_completed', 'true');
                         localStorage.setItem('cost_of_waiting_email', 'true');
@@ -948,6 +1139,22 @@
                     };
                     this.lossAnimationFrame = requestAnimationFrame(animate);
                 },
+
+                animateFreedomLossCounter(from, to) {
+                    if (this.freedomLossAnimationFrame) cancelAnimationFrame(this.freedomLossAnimationFrame);
+                    const now = performance.now();
+                    const duration = 600;
+                    const startTime = now;
+                    const animate = (currentTime) => {
+                        const elapsed = currentTime - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const easeOut = 1 - Math.pow(1 - progress, 3);
+                        this.displayFreedomLoss = from + (to - from) * easeOut;
+                        if (progress < 1) this.freedomLossAnimationFrame = requestAnimationFrame(animate);
+                        else this.displayFreedomLoss = to;
+                    };
+                    this.freedomLossAnimationFrame = requestAnimationFrame(animate);
+                },
                 
                 triggerDamageFlash() {
                     this.showDamageFlash = true;
@@ -956,15 +1163,20 @@
                 
                 onSliderChange() {
                     this.previousWaitYears = this.waitYears;
+                    trackEvent('slider_changed', { module_number: this.waitYears, module_name: 'wait_years', income: this.contribution });
                     this.debounceSave();
                 },
 
                 retirementAge: 65,
                 annualRate: 0.08,
 
-                get wealthNow() { return this.calculateFV(this.age); },
-                get wealthLater() { return this.calculateFV(this.age + this.waitYears); },
+                get wealthNow() { return this.calculateFV(this.age, this.retirementAge); },
+                get wealthLater() { return this.calculateFV(this.age + this.waitYears, this.retirementAge); },
                 get loss() { return Math.max(0, this.wealthNow - this.wealthLater); },
+
+                get wealthNowFreedom() { return this.calculateFV(this.age, this.freedomAge); },
+                get wealthLaterFreedom() { return this.calculateFV(this.age + this.waitYears, this.freedomAge); },
+                get freedomLoss() { return Math.max(0, this.wealthNowFreedom - this.wealthLaterFreedom); },
 
                 get dailyCost() {
                     const yearsRemaining = this.retirementAge - (this.age + this.waitYears);
@@ -974,9 +1186,10 @@
                     return daily;
                 },
 
-                calculateFV(startAge) {
-                    if (startAge >= this.retirementAge) return 0;
-                    const years = this.retirementAge - startAge;
+                calculateFV(startAge, targetAge) {
+                    if (!targetAge) targetAge = this.retirementAge;
+                    if (startAge >= targetAge) return 0;
+                    const years = targetAge - startAge;
                     const months = years * 12;
                     const monthlyRate = this.annualRate / 12;
                     const fvSavings = (this.currentWealth || 0) * Math.pow(1 + monthlyRate, months);
@@ -985,12 +1198,33 @@
                 },
 
                 getFeedback() {
-                    const loss = this.displayLoss;
+                    const loss = this.displayFreedomLoss;
+                    const contrib = this.contribution || 1;
+
                     if (loss === 0) return "YOU ARE ON TRACK. STAY LOCKED IN.";
-                    if (loss < 50000) return "THAT IS 2 YEARS OF RENT. GONE.";
-                    if (loss < 100000) return "THAT IS YOUR ENTIRE STUDENT LOAN. BURNED.";
-                    if (loss < 500000) return "THAT IS A HOUSE. VAPORIZED BY WAITING.";
-                    return "YOU JUST DELETED A RETIREMENT. WHILE SCROLLING.";
+
+                    const monthsOfContrib = Math.round(loss / contrib);
+
+                    if (loss < 50000) {
+                        return "THAT IS " + monthsOfContrib.toLocaleString() + " MONTHS OF YOUR $" + contrib + "/MO. GONE WITHOUT BUYING ANYTHING.";
+                    }
+                    if (loss < 100000) {
+                        const years = Math.round(monthsOfContrib / 12);
+                        return "YOU WOULD NEED TO SAVE $" + contrib + "/MO FOR " + years + " YEARS JUST TO REPLACE WHAT WAITING DELETED.";
+                    }
+                    if (loss < 500000) {
+                        const years = Math.round(monthsOfContrib / 12);
+                        return "THAT IS " + years + " YEARS OF YOUR $" + contrib + "/MO. A HOUSE. VAPORIZED BY DOING NOTHING.";
+                    }
+                    const years = Math.round(monthsOfContrib / 12);
+                    return "YOU JUST BURNED " + years + " YEARS OF SAVINGS. WHILE SCROLLING.";
+                },
+
+                getShareCardContext() {
+                    const loss = this.freedomLoss;
+                    const contrib = this.contribution || 1;
+                    const months = Math.round(loss / contrib);
+                    return "That's " + months.toLocaleString() + " months of my $" + contrib + "/mo savings.";
                 },
 
                 getDailyCostMessage() {
@@ -1003,10 +1237,11 @@
                 },
 
                 get ctaText() {
-                    if (this.loss === 0) return "\u{1F4CA} SEE YOUR ETF PORTFOLIO";
-                    if (this.loss < 100000) return "\u{1F527} START BEFORE IT GETS WORSE";
-                    if (this.loss < 500000) return "\u26A0\uFE0F RECOVER THE DAMAGE";
-                    return "\u{1F6A8} STOP THE BLEEDING NOW";
+                    const c = this.formatMoney(this.contribution);
+                    if (this.loss === 0) return "SHOW ME WHAT TO BUY FOR " + c + "/MO";
+                    if (this.loss < 100000) return "SHOW ME HOW TO START BEFORE THIS GETS WORSE";
+                    if (this.loss < 500000) return "SHOW ME WHAT TO BUY TO FIX THIS";
+                    return "STOP LOSING MONEY. SHOW ME WHAT TO BUY.";
                 },
 
                 get ctaStyle() {
