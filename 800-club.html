@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     
+    <!-- BEEHIIV ATTRIBUTION TRACKING -->
+    <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
+
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -101,14 +104,6 @@
             transform: scale(1);
             box-shadow: inset 1em 1em #00F0FF;
         }
-        .gold-mode .check-box:checked {
-            border-color: #FFD700;
-            background-color: rgba(255, 215, 0, 0.1);
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-        }
-        .gold-mode .check-box:checked::before {
-            box-shadow: inset 1em 1em #FFD700;
-        }
 
         .cash-drop {
             position: fixed;
@@ -169,7 +164,7 @@
         .hint-toggle:hover { color: #00F0FF; border-color: #00F0FF; }
 
         /* ========================================== */
-        /* OPTIMIZATION 1: FAKE DELAY ONBOARDING     */
+        /* SCAN SCREEN (FAKE DELAY ONBOARDING)       */
         /* ========================================== */
         .scan-screen {
             position: fixed;
@@ -230,8 +225,6 @@
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        /* Cursor blink effect for scan text */
         .scan-cursor::after {
             content: '|';
             animation: cursorBlink 0.6s step-end infinite;
@@ -244,7 +237,7 @@
         }
 
         /* ========================================== */
-        /* OPTIMIZATION 2: RETURNING USER POPUP      */
+        /* RETURNING USER POPUP                      */
         /* ========================================== */
         .return-popup-overlay {
             position: fixed;
@@ -317,6 +310,80 @@
             box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
         }
 
+        /* ========================================== */
+        /* COMPLETION CERTIFICATE (Change #3)        */
+        /* ========================================== */
+        .certificate-container {
+            position: fixed;
+            inset: 0;
+            z-index: 68;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(12px);
+        }
+        .certificate-card {
+            width: 100%;
+            max-width: 340px;
+            border: 2px solid #00F0FF;
+            border-radius: 20px;
+            padding: 32px 24px;
+            background: linear-gradient(180deg, #1A1A1A 0%, #111111 100%);
+            box-shadow: 0 0 60px rgba(0, 240, 255, 0.25), inset 0 1px 0 rgba(0,240,255,0.1);
+            animation: certReveal 0.8s ease-out forwards;
+        }
+        @keyframes certReveal {
+            0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+            60% { opacity: 1; transform: scale(1.02) translateY(-4px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .cert-glow-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00F0FF, transparent);
+            margin: 16px 0;
+            opacity: 0.6;
+        }
+        .cert-countdown {
+            position: absolute;
+            bottom: -32px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: #555;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ========================================== */
+        /* TRANSPARENCY PANEL (Change #5)            */
+        /* ========================================== */
+        .transparency-panel {
+            background: rgba(0, 240, 255, 0.03);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+            animation: hintSlide 0.3s ease-out;
+        }
+        .transparency-toggle {
+            font-size: 9px;
+            color: #00F0FF;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            background: transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .transparency-toggle:hover { 
+            border-color: #00F0FF; 
+            background: rgba(0, 240, 255, 0.05);
+        }
+
         /* Standardized footer */
         .site-footer {
             text-align: center;
@@ -331,6 +398,25 @@
             transition: color 0.2s;
         }
         .site-footer a:hover { color: #FFFFFF; }
+
+        /* Dollar cost badge */
+        .cost-badge {
+            font-size: 9px;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 3px 6px;
+            border-radius: 4px;
+            background: rgba(255, 77, 0, 0.08);
+            border: 1px solid rgba(255, 77, 0, 0.2);
+            color: #FF6B35;
+            margin-top: 4px;
+            display: inline-block;
+            line-height: 1.4;
+        }
+        .cost-badge.positive {
+            background: rgba(0, 240, 255, 0.06);
+            border-color: rgba(0, 240, 255, 0.2);
+            color: #00F0FF;
+        }
     </style>
 </head>
 <body class="bg-stealth-bg text-stealth-white font-sans antialiased min-h-screen overflow-x-hidden">
@@ -345,8 +431,7 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- OPTIMIZATION 1: FAKE DELAY SCAN SCREEN    -->
-        <!-- (Replaces static onboarding for new users) -->
+        <!-- SCAN SCREEN (New User Onboarding)          -->
         <!-- ========================================== -->
         <div x-show="showScanScreen" x-cloak
              x-transition:leave="transition ease-in duration-500"
@@ -355,7 +440,6 @@
              class="scan-screen">
             
             <div class="max-w-sm w-full space-y-8 text-center">
-                <!-- Protocol title -->
                 <div>
                     <p class="text-[10px] font-mono text-stealth-text uppercase tracking-[0.3em] mb-3">Protocol Initializing</p>
                     <h1 class="text-2xl font-black font-mono tracking-tight text-white uppercase">
@@ -363,7 +447,6 @@
                     </h1>
                 </div>
 
-                <!-- Scan progress bar -->
                 <div class="space-y-3">
                     <div class="scan-bar-track mx-auto">
                         <div class="scan-bar-fill" :style="'width: ' + scanProgress + '%'"></div>
@@ -372,7 +455,6 @@
                     <p class="text-[9px] font-mono text-stealth-text/40" x-text="scanProgress + '% complete'"></p>
                 </div>
 
-                <!-- Kill shot reveal (after scan completes) -->
                 <div x-show="scanComplete" x-cloak class="space-y-6 pt-4">
                     <div class="scan-killshot space-y-3 border-l-2 border-stealth-blue pl-5 text-left">
                         <p class="text-lg text-white font-bold leading-relaxed">
@@ -398,8 +480,7 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- OPTIMIZATION 2: RETURNING USER POPUP      -->
-        <!-- (Conditional routing based on progress)    -->
+        <!-- RETURNING USER POPUP                       -->
         <!-- ========================================== -->
         <div x-show="showReturnPopup" x-cloak
              x-transition:enter="transition ease-out duration-400"
@@ -412,23 +493,22 @@
             
             <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
 
-            <!-- === STATE A: Already submitted email. Direct route to Budget Calculator === -->
+            <!-- STATE A: Already submitted email -->
             <div x-show="returnState === 'completed'" x-cloak
                  class="return-popup-card bg-stealth-card border-2 border-stealth-gold p-6 shadow-[0_0_30px_rgba(255,215,0,0.2)] z-10">
-                
                 <div class="text-center space-y-4">
-                    <div class="text-4xl">&#x1F3D7;&#xFE0F;</div>
+                    <div class="text-4xl">&#x1F4B8;</div>
                     <div>
                         <p class="text-[10px] font-mono text-stealth-gold uppercase tracking-[0.2em]">Welcome back</p>
-                        <h2 class="text-xl font-black uppercase text-white mt-1">Architect</h2>
+                        <h2 class="text-xl font-black uppercase text-white mt-1">Your Paycheck Audit Is Ready</h2>
                     </div>
                     <p class="text-xs text-gray-400 leading-relaxed">
-                        Your Wealth Blueprint is ready. Pick up where you left off.
+                        You completed the 800-Club. Now see where every dollar of your paycheck actually goes.
                     </p>
                     <div class="space-y-2 pt-2">
                         <a href="https://spacekou5-oss.github.io/cashvault-funnel/budget-calculator.html"
                            class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-stealth-gold hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all cursor-pointer no-underline">
-                            &#x1F513; OPEN WEALTH BLUEPRINT
+                            &#x1F513; SEE WHERE MY PAYCHECK GOES
                         </a>
                         <button @click="showReturnPopup = false" 
                                 class="w-full py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-stealth-text bg-transparent border border-stealth-border hover:border-stealth-text hover:text-white transition-all cursor-pointer">
@@ -438,39 +518,33 @@
                 </div>
             </div>
 
-            <!-- === STATE B: Progress >= 70%. Offer choice === -->
+            <!-- STATE B: Progress >= 70% -->
             <div x-show="returnState === 'unlocked'" x-cloak
                  class="return-popup-card bg-stealth-card border-2 border-stealth-gold p-6 shadow-[0_0_30px_rgba(255,215,0,0.15)] z-10">
-                
                 <div class="text-center space-y-4">
-                    <!-- Progress ring -->
                     <div class="flex justify-center">
                         <svg class="rp-progress-ring rp-gold" viewBox="0 0 80 80">
                             <circle class="ring-bg" cx="40" cy="40" r="34"/>
                             <circle class="ring-fill" cx="40" cy="40" r="34"
                                     stroke-dasharray="213.6"
-                                    :stroke-dashoffset="213.6 - (213.6 * progress / 110)"/>
+                                    :stroke-dashoffset="213.6 - (213.6 * progress / 100)"/>
                         </svg>
                         <span class="absolute mt-6 text-xl font-black font-mono text-stealth-gold" x-text="progress + '%'"></span>
                     </div>
-
                     <div>
                         <p class="text-[10px] font-mono text-stealth-gold uppercase tracking-[0.2em]">You're back</p>
-                        <h2 class="text-lg font-black uppercase text-white mt-1">Level 2 is Unlocked</h2>
+                        <h2 class="text-lg font-black uppercase text-white mt-1">Your Paycheck Audit Is Unlocked</h2>
                         <p class="text-[11px] text-stealth-text mt-1">
-                            <span x-text="checkedCount"></span>/10 steps done. <span class="text-stealth-gold font-bold">Wealth Blueprint ready.</span>
+                            <span x-text="checkedCount"></span>/10 steps done. <span class="text-stealth-gold font-bold">Ready to find hidden spending leaks.</span>
                         </p>
                     </div>
-
                     <p class="text-xs text-gray-400 leading-relaxed">
-                        You earned access to the Wealth Architect. Your credit protocol is solid. 
-                        Ready to see where every dollar of your paycheck should go?
+                        Your credit protocol is solid. Most people find $50-200/mo in spending they didn't know they were losing. Ready to see yours?
                     </p>
-
                     <div class="space-y-2 pt-1">
                         <button @click="showReturnPopup = false; showModal = true;" 
                                 class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-stealth-gold hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all cursor-pointer">
-                            &#x1F3D7;&#xFE0F; BUILD MY WEALTH BLUEPRINT
+                            &#x1F50D; SEE WHERE MY PAYCHECK GOES
                         </button>
                         <button @click="showReturnPopup = false" 
                                 class="w-full py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-stealth-text bg-transparent border border-stealth-border hover:border-stealth-text hover:text-white transition-all cursor-pointer">
@@ -480,12 +554,10 @@
                 </div>
             </div>
 
-            <!-- === STATE C: Progress < 70%. Motivate completion === -->
+            <!-- STATE C: Progress < 70% -->
             <div x-show="returnState === 'inprogress'" x-cloak
                  class="return-popup-card bg-stealth-card border-2 border-stealth-blue/40 p-6 shadow-[0_0_20px_rgba(0,240,255,0.1)] z-10">
-                
                 <div class="text-center space-y-4">
-                    <!-- Progress ring -->
                     <div class="flex justify-center">
                         <svg class="rp-progress-ring" viewBox="0 0 80 80">
                             <circle class="ring-bg" cx="40" cy="40" r="34"/>
@@ -495,27 +567,23 @@
                         </svg>
                         <span class="absolute mt-6 text-xl font-black font-mono text-stealth-blue" x-text="progress + '%'"></span>
                     </div>
-
                     <div>
                         <p class="text-[10px] font-mono text-stealth-blue uppercase tracking-[0.2em]">Welcome back</p>
                         <h2 class="text-lg font-black uppercase text-white mt-1">You're Not Done Yet</h2>
                     </div>
-
                     <div class="bg-black/40 border border-stealth-border rounded-lg p-3">
                         <p class="text-xs text-gray-300 leading-relaxed">
                             <span class="text-stealth-blue font-black text-lg" x-text="(70 - progress) + '%'"></span>
-                            <span class="text-stealth-text block text-[10px] mt-1">to unlock your Wealth Blueprint</span>
+                            <span class="text-stealth-text block text-[10px] mt-1">to unlock your paycheck audit</span>
                         </p>
                         <div class="w-full h-1.5 bg-stealth-bg rounded-full overflow-hidden mt-2">
                             <div class="h-full bg-stealth-blue rounded-full transition-all duration-1000 ease-out"
                                  :style="'width: ' + Math.min(100, (progress / 70) * 100) + '%'"></div>
                         </div>
                     </div>
-
                     <p class="text-[10px] text-stealth-text leading-relaxed">
                         <span x-text="checkedCount"></span>/10 steps complete. Every checked box moves your credit score.
                     </p>
-
                     <button @click="showReturnPopup = false" 
                             class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-stealth-blue hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all cursor-pointer">
                         FINISH THE PROTOCOL
@@ -573,6 +641,45 @@
                     <p class="text-lg font-black font-mono" :class="userCreditScore < 670 ? 'text-red-500' : 'text-stealth-gold'"
                        x-text="getScorePenalty(userCreditScore)"></p>
                     <p class="text-[9px] text-stealth-text mt-1">Extra interest on a $25,000 car loan vs. 800+ score</p>
+                    
+                    <!-- CHANGE #5: Transparency Section -->
+                    <div class="mt-2 text-left">
+                        <button @click="showTransparency = !showTransparency" class="transparency-toggle">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" 
+                                 :class="showTransparency ? 'rotate-180' : ''" style="transition: transform 0.2s;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                            <span x-text="showTransparency ? 'Hide math' : 'How we calculated this'"></span>
+                        </button>
+                        <div x-show="showTransparency" x-cloak class="transparency-panel mt-2">
+                            <p class="text-[10px] text-gray-400 leading-relaxed">
+                                We compared average auto loan rates by credit score tier using 
+                                <span class="text-stealth-blue">Experian's State of the Automotive Finance Market</span> data.
+                            </p>
+                            <div class="mt-2 space-y-1">
+                                <div class="flex justify-between text-[9px] font-mono">
+                                    <span class="text-gray-500">800+ score</span>
+                                    <span class="text-stealth-blue">~5% APR</span>
+                                </div>
+                                <div class="flex justify-between text-[9px] font-mono">
+                                    <span class="text-gray-500">670-739 score</span>
+                                    <span class="text-stealth-gold">~8-10% APR</span>
+                                </div>
+                                <div class="flex justify-between text-[9px] font-mono">
+                                    <span class="text-gray-500">580-669 score</span>
+                                    <span class="text-orange-400">~12-15% APR</span>
+                                </div>
+                                <div class="flex justify-between text-[9px] font-mono">
+                                    <span class="text-gray-500">Below 580</span>
+                                    <span class="text-red-500">~17-20% APR</span>
+                                </div>
+                            </div>
+                            <p class="text-[9px] text-gray-500 mt-2 leading-relaxed">
+                                On a $25,000 loan over 60 months, a 10% rate difference = $4,800+ in extra payments. 
+                                These are national averages. Your actual rate depends on the lender, loan term, and market conditions.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="bg-stealth-card border border-stealth-blue/30 rounded-lg p-3" x-show="userCreditScore >= 750">
@@ -595,17 +702,79 @@
             </div>
         </div>
 
+        <!-- ========================================== -->
+        <!-- COMPLETION CERTIFICATE (Change #3)         -->
+        <!-- ========================================== -->
+        <div x-show="showCertificate" x-cloak
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="certificate-container">
+            
+            <div class="relative">
+                <div class="certificate-card text-center" @click="dismissCertificate()">
+                    <!-- Top accent line -->
+                    <div class="cert-glow-line" style="margin-top: 0;"></div>
+                    
+                    <p class="text-[9px] font-mono text-stealth-blue/60 uppercase tracking-[0.4em]">Protocol Complete</p>
+                    
+                    <h2 class="text-3xl font-black font-mono uppercase text-white mt-3 tracking-tight">
+                        800-CLUB
+                    </h2>
+                    
+                    <div class="mt-4">
+                        <div class="text-4xl font-black font-mono text-stealth-blue drop-shadow-[0_0_25px_rgba(0,240,255,0.6)]">
+                            BOSS
+                        </div>
+                        <p class="text-[10px] font-mono text-stealth-text mt-1">10/10 Steps Executed</p>
+                    </div>
+                    
+                    <div class="cert-glow-line"></div>
+                    
+                    <!-- Credit score trajectory -->
+                    <div x-show="userCreditScore > 0" class="py-2">
+                        <p class="text-[9px] text-stealth-text uppercase tracking-[0.2em]">Current Score</p>
+                        <p class="text-3xl font-black font-mono mt-1" :class="getScoreColor(userCreditScore)" x-text="userCreditScore"></p>
+                        <p class="text-[10px] text-stealth-blue font-bold mt-0.5">Trajectory: 800+</p>
+                    </div>
+                    <div x-show="userCreditScore === 0" class="py-2">
+                        <p class="text-lg font-bold text-stealth-blue">Trajectory: 800+</p>
+                    </div>
+                    
+                    <div class="cert-glow-line"></div>
+                    
+                    <p class="text-[11px] font-mono text-stealth-blue mt-2">@koutalksmoney</p>
+                    <p class="text-[8px] text-stealth-text/40 font-mono mt-1">Built by Kou Talks Money. 2026.</p>
+                </div>
+                
+                <!-- Screenshot CTA + Next button (OUTSIDE the card for clean screenshot) -->
+                <div class="mt-5 text-center space-y-3">
+                    <p class="text-xs text-stealth-blue font-bold animate-pulse">
+                        &#x1F4F8; Screenshot this. Post it to your story. Tag @koutalksmoney.
+                    </p>
+                    <button @click="dismissCertificate()" 
+                            class="w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-stealth-blue hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all cursor-pointer">
+                        WHAT'S NEXT &#x2192;
+                    </button>
+                    <p class="text-[9px] font-mono text-stealth-text/40 cert-countdown-text" x-text="'Auto-continuing in ' + certCountdown + 's'"></p>
+                </div>
+            </div>
+        </div>
+
         <div class="w-full max-w-lg mx-auto">
 
             <!-- STICKY HEADER -->
             <div class="sticky top-0 z-40 bg-stealth-bg/95 backdrop-blur-md border-b border-stealth-border pb-4 pt-4 px-4 shadow-2xl transition-opacity duration-1000"
-                 :class="(showScanScreen || showScoreInput || showReturnPopup) ? 'opacity-0' : 'opacity-100'">
+                 :class="(showScanScreen || showScoreInput || showReturnPopup || showCertificate) ? 'opacity-0' : 'opacity-100'">
                 <div class="flex justify-between items-end mb-2">
                     <div>
                         <h1 class="font-mono text-xs text-stealth-text tracking-widest uppercase">Credit Protocol</h1>
                         <div class="text-2xl font-black italic tracking-tighter transition-all duration-300" 
                              :class="[
-                                 progress > 100 ? 'text-stealth-gold drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]' : 'text-stealth-blue drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]',
+                                 progress >= 100 ? 'text-stealth-gold drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]' : 'text-stealth-blue drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]',
                                  statusAnimating ? 'animate-rank-up' : ''
                              ]"
                              x-text="statusText">
@@ -626,33 +795,29 @@
                     <div class="absolute top-0 left-0 h-full bg-stealth-blue transition-all duration-500 ease-out"
                          :style="'width: ' + Math.min(100, progress) + '%'">
                     </div>
-                    <div class="absolute top-0 left-0 h-full bg-stealth-gold transition-all duration-500 ease-out z-10 shadow-[0_0_15px_#FFD700]"
-                         :style="'width: ' + (progress > 100 ? ((progress - 100) * 10) : 0) + '%'"
-                         x-show="progress > 100">
-                    </div>
                 </div>
-
-                <p x-show="progress >= 80 && !bonus.checked && !showScanScreen" x-cloak
-                   class="text-[10px] text-stealth-gold font-mono mt-2 text-center animate-pulse">
-                    &darr; Secret hack below: unlock GOD MODE (110%)
-                </p>
             </div>
 
-            <div class="px-4 mt-6 space-y-3" :class="{ 'gold-mode': progress > 100, 'pb-40': true }">
+            <div class="px-4 mt-6 space-y-3 pb-40">
                 
+                <!-- CHECKLIST ITEMS -->
                 <template x-for="item in items" :key="item.id">
                     <div class="bg-stealth-card border border-stealth-border rounded-xl overflow-hidden hover:border-stealth-blue/30 transition-colors group">
-                        <label class="flex items-center gap-4 p-4 cursor-pointer">
-                            <input type="checkbox" x-model="item.checked" @change="onCheckChange(item)" class="check-box flex-shrink-0">
+                        <label class="flex items-start gap-4 p-4 cursor-pointer">
+                            <input type="checkbox" x-model="item.checked" @change="onCheckChange(item)" class="check-box flex-shrink-0 mt-0.5">
                             <div class="flex-1">
                                 <div class="flex justify-between items-start">
                                     <p class="font-bold text-sm text-white group-hover:text-stealth-blue transition-colors" x-text="item.title"></p>
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-2 flex-shrink-0">
                                         <button type="button" @click.prevent.stop="item.showHint = !item.showHint" class="hint-toggle" x-text="item.showHint ? 'CLOSE' : 'HOW?'"></button>
                                         <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-stealth-blue/10 text-stealth-blue" x-text="'+' + item.impact + ' pts'"></span>
                                     </div>
                                 </div>
                                 <p class="text-[10px] text-stealth-text mt-0.5" x-text="item.desc"></p>
+                                <!-- CHANGE #4: Dollar cost line -->
+                                <div class="mt-1">
+                                    <span class="cost-badge" :class="item.costPositive ? 'positive' : ''" x-text="item.cost"></span>
+                                </div>
                             </div>
                         </label>
                         <div x-show="item.showHint" x-cloak class="hint-panel mx-4 mb-3">
@@ -661,33 +826,7 @@
                     </div>
                 </template>
 
-                <div class="flex items-center gap-4 py-4">
-                    <div class="h-px bg-stealth-border flex-1"></div>
-                    <span class="text-[10px] font-mono uppercase text-stealth-gold tracking-widest">The 110% Hack</span>
-                    <div class="h-px bg-stealth-border flex-1"></div>
-                </div>
-
-                <div class="bg-stealth-card border border-stealth-gold/30 rounded-xl overflow-hidden hover:border-stealth-gold transition-colors group relative">
-                    <div class="absolute inset-0 bg-stealth-gold opacity-5 group-hover:opacity-10 transition-opacity"></div>
-                    <label class="flex items-center gap-4 p-4 cursor-pointer">
-                        <input type="checkbox" x-model="bonus.checked" @change="onCheckChange(bonus)" class="check-box flex-shrink-0 border-stealth-gold/50 text-stealth-gold">
-                        <div class="relative z-10 flex-1">
-                            <div class="flex justify-between items-start">
-                                <p class="font-bold text-sm text-stealth-gold" x-text="bonus.title"></p>
-                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-stealth-gold/10 text-stealth-gold">+10 pts</span>
-                            </div>
-                            <p class="text-[10px] text-stealth-text mt-0.5" x-text="bonus.desc"></p>
-                        </div>
-                    </label>
-                    <div x-show="bonus.showHint" x-cloak class="hint-panel mx-4 mb-3" style="border-left-color: rgba(255,215,0,0.3); background: rgba(255,215,0,0.04);">
-                        <p x-text="bonus.hint" style="color: #bba055;"></p>
-                    </div>
-                    <div class="px-4 pb-3">
-                        <button type="button" @click="bonus.showHint = !bonus.showHint" class="hint-toggle" style="border-color: rgba(255,215,0,0.3); color: #776622;" x-text="bonus.showHint ? 'CLOSE' : 'HOW?'"></button>
-                    </div>
-                </div>
-
-                <!-- LOCKED LEVEL 2 PREVIEW -->
+                <!-- LOCKED LEVEL 2 PREVIEW (Change #1: Brandon-language labels) -->
                 <div class="mt-12 relative pt-6 pb-6">
                     <div class="absolute inset-0 z-20 flex flex-col items-center justify-center"
                          @click="progress >= 70 ? showModal = true : null"
@@ -697,10 +836,10 @@
                             <div class="text-center">
                                 <p class="text-xs font-black uppercase tracking-widest"
                                    :class="progress >= 70 ? 'text-stealth-gold' : 'text-stealth-text'"
-                                   x-text="progress >= 70 ? 'TAP TO UNLOCK LEVEL 2' : 'Level 2: Wealth Architect'">
+                                   x-text="progress >= 70 ? 'TAP TO SEE YOUR PAYCHECK AUDIT' : 'Your Paycheck Audit'">
                                 </p>
                                 <p class="text-white/50 text-[10px] font-mono mt-1"
-                                   x-text="progress >= 70 ? 'Your Wealth Blueprint is ready.' : 'Reach 70% to unlock'">
+                                   x-text="progress >= 70 ? 'Most people find $50-200/mo in hidden leaks.' : 'Reach 70% to unlock'">
                                 </p>
                             </div>
                          </div>
@@ -732,9 +871,9 @@
             </div>
         </div>
 
-        <!-- CTA BAR -->
+        <!-- CTA BAR (Change #1: Updated language) -->
         <div class="fixed bottom-0 left-0 w-full z-50 p-4 bg-stealth-bg/90 backdrop-blur-md border-t border-stealth-border"
-             x-show="!showScanScreen && !showScoreInput && !showReturnPopup"
+             x-show="!showScanScreen && !showScoreInput && !showReturnPopup && !showCertificate"
              x-transition:enter="transition ease-out duration-1000"
              x-transition:enter-start="translate-y-full"
              x-transition:enter-end="translate-y-0">
@@ -743,12 +882,12 @@
                     @click="showModal = true"
                     class="flex items-center justify-center gap-3 w-full max-w-lg mx-auto py-4 rounded-xl font-black uppercase text-center transition-all duration-500 bg-stealth-gold text-black shadow-[0_0_20px_#FFD700] hover:scale-[1.02] animate-pulse-fast cursor-pointer">
                <span>&#x1F513;</span>
-               <span>BECOME A WEALTH ARCHITECT</span>
+               <span>SEE WHERE YOUR PAYCHECK GOES</span>
             </button>
 
             <div x-show="progress < 70" class="w-full max-w-lg mx-auto text-center py-2">
                 <p class="text-xs text-stealth-text font-mono mb-2">
-                    <span class="text-stealth-blue font-bold" x-text="Math.max(0, 70 - progress) + '%'"></span> to unlock Level 2: Wealth Architect
+                    <span class="text-stealth-blue font-bold" x-text="Math.max(0, 70 - progress) + '%'"></span> to unlock: See where your paycheck goes
                 </p>
                 <div class="w-full h-1.5 bg-stealth-card rounded-full overflow-hidden">
                     <div class="h-full bg-stealth-blue rounded-full transition-all duration-500"
@@ -758,10 +897,10 @@
         </div>
 
         <!-- ============================================== -->
-        <!-- EMAIL GATE: 800 CLUB -> WEALTH ARCHITECT      -->
+        <!-- EMAIL GATE (Change #1: Reframed copy)          -->
         <!-- ============================================== -->
         <div x-cloak x-show="showModal" 
-             class="fixed inset-0 z-[70] flex items-center justify-center p-3"
+             class="fixed inset-0 z-[70] flex items-start sm:items-center justify-center p-3 pt-8 sm:pt-3"
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0"
              x-transition:enter-end="opacity-100"
@@ -783,63 +922,70 @@
                     </svg>
                 </button>
 
+                <!-- CHANGE #1: Personalized headline with score penalty -->
                 <div class="text-center mb-3">
-                    <h2 class="text-xl sm:text-2xl font-black uppercase text-stealth-gold tracking-tight drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]">
-                        &#x1F3D7;&#xFE0F; BECOME A WEALTH ARCHITECT
+                    <h2 class="text-lg sm:text-xl font-black uppercase tracking-tight leading-tight"
+                        :class="userCreditScore > 0 && userCreditScore < 750 ? 'text-stealth-gold' : 'text-stealth-gold'"
+                        x-html="getEmailGateHeadline()">
                     </h2>
-                    <p class="text-stealth-blue font-mono text-[10px] mt-1 uppercase tracking-widest">
-                        Phase 1 Done &rarr; Phase 2: Cash Flow Design
+                    <p class="text-stealth-blue font-mono text-[10px] mt-2 uppercase tracking-widest">
+                        Phase 1 Done &#x2192; Phase 2: Find the Leaks
                     </p>
                 </div>
 
+                <!-- CHANGE #1: Outcome-based subhead -->
                 <div class="text-center mb-3">
                     <p class="text-xs text-gray-300 leading-relaxed">
-                        You just proved you can execute. <span class="text-white font-semibold">Most quit at Step 3. You did not.</span>
+                        You just built your credit protocol. 
+                        <span class="text-white font-semibold">Most quit at Step 3. You did not.</span>
                     </p>
                     <p class="text-xs text-gray-400 mt-2 leading-relaxed">
-                        Your credit score is your <span class="text-stealth-blue font-bold">reputation</span>. But reputation without cash flow is useless. The Wealth Architect shows you exactly where every dollar of your income should go. The <span class="text-stealth-gold font-bold">70/20/10 split</span> that builds wealth on autopilot.
+                        Now I'll show you where every dollar of your paycheck goes. 
+                        Most people find <span class="text-stealth-gold font-bold">$50-200/mo</span> they didn't know they were losing.
                     </p>
                 </div>
 
+                <!-- CHANGE #1: Brandon-language locked items -->
                 <div class="bg-black/50 border border-stealth-border rounded-lg p-3 mb-4">
-                    <p class="text-[10px] text-stealth-text uppercase tracking-widest mb-2 text-center">What Happens Next:</p>
-                    <div class="flex items-center gap-2 text-[10px]">
-                        <div class="flex flex-col items-center">
-                            <div class="w-6 h-6 rounded-full bg-stealth-gold/20 border border-stealth-gold flex items-center justify-center text-stealth-gold font-bold">1</div>
-                            <span class="text-gray-500 mt-1">Email</span>
+                    <p class="text-[10px] text-stealth-text uppercase tracking-widest mb-2 text-center">What You'll See:</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-[11px]">
+                            <span class="text-stealth-gold">&#x2714;</span>
+                            <span class="text-gray-300">Where your paycheck actually goes</span>
                         </div>
-                        <div class="flex-1 h-px bg-stealth-border"></div>
-                        <div class="flex flex-col items-center">
-                            <div class="w-6 h-6 rounded-full bg-stealth-blue/20 border border-stealth-blue flex items-center justify-center text-stealth-blue font-bold">2</div>
-                            <span class="text-gray-500 mt-1">Blueprint</span>
+                        <div class="flex items-center gap-2 text-[11px]">
+                            <span class="text-stealth-gold">&#x2714;</span>
+                            <span class="text-gray-300">The spending leaks you can't see</span>
                         </div>
-                        <div class="flex-1 h-px bg-stealth-border"></div>
-                        <div class="flex flex-col items-center">
-                            <div class="w-6 h-6 rounded-full bg-stealth-text/20 border border-stealth-text flex items-center justify-center text-stealth-text font-bold">3</div>
-                            <span class="text-gray-500 mt-1">Automate</span>
+                        <div class="flex items-center gap-2 text-[11px]">
+                            <span class="text-stealth-gold">&#x2714;</span>
+                            <span class="text-gray-300">Your autopilot money split</span>
                         </div>
                     </div>
                 </div>
 
+                <!-- CHANGE #1: Specific CTA text -->
                 <p class="text-xs text-center text-stealth-gold font-bold mb-2">
-                    &darr; Enter your email. Your 70/20/10 blueprint loads instantly.
+                    &#x2193; Enter your email. Your paycheck audit loads instantly.
                 </p>
 
                 <!-- BEEHIIV EMBED -->
-                <div class="flex justify-center pb-2">
+                <div class="flex justify-center pb-2 w-full"
+                     @click="setTimeout(() => $el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)"
+                     @touchstart.passive="setTimeout(() => $el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)">
                     <iframe id="beehiivFrame"
                             src="https://subscribe-forms.beehiiv.com/90d138cb-47b1-4e1c-a5e2-ffd2119b2021" 
                             class="beehiiv-embed" 
                             data-test-id="beehiiv-embed" 
                             frameborder="0" 
                             scrolling="no" 
-                            style="width: 400px; height: 283px; margin: 0; border-radius: 16px 16px 16px 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
+                            style="width: 400px; height: 100%; min-height: 380px; margin: 0; border-radius: 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
                 </div>
                 <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
 
                 <div class="text-center mt-2 pb-2">
                     <p class="text-[10px] text-gray-500 font-mono tracking-wide">
-                        Instant access. Your personalized 70/20/10 blueprint. Zero spam.
+                        Instant access. See your full paycheck breakdown. Zero spam.
                     </p>
                 </div>
             </div>
@@ -848,20 +994,65 @@
     </main>
 
     <script>
+        // ============================================
+        // SUPABASE ANALYTICS (fire-and-forget)
+        // ============================================
+        const SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+
+        function getSessionId() {
+            let sid = sessionStorage.getItem('_ftk_sid');
+            if (!sid) {
+                sid = 'ses_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+                sessionStorage.setItem('_ftk_sid', sid);
+            }
+            return sid;
+        }
+
+        async function trackEvent(eventType, metadata) {
+            try {
+                await fetch(SUPABASE_URL + '/rest/v1/funnel_events', {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_KEY,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        session_id: getSessionId(),
+                        event_type: eventType,
+                        tool_name: '800-club',
+                        metadata: metadata || {}
+                    })
+                });
+            } catch(e) { /* Silent fail: never block UX for analytics */ }
+        }
+
+        // ============================================
+        // MAIN APP
+        // ============================================
         function creditProtocol() {
             return {
                 // Screen states
-                showScanScreen: false,    // NEW: fake delay scan
+                showScanScreen: false,
                 showScoreInput: false,
-                showReturnPopup: false,   // NEW: returning user popup
-                returnState: '',          // NEW: 'completed' | 'unlocked' | 'inprogress'
+                showReturnPopup: false,
+                showCertificate: false,
                 showModal: false,
+                returnState: '',
+                showTransparency: false,
                 
-                // Scan sequence state
-                scanProgress: 15,         // Starts at 15% (Goal Gradient)
+                // Scan sequence
+                scanProgress: 15,
                 scanPhase: 0,
                 scanText: '',
                 scanComplete: false,
+                
+                // Certificate
+                certCountdown: 7,
+                certTimer: null,
+                certCountdownInterval: null,
                 
                 userCreditScore: 650,
                 
@@ -875,56 +1066,93 @@
                 lastVisitLabel: '',
                 
                 modalAutoTriggered: false,
-                
-                items: [
-                    { id: 1, title: 'The Spy', desc: 'Download Credit Karma / Experian app.', 
-                      hint: 'Download Credit Karma (free, App Store or Google Play). It shows your TransUnion and Equifax scores. Then download Experian (also free) for your third score. Check both weekly. The numbers update every 7-14 days.', 
-                      checked: false, impact: 10, showHint: false },
-                    { id: 2, title: 'The Safety', desc: 'Turn on "Autopay" (Minimum Balance).', 
-                      hint: 'Open your credit card app. Go to Settings or Payments. Find "Autopay" or "Automatic Payments." Set it to pay the MINIMUM balance each month. This prevents late payments (the #1 score killer). You should still pay the full balance manually each month. Autopay is the safety net.', 
-                      checked: false, impact: 10, showHint: false },
-                    { id: 3, title: 'The Sniper', desc: 'Pay balance 3 days before Statement Date.', 
-                      hint: 'Your Statement Date is when the bank reports your balance to credit bureaus. Find it in your card app under "Statements" or "Account Details." Pay your FULL balance 3 days before that date. This way, the bank reports a near-zero balance (low utilization) even if you used the card heavily that month.', 
-                      checked: false, impact: 10, showHint: false },
-                    { id: 4, title: 'The Ratio', desc: 'Keep Utilization below 10%.', 
-                      hint: 'Utilization = balance / credit limit. If your limit is $1,000, keep your reported balance under $100. Check Credit Karma to see your current utilization. If it is above 10%, pay down before the Statement Date. Under 10% is good. Under 3% is elite. 0% can actually hurt (shows no activity). Aim for 1-5%.', 
-                      checked: false, impact: 10, showHint: false },
-                    { id: 5, title: 'The Cleanup', desc: 'Dispute any error older than 2 years.', 
-                      hint: 'In Credit Karma, tap each account and look for errors: wrong balance, accounts you do not recognize, late payments that were actually on time. To dispute: go to annualcreditreport.com, pull your free report, and use the "Dispute" button next to any error. The bureau has 30 days to investigate. Old collections (2+ years) are worth disputing. They often get removed.', 
-                      checked: false, impact: 10, showHint: false },
-                    { id: 6, title: 'The Ask', desc: 'Request Limit Increase (Every 6 months).', 
-                      hint: 'Open your credit card app. Go to Settings or Account Services. Look for "Request Credit Limit Increase." Ask for 2x your current limit. Most issuers do a soft pull (no score impact). If approved, your utilization drops instantly. If denied, wait 6 months and try again. Do NOT apply for a new card just to get more credit.', 
-                      checked: false, impact: 10, showHint: false },
-                    { id: 7, title: 'The Boost', desc: 'Connect Utility Bills (Experian Boost).', 
-                      hint: 'Open the Experian app. Tap "Boost My Score." Connect your bank account (the one you pay bills from). Experian scans for utility, phone, and streaming payments. Each bill you connect adds positive history. Most people see a 5-15 point boost instantly. It is free and only helps. It cannot lower your score.', 
-                      checked: false, impact: 10, showHint: false },
-                    { id: 8, title: 'The Wait', desc: 'No new inquiries for 6 months.', 
-                      hint: 'Every time you apply for credit (new card, loan, financing), a hard inquiry hits your report. Each one drops your score 5-10 points and stays for 2 years. Stop applying for anything new for 6 months. If you get pre-approved offers, ignore them. Let your existing accounts age. Time is the cheat code here.', 
-                      checked: false, impact: 10, showHint: false },
-                    { id: 9, title: 'The Rule', desc: 'Treat Credit Card like a Debit Card.', 
-                      hint: 'Only charge what you can pay off TODAY. Before every purchase, check your bank balance. If you cannot afford to transfer the money right now, do not swipe. Spend on the credit card, but pay it off the same week (or same day). You get the credit-building benefits without the debt trap.', 
-                      checked: false, impact: 10, showHint: false },
-                    { id: 10, title: 'The Active', desc: 'Use card once a month (don\'t let it rot).', 
-                      hint: 'Inactive cards get closed by issuers (kills your credit age and available credit). Set one small recurring bill on each card (like a streaming subscription). That one transaction per month keeps the card alive. Set autopay so it pays itself. You never think about it again.', 
-                      checked: false, impact: 10, showHint: false },
-                ],
-                
-                bonus: { 
-                    id: 11, title: 'The Piggyback', desc: 'Become Authorized User on parent\'s card (750+).', 
-                    hint: 'Ask a parent or family member with a 750+ score and low utilization to add you as an Authorized User on their oldest card. You do NOT need to use the card. Their entire payment history on that card gets added to YOUR credit report. One phone call can add 10+ years of perfect payment history to your file. Make sure the issuer reports authorized users (most major banks do).',
-                    checked: false, impact: 10, showHint: false 
-                },
-                
-                lockedItems: [
-                    { title: 'The 70% Rule', desc: 'Cap your spending at 70% of income.' },
-                    { title: 'The 20% Engine', desc: 'Auto-invest 20% before you see it.' },
-                    { title: 'The 10% Vault', desc: 'Emergency fund that builds itself.' }
-                ],
-
                 celebrated: false,
 
                 // ===========================
-                // SCAN SEQUENCE (Optimization 1)
+                // ITEMS (Change #2: Piggyback at #2, Change #4: dollar costs)
+                // 110% KILLED. 10 items. 100% max. Clean conversion.
+                // ===========================
+                items: [
+                    { id: 1, title: 'The Spy', 
+                      desc: 'Download Credit Karma / Experian app.', 
+                      cost: 'Free. 2 minutes. The starting line of every 800+ score.',
+                      costPositive: true,
+                      hint: 'Download Credit Karma (free, App Store or Google Play). It shows your TransUnion and Equifax scores. Then download Experian (also free) for your third score. Check both weekly. The numbers update every 7-14 days.', 
+                      checked: false, impact: 10, showHint: false },
+
+                    { id: 2, title: 'The Piggyback', 
+                      desc: 'Become Authorized User on parent\'s card (750+).', 
+                      cost: 'One phone call. $0 cost. 10+ years of credit history added instantly.',
+                      costPositive: true,
+                      hint: 'Ask a parent or family member with a 750+ score and low utilization to add you as an Authorized User on their oldest card. You do NOT need to use the card or even have it. Their entire payment history on that card gets added to YOUR credit report. One phone call can add 10+ years of perfect payment history to your file. Make sure the issuer reports authorized users (most major banks do: Chase, Amex, BoA all do).', 
+                      checked: false, impact: 10, showHint: false },
+
+                    { id: 3, title: 'The Safety', 
+                      desc: 'Turn on "Autopay" (Minimum Balance).', 
+                      cost: 'One late payment = 50-100 pt drop. That adds $2,400 to a car loan.',
+                      costPositive: false,
+                      hint: 'Open your credit card app. Go to Settings or Payments. Find "Autopay" or "Automatic Payments." Set it to pay the MINIMUM balance each month. This prevents late payments (the #1 score killer). You should still pay the full balance manually each month. Autopay is the safety net.', 
+                      checked: false, impact: 10, showHint: false },
+
+                    { id: 4, title: 'The Sniper', 
+                      desc: 'Pay balance 3 days before Statement Date.', 
+                      cost: '$900/$1000 balance vs $50/$1000 = 90% vs 5% utilization. Difference: $3,000+ in loan interest.',
+                      costPositive: false,
+                      hint: 'Your Statement Date is when the bank reports your balance to credit bureaus. Find it in your card app under "Statements" or "Account Details." Pay your FULL balance 3 days before that date. This way, the bank reports a near-zero balance (low utilization) even if you used the card heavily that month.', 
+                      checked: false, impact: 10, showHint: false },
+
+                    { id: 5, title: 'The Ratio', 
+                      desc: 'Keep Utilization below 10%.', 
+                      cost: '30% to under 10% = 40-60 point boost. One billing cycle.',
+                      costPositive: true,
+                      hint: 'Utilization = balance / credit limit. If your limit is $1,000, keep your reported balance under $100. Check Credit Karma to see your current utilization. If it is above 10%, pay down before the Statement Date. Under 10% is good. Under 3% is elite. 0% can actually hurt (shows no activity). Aim for 1-5%.', 
+                      checked: false, impact: 10, showHint: false },
+
+                    { id: 6, title: 'The Cleanup', 
+                      desc: 'Dispute any error older than 2 years.', 
+                      cost: 'One removed collection = up to 100-point increase. 10 minutes of your time.',
+                      costPositive: true,
+                      hint: 'In Credit Karma, tap each account and look for errors: wrong balance, accounts you do not recognize, late payments that were actually on time. To dispute: go to annualcreditreport.com, pull your free report, and use the "Dispute" button next to any error. The bureau has 30 days to investigate. Old collections (2+ years) are worth disputing. They often get removed.', 
+                      checked: false, impact: 10, showHint: false },
+
+                    { id: 7, title: 'The Ask', 
+                      desc: 'Request Limit Increase (Every 6 months).', 
+                      cost: '$1,000 to $2,000 limit = utilization cut in half. One request. No new card.',
+                      costPositive: true,
+                      hint: 'Open your credit card app. Go to Settings or Account Services. Look for "Request Credit Limit Increase." Ask for 2x your current limit. Most issuers do a soft pull (no score impact). If approved, your utilization drops instantly. If denied, wait 6 months and try again. Do NOT apply for a new card just to get more credit.', 
+                      checked: false, impact: 10, showHint: false },
+
+                    { id: 8, title: 'The Boost', 
+                      desc: 'Connect Utility Bills (Experian Boost).', 
+                      cost: 'Average boost: 13 points. Time: 5 minutes. Cost: $0.',
+                      costPositive: true,
+                      hint: 'Open the Experian app. Tap "Boost My Score." Connect your bank account (the one you pay bills from). Experian scans for utility, phone, and streaming payments. Each bill you connect adds positive history. Most people see a 5-15 point boost instantly. It is free and only helps. It cannot lower your score.', 
+                      checked: false, impact: 10, showHint: false },
+
+                    { id: 9, title: 'The Rule', 
+                      desc: 'Treat Credit Card like a Debit Card.', 
+                      cost: 'Average credit card debt at 22: $2,781. At 24.7% APR = $687/yr in interest.',
+                      costPositive: false,
+                      hint: 'Only charge what you can pay off TODAY. Before every purchase, check your bank balance. If you cannot afford to transfer the money right now, do not swipe. Spend on the credit card, but pay it off the same week (or same day). You get the credit-building benefits without the debt trap. Pro tip: Set one small recurring subscription on each card to keep it active. Inactive cards get closed by issuers, which kills your credit age and available credit.', 
+                      checked: false, impact: 10, showHint: false },
+
+                    { id: 10, title: 'The Wait', 
+                      desc: 'No new credit applications for 6 months.', 
+                      cost: 'Each hard inquiry = 5-10 pt drop. 6 months of patience = free recovery.',
+                      costPositive: true,
+                      hint: 'Every time you apply for credit (new card, loan, financing), a hard inquiry hits your report. Each one drops your score 5-10 points and stays for 2 years. Stop applying for anything new for 6 months. If you get pre-approved offers, ignore them. Let your existing accounts age. Time is the cheat code here.', 
+                      checked: false, impact: 10, showHint: false },
+                ],
+                
+                // CHANGE #1: Brandon-language locked items
+                lockedItems: [
+                    { title: 'Where your paycheck actually goes', desc: 'Full breakdown of every dollar at your income.' },
+                    { title: 'The spending leaks you can\'t see', desc: 'Hidden subscriptions, lifestyle creep, and waste.' },
+                    { title: 'Your autopilot money split', desc: 'The exact system that builds wealth on autopilot.' }
+                ],
+
+                // ===========================
+                // SCAN SEQUENCE
                 // ===========================
                 scanPhases: [
                     { text: 'Scanning credit bureau protocols...', target: 35 },
@@ -939,65 +1167,51 @@
                     this.scanPhase = 0;
                     this.scanComplete = false;
                     this.scanText = '';
-
-                    // Small initial delay before first phase
+                    trackEvent('scan_started');
                     setTimeout(() => { this.runScanPhase(0); }, 600);
                 },
 
                 runScanPhase(index) {
                     if (index >= this.scanPhases.length) {
-                        // All phases done. Reveal the kill shot.
                         this.scanText = 'Protocol ready.';
                         this.scanPhase = 4;
                         setTimeout(() => {
                             this.scanComplete = true;
+                            trackEvent('scan_completed');
                         }, 400);
                         return;
                     }
-
                     const phase = this.scanPhases[index];
                     this.scanPhase = index;
                     this.scanText = phase.text;
-                    
-                    // Animate progress bar to target
-                    setTimeout(() => {
-                        this.scanProgress = phase.target;
-                    }, 100);
-
-                    // Duration varies per phase for realism
+                    setTimeout(() => { this.scanProgress = phase.target; }, 100);
                     const durations = [1200, 1400, 1000, 800];
-                    setTimeout(() => {
-                        this.runScanPhase(index + 1);
-                    }, durations[index]);
+                    setTimeout(() => { this.runScanPhase(index + 1); }, durations[index]);
                 },
 
                 exitScanScreen() {
                     this.showScanScreen = false;
-                    // Transition to credit score input
-                    setTimeout(() => {
-                        this.showScoreInput = true;
-                    }, 300);
+                    setTimeout(() => { this.showScoreInput = true; }, 300);
                 },
 
                 // ===========================
-                // RETURNING USER ROUTING (Optimization 2)
+                // RETURNING USER ROUTING
                 // ===========================
                 determineReturnState() {
-                    // Check if user already submitted email
                     try {
                         const hasEmail = localStorage.getItem('eightclub_email');
                         if (hasEmail === 'true') {
                             this.returnState = 'completed';
+                            trackEvent('return_visit', { state: 'completed', progress: this.progress });
                             return;
                         }
                     } catch(e) {}
-
-                    // Route based on progress
                     if (this.progress >= 70) {
                         this.returnState = 'unlocked';
                     } else {
                         this.returnState = 'inprogress';
                     }
+                    trackEvent('return_visit', { state: this.returnState, progress: this.progress });
                 },
 
                 // ===========================
@@ -1027,15 +1241,76 @@
                     return '+$7,200+ extra interest';
                 },
 
+                getScorePenaltyRaw(score) {
+                    if (score >= 750) return '0';
+                    if (score >= 700) return '1,200';
+                    if (score >= 670) return '2,400';
+                    if (score >= 580) return '4,800';
+                    return '7,200+';
+                },
+
+                // CHANGE #1: Dynamic email gate headline
+                getEmailGateHeadline() {
+                    if (this.userCreditScore > 0 && this.userCreditScore < 750) {
+                        const penalty = this.getScorePenaltyRaw(this.userCreditScore);
+                        return 'YOUR ' + this.userCreditScore + ' COSTS YOU $' + penalty + ' ON YOUR FIRST CAR.<br><span class="text-stealth-blue text-base">HERE\'S WHERE TO FIND THAT MONEY.</span>';
+                    }
+                    if (this.userCreditScore >= 750) {
+                        return 'YOUR SCORE IS STRONG.<br><span class="text-stealth-blue text-base">NOW SEE WHERE YOUR PAYCHECK ACTUALLY GOES.</span>';
+                    }
+                    // Fallback: no score entered
+                    return 'A 650 SCORE COSTS YOU $4,800 ON A CAR LOAN.<br><span class="text-stealth-blue text-base">THE NEXT TOOL SHOWS YOU WHERE THAT MONEY IS HIDING.</span>';
+                },
+
                 submitScore() {
                     this.showScoreInput = false;
+                    trackEvent('score_input', { score: this.userCreditScore, label: this.getScoreLabel(this.userCreditScore) });
                     this.saveProgress();
                 },
 
                 skipScore() {
                     this.userCreditScore = 0;
                     this.showScoreInput = false;
+                    trackEvent('score_skipped');
                     this.saveProgress();
+                },
+
+                // ===========================
+                // CERTIFICATE (Change #3)
+                // ===========================
+                showCompletionCertificate() {
+                    this.showCertificate = true;
+                    this.certCountdown = 7;
+                    trackEvent('certificate_shown', { progress: this.progress, score: this.userCreditScore });
+                    
+                    // Countdown display
+                    this.certCountdownInterval = setInterval(() => {
+                        this.certCountdown--;
+                        if (this.certCountdown <= 0) {
+                            clearInterval(this.certCountdownInterval);
+                        }
+                    }, 1000);
+                    
+                    // Auto-dismiss after 7 seconds
+                    this.certTimer = setTimeout(() => {
+                        this.dismissCertificate();
+                    }, 7000);
+                },
+
+                dismissCertificate() {
+                    if (this.certTimer) clearTimeout(this.certTimer);
+                    if (this.certCountdownInterval) clearInterval(this.certCountdownInterval);
+                    this.showCertificate = false;
+                    trackEvent('certificate_dismissed', { method: this.certCountdown <= 0 ? 'auto' : 'tap' });
+                    
+                    // THEN open email gate
+                    if (!this.modalAutoTriggered) {
+                        this.modalAutoTriggered = true;
+                        setTimeout(() => { 
+                            this.showModal = true;
+                            trackEvent('email_gate_opened', { trigger: 'certificate_flow', progress: this.progress });
+                        }, 300);
+                    }
                 },
 
                 // ===========================
@@ -1045,7 +1320,6 @@
                     try {
                         const state = {
                             items: this.items.map(i => ({ id: i.id, checked: i.checked })),
-                            bonus: this.bonus.checked,
                             userCreditScore: this.userCreditScore,
                             timestamp: new Date().toISOString()
                         };
@@ -1068,7 +1342,6 @@
                                 if (item) item.checked = s.checked;
                             });
                         }
-                        if (data.bonus !== undefined) this.bonus.checked = data.bonus;
                         if (data.userCreditScore !== undefined) this.userCreditScore = data.userCreditScore;
                         
                         if (data.timestamp) {
@@ -1086,14 +1359,13 @@
 
                 resetProgress() {
                     this.items.forEach(i => { i.checked = false; i.showHint = false; });
-                    this.bonus.checked = false;
-                    this.bonus.showHint = false;
                     this.isReturningUser = false;
                     this.celebrated = false;
                     this.modalAutoTriggered = false;
                     this.previousStatus = 'GHOST';
                     this.userCreditScore = 650;
                     this.showReturnPopup = false;
+                    this.showCertificate = false;
                     this.returnState = '';
                     try {
                         localStorage.removeItem('credit_protocol_state');
@@ -1107,38 +1379,53 @@
                 // INIT
                 // ===========================
                 _redirectHandler: null,
-                _heightObserver: null,
                 _hasRedirected: false,
 
                 init() {
                     const hasSaved = this.loadProgress();
                     
                     if (hasSaved && this.progress > 0) {
-                        // RETURNING USER: Show conditional popup
                         this.isReturningUser = true;
                         this.previousStatus = this.statusText;
                         if (this.progress >= 100) this.celebrated = true;
-                        
-                        // Determine which return state to show
                         this.determineReturnState();
                         this.showReturnPopup = true;
                     } else {
-                        // NEW USER: Launch fake delay scan sequence
                         this.startScanSequence();
                     }
 
                     this.$watch('showModal', (isOpen) => {
                         if (isOpen) {
+                            if (!this._modalTracked) {
+                                trackEvent('email_gate_opened', { trigger: 'manual', progress: this.progress });
+                                this._modalTracked = true;
+                            }
                             this.activateRedirectHandler();
                         } else {
+                            trackEvent('email_gate_dismissed', { progress: this.progress });
                             this.deactivateRedirectHandler();
                         }
                     });
+
+                    // Track progress milestones
+                    this._trackedMilestones = {};
+                    this.$watch('progress', (p) => {
+                        [30, 50, 70, 100].forEach(m => {
+                            if (p >= m && !this._trackedMilestones[m]) {
+                                this._trackedMilestones[m] = true;
+                                trackEvent('progress_' + m, { progress: p, checkedCount: this.checkedCount });
+                            }
+                        });
+                    });
                 },
+
+                _modalTracked: false,
+                _trackedMilestones: {},
 
                 doBeehiivRedirect() {
                     if (this._hasRedirected) return;
                     this._hasRedirected = true;
+                    trackEvent('email_submitted', { progress: this.progress, score: this.userCreditScore });
                     try {
                         localStorage.setItem('eightclub_completed', 'true');
                         localStorage.setItem('eightclub_email', 'true');
@@ -1148,7 +1435,6 @@
 
                 activateRedirectHandler() {
                     const self = this;
-
                     this._redirectHandler = function(event) {
                         if (!self.showModal) return;
                         if (event.origin && event.origin.includes('beehiiv.com')) {
@@ -1161,7 +1447,7 @@
                             if (typeof data === 'object' && data !== null) {
                                 if (data.type === 'beehiiv:subscribe:success' || 
                                     data.event === 'subscribed' || 
-                                    data.subscribed === true ||
+                                    data.subscribed === true || 
                                     data.type === 'subscribe_success') {
                                     self.doBeehiivRedirect();
                                 }
@@ -1169,35 +1455,12 @@
                         }
                     };
                     window.addEventListener('message', this._redirectHandler);
-
-                    const iframe = document.getElementById('beehiivFrame');
-                    if (iframe) {
-                        const initialHeight = iframe.style.height;
-                        const observerActivatedAt = Date.now();
-                        this._heightObserver = new MutationObserver(function(mutations) {
-                            if (!self.showModal) return;
-                            if (Date.now() - observerActivatedAt < 3000) return;
-                            mutations.forEach(function(mutation) {
-                                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                                    const newHeight = iframe.style.height;
-                                    if (newHeight !== initialHeight && initialHeight) {
-                                        setTimeout(function() { self.doBeehiivRedirect(); }, 1500);
-                                    }
-                                }
-                            });
-                        });
-                        this._heightObserver.observe(iframe, { attributes: true, attributeFilter: ['style', 'height'] });
-                    }
                 },
 
                 deactivateRedirectHandler() {
                     if (this._redirectHandler) {
                         window.removeEventListener('message', this._redirectHandler);
                         this._redirectHandler = null;
-                    }
-                    if (this._heightObserver) {
-                        this._heightObserver.disconnect();
-                        this._heightObserver = null;
                     }
                 },
 
@@ -1209,14 +1472,11 @@
                 },
 
                 get progress() {
-                    let score = this.items.filter(i => i.checked).length * 10;
-                    if (this.bonus.checked) score += 10;
-                    return score;
+                    return this.items.filter(i => i.checked).length * 10;
                 },
 
                 get statusText() {
                     const p = this.progress;
-                    if (p >= 110) return "STATUS: GOD MODE";
                     if (p >= 100) return "STATUS: BOSS";
                     if (p >= 60) return "STATUS: PLAYER";
                     if (p >= 30) return "STATUS: RISK";
@@ -1225,7 +1485,6 @@
 
                 get statusSubtext() {
                     const p = this.progress;
-                    if (p >= 110) return "Banks compete for your business.";
                     if (p >= 100) return "800+ credit score trajectory.";
                     if (p >= 60) return "Better than 70% of your age group.";
                     if (p >= 30) return "You've started. Most haven't.";
@@ -1239,31 +1498,36 @@
                     this.scorePop = true;
                     setTimeout(() => this.scorePop = false, 300);
                     
+                    // Track item check/uncheck
+                    trackEvent(item.checked ? 'item_checked' : 'item_unchecked', { 
+                        item_id: item.id, item_title: item.title, progress: this.progress 
+                    });
+
                     const newStatus = this.statusText;
                     if (newStatus !== this.previousStatus) {
                         this.triggerRankUp(newStatus);
                         this.previousStatus = newStatus;
                     }
 
+                    // CHANGE #3: At 100%, rain -> certificate -> email gate
                     const currentProgress = this.progress;
                     if (currentProgress >= 100 && !this.celebrated) {
                         this.celebrated = true;
                         this.makeItRain();
-                        if (!this.modalAutoTriggered) {
-                            this.modalAutoTriggered = true;
-                            setTimeout(() => { this.showModal = true; }, 2000);
-                        }
+                        // Show certificate after rain settles (2.5s)
+                        setTimeout(() => { this.showCompletionCertificate(); }, 2500);
                     }
                     if (currentProgress < 100) {
                         this.celebrated = false;
                         this.modalAutoTriggered = false;
+                        this._modalTracked = false;
                     }
 
                     this.saveProgress();
                 },
 
                 triggerRankUp(newStatus) {
-                    this.rankFlashGold = newStatus.includes('GOD') || newStatus.includes('BOSS');
+                    this.rankFlashGold = newStatus.includes('BOSS');
                     this.showRankFlash = true;
                     setTimeout(() => this.showRankFlash = false, 500);
                     
