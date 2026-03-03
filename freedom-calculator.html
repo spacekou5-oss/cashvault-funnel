@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Freedom Number Engine</title>
+    <title>Freedom Calculator | Kou Talks Money</title>
     
     <style>body { background-color: #050505; }</style>
 
@@ -14,6 +14,46 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- ================================================ -->
+    <!-- RANK #9: Supabase Tracking Infrastructure        -->
+    <!-- ================================================ -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const _sbUrl = 'https://ynkrbhgevqjicxospatd.supabase.co';
+        const _sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlua3JiaGdldnFqaWN4b3NwYXRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc1OTQ5NTQsImV4cCI6MjA1MzE3MDk1NH0.aBrsONBkI8jIFy1S6Ik9sSursr8xaMpuYijCs3DPONU';
+        let _sb = null;
+        try { _sb = supabase.createClient(_sbUrl, _sbKey); } catch(e) { console.warn('Supabase init failed:', e); }
+
+        const _sessionId = 'fc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        function getUTMParams() {
+            const p = new URLSearchParams(window.location.search);
+            return { utm_source: p.get('utm_source'), utm_medium: p.get('utm_medium'), utm_campaign: p.get('utm_campaign'), from: p.get('from') };
+        }
+        
+        function getDeviceInfo() {
+            const w = window.innerWidth;
+            return { device: w < 768 ? 'mobile' : w < 1024 ? 'tablet' : 'desktop', width: w, ua: navigator.userAgent.substring(0, 120) };
+        }
+
+        function trackEvent(eventName, data) {
+            if (!_sb) return;
+            try {
+                _sb.from('funnel_events').insert({
+                    session_id: _sessionId,
+                    app: 'freedom_calculator',
+                    event: eventName,
+                    data: JSON.stringify(data || {}),
+                    utm: JSON.stringify(getUTMParams()),
+                    device: JSON.stringify(getDeviceInfo()),
+                    url: window.location.href,
+                    created_at: new Date().toISOString()
+                }).then(() => {}).catch(() => {});
+            } catch(e) {}
+        }
+        
+        trackEvent('app_opened', { referrer: document.referrer });
+    </script>
     
     <script>
         tailwind.config = {
@@ -27,22 +67,28 @@
                         cyber: {
                             black: '#050505',
                             dark: '#111111',
-                            gold: '#FFD700',
-                            blue: '#00F0FF',
-                            gray: '#333333',
-                            red: '#FF0000',
                             green: '#00FF41',
-                            orange: '#FFA500'
+                            red: '#FF0000',
+                            blue: '#00F0FF',
+                            gold: '#FFD700',
+                            gray: '#333333'
                         }
                     },
                     animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'celebration': 'celebrationBurst 0.6s ease-out forwards',
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+                        'pop': 'popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
                     },
                     keyframes: {
-                        celebrationBurst: {
-                            '0%': { transform: 'scale(1)', opacity: 1 },
-                            '50%': { transform: 'scale(1.1)', opacity: 1 },
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(4px, 0, 0)' }
+                        },
+                        popIn: {
+                            '0%': { transform: 'scale(0.9)', opacity: 0 },
+                            '60%': { transform: 'scale(1.05)', opacity: 1 },
                             '100%': { transform: 'scale(1)', opacity: 1 }
                         }
                     }
@@ -64,36 +110,6 @@
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
         }
 
-        .glitch { position: relative; }
-        .glitch::before, .glitch::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-        }
-        .glitch::before {
-            left: 2px; text-shadow: -1px 0 #FFD700; clip: rect(24px, 550px, 90px, 0);
-            animation: glitch-anim 3s infinite linear alternate-reverse;
-        }
-        .glitch::after {
-            left: -2px; text-shadow: -1px 0 #00F0FF; clip: rect(85px, 550px, 140px, 0);
-            animation: glitch-anim2 2s infinite linear alternate-reverse;
-        }
-        @keyframes glitch-anim {
-            0% { clip: rect(14px, 9999px, 127px, 0); }
-            20% { clip: rect(84px, 9999px, 36px, 0); }
-            40% { clip: rect(10px, 9999px, 110px, 0); }
-            60% { clip: rect(44px, 9999px, 94px, 0); }
-            80% { clip: rect(104px, 9999px, 19px, 0); }
-            100% { clip: rect(14px, 9999px, 112px, 0); }
-        }
-        @keyframes glitch-anim2 {
-            0% { clip: rect(109px, 9999px, 18px, 0); }
-            20% { clip: rect(59px, 9999px, 13px, 0); }
-            40% { clip: rect(48px, 9999px, 63px, 0); }
-            60% { clip: rect(117px, 9999px, 107px, 0); }
-            80% { clip: rect(4px, 9999px, 73px, 0); }
-            100% { clip: rect(114px, 9999px, 34px, 0); }
-        }
         [x-cloak] { display: none !important; }
 
         .confetti {
@@ -107,13 +123,22 @@
             100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
 
-        .celebration-glow {
-            animation: glowPulse 0.5s ease-out;
-        }
+        .celebration-glow { animation: glowPulse 0.5s ease-out; }
         @keyframes glowPulse {
             0% { box-shadow: 0 0 0 rgba(0, 255, 65, 0); }
             50% { box-shadow: 0 0 60px rgba(0, 255, 65, 0.6); }
             100% { box-shadow: 0 0 20px rgba(0, 255, 65, 0.2); }
+        }
+
+        .processing-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(5,5,5,0.95);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
         }
 
         .mini-celebration {
@@ -121,59 +146,15 @@
             top: 20%;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 100;
+            z-index: 90;
             pointer-events: none;
-            animation: miniPop 1.2s ease-out forwards;
-        }
-        @keyframes miniPop {
-            0% { opacity: 0; transform: translateX(-50%) scale(0.5) translateY(20px); }
-            20% { opacity: 1; transform: translateX(-50%) scale(1.1) translateY(0); }
-            40% { transform: translateX(-50%) scale(1) translateY(0); }
-            100% { opacity: 0; transform: translateX(-50%) scale(0.8) translateY(-40px); }
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .returning-banner {
-            background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,215,0,0.02));
-            border: 1px solid rgba(255,215,0,0.3);
-            border-radius: 8px;
-            padding: 10px 14px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            animation: fadeIn 0.5s ease;
-        }
-        .returning-banner .banner-text { font-size: 11px; color: #FFD700; font-weight: 600; }
-        .returning-banner .banner-sub { font-size: 10px; color: #666; }
-        .returning-banner button { 
-            font-size: 10px; padding: 4px 10px; border-radius: 4px; cursor: pointer;
-            font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
-            transition: all 0.2s; background: transparent; border: 1px solid #333; color: #666;
-        }
-        .returning-banner button:hover { border-color: #FF0000; color: #FF0000; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-
-        .validation-msg {
-            font-size: 10px;
-            color: #FFA500;
-            text-align: center;
-            padding: 6px 0;
-            animation: fadeIn 0.3s ease;
-        }
-
-        /* Accordion styles */
-        .accordion-trigger {
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .accordion-trigger:hover {
-            background-color: rgba(255, 215, 0, 0.05);
-        }
         .accordion-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.4s ease-out, opacity 0.3s ease;
+            transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
             opacity: 0;
         }
         .accordion-content.open {
@@ -181,154 +162,180 @@
             opacity: 1;
         }
 
-        /* Smart Router Modal */
-        .router-card {
-            background: #111;
-            border: 1px solid #333;
+        .returning-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            margin-bottom: 12px;
+            background: rgba(255,215,0,0.05);
+            border: 1px solid rgba(255,215,0,0.2);
             border-radius: 12px;
-            padding: 14px;
-            cursor: pointer;
-            transition: all 0.25s;
-            text-align: center;
+            font-size: 11px;
         }
-        .router-card:hover {
-            transform: translateY(-2px);
+        .returning-banner .banner-text { color: #FFD700; font-weight: 700; }
+        .returning-banner .banner-sub { color: #666; font-size: 9px; margin-top: 2px; }
+        .returning-banner button {
+            background: none; border: 1px solid #333; color: #666;
+            font-size: 9px; padding: 4px 10px; border-radius: 6px;
+            cursor: pointer; transition: all 0.2s;
         }
-        .router-card.gold:hover { border-color: #FFD700; box-shadow: 0 0 20px rgba(255,215,0,0.15); }
-        .router-card.blue:hover { border-color: #00F0FF; box-shadow: 0 0 20px rgba(0,240,255,0.15); }
-        .router-card.green:hover { border-color: #00FF41; box-shadow: 0 0 20px rgba(0,255,65,0.15); }
+        .returning-banner button:hover { border-color: #FFD700; color: #FFD700; }
 
-        /* Defaults badge */
         .defaults-badge {
-            background: rgba(0, 240, 255, 0.1);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            color: #00F0FF;
+            background: rgba(255,215,0,0.08);
+            border: 1px solid rgba(255,215,0,0.25);
+            color: #FFD700;
             font-size: 9px;
             font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 4px;
+            padding: 3px 10px;
+            border-radius: 999px;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            animation: fadeIn 0.5s ease;
         }
 
-        /* Budget import badge [FIX 5] */
-        .budget-import-badge {
-            background: rgba(0, 255, 65, 0.1);
-            border: 1px solid rgba(0, 255, 65, 0.3);
-            color: #00FF41;
-            font-size: 9px;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            animation: fadeIn 0.5s ease;
+        .router-card {
+            display: block;
+            padding: 12px 16px;
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
         }
+        .router-card.gold { background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.3); }
+        .router-card.gold:hover { border-color: #FFD700; box-shadow: 0 0 15px rgba(255,215,0,0.2); }
+        .router-card.blue { background: rgba(0,240,255,0.06); border: 1px solid rgba(0,240,255,0.3); }
+        .router-card.blue:hover { border-color: #00F0FF; box-shadow: 0 0 15px rgba(0,240,255,0.2); }
+        .router-card.green { background: rgba(0,255,65,0.06); border: 1px solid rgba(0,255,65,0.3); }
+        .router-card.green:hover { border-color: #00FF41; box-shadow: 0 0 15px rgba(0,255,65,0.2); }
 
-        /* Standardized footer */
         .site-footer {
             text-align: center;
             padding: 24px 16px 16px;
             margin-top: 32px;
             border-top: 1px solid rgba(51,51,51,0.5);
         }
-        .site-footer a {
-            color: #00F0FF;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
+        .site-footer a { color: #00F0FF; text-decoration: none; font-weight: 600; transition: color 0.2s; }
         .site-footer a:hover { color: #FFFFFF; }
 
-        /* Already-subscribed popup */
-        .sub-popup {
-            background: linear-gradient(135deg, rgba(0,240,255,0.06), rgba(0,255,65,0.04));
-            border: 1px solid rgba(0,240,255,0.4);
-            border-radius: 12px;
-            padding: 20px;
-            width: 100%;
-            max-width: 380px;
-            text-align: center;
-        }
-        .sub-popup .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(0,255,65,0.1);
-            border: 1px solid rgba(0,255,65,0.4);
-            padding: 4px 12px;
-            border-radius: 999px;
+        .validation-msg {
+            color: #FF6B6B;
             font-size: 10px;
-            font-weight: 700;
-            color: #00FF41;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 12px;
+            font-weight: 600;
+            text-align: center;
+            padding: 6px;
+            margin-top: 4px;
         }
-        .sub-popup .badge .dot {
-            width: 6px; height: 6px;
-            background: #00FF41;
-            border-radius: 50%;
+
+        /* RANK #6: Share Card */
+        .share-card {
+            background: linear-gradient(145deg, #0a0a0a 0%, #111 50%, #0a0a0a 100%);
+            border: 1px solid rgba(255,215,0,0.25);
+            border-radius: 12px;
+            padding: 24px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
+        .share-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+            opacity: 0.6;
+        }
+        .share-card-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 32px;
+            font-weight: 800;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255,215,0,0.3);
+            line-height: 1;
+        }
+        .share-card-brand { color: #00F0FF; font-weight: 700; font-size: 11px; }
     </style>
 </head>
-<body class="bg-cyber-black text-white font-sans antialiased min-h-screen flex items-center justify-center p-4">
+<body class="bg-cyber-black text-white font-sans antialiased min-h-screen flex flex-col items-center justify-center p-4">
 
-    <main x-data="freedomEngine()" class="w-full max-w-lg">
+    <main x-data="freedomEngine()" class="w-full max-w-lg relative min-h-[600px] flex flex-col justify-center">
 
         <!-- ========================================== -->
-        <!-- SMART ROUTER FOR RETURNING EMAIL SUBS      -->
+        <!-- SMART ROUTER (Returning Users)             -->
         <!-- ========================================== -->
-        <div x-cloak x-show="showSmartRouter"
-             class="fixed inset-0 z-50 flex items-center justify-center p-4"
-             x-transition:enter="transition ease-out duration-300"
+        <div x-show="showSmartRouter" x-cloak
+             x-transition:enter="transition ease-out duration-400"
              x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100">
+             x-transition:enter-end="opacity-100"
+             class="fixed inset-0 z-60 flex items-center justify-center p-5">
             
-            <div class="absolute inset-0 bg-black/95 backdrop-blur-sm"></div>
-            
-            <div class="relative bg-cyber-dark border border-cyber-gray rounded-2xl p-5 w-full max-w-sm shadow-2xl"
-                 x-transition:enter="transition ease-out duration-300 delay-100"
-                 x-transition:enter-start="opacity-0 scale-90"
-                 x-transition:enter-end="opacity-100 scale-100">
-                
-                <div class="text-center mb-5">
-                    <p class="text-[10px] font-mono text-cyber-gold uppercase tracking-[0.3em] mb-2">Welcome Back</p>
-                    <h2 class="text-xl font-black uppercase tracking-tight text-white">Where To Next?</h2>
-                    <div class="mt-3 flex items-center justify-center gap-4 text-[10px] font-mono">
-                        <div>
-                            <p class="text-cyber-gold font-bold" x-text="formatMoney(savedFreedomNumber)"></p>
-                            <p class="text-gray-500">Freedom #</p>
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+
+            <div class="relative bg-cyber-dark border-2 rounded-2xl p-6 w-full max-w-sm z-10 text-center space-y-4"
+                 :class="isReturningSubscriber ? 'border-cyber-green shadow-[0_0_30px_rgba(0,255,65,0.15)]' : 'border-cyber-gold/40 shadow-[0_0_20px_rgba(255,215,0,0.1)]'">
+
+                <!-- Subscriber state -->
+                <template x-if="isReturningSubscriber">
+                    <div class="space-y-4">
+                        <div class="inline-flex items-center gap-2 bg-cyber-green/10 border border-cyber-green/40 px-3 py-1 rounded-full">
+                            <span class="w-2 h-2 bg-cyber-green rounded-full animate-pulse"></span>
+                            <span class="text-[10px] font-bold text-cyber-green uppercase tracking-widest">Access Active</span>
                         </div>
-                        <div class="w-px h-6 bg-cyber-gray"></div>
                         <div>
-                            <p class="font-bold" :class="savedExitColor" x-text="savedExitLabel"></p>
-                            <p class="text-gray-500">Exit Age</p>
+                            <p class="text-[10px] font-mono text-cyber-green uppercase tracking-[0.2em]">Welcome back</p>
+                            <h2 class="text-xl font-black uppercase text-white mt-1">Your Number is Saved</h2>
+                        </div>
+                        <div class="bg-black/60 border border-cyber-gray rounded-lg p-3" x-show="savedFreedomNumber > 0">
+                            <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-1">Your Freedom Number:</p>
+                            <p class="text-2xl font-black font-mono text-cyber-gold" x-text="formatMoney(savedFreedomNumber)"></p>
+                            <p class="text-[10px] mt-1" :class="savedExitColor" x-text="savedExitLabel"></p>
+                        </div>
+                        <div class="space-y-2 pt-2">
+                            <!-- RANK #1: Brandon-language router copy -->
+                            <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=freedom"
+                               class="router-card gold block font-black uppercase text-sm">
+                                Show Me What To Buy &#x279C;
+                            </a>
+                            <a href="https://spacekou5-oss.github.io/cashvault-funnel/command-center.html"
+                               class="router-card blue block">
+                                <p class="text-sm font-black text-cyber-blue uppercase">Command Center</p>
+                                <p class="text-[10px] text-gray-400 mt-1">See your full financial dashboard</p>
+                            </a>
+                            <button @click="dismissSmartRouter()" class="router-card green w-full">
+                                <p class="text-sm font-black text-cyber-green uppercase">Recalculate My Number</p>
+                                <p class="text-[10px] text-gray-400 mt-1">Update inputs and run new projections</p>
+                            </button>
+                        </div>
+                        <p class="text-center text-[9px] text-gray-600 mt-4 font-mono">
+                            Last calculated <span x-text="lastVisitLabel"></span>
+                        </p>
+                    </div>
+                </template>
+
+                <!-- Non-subscriber returning state -->
+                <template x-if="!isReturningSubscriber && showSmartRouter">
+                    <div class="space-y-4">
+                        <div class="text-3xl">&#x1F50D;</div>
+                        <div>
+                            <p class="text-[10px] font-mono text-cyber-gold uppercase tracking-[0.2em]">Numbers loaded</p>
+                            <h2 class="text-xl font-black uppercase text-white mt-1">Pick Up Where You Left Off</h2>
+                        </div>
+                        <div class="bg-black/60 border border-cyber-gold/30 rounded-lg p-3" x-show="savedFreedomNumber > 0">
+                            <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-1">Your Freedom Number:</p>
+                            <p class="text-2xl font-black font-mono text-cyber-gold" x-text="formatMoney(savedFreedomNumber)"></p>
+                        </div>
+                        <div class="space-y-2 pt-1">
+                            <button @click="dismissSmartRouter(); showModal = true;"
+                                    class="router-card gold w-full font-black uppercase text-sm">
+                                Show Me What To Buy &#x279C;
+                            </button>
+                            <button @click="dismissSmartRouter()" class="router-card green w-full">
+                                <p class="text-sm font-black text-cyber-green uppercase">Recalculate</p>
+                            </button>
                         </div>
                     </div>
-                </div>
-
-                <div class="space-y-3">
-                    <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=freedom" 
-                       class="router-card gold block">
-                        <p class="text-sm font-black text-cyber-gold uppercase">Build My Portfolio</p>
-                        <p class="text-[10px] text-gray-400 mt-1">Pick your ETFs in the Investment Simplifier</p>
-                    </a>
-                    <a href="https://spacekou5-oss.github.io/cashvault-funnel/command-center.html"
-                       class="router-card blue block">
-                        <p class="text-sm font-black text-cyber-blue uppercase">Command Center</p>
-                        <p class="text-[10px] text-gray-400 mt-1">See your full financial dashboard</p>
-                    </a>
-                    <button @click="dismissSmartRouter()" class="router-card green w-full">
-                        <p class="text-sm font-black text-cyber-green uppercase">Recalculate My Number</p>
-                        <p class="text-[10px] text-gray-400 mt-1">Update inputs and run new projections</p>
-                    </button>
-                </div>
-
-                <p class="text-center text-[9px] text-gray-600 mt-4 font-mono">
-                    Last calculated <span x-text="lastVisitLabel"></span>
-                </p>
+                </template>
             </div>
         </div>
 
@@ -340,7 +347,7 @@
         </div>
 
         <!-- Returning user banner (no email yet) -->
-        <div x-show="isReturningUser && !isReturningSubscriber" class="returning-banner">
+        <div x-show="isReturningUser && !isReturningSubscriber && !showSmartRouter" x-cloak class="returning-banner">
             <div>
                 <div class="banner-text">&#x1F504; Your numbers are loaded.</div>
                 <div class="banner-sub">Last calculated <span x-text="lastVisitLabel"></span></div>
@@ -349,21 +356,22 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- HEADER                                     -->
+        <!-- RANK #2: HEADER REWRITE                    -->
+        <!-- Guru Test: "DEFINE YOUR FREEDOM" -> killed  -->
+        <!-- Brandon-language question he actually asks  -->
         <!-- ========================================== -->
         <div class="mb-8 text-center">
-            <h1 class="text-3xl font-black tracking-tighter uppercase glitch text-white" data-text="DEFINE YOUR FREEDOM">
-                DEFINE YOUR FREEDOM
+            <h1 class="text-2xl sm:text-3xl font-black tracking-tight uppercase text-white leading-tight">
+                HOW LONG UNTIL YOU<br>
+                <span class="text-cyber-gold">NEVER NEED A PAYCHECK?</span>
             </h1>
             <div class="h-1 w-24 bg-cyber-gold mx-auto mt-4 rounded-full shadow-[0_0_10px_#FFD700]"></div>
             <p class="text-[10px] text-gray-500 font-mono mt-3 tracking-wide">
-                THE EXACT DOLLAR AMOUNT THAT MAKES A PAYCHECK OPTIONAL. FOREVER.
+                One number. The exact amount where your money covers your life without a job. 10 seconds to calculate.
             </p>
         </div>
 
-        <!-- ========================================== -->
-        <!-- PREFILLED DEFAULTS BADGE                   -->
-        <!-- ========================================== -->
+        <!-- RANK #3: Defaults badge -->
         <div x-show="isUsingDefaults" x-cloak class="flex items-center justify-center gap-2 mb-3">
             <span class="defaults-badge">Recommended starting point</span>
             <button @click="clearDefaults()" class="text-[9px] text-gray-500 hover:text-cyber-gold transition-colors underline cursor-pointer">
@@ -372,15 +380,9 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- BUDGET IMPORT BADGE [FIX 5]                -->
-        <!-- ========================================== -->
-        <div x-show="showBudgetImportBadge" x-cloak class="flex items-center justify-center gap-2 mb-3">
-            <span class="budget-import-badge">&#10003; Imported from Budget Calculator</span>
-            <span class="text-[9px] text-gray-500 italic">One system feeding the next.</span>
-        </div>
-
-        <!-- ========================================== -->
         <!-- INPUT CARD                                 -->
+        <!-- RANK #2: Label rewrites                    -->
+        <!-- RANK #3: Default recalibration             -->
         <!-- ========================================== -->
         <div class="bg-cyber-dark border border-cyber-gray rounded-2xl p-6 mb-4 shadow-2xl space-y-5">
             
@@ -402,34 +404,37 @@
                 </div>
             </div>
 
+            <!-- RANK #2: "Live Off Interest" killed. Brandon-language: "Target Monthly Income Without Working" -->
             <div>
-                <label class="block text-[10px] font-bold text-cyber-gold uppercase mb-2 tracking-widest">Desired Monthly Income (Live Off Interest)</label>
+                <label class="block text-[10px] font-bold text-cyber-gold uppercase mb-2 tracking-widest">Target Monthly Income Without Working</label>
                 <div class="relative">
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-cyber-gold font-bold">$</span>
                     <input type="number" x-model.number="desiredIncome" @input="onInputChange()"
                         class="input-cyber w-full font-mono text-2xl p-4 pl-8 rounded-lg text-white border-cyber-gold/30 focus:border-cyber-gold"
-                        placeholder="5000">
+                        placeholder="2500">
                 </div>
             </div>
 
+            <!-- RANK #2: "Monthly Investment (The Hustle)" killed. Brandon-language: context-aware -->
             <div>
-                <label class="block text-[10px] font-bold text-cyber-blue uppercase mb-2 tracking-widest">Monthly Investment (The Hustle)</label>
+                <label class="block text-[10px] font-bold text-cyber-blue uppercase mb-2 tracking-widest" x-text="monthlyLabel"></label>
                 <div class="relative">
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-cyber-blue font-bold">$</span>
                     <input type="number" x-model.number="monthlyInvest" @input="onInputChange()"
                         class="input-cyber w-full font-mono text-2xl p-4 pl-8 rounded-lg text-white border-cyber-blue/30 focus:border-cyber-blue"
-                        placeholder="200">
+                        placeholder="100">
                 </div>
             </div>
 
+            <!-- RANK #8: Validation messages (warmer tone) -->
             <div x-show="validationMessage" class="validation-msg" x-text="validationMessage"></div>
         </div>
 
         <!-- ========================================== -->
-        <!-- HOW THIS WORKS ACCORDION                   -->
+        <!-- RANK #8: ACCORDION (Brandon-language pass)  -->
         <!-- ========================================== -->
         <div class="mb-4">
-            <div class="accordion-trigger flex items-center justify-between bg-cyber-dark border border-cyber-gray rounded-lg px-4 py-3"
+            <div class="flex items-center justify-between bg-cyber-dark border border-cyber-gray rounded-lg px-4 py-3 cursor-pointer"
                  @click="showHowItWorks = !showHowItWorks">
                 <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">How is this calculated?</span>
                 <svg class="w-3 h-3 text-gray-500 transition-transform" :class="showHowItWorks ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -441,19 +446,16 @@
                 <div class="pt-3 space-y-3 text-[11px] text-gray-400 leading-relaxed">
                     <div>
                         <p class="text-cyber-gold font-bold uppercase text-[10px] mb-1">The Rule of 25</p>
-                        <p>Your Freedom Number = Desired Monthly Income x 12 months x 25. This is the total invested amount needed so that a 4% annual withdrawal covers your expenses indefinitely. It is the most widely used benchmark in early retirement planning.</p>
+                        <p>Your Freedom Number = Monthly Income x 12 months x 25. This is the total amount you need invested so that a 4% annual withdrawal covers your expenses indefinitely. It is the most widely used benchmark in early retirement planning.</p>
                     </div>
                     <div>
                         <p class="text-cyber-gold font-bold uppercase text-[10px] mb-1">The 8% Return</p>
-                        <p>We use 8% average annual return based on the S&amp;P 500 historical performance since 1957. This is a pre-tax, nominal figure. Actual returns vary year to year. Some years are negative, some are 20%+. Over 20+ year horizons, the average converges toward this range.</p>
+                        <p>We use 8% average annual return based on the S&amp;P 500 historical performance since 1957. This is pre-tax and nominal. Actual returns vary year to year. Some years negative, some 20%+. Over 20+ year horizons, the average converges toward this range.</p>
                     </div>
                     <div>
                         <p class="text-cyber-gold font-bold uppercase text-[10px] mb-1">What This Does NOT Include</p>
-                        <p>This calculator does not deduct taxes, investment fees, or inflation from projections. Real-world returns after these factors are typically 5 to 7%. Your actual timeline may be longer. This is a directional tool, not a guarantee. The point: see your target, then build the vehicle to get there.</p>
-                    </div>
-                    <div>
-                        <p class="text-cyber-gold font-bold uppercase text-[10px] mb-1">How Accurate Is This?</p>
-                        <p>Over short periods (1 to 5 years), projections are unreliable. Markets are volatile. Over long periods (15 to 30+ years), compound growth at 7 to 10% annually has held remarkably consistent in US equity markets. The longer your horizon, the more reliable the math becomes.</p>
+                        <!-- RANK #8: "vehicle" killed. Brandon-language: "the investments to get there" -->
+                        <p>This calculator does not deduct taxes, investment fees, or inflation from projections. It also does not select the investments to get there. For that, the Investment Simplifier handles it after you enter your email. Think of this as the destination. The Simplifier shows you the map.</p>
                     </div>
                 </div>
             </div>
@@ -463,428 +465,110 @@
         <!-- RESULTS CARD                               -->
         <!-- ========================================== -->
         <div class="bg-cyber-dark border border-cyber-gray rounded-2xl p-6 mb-4 relative overflow-hidden"
-             style="contain: layout style;"
-             :class="showCelebration ? 'celebration-glow' : ''">
-            
+             x-show="hasValidInputs"
+             x-transition:enter="transition ease-out duration-500"
+             x-transition:enter-start="opacity-0 translate-y-4"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             :class="{ 'celebration-glow': showCelebration }">
+
             <!-- Processing overlay (first calc only) -->
-            <div x-show="isCalculating" class="absolute inset-0 bg-cyber-dark/95 z-20 flex flex-col items-center justify-center rounded-2xl">
-                <div class="space-y-3 text-center">
-                    <div class="w-8 h-8 border-2 border-cyber-gold border-t-transparent rounded-full animate-spin mx-auto"></div>
-                    <p class="text-xs font-mono text-cyber-gold animate-pulse" x-text="calculatingText"></p>
+            <div x-show="isCalculating" x-cloak class="processing-overlay">
+                <div class="text-center">
+                    <div class="w-8 h-8 border-2 border-cyber-gold border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                    <p class="text-[10px] font-mono text-cyber-gold uppercase tracking-widest" x-text="calculatingText"></p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-8 relative z-10">
-                
-                <!-- Placeholder state -->
-                <div x-show="!hasValidInputs" class="text-center py-8">
-                    <p class="text-cyber-gray font-mono text-sm uppercase tracking-widest">Enter your numbers above</p>
-                    <p class="text-[10px] text-cyber-gray/50 mt-2">Your Freedom Number appears here.</p>
-                </div>
-
-                <!-- Freedom Number display -->
-                <div x-show="hasValidInputs" class="text-center border-b border-dashed border-cyber-gray pb-6">
-                    <p class="text-[10px] font-bold text-cyber-gray uppercase tracking-[0.2em] mb-2">Your Freedom Price Tag</p>
-                    
-                    <div class="text-4xl sm:text-5xl font-black font-mono tracking-tight transition-all duration-75 ease-out transform" 
-                         :class="triggerShockwave ? 'text-white scale-110 drop-shadow-[0_0_35px_rgba(255,255,255,1)] translate-y-[-2px]' : 'text-cyber-gold drop-shadow-[0_0_15px_rgba(255,215,0,0.3)]'"
-                         x-text="formatMoney(freedomNumber)">
-                    </div>
-                    
-                    <p class="text-[10px] text-cyber-gray mt-2">
-                        <span x-text="formatMoney(desiredIncome || 0)"></span>/mo x 12 x 25 = Freedom
-                    </p>
-                    <p class="text-[9px] text-cyber-gray/50 mt-1">
-                        Rule of 25: Invest 25x your annual spending so the 4% safe withdrawal rate covers your life. Forever.
-                    </p>
-                </div>
-
-                <!-- Exit Age display -->
-                <div x-show="hasValidInputs" class="text-center">
-                    <p class="text-[10px] font-bold text-cyber-gray uppercase tracking-[0.2em] mb-2">Estimated Exit Age</p>
-                    <div class="text-5xl sm:text-6xl font-black font-mono tracking-tight"
-                         :class="getStatusColor()"
-                         x-text="exitAgeDisplay"></div>
-                    
-                    <div class="w-full bg-black h-2 mt-6 rounded-full overflow-hidden border border-cyber-gray/30">
-                        <div class="h-full transition-all duration-1000 ease-out"
-                             :class="getStatusBg()"
-                             :style="'width: ' + timeProgressPercent + '%'"></div>
-                    </div>
-                    <p class="text-[9px] text-cyber-gray/50 mt-1" x-show="yearsToGoal < 100">
-                        <span x-text="Math.max(0, Math.round(timeProgressPercent))"></span>% of your journey complete
-                    </p>
-                    <p class="text-[9px] text-cyber-gray/50 mt-1">
-                        Based on 8% avg. annual return (S&amp;P 500 historical). The right ETFs can push this higher.
-                    </p>
-                </div>
-
-                <!-- Status message [FIX 3: Dynamic with user's actual numbers] -->
-                <div x-show="hasValidInputs" class="bg-black border border-gray-800 rounded p-4 text-center">
-                    <p class="text-xs font-bold uppercase tracking-widest"
-                       :class="getStatusColor()"
-                       x-text="statusMessage"></p>
-                </div>
-
+            <!-- Freedom Number -->
+            <div class="mb-5 text-center">
+                <p class="text-[10px] font-bold text-cyber-gold uppercase tracking-[0.2em] mb-1">Your Freedom Number</p>
+                <div class="text-4xl sm:text-5xl font-black font-mono text-cyber-gold tracking-tight" x-text="formatMoney(freedomNumber)"></div>
+                <p class="text-[10px] text-gray-500 mt-1">Total invested to never need a paycheck</p>
             </div>
-            
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyber-blue rounded-full opacity-[0.03] pointer-events: none;" style="filter: blur(40px);"></div>
-        </div>
 
-        <!-- CTA Button -->
-        <div class="space-y-3">
-            <button @click="handleCTA()"
-               :disabled="!canProceed"
-               :class="!canProceed ? 'bg-cyber-gray/50 text-gray-500 cursor-not-allowed' : yearsToGoal >= 100 || exitAge >= 55 ? 'bg-cyber-red hover:bg-red-600 text-white shadow-[0_0_20px_rgba(255,0,0,0.4)] hover:scale-[1.02]' : exitAge < 40 ? 'bg-cyber-green hover:bg-green-500 text-black shadow-[0_0_20px_rgba(0,255,65,0.4)] hover:scale-[1.02]' : 'bg-cyber-gold hover:bg-yellow-500 text-black shadow-[0_0_20px_rgba(255,215,0,0.4)] hover:scale-[1.02]'"
-               class="group relative block w-full text-center py-4 px-4 rounded-xl font-black uppercase tracking-widest transition-all overflow-hidden cursor-pointer">
-                <span class="relative z-10 flex items-center justify-center gap-2 text-sm sm:text-base">
-                    <span class="flex-shrink" x-text="ctaText"></span>
-                    <span x-show="canProceed" class="inline-block transition-transform group-hover:translate-x-1 flex-shrink-0">&#x279C;</span>
-                </span>
-            </button>
-            
-            <p class="text-center text-[10px] text-cyber-gray opacity-60 font-mono" x-show="canProceed">
-                The tool that tells you exactly which ETFs to buy for your goal.
-            </p>
-        </div>
+            <!-- Exit Age -->
+            <div class="mb-4 text-center border-t border-dashed border-cyber-gray pt-5">
+                <p class="text-[10px] font-bold uppercase tracking-[0.2em] mb-1"
+                   :class="exitAgeColor">Exit Age</p>
+                <div class="text-5xl sm:text-6xl font-black font-mono tracking-tight"
+                     :class="exitAgeColor"
+                     x-text="exitAgeDisplay"></div>
+            </div>
 
-        <!-- ========================================== -->
-        <!-- FOOTER: Standardized Brand Attribution     -->
-        <!-- ========================================== -->
-        <footer class="site-footer">
-            <a href="https://instagram.com/koutalksmoney" target="_blank" rel="noopener noreferrer" class="font-mono text-xs">
-                @koutalksmoney
-            </a>
-            <p class="text-[10px] text-gray-600 mt-2 font-mono">
-                Built by Kou Talks Money. 2026. All rights reserved.
-            </p>
+            <!-- RANK #4: Cost of Waiting Line (Invisible Bleed) -->
+            <div class="text-center mb-4" x-show="costOfWaitingPerYear > 0 && yearsToGoal < 100">
+                <p class="text-sm font-black font-mono text-cyber-red" 
+                   x-text="'Every year you wait costs you ' + formatMoney(costOfWaitingPerYear)"></p>
+                <a href="#" @click.prevent="goToCostOfWaiting()"
+                   class="text-[10px] text-cyber-blue hover:text-white transition-colors mt-1 inline-block">
+                    See the full damage breakdown &#x2192;
+                </a>
+            </div>
 
-            <!-- Disclaimer accordion -->
-            <div class="mt-4">
-                <button @click="showDisclaimer = !showDisclaimer" class="text-[9px] text-gray-600 hover:text-gray-400 transition-colors cursor-pointer uppercase tracking-widest">
-                    Disclaimer <span x-text="showDisclaimer ? '&#9650;' : '&#9660;'"></span>
-                </button>
-                <div x-show="showDisclaimer" x-cloak x-transition class="mt-2 text-[9px] text-gray-600 leading-relaxed max-w-sm mx-auto text-left">
-                    <p>This calculator is for educational and informational purposes only. It is not financial advice, investment advice, or tax advice. Projections are based on historical averages and do not guarantee future results. The 8% annual return assumption reflects long-term S&amp;P 500 historical performance and does not account for taxes, investment fees, inflation, or market volatility. Actual returns may be significantly higher or lower. Consult a licensed financial advisor before making investment decisions. Past performance does not guarantee future results.</p>
+            <!-- RANK #8: Progress Bar with Goal Gradient -->
+            <div class="mb-4">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-[9px] text-gray-500 uppercase tracking-widest">Progress</span>
+                    <span class="text-[9px] font-mono font-bold" :class="exitAgeColor" x-text="displayProgressLabel"></span>
+                </div>
+                <div class="w-full h-2 bg-black rounded-full overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-500"
+                         :class="progressBarColor"
+                         :style="'width: ' + displayProgressPercent + '%'"></div>
                 </div>
             </div>
-        </footer>
 
-        <!-- ========================================== -->
-        <!-- EMAIL GATE MODAL (UNTOUCHED)               -->
-        <!-- ========================================== -->
-        <div x-cloak x-show="showModal" 
-             class="fixed inset-0 z-50 flex items-center justify-center p-3"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-1"
-             x-transition:leave-end="opacity-0">
-            
-            <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showModal = false"></div>
-            
-            <div class="relative bg-cyber-dark border-2 rounded-2xl p-4 w-full max-w-md max-h-[95vh] overflow-y-auto" 
-                 :class="yearsToGoal >= 100 || exitAge >= 55 ? 'border-cyber-red shadow-[0_0_30px_rgba(255,0,0,0.3)]' : exitAge < 40 ? 'border-cyber-green shadow-[0_0_30px_rgba(0,255,65,0.3)]' : 'border-cyber-gold shadow-[0_0_30px_rgba(255,215,0,0.3)]'"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 scale-90"
-                 x-transition:enter-end="opacity-100 scale-100">
-                
-                <button @click="showModal = false" 
-                        class="absolute top-3 right-3 text-cyber-gray/50 hover:text-cyber-gray transition-colors z-10 cursor-pointer">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-
-                <div class="text-center mb-3">
-                    <p class="text-[9px] font-mono text-gray-500 uppercase tracking-[0.2em] mb-1">PHASE 1 COMPLETE: YOUR TARGET IS SET</p>
-                    <h2 class="text-xl sm:text-2xl font-black uppercase tracking-tight drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]"
-                        :class="yearsToGoal >= 100 || exitAge >= 55 ? 'text-cyber-red' : exitAge < 40 ? 'text-cyber-green' : 'text-cyber-gold'"
-                        x-text="modalHeadline">
-                    </h2>
-                    <p class="text-[9px] font-mono text-gray-500 uppercase tracking-[0.2em] mt-1">PHASE 2: BUILD THE PORTFOLIO THAT GETS YOU THERE</p>
-                </div>
-
-                <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-3">
-                    <div class="grid grid-cols-2 gap-2 text-center text-[10px]">
-                        <div>
-                            <p class="text-cyber-gold font-mono font-bold" x-text="formatMoney(freedomNumber)"></p>
-                            <p class="text-gray-500">Your Target</p>
-                        </div>
-                        <div>
-                            <p class="font-mono font-bold" :class="getStatusColor()" x-text="exitAgeDisplay"></p>
-                            <p class="text-gray-500">Exit Age</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Portfolio preview teaser -->
-                <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-3">
-                    <p class="text-[10px] text-cyber-gold uppercase tracking-widest mb-2 text-center font-bold">Your Portfolio Strategy Preview</p>
-                    <div class="flex items-center justify-between text-[10px] mb-2">
-                        <span class="text-gray-400">Risk Profile:</span>
-                        <span class="text-white font-bold" x-text="portfolioStrategy.label"></span>
-                    </div>
-                    <div class="space-y-1.5">
-                        <template x-for="alloc in portfolioStrategy.allocations" :key="alloc.name">
-                            <div class="flex items-center gap-2">
-                                <div class="flex-1 bg-black rounded-full h-1.5 overflow-hidden">
-                                    <div class="h-full rounded-full transition-all duration-500"
-                                         :class="alloc.color"
-                                         :style="'width:' + alloc.pct + '%'"></div>
-                                </div>
-                                <span class="text-[9px] text-gray-400 w-20 text-right" x-text="alloc.pct + '% ' + alloc.name"></span>
-                            </div>
-                        </template>
-                    </div>
-                    <div class="mt-2 pt-2 border-t border-cyber-gray/30 text-center">
-                        <p class="text-[10px] text-gray-500">Top pick for your profile: <span class="text-cyber-gold font-bold" x-text="portfolioStrategy.teaser"></span></p>
-                        <p class="text-[9px] text-gray-600 mt-1">+ 3 more ETFs matched to your age and risk tolerance</p>
-                    </div>
-                </div>
-
-                <div class="text-center mb-3">
-                    <p class="text-xs text-gray-300 leading-relaxed" x-text="modalSubhead"></p>
-                </div>
-
-                <!-- Phase progress -->
-                <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-4">
-                    <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">Your Progress</p>
-                    <div class="flex items-center gap-2 text-[10px]">
-                        <div class="flex flex-col items-center">
-                            <div class="w-6 h-6 rounded-full bg-cyber-green/20 border border-cyber-green flex items-center justify-center text-cyber-green font-bold">&#10003;</div>
-                            <span class="text-gray-500 mt-1">Target</span>
-                        </div>
-                        <div class="flex-1 h-px bg-cyber-green"></div>
-                        <div class="flex flex-col items-center">
-                            <div class="w-6 h-6 rounded-full bg-cyber-gold/30 border-2 border-cyber-gold flex items-center justify-center text-cyber-gold font-bold animate-pulse">2</div>
-                            <span class="text-cyber-gold mt-1 font-bold">Portfolio</span>
-                        </div>
-                        <div class="flex-1 h-px bg-cyber-gray"></div>
-                        <div class="flex flex-col items-center">
-                            <div class="w-6 h-6 rounded-full bg-cyber-gray/20 border border-cyber-gray flex items-center justify-center text-gray-500 font-bold">3</div>
-                            <span class="text-gray-500 mt-1">Invest</span>
-                        </div>
-                    </div>
-                </div>
-
-                <p class="text-xs text-center text-cyber-gold font-bold mb-2">
-                    &darr; Enter your email. Your personalized ETF portfolio loads instantly.
-                </p>
-
-                <!-- BEEHIIV EMBED (primary) -->
-                <div id="beehiivContainer" class="flex justify-center pb-2 w-full">
-                    <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
-                    <iframe id="beehiivFrame"
-                            src="https://subscribe-forms.beehiiv.com/76441368-8855-465e-a25d-e7a3a75db50a" 
-                            class="beehiiv-embed w-full" 
-                            data-test-id="beehiiv-embed" 
-                            frameborder="0" 
-                            scrolling="no" 
-                            style="width: 100%; max-width: 400px; height: 100%; min-height: 380px; margin: 0; border-radius: 16px !important; background-color: transparent; box-shadow: 0 0 #0000;"
-                            onload="window._beehiivLoaded = true;"></iframe>
-                </div>
-
-                <!-- NATIVE EMAIL FALLBACK (shows if iframe fails) -->
-                <div id="nativeFallbackForm" style="display: none;" class="pb-2">
-                    <div style="background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 12px; padding: 16px;">
-                        <p style="font-size: 10px; color: #666; text-align: center; margin-bottom: 10px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em;">
-                            Enter your email to unlock
-                        </p>
-                        <div style="display: flex; gap: 8px;">
-                            <input type="email" id="fallbackEmailInput" 
-                                   placeholder="you@email.com"
-                                   style="flex: 1; background: #050505; border: 2px solid #333; color: #fff; font-family: 'Inter', sans-serif; font-size: 14px; padding: 12px 14px; border-radius: 8px; outline: none; transition: border-color 0.2s;"
-                                   onfocus="this.style.borderColor='#00FF41'" 
-                                   onblur="this.style.borderColor='#333'"
-                                   onkeydown="if(event.key==='Enter'){event.preventDefault(); document.getElementById('fallbackSubmitBtn').click();}">
-                            <button id="fallbackSubmitBtn" onclick="submitFallbackEmail()" 
-                                    style="background: #00FF41; color: #000; font-weight: 800; font-size: 12px; padding: 12px 18px; border-radius: 8px; border: none; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; transition: all 0.2s;"
-                                    onmouseover="this.style.boxShadow='0 0 20px rgba(0,255,65,0.4)'"
-                                    onmouseout="this.style.boxShadow='none'">
-                                Unlock
-                            </button>
-                        </div>
-                        <p id="fallbackEmailError" style="display: none; font-size: 10px; color: #FF0000; text-align: center; margin-top: 6px;">
-                            Enter a valid email address.
-                        </p>
-                        <p style="font-size: 9px; color: #444; text-align: center; margin-top: 8px;">
-                            Zero spam. Unsubscribe anytime.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Hidden iframe for Beehiiv form submission -->
-                <iframe name="beehiivHiddenTarget" id="beehiivHiddenTarget" style="display:none; width:0; height:0; border:0;"></iframe>
-
-                <!-- FALLBACK DETECTION + NATIVE SUBMIT LOGIC -->
-                <script>
-                (function() {
-                    // Detect if Beehiiv iframe failed to load/render after 3 seconds
-                    window._beehiivLoaded = false;
-                    setTimeout(function() {
-                        var iframe = document.getElementById('beehiivFrame');
-                        var container = document.getElementById('beehiivContainer');
-                        var fallback = document.getElementById('nativeFallbackForm');
-                        
-                        if (!iframe || !fallback) return;
-                        
-                        // Check multiple signals for iframe failure
-                        var iframeVisible = false;
-                        try {
-                            var rect = iframe.getBoundingClientRect();
-                            iframeVisible = rect.height > 50 && rect.width > 50 && window._beehiivLoaded;
-                        } catch(e) {}
-                        
-                        if (!iframeVisible) {
-                            // Hide the broken iframe, show native form
-                            container.style.display = 'none';
-                            fallback.style.display = 'block';
-                        }
-                    }, 3000);
-
-                    // Also show fallback if iframe errors
-                    var iframe = document.getElementById('beehiivFrame');
-                    if (iframe) {
-                        iframe.addEventListener('error', function() {
-                            var container = document.getElementById('beehiivContainer');
-                            var fallback = document.getElementById('nativeFallbackForm');
-                            if (container) container.style.display = 'none';
-                            if (fallback) fallback.style.display = 'block';
-                        });
-                    }
-                })();
-
-                // Native email submission
-                function submitFallbackEmail() {
-                    var input = document.getElementById('fallbackEmailInput');
-                    var error = document.getElementById('fallbackEmailError');
-                    var btn = document.getElementById('fallbackSubmitBtn');
-                    var email = (input.value || '').trim();
-                    
-                    // Validate
-                    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!email || !emailRegex.test(email)) {
-                        error.style.display = 'block';
-                        input.style.borderColor = '#FF0000';
-                        return;
-                    }
-                    error.style.display = 'none';
-                    
-                    // Show processing state
-                    btn.textContent = 'UNLOCKING...';
-                    btn.style.background = '#333';
-                    btn.style.color = '#fff';
-                    btn.disabled = true;
-                    input.disabled = true;
-
-                    // Store email + set flags
-                    try {
-                        localStorage.setItem('freedom_captured_email', email);
-                        localStorage.setItem('freedom_completed', 'true');
-                        localStorage.setItem('freedom_email', 'true');
-                    } catch(e) {}
-
-                    // Attempt Beehiiv subscription via hidden iframe form POST
-                    try {
-                        var hiddenForm = document.createElement('form');
-                        hiddenForm.method = 'POST';
-                        hiddenForm.action = 'https://subscribe-forms.beehiiv.com/76441368-8855-465e-a25d-e7a3a75db50a';
-                        hiddenForm.target = 'beehiivHiddenTarget';
-                        hiddenForm.style.display = 'none';
-                        
-                        var emailField = document.createElement('input');
-                        emailField.type = 'email';
-                        emailField.name = 'email';
-                        emailField.value = email;
-                        hiddenForm.appendChild(emailField);
-                        
-                        document.body.appendChild(hiddenForm);
-                        hiddenForm.submit();
-                    } catch(e) {}
-
-                    // Redirect to Investment Simplifier after short delay
-                    setTimeout(function() {
-                        window.top.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=freedom';
-                    }, 1500);
-                }
-                </script>
-
-                <!-- BEEHIIV REDIRECT HANDLER [REDIRECT GUARD APPLIED] -->
-                <script>
-                (function() {
-                    // [REDIRECT GUARD] Returning subscribers get Smart Router, not auto-redirect
-                    try {
-                        if (localStorage.getItem('freedom_email') === 'true') return;
-                    } catch(e) {}
-
-                    const REDIRECT_URL = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=freedom';
-                    let hasRedirected = false;
-
-                    function doRedirect() {
-                        if (hasRedirected) return;
-                        hasRedirected = true;
-                        try {
-                            localStorage.setItem('freedom_completed', 'true');
-                            localStorage.setItem('freedom_email', 'true');
-                        } catch(e) {}
-                        window.top.location.href = REDIRECT_URL;
-                    }
-
-                    // This safely listens for the official Beehiiv success signal
-                    window.addEventListener('message', function(event) {
-                        if (event.origin && event.origin.includes('beehiiv.com')) {
-                            const data = event.data;
-                            if (typeof data === 'string') {
-                                if (data.includes('subscribed') || data.includes('success') || data.includes('confirmed')) {
-                                    doRedirect();
-                                }
-                            }
-                            if (typeof data === 'object' && data !== null) {
-                                if (data.type === 'beehiiv:subscribe:success' || 
-                                    data.event === 'subscribed' || 
-                                    data.subscribed === true ||
-                                    data.type === 'subscribe_success') {
-                                    doRedirect();
-                                }
-                            }
-                        }
-                    });
-                })();
-                </script>
-
-                <div class="text-center mt-3 pb-2">
-                    <p class="text-[10px] text-gray-500 font-mono tracking-wide mb-2">
-                        Instant access. Shows you exactly what to buy. Zero spam.
-                    </p>
-                    <div x-show="showFallbackLink" x-cloak>
-                        <p class="text-[10px] text-gray-400 mb-2">Already submitted your email?</p>
-                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=freedom" 
-                           class="inline-block text-[11px] font-bold text-cyber-gold hover:text-white transition-colors uppercase tracking-widest">
-                            Open Portfolio Builder &rarr;
-                        </a>
-                    </div>
-                </div>
-
+            <!-- RANK #5: Status Messages with Personalized Math -->
+            <div class="p-3 bg-black border rounded text-center"
+                 :class="statusBorderColor">
+                <p class="text-xs font-bold uppercase" :class="exitAgeColor" x-text="statusMessage"></p>
             </div>
         </div>
 
-        <!-- ============================================== -->
-        <!-- ALREADY SUBSCRIBED POPUP (via CTA click)       -->
-        <!-- ============================================== -->
+        <!-- ========================================== -->
+        <!-- RANK #6: SHARE CARD (Discovery Framing)    -->
+        <!-- ========================================== -->
+        <div class="share-card mb-4" x-show="hasValidInputs && freedomNumber > 0 && yearsToGoal < 100" x-cloak>
+            <p class="text-[10px] text-cyber-gray uppercase tracking-[0.2em] mb-3">Screenshot this. Send it to someone who thinks they can't retire early.</p>
+            <p class="text-xs text-gray-400 mb-1">My Freedom Number:</p>
+            <div class="share-card-number mb-2" x-text="formatMoney(freedomNumber)"></div>
+            <p class="text-xs text-gray-400 mb-1">Exit Age: <span class="text-white font-bold" x-text="exitAgeDisplay"></span></p>
+            <p class="text-xs text-gray-400 mb-1">Monthly: <span class="text-white font-bold" x-text="formatMoney(monthlyInvest) + '/mo'"></span></p>
+            <p class="text-xs font-bold mb-3" :class="exitAgeColor" x-text="'I\\'m ' + displayProgressPercent.toFixed(2) + '% of the way there.'"></p>
+            <p class="text-[10px] text-gray-500 mb-2">I just found out how much I need to never work again.</p>
+            <div class="share-card-brand">@koutalksmoney built a calculator that proves it.</div>
+            <p class="text-[9px] text-cyber-gray/40 mt-3 font-mono">koutalksmoney.com</p>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- RANK #1: CTA BUTTON (Brandon-Language)     -->
+        <!-- Zero ETF/portfolio/vehicle/risk tolerance   -->
+        <!-- ========================================== -->
+        <button @click="handleCTA()" x-show="canProceed"
+            class="group block w-full text-center py-4 rounded-xl font-black uppercase tracking-widest transition-all hover:scale-[1.02] cursor-pointer mb-2"
+            :class="ctaStyle">
+            <span class="flex items-center justify-center gap-2">
+                <span x-text="ctaText"></span>
+                <span class="inline-block transition-transform group-hover:translate-x-1">&#x279C;</span>
+            </span>
+        </button>
+
+        <p class="text-center text-[10px] text-cyber-gray mt-2 opacity-50" x-show="hasValidInputs">
+            Assumes 8% annual return (S&amp;P 500 historical average) compounded monthly. Not financial advice.
+        </p>
+
+        <!-- ========================================== -->
+        <!-- ALREADY SUBSCRIBED POPUP                   -->
+        <!-- ========================================== -->
         <div x-cloak x-show="showSubPopup"
              class="fixed inset-0 z-[70] flex items-center justify-center p-3"
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0">
+             x-transition:enter-end="opacity-100">
 
             <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showSubPopup = false"></div>
 
-            <div class="relative sub-popup"
+            <div class="relative bg-cyber-dark border border-cyber-blue/40 rounded-2xl p-5 w-full max-w-sm text-center z-10"
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 scale-90"
                  x-transition:enter-end="opacity-100 scale-100">
@@ -896,15 +580,15 @@
                     </svg>
                 </button>
 
-                <div class="badge"><span class="dot"></span> Progress Saved</div>
-
-                <h3 class="text-lg font-black text-white uppercase tracking-tight mb-2">
-                    You already unlocked this.
-                </h3>
+                <div class="inline-flex items-center gap-2 bg-cyber-green/10 border border-cyber-green/40 px-3 py-1 rounded-full mb-3">
+                    <span class="w-2 h-2 bg-cyber-green rounded-full animate-pulse"></span>
+                    <span class="text-[10px] font-bold text-cyber-green uppercase tracking-widest">Progress Saved</span>
+                </div>
+                <h3 class="text-lg font-black text-white uppercase tracking-tight mb-2">You already unlocked this.</h3>
+                <!-- RANK #1: Brandon-language -->
                 <p class="text-xs text-gray-400 mb-5 leading-relaxed">
-                    Your Investment Simplifier access is ready. Build your ETF portfolio, or keep tweaking your numbers here.
+                    Your investment plan is ready. See the exact funds for your <span class="text-cyber-gold font-bold" x-text="formatMoney(monthlyInvest)"></span>/mo.
                 </p>
-
                 <div class="space-y-3">
                     <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=freedom"
                        class="block w-full py-3 rounded-lg font-bold uppercase tracking-widest text-sm text-black bg-cyber-green hover:bg-green-400 transition-all cursor-pointer text-center shadow-[0_0_20px_rgba(0,255,65,0.3)]">
@@ -917,6 +601,125 @@
                 </div>
             </div>
         </div>
+
+        <!-- ========================================== -->
+        <!-- RANK #1: EMAIL GATE MODAL (Full Rewrite)   -->
+        <!-- Zero ETF/portfolio/vehicle/risk tolerance   -->
+        <!-- ========================================== -->
+        <div x-cloak x-show="showModal"
+             class="fixed inset-0 z-[70] flex items-start sm:items-center justify-center p-3 pt-8 sm:pt-3"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+            
+            <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showModal = false"></div>
+            
+            <div class="relative bg-cyber-dark border-2 border-cyber-green rounded-2xl p-4 w-full max-w-md shadow-[0_0_30px_rgba(0,255,65,0.2)] max-h-[95vh] overflow-y-auto z-10"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-90"
+                 x-transition:enter-end="opacity-100 scale-100">
+                
+                <button @click="showModal = false" 
+                        class="absolute top-3 right-3 text-cyber-gray/50 hover:text-cyber-gray transition-colors z-10 cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+
+                <div class="text-center mb-3">
+                    <div class="inline-flex items-center gap-2 bg-cyber-green/10 border border-cyber-green/50 px-3 py-1 rounded-full mb-2">
+                        <span class="w-2 h-2 bg-cyber-green rounded-full animate-pulse"></span>
+                        <span class="text-[10px] font-bold text-cyber-green uppercase tracking-widest">Number Locked</span>
+                    </div>
+                    <!-- RANK #1: Personalized modal headlines -->
+                    <h2 class="text-xl sm:text-2xl font-black uppercase text-white tracking-tight" x-html="modalHeadline"></h2>
+                    <p class="text-cyber-blue font-mono text-[10px] mt-1 uppercase tracking-widest" x-text="modalSubhead"></p>
+                </div>
+
+                <!-- Portfolio preview (visual bars, no jargon labels) -->
+                <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-3">
+                    <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">Your Setup Preview</p>
+                    <template x-for="alloc in portfolioStrategy.allocations" :key="alloc.name">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <span class="text-[9px] text-gray-400 w-12" x-text="alloc.name"></span>
+                            <div class="flex-1 h-3 bg-black rounded-full overflow-hidden">
+                                <div class="h-full rounded-full" :class="alloc.color" :style="'width: ' + alloc.pct + '%'"></div>
+                            </div>
+                            <span class="text-[9px] font-mono text-white w-8 text-right" x-text="alloc.pct + '%'"></span>
+                        </div>
+                    </template>
+                    <p class="text-[9px] text-gray-500 mt-2 text-center" x-text="portfolioStrategy.description"></p>
+                </div>
+
+                <!-- RANK #1: Rewritten body copy. Zero jargon. -->
+                <div class="text-center mb-3">
+                    <p class="text-xs text-gray-300 leading-relaxed">
+                        3 questions. 60 seconds. I'll show you the exact funds to set up with your 
+                        <span class="text-cyber-green font-bold" x-text="formatMoney(monthlyInvest)"></span>/mo. 
+                        No jargon. No guessing.
+                    </p>
+                </div>
+
+                <div class="bg-black/50 border border-cyber-gray rounded-lg p-3 mb-4">
+                    <p class="text-[10px] text-cyber-gray uppercase tracking-widest mb-2 text-center">What Happens Next:</p>
+                    <div class="flex items-center gap-2 text-[10px]">
+                        <div class="flex flex-col items-center">
+                            <div class="w-6 h-6 rounded-full bg-cyber-green/20 border border-cyber-green flex items-center justify-center text-cyber-green font-bold">1</div>
+                            <span class="text-gray-500 mt-1">Email</span>
+                        </div>
+                        <div class="flex-1 h-px bg-cyber-gray"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-6 h-6 rounded-full bg-cyber-blue/20 border border-cyber-blue flex items-center justify-center text-cyber-blue font-bold">2</div>
+                            <span class="text-gray-500 mt-1">Your Funds</span>
+                        </div>
+                        <div class="flex-1 h-px bg-cyber-gray"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-6 h-6 rounded-full bg-cyber-gold/20 border border-cyber-gold flex items-center justify-center text-cyber-gold font-bold">3</div>
+                            <span class="text-gray-500 mt-1">Invest</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center pb-2">
+                    <iframe id="beehiivFrame"
+                            src="https://subscribe-forms.beehiiv.com/63ac9ac6-ada8-47a5-b5b6-654bdf88a7b6" 
+                            class="beehiiv-embed" 
+                            data-test-id="beehiiv-embed" 
+                            frameborder="0" 
+                            scrolling="no" 
+                            style="width: 400px; height: 100%; min-height: 380px; margin: 0; border-radius: 16px 16px 16px 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
+                </div>
+                <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+                <!-- RANK #9: Beehiiv Attribution -->
+                <script async src="https://universal.beehiiv.com/v1/attribution.js"></script>
+
+                <!-- RANK #1: Rewritten email prompt -->
+                <div class="text-center mt-2 pb-2">
+                    <p class="text-[10px] text-gray-500 font-mono tracking-wide">
+                        Drop your email. Your <span x-text="formatMoney(monthlyInvest)"></span>/mo investment plan loads in 10 seconds.
+                    </p>
+                </div>
+                <div x-show="showFallbackLink" x-cloak class="text-center mt-2">
+                    <p class="text-[10px] text-gray-400 mb-2">Already submitted your email?</p>
+                    <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=freedom" 
+                       class="inline-block text-[11px] font-bold text-cyber-gold hover:text-white transition-colors uppercase tracking-widest">
+                        Show Me What To Buy &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <footer class="site-footer w-full">
+            <a href="https://instagram.com/koutalksmoney" target="_blank" rel="noopener noreferrer" class="font-mono text-xs">
+                @koutalksmoney
+            </a>
+            <p class="text-[10px] text-gray-600 mt-2 font-mono">
+                Built by Kou Talks Money. 2026. All rights reserved.
+            </p>
+        </footer>
 
     </main>
 
@@ -932,10 +735,9 @@
                 annualReturn: 0.08,
                 
                 showModal: false,
-                showSubPopup: false,
                 showSmartRouter: false,
+                showSubPopup: false,
                 showHowItWorks: false,
-                showDisclaimer: false,
                 
                 isCalculating: false,
                 calculatingText: '',
@@ -951,7 +753,6 @@
                 isReturningUser: false,
                 isReturningSubscriber: false,
                 isUsingDefaults: false,
-                showBudgetImportBadge: false, // [FIX 5]
                 lastVisitLabel: '',
 
                 // Smart router cached values
@@ -962,6 +763,470 @@
                 showFallbackLink: false,
                 _fallbackTimer: null,
                 _moneyFmt: null,
+                _redirectHandler: null,
+                _hasRedirected: false,
+                saveDebounceTimer: null,
+
+                // ===========================
+                // INIT
+                // ===========================
+                init() {
+                    const hasSavedState = this.loadState();
+                    
+                    if (hasSavedState) {
+                        this.isReturningUser = true;
+                        this._hasCalculatedOnce = true;
+
+                        try {
+                            const hasEmail = localStorage.getItem('freedom_calculator_email');
+                            if (hasEmail === 'true') this.isReturningSubscriber = true;
+                        } catch(e) {}
+
+                        this.savedFreedomNumber = this.freedomNumber;
+                        this.savedExitLabel = this.exitAgeDisplay;
+                        this.savedExitColor = this.exitAgeColor;
+                        
+                        trackEvent('smart_router_shown', { state: this.isReturningSubscriber ? 'subscribed' : 'calculator' });
+                        this.showSmartRouter = true;
+                    } else {
+                        this.applyDefaults();
+                    }
+
+                    // Watch exit age for celebrations
+                    this.$watch('exitAge', (newAge) => {
+                        if (!this._hasCalculatedOnce) return;
+                        this.checkMilestones(newAge, this.previousExitAge);
+                        this.previousExitAge = newAge;
+                    });
+
+                    // Watch modal for redirect handler
+                    this.$watch('showModal', (isOpen) => {
+                        if (isOpen) {
+                            this.activateRedirectHandler();
+                            trackEvent('modal_opened', { freedomNumber: this.freedomNumber, exitAge: this.exitAge });
+                        } else {
+                            this.deactivateRedirectHandler();
+                        }
+                    });
+                },
+
+                // RANK #3: Default recalibration ($2500/mo income, $100/mo invest)
+                applyDefaults() {
+                    this.age = 20;
+                    this.currentWealth = 500;
+                    this.desiredIncome = 2500;
+                    this.monthlyInvest = 100;
+                    this.isUsingDefaults = true;
+                },
+
+                clearDefaults() {
+                    this.age = null;
+                    this.currentWealth = null;
+                    this.desiredIncome = null;
+                    this.monthlyInvest = null;
+                    this.isUsingDefaults = false;
+                },
+
+                dismissSmartRouter() {
+                    this.showSmartRouter = false;
+                    trackEvent('smart_router_choice', { choice: 'recalculate' });
+                },
+
+                // ===========================
+                // RANK #2: Context-aware label
+                // ===========================
+                get monthlyLabel() {
+                    try {
+                        const autopilotData = localStorage.getItem('autopilot_completed');
+                        if (autopilotData) return 'Your Monthly Autopilot Amount';
+                    } catch(e) {}
+                    return 'What You Can Set Aside Per Month';
+                },
+
+                // ===========================
+                // INPUT HANDLING
+                // ===========================
+                onInputChange() {
+                    this.isUsingDefaults = false;
+                    if (this.saveDebounceTimer) clearTimeout(this.saveDebounceTimer);
+                    
+                    if (!this._hasCalculatedOnce && this.hasValidInputs) {
+                        this.runCalculatingAnimation();
+                        this._hasCalculatedOnce = true;
+                    } else {
+                        this.saveDebounceTimer = setTimeout(() => {
+                            this.saveResults();
+                            trackEvent('input_changed', { age: this.age, income: this.desiredIncome, monthly: this.monthlyInvest, saved: this.currentWealth });
+                        }, 300);
+                    }
+                },
+
+                runCalculatingAnimation() {
+                    this.isCalculating = true;
+                    const phases = [
+                        'Applying Rule of 25...',
+                        'Projecting market returns...',
+                        'Calculating compound growth...',
+                        'Locking exit timeline...'
+                    ];
+                    let i = 0;
+                    this.calculatingText = phases[0];
+                    const interval = setInterval(() => {
+                        i++;
+                        if (i < phases.length) {
+                            this.calculatingText = phases[i];
+                        } else {
+                            clearInterval(interval);
+                            this.isCalculating = false;
+                            this.previousExitAge = this.exitAge;
+                            this.saveResults();
+                        }
+                    }, 400);
+                },
+
+                // ===========================
+                // VALIDATION
+                // ===========================
+                get validationMessage() {
+                    if (this.age !== null && (this.age < 14 || this.age > 80)) return 'Enter an age between 14 and 80.';
+                    if (this.desiredIncome !== null && this.desiredIncome < 500) return 'Try at least $500/mo so the math works.';
+                    return '';
+                },
+
+                get hasValidInputs() {
+                    return this.age > 0 && this.desiredIncome > 0 && this.monthlyInvest > 0 && !this.validationMessage;
+                },
+
+                get canProceed() {
+                    return this.hasValidInputs && this.freedomNumber > 0;
+                },
+
+                // ===========================
+                // CORE MATH
+                // ===========================
+                get freedomNumber() {
+                    if (!this.desiredIncome || this.desiredIncome <= 0) return 0;
+                    return this.desiredIncome * 12 * 25;
+                },
+
+                get yearsToGoal() {
+                    const r = this.annualReturn / 12;
+                    const fv = this.freedomNumber;
+                    const pv = this.currentWealth || 0;
+                    const pmt = this.monthlyInvest || 0;
+                    if (pv >= fv) return 0;
+                    if (pmt <= 0 && pv <= 0) return 999;
+                    const numerator = (fv * r) + pmt;
+                    const denominator = (pv * r) + pmt;
+                    if (denominator <= 0) return 999;
+                    if (numerator / denominator <= 0) return 999;
+                    const months = Math.log(numerator / denominator) / Math.log(1 + r);
+                    return Math.max(0, months / 12);
+                },
+
+                get exitAge() {
+                    return (this.age || 0) + this.yearsToGoal;
+                },
+
+                get exitAgeDisplay() {
+                    if (this.yearsToGoal >= 100) return "NEVER";
+                    return this.exitAge.toFixed(1);
+                },
+
+                // RANK #4: Cost of Waiting per year
+                get costOfWaitingPerYear() {
+                    if (!this.hasValidInputs || this.yearsToGoal >= 100) return 0;
+                    const r = this.annualReturn / 12;
+                    const pv = this.currentWealth || 0;
+                    const pmt = this.monthlyInvest || 0;
+                    const startAge = this.age || 20;
+                    const targetAge = Math.min(this.exitAge, 65);
+                    if (startAge >= targetAge) return 0;
+
+                    const monthsNow = (targetAge - startAge) * 12;
+                    const monthsLater = (targetAge - startAge - 1) * 12;
+                    if (monthsLater <= 0) return 0;
+
+                    const fvNow = pv * Math.pow(1 + r, monthsNow) + pmt * ((Math.pow(1 + r, monthsNow) - 1) / r);
+                    const fvLater = pv * Math.pow(1 + r, monthsLater) + pmt * ((Math.pow(1 + r, monthsLater) - 1) / r);
+                    return Math.max(0, fvNow - fvLater);
+                },
+
+                goToCostOfWaiting() {
+                    const params = new URLSearchParams({
+                        from: 'freedom',
+                        age: this.age || 20,
+                        contribution: this.monthlyInvest || 100
+                    });
+                    window.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html?' + params.toString();
+                },
+
+                // ===========================
+                // PROGRESS
+                // ===========================
+                get progressPercent() {
+                    if (this.freedomNumber === 0) return 0;
+                    return Math.min(100, Math.max(0, ((this.currentWealth || 0) / this.freedomNumber) * 100));
+                },
+
+                // RANK #8: Goal Gradient. Never start at 0%.
+                get displayProgressPercent() {
+                    if (this.progressPercent < 5 && this.hasValidInputs) return Math.max(15, this.progressPercent);
+                    return this.progressPercent;
+                },
+
+                get displayProgressLabel() {
+                    if (this.progressPercent < 5 && this.hasValidInputs) {
+                        return "You showed up. That's 15%.";
+                    }
+                    return this.progressPercent.toFixed(1) + '% of your journey complete';
+                },
+
+                get progressBarColor() {
+                    const age = this.exitAge;
+                    if (age < 40) return 'bg-cyber-green shadow-[0_0_8px_rgba(0,255,65,0.4)]';
+                    if (age < 55) return 'bg-cyber-gold shadow-[0_0_8px_rgba(255,215,0,0.4)]';
+                    return 'bg-cyber-red shadow-[0_0_8px_rgba(255,0,0,0.4)]';
+                },
+
+                // ===========================
+                // COLOR SYSTEM
+                // ===========================
+                get exitAgeColor() {
+                    if (this.yearsToGoal >= 100) return 'text-cyber-red';
+                    const age = this.exitAge;
+                    if (age < 40) return 'text-cyber-green';
+                    if (age < 55) return 'text-cyber-gold';
+                    return 'text-cyber-red';
+                },
+
+                get statusBorderColor() {
+                    if (this.yearsToGoal >= 100) return 'border-cyber-red/30';
+                    const age = this.exitAge;
+                    if (age < 40) return 'border-cyber-green/30';
+                    if (age < 55) return 'border-cyber-gold/30';
+                    return 'border-cyber-red/30';
+                },
+
+                // ===========================
+                // RANK #5: STATUS MESSAGES
+                // Personalized math, zero jargon
+                // ===========================
+                get statusMessage() {
+                    if (this.yearsToGoal >= 100) {
+                        const m = this.formatMoney(this.monthlyInvest);
+                        return 'AT ' + m + '/MO, THE MATH DOESN\'T CLOSE. BUT IT\'S FIXABLE. SEE HOW BELOW.';
+                    }
+                    const age = this.exitAge;
+                    const exitRound = Math.round(age);
+                    const years = Math.round(this.yearsToGoal);
+                    const m = this.formatMoney(this.monthlyInvest);
+                    
+                    if (age < 30) {
+                        return m + '/MO FOR ' + years + ' YEARS. FREEDOM AT ' + exitRound + '. MOST PEOPLE WON\'T BELIEVE THIS MATH.';
+                    }
+                    if (age < 40) {
+                        return m + '/MO GETS YOU THERE BY ' + exitRound + '. THAT\'S ' + years + ' YEARS. THE MATH DOES THE WORK.';
+                    }
+                    if (age < 55) {
+                        return m + '/MO GETS YOU THERE AT ' + exitRound + '. BUMP IT UP AND WATCH THE AGE DROP.';
+                    }
+                    return m + '/MO GETS YOU THERE AT ' + exitRound + '. THE RIGHT SETUP SHAVES YEARS OFF.';
+                },
+
+                // ===========================
+                // RANK #1: CTA TEXT
+                // 4 states, personalized, zero jargon
+                // ===========================
+                get ctaText() {
+                    const m = this.formatMoney(this.monthlyInvest);
+                    if (this.yearsToGoal >= 100) return 'SHOW ME HOW TO FIX THIS';
+                    const age = this.exitAge;
+                    if (age < 40) return 'SHOW ME WHAT TO BUY FOR ' + m + '/MO';
+                    if (age < 55) return 'SHOW ME HOW TO GET THERE BY ' + Math.round(age);
+                    return 'SHOW ME HOW TO FIX THIS';
+                },
+
+                get ctaStyle() {
+                    if (this.yearsToGoal >= 100) return 'bg-cyber-red hover:bg-red-600 text-white shadow-[0_0_20px_rgba(255,0,0,0.4)]';
+                    const age = this.exitAge;
+                    if (age < 40) return 'bg-cyber-green hover:bg-green-500 text-black shadow-[0_0_20px_rgba(0,255,65,0.4)]';
+                    if (age < 55) return 'bg-cyber-gold hover:bg-yellow-500 text-black shadow-[0_0_20px_rgba(255,215,0,0.4)]';
+                    return 'bg-cyber-red hover:bg-red-600 text-white shadow-[0_0_20px_rgba(255,0,0,0.4)]';
+                },
+
+                // ===========================
+                // RANK #1: MODAL HEADLINES
+                // Personalized, zero jargon
+                // ===========================
+                get modalHeadline() {
+                    if (this.yearsToGoal >= 100) {
+                        return 'AT ' + this.formatMoney(this.monthlyInvest) + '/MO YOU DON\'T GET THERE YET.<br>HERE\'S HOW TO CHANGE THAT.';
+                    }
+                    const age = this.exitAge;
+                    const exitRound = Math.round(age);
+                    if (age < 30) return 'YOU HIT ' + exitRound + '.<br>NOW I\'LL SHOW YOU EXACTLY WHAT TO BUY.';
+                    if (age < 40) return 'FREEDOM AT ' + exitRound + '.<br>HERE\'S WHAT TO BUY TO LOCK IT IN.';
+                    if (age < 55) return 'YOUR NUMBER IS ' + this.formatMoney(this.freedomNumber) + '.<br>THE RIGHT SETUP SHAVES YEARS OFF.';
+                    return 'YOUR NUMBER IS ' + this.formatMoney(this.freedomNumber) + '.<br>HERE\'S WHAT TO BUY TO SPEED THIS UP.';
+                },
+
+                get modalSubhead() {
+                    if (this.yearsToGoal >= 100) return 'Phase 1 Complete. Phase 2: Your Investment Plan';
+                    const age = this.exitAge;
+                    if (age < 40) return 'Freedom Number Locked. Next: Your Investment Plan';
+                    return 'Phase 1 Complete. Phase 2: Your Investment Plan';
+                },
+
+                // ===========================
+                // PORTFOLIO STRATEGY (Age-Based)
+                // RANK #1: Labels cleaned
+                // ===========================
+                get portfolioStrategy() {
+                    const a = this.age || 20;
+                    if (a < 25) return {
+                        label: 'Maximum Growth',
+                        allocations: [
+                            { name: 'Growth', pct: 80, color: 'bg-cyber-green' },
+                            { name: 'Index', pct: 15, color: 'bg-cyber-blue' },
+                            { name: 'Bonds', pct: 5, color: 'bg-cyber-gold' }
+                        ],
+                        description: 'Your 30+ year horizon is your biggest weapon. Heavy growth, minimal bonds.'
+                    };
+                    if (a < 35) return {
+                        label: 'Growth',
+                        allocations: [
+                            { name: 'Growth', pct: 65, color: 'bg-cyber-green' },
+                            { name: 'Index', pct: 25, color: 'bg-cyber-blue' },
+                            { name: 'Bonds', pct: 10, color: 'bg-cyber-gold' }
+                        ],
+                        description: 'Strong growth with a wider index base. 20+ year runway.'
+                    };
+                    return {
+                        label: 'Balanced Growth',
+                        allocations: [
+                            { name: 'Growth', pct: 50, color: 'bg-cyber-green' },
+                            { name: 'Index', pct: 30, color: 'bg-cyber-blue' },
+                            { name: 'Bonds', pct: 20, color: 'bg-cyber-gold' }
+                        ],
+                        description: 'Balanced approach. Growth with stability as the timeline shortens.'
+                    };
+                },
+
+                // ===========================
+                // RANK #7: CELEBRATIONS
+                // Personalized, contextual
+                // ===========================
+                checkMilestones(newAge, oldAge) {
+                    if (newAge >= oldAge || newAge >= 100) return;
+                    
+                    // RANK #7: First slider increase celebration
+                    if (Math.floor(oldAge / 5) > Math.floor(newAge / 5) && newAge < oldAge && oldAge < 100) {
+                        const yearsDrop = Math.round(oldAge - newAge);
+                        if (yearsDrop >= 1) {
+                            this.showMiniCelebration('-' + yearsDrop + ' YEARS. THAT\'S WHAT MORE $/MO BUYS.');
+                        }
+                    }
+
+                    // RANK #7: Personalized celebrations with context
+                    if (oldAge >= 30 && newAge < 30) {
+                        this.triggerCelebration();
+                        this.showMiniCelebration('FREEDOM AT ' + Math.round(newAge) + '. MOST PEOPLE RETIRE AT 65.');
+                        trackEvent('celebration_triggered', { type: 'legendary', exitAge: newAge });
+                    } else if (oldAge >= 40 && newAge < 40) {
+                        this.triggerCelebration();
+                        this.showMiniCelebration('FREEDOM AT ' + Math.round(newAge) + '. ELITE.');
+                        trackEvent('celebration_triggered', { type: 'elite', exitAge: newAge });
+                    } else if (oldAge >= 50 && newAge < 50) {
+                        this.showMiniCelebration('UNDER 50!');
+                        trackEvent('celebration_triggered', { type: 'under50', exitAge: newAge });
+                    }
+                },
+
+                showMiniCelebration(text) {
+                    this.miniCelebrationText = text;
+                    setTimeout(() => this.miniCelebrationText = '', 2000);
+                },
+
+                triggerCelebration() {
+                    this.showCelebration = true;
+                    this.makeConfetti();
+                    setTimeout(() => this.showCelebration = false, 600);
+                },
+
+                makeConfetti() {
+                    const colors = ['#00FF41', '#FFD700', '#00F0FF'];
+                    const container = document.body;
+                    for (let i = 0; i < 30; i++) {
+                        const el = document.createElement('div');
+                        el.classList.add('confetti');
+                        el.style.left = Math.random() * 100 + 'vw';
+                        el.style.top = '-20px';
+                        el.style.width = '10px';
+                        el.style.height = '10px';
+                        el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                        el.style.animationDelay = (Math.random() * 0.5) + 's';
+                        container.appendChild(el);
+                        setTimeout(() => el.remove(), 4000);
+                    }
+                },
+
+                // ===========================
+                // CTA HANDLER
+                // ===========================
+                handleCTA() {
+                    if (!this.canProceed) return;
+                    trackEvent('cta_clicked', { exitAge: this.exitAge, freedomNumber: this.freedomNumber });
+                    try {
+                        const alreadySubscribed = localStorage.getItem('freedom_calculator_email') === 'true';
+                        if (alreadySubscribed) { this.showSubPopup = true; }
+                        else { this.showModal = true; }
+                    } catch(e) { this.showModal = true; }
+
+                    this.showFallbackLink = false;
+                    clearTimeout(this._fallbackTimer);
+                    this._fallbackTimer = setTimeout(() => { this.showFallbackLink = true; }, 15000);
+                },
+
+                // ===========================
+                // BEEHIIV REDIRECT
+                // ===========================
+                doBeehiivRedirect() {
+                    if (this._hasRedirected) return;
+                    this._hasRedirected = true;
+                    try {
+                        localStorage.setItem('freedom_completed', 'true');
+                        localStorage.setItem('freedom_calculator_email', 'true');
+                    } catch(e) {}
+                    trackEvent('email_captured', { freedomNumber: this.freedomNumber, exitAge: this.exitAge });
+                    window.top.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=freedom';
+                },
+
+                activateRedirectHandler() {
+                    const self = this;
+                    this._redirectHandler = function(event) {
+                        if (!self.showModal) return;
+                        if (event.origin && event.origin.includes('beehiiv.com')) {
+                            const data = event.data;
+                            if (typeof data === 'string') {
+                                if (data.includes('subscribed') || data.includes('success') || data.includes('confirmed')) {
+                                    self.doBeehiivRedirect();
+                                }
+                            }
+                            if (typeof data === 'object' && data !== null) {
+                                if (data.type === 'beehiiv:subscribe:success' || data.event === 'subscribed' || data.subscribed === true || data.type === 'subscribe_success') {
+                                    self.doBeehiivRedirect();
+                                }
+                            }
+                        }
+                    };
+                    window.addEventListener('message', this._redirectHandler);
+                },
+
+                deactivateRedirectHandler() {
+                    if (this._redirectHandler) { window.removeEventListener('message', this._redirectHandler); this._redirectHandler = null; }
+                },
 
                 // ===========================
                 // PERSISTENCE
@@ -992,21 +1257,6 @@
                         if (data.currentWealth !== undefined) this.currentWealth = data.currentWealth;
                         if (data.desiredIncome) this.desiredIncome = data.desiredIncome;
                         if (data.monthlyInvest) this.monthlyInvest = data.monthlyInvest;
-                        this._hasCalculatedOnce = true;
-
-                        // Cache for smart router display
-                        if (data.freedomNumber) this.savedFreedomNumber = data.freedomNumber;
-                        if (data.exitAge) {
-                            const ea = data.exitAge;
-                            if (data.freedomYears >= 100) {
-                                this.savedExitLabel = 'NEVER';
-                                this.savedExitColor = 'text-cyber-red';
-                            } else {
-                                this.savedExitLabel = ea.toFixed(1) + ' YRS';
-                                this.savedExitColor = ea < 40 ? 'text-cyber-green' : ea < 55 ? 'text-cyber-gold' : 'text-cyber-red';
-                            }
-                        }
-
                         if (data.calculatedAt) {
                             const diff = Date.now() - new Date(data.calculatedAt).getTime();
                             const mins = Math.floor(diff / 60000);
@@ -1021,383 +1271,21 @@
                 },
 
                 resetToDefaults() {
-                    this.age = null;
-                    this.currentWealth = null;
-                    this.desiredIncome = null;
-                    this.monthlyInvest = null;
-                    this._hasCalculatedOnce = false;
                     this.isReturningUser = false;
                     this.isReturningSubscriber = false;
-                    this.isUsingDefaults = false;
-                    this.showBudgetImportBadge = false; // [FIX 5]
-                    this.previousExitAge = 999;
-                    try { localStorage.removeItem('freedom_calculator_result'); } catch(e) {}
-                },
-
-                prefillFromBudget() {
-                    try {
-                        const budgetData = localStorage.getItem('budget_calculator_result');
-                        if (!budgetData) return false;
-                        const bd = JSON.parse(budgetData);
-                        if (bd.monthlyInvestment) this.monthlyInvest = bd.monthlyInvestment;
-                        if (bd.age) this.age = bd.age;
-                        this.showBudgetImportBadge = true; // [FIX 5]
-                        return true;
-                    } catch(e) { return false; }
-                },
-
-                applyDefaults() {
-                    this.age = 20;
-                    this.currentWealth = 500;
-                    this.desiredIncome = 5000;
-                    this.monthlyInvest = 200;
-                    this.isUsingDefaults = true;
-                },
-
-                clearDefaults() {
-                    this.age = null;
-                    this.currentWealth = null;
-                    this.desiredIncome = null;
-                    this.monthlyInvest = null;
-                    this.isUsingDefaults = false;
-                    this.showBudgetImportBadge = false; // [FIX 5]
                     this._hasCalculatedOnce = false;
-                },
-
-                dismissSmartRouter() {
-                    this.showSmartRouter = false;
-                },
-
-                // ===========================
-                // INIT
-                // ===========================
-                init() {
-                    const hasSavedState = this.loadState();
-                    const hasEmailSubscribed = localStorage.getItem('freedom_email') === 'true';
-                    
-                    if (hasSavedState && hasEmailSubscribed) {
-                        this.isReturningUser = true;
-                        this.isReturningSubscriber = true;
-                        this.showSmartRouter = true;
-                    } else if (hasSavedState) {
-                        this.isReturningUser = true;
-                    } else {
-                        const hasBudgetData = this.prefillFromBudget();
-                        if (!hasBudgetData) {
-                            this.applyDefaults();
-                        }
-                    }
-
-                    if (this.hasValidInputs && !this._hasCalculatedOnce) {
-                        this.$nextTick(() => this.onInputChange());
-                    }
-
-                    this.$watch('freedomNumber', (value, oldValue) => {
-                        if (Math.abs(value - oldValue) > 1 && this.hasValidInputs) {
-                            this.triggerShockwave = true;
-                            setTimeout(() => this.triggerShockwave = false, 150);
-                        }
-                    });
-                    
-                    this.$watch('exitAge', (newAge, oldAge) => {
-                        if (!this.hasValidInputs || this.yearsToGoal >= 100) return;
-                        this.checkMilestones(newAge, oldAge);
-                    });
-                },
-
-                // ===========================
-                // INPUT HANDLER
-                // ===========================
-                onInputChange() {
-                    if (this.isUsingDefaults) this.isUsingDefaults = false;
-                    if (!this.hasValidInputs) return;
-
-                    if (!this._hasCalculatedOnce) {
-                        this.runCalculatingAnimation();
-                        this._hasCalculatedOnce = true;
-                    } else {
-                        clearTimeout(this._calcDebounce);
-                        this._calcDebounce = setTimeout(() => this.saveResults(), 300);
-                    }
-                },
-                
-                runCalculatingAnimation() {
-                    this.isCalculating = true;
-                    let step = 0;
-                    
-                    const steps = [
-                        'Applying Rule of 25...',
-                        'Factoring 8% market returns (S&P 500 avg)...',
-                        'Projecting compound growth...',
-                        'Calculating exit timeline...'
-                    ];
-                    
-                    const interval = setInterval(() => {
-                        this.calculatingText = steps[step];
-                        step++;
-                        
-                        if (step >= steps.length) {
-                            clearInterval(interval);
-                            setTimeout(() => {
-                                this.isCalculating = false;
-                                this.saveResults();
-                            }, 300);
-                        }
-                    }, 350);
-                },
-
-                // ===========================
-                // CELEBRATIONS
-                // ===========================
-                checkMilestones(newAge, oldAge) {
-                    if (oldAge >= 30 && newAge < 30) {
-                        this.triggerCelebration();
-                        this.showMiniCelebration('LEGENDARY. UNDER 30.');
-                    } else if (oldAge >= 40 && newAge < 40) {
-                        this.triggerCelebration();
-                        this.showMiniCelebration('UNDER 40. ELITE.');
-                    } else if (oldAge >= 50 && newAge < 50) {
-                        this.showMiniCelebration('UNDER 50!');
-                    } else if (Math.floor(oldAge / 5) > Math.floor(newAge / 5) && newAge < oldAge) {
-                        this.showMiniCelebration('-' + Math.round(oldAge - newAge) + ' YEARS');
-                    }
-                },
-                
-                showMiniCelebration(text) {
-                    this.miniCelebrationText = text;
-                    setTimeout(() => this.miniCelebrationText = '', 1200);
-                },
-                
-                triggerCelebration() {
-                    this.showCelebration = true;
-                    this.makeConfetti();
-                    setTimeout(() => this.showCelebration = false, 600);
-                },
-                
-                makeConfetti() {
-                    const colors = ['#00FF41', '#FFD700', '#00F0FF'];
-                    const container = document.body;
-                    for (let i = 0; i < 30; i++) {
-                        const el = document.createElement('div');
-                        el.classList.add('confetti');
-                        el.style.left = Math.random() * 100 + 'vw';
-                        el.style.top = '-20px';
-                        el.style.width = '10px';
-                        el.style.height = '10px';
-                        el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                        el.style.animationDuration = (Math.random() * 2 + 2) + 's';
-                        el.style.animationDelay = (Math.random() * 0.5) + 's';
-                        container.appendChild(el);
-                        setTimeout(() => el.remove(), 4000);
-                    }
-                },
-
-                // ===========================
-                // CTA
-                // ===========================
-                handleCTA() {
-                    if (!this.canProceed) return;
+                    this.previousExitAge = 999;
                     try {
-                        if (localStorage.getItem('freedom_email') === 'true') {
-                            this.showSubPopup = true;
-                            return;
-                        }
+                        localStorage.removeItem('freedom_calculator_result');
+                        localStorage.removeItem('freedom_completed');
+                        localStorage.removeItem('freedom_calculator_email');
                     } catch(e) {}
-                    this.showModal = true;
-                    this.showFallbackLink = false;
-                    clearTimeout(this._fallbackTimer);
-                    this._fallbackTimer = setTimeout(() => {
-                        this.showFallbackLink = true;
-                    }, 15000);
+                    this.applyDefaults();
                 },
 
                 // ===========================
-                // PORTFOLIO STRATEGY (Age-Based)
+                // FORMATTING
                 // ===========================
-                get portfolioStrategy() {
-                    const a = this.age || 20;
-                    if (a < 25) return {
-                        label: 'Aggressive Growth',
-                        allocations: [
-                            { name: 'Growth', pct: 80, color: 'bg-cyber-green' },
-                            { name: 'Index', pct: 15, color: 'bg-cyber-blue' },
-                            { name: 'Bonds', pct: 5, color: 'bg-cyber-gold' }
-                        ],
-                        teaser: 'VTI (Vanguard Total Stock Market)',
-                        description: 'Your 30+ year horizon is your biggest weapon. Maximum equity exposure with minimal bond drag.'
-                    };
-                    if (a < 35) return {
-                        label: 'Growth',
-                        allocations: [
-                            { name: 'Growth', pct: 70, color: 'bg-cyber-green' },
-                            { name: 'Index', pct: 20, color: 'bg-cyber-blue' },
-                            { name: 'Bonds', pct: 10, color: 'bg-cyber-gold' }
-                        ],
-                        teaser: 'VOO (Vanguard S&P 500)',
-                        description: 'Strong equity foundation with a stabilizing index layer.'
-                    };
-                    if (a < 45) return {
-                        label: 'Balanced Growth',
-                        allocations: [
-                            { name: 'Growth', pct: 55, color: 'bg-cyber-green' },
-                            { name: 'Index', pct: 25, color: 'bg-cyber-blue' },
-                            { name: 'Bonds', pct: 20, color: 'bg-cyber-gold' }
-                        ],
-                        teaser: 'VTI (Vanguard Total Stock Market)',
-                        description: 'Balanced approach: growth engine with a meaningful bond cushion.'
-                    };
-                    if (a < 55) return {
-                        label: 'Conservative Growth',
-                        allocations: [
-                            { name: 'Growth', pct: 40, color: 'bg-cyber-green' },
-                            { name: 'Index', pct: 30, color: 'bg-cyber-blue' },
-                            { name: 'Bonds', pct: 30, color: 'bg-cyber-gold' }
-                        ],
-                        teaser: 'SCHD (Schwab US Dividend)',
-                        description: 'Shifting toward income generation while maintaining growth potential.'
-                    };
-                    return {
-                        label: 'Capital Preservation',
-                        allocations: [
-                            { name: 'Growth', pct: 25, color: 'bg-cyber-green' },
-                            { name: 'Index', pct: 25, color: 'bg-cyber-blue' },
-                            { name: 'Bonds', pct: 50, color: 'bg-cyber-gold' }
-                        ],
-                        teaser: 'BND (Vanguard Total Bond)',
-                        description: 'Prioritizing capital preservation with steady income generation.'
-                    };
-                },
-
-                // ===========================
-                // COMPUTED PROPERTIES
-                // ===========================
-                get hasValidInputs() {
-                    return this.age !== null && this.age > 0 &&
-                           this.desiredIncome !== null && this.desiredIncome > 0 &&
-                           this.monthlyInvest !== null;
-                },
-
-                get canProceed() {
-                    return this.hasValidInputs && 
-                           this.age >= 14 && this.age <= 80 &&
-                           this.desiredIncome >= 500 &&
-                           this.monthlyInvest > 0 &&
-                           !this.validationMessage;
-                },
-
-                get validationMessage() {
-                    if (this.age !== null && (this.age < 14 || this.age > 80)) return "Age should be between 14 and 80.";
-                    if (this.currentWealth !== null && this.currentWealth < 0) return "Savings can't be negative (but zero is fine).";
-                    if (this.desiredIncome !== null && this.desiredIncome > 0 && this.desiredIncome < 500) return "Minimum $500/month to calculate.";
-                    if (this.monthlyInvest !== null && this.monthlyInvest < 0) return "Investment can't be negative.";
-                    return null;
-                },
-
-                get freedomNumber() {
-                    if (!this.desiredIncome || this.desiredIncome <= 0) return 0;
-                    return this.desiredIncome * 12 * 25;
-                },
-
-                get yearsToGoal() {
-                    const r = this.annualReturn / 12;
-                    const fv = this.freedomNumber;
-                    const pv = this.currentWealth || 0;
-                    const pmt = this.monthlyInvest || 0;
-
-                    if (fv <= 0) return 999;
-                    if (pv >= fv) return 0;
-                    if (pmt <= 0 && pv <= 0) return 999;
-
-                    const numerator = (fv * r) + pmt;
-                    const denominator = (pv * r) + pmt;
-                    
-                    if (denominator <= 0) return 999;
-
-                    const months = Math.log(numerator / denominator) / Math.log(1 + r);
-                    
-                    return Math.max(0, months / 12);
-                },
-
-                get exitAge() {
-                    return (this.age || 0) + this.yearsToGoal;
-                },
-
-                get exitAgeDisplay() {
-                    if (this.yearsToGoal >= 100) return "NEVER";
-                    return this.exitAge.toFixed(1) + " YRS";
-                },
-
-                get timeProgressPercent() {
-                    if (this.yearsToGoal >= 100 || this.yearsToGoal <= 0) return 0;
-                    if (!this.age || this.age < 14) return 0;
-                    const startAge = Math.max(14, this.age - 5);
-                    const totalJourney = this.exitAge - startAge;
-                    if (totalJourney <= 0) return 100;
-                    const completed = this.age - startAge;
-                    return Math.min(100, Math.max(5, (completed / totalJourney) * 100));
-                },
-
-                // [FIX 3] Dynamic status messages with user's actual numbers
-                get statusMessage() {
-                    if (!this.hasValidInputs) return "";
-                    if (this.yearsToGoal >= 100) return "YOU HAVE THE TARGET. NOW YOU NEED THE VEHICLE.";
-                    const age = this.exitAge;
-                    const monthly = this.formatMoney(this.monthlyInvest);
-                    const years = Math.round(this.yearsToGoal);
-                    const exitRound = Math.round(age);
-                    if (age < 30) return "LEGENDARY. " + monthly + "/MO \u00D7 " + years + " YRS = FREEDOM AT " + exitRound + ". YOU CRACKED THE CODE.";
-                    if (age < 40) return "ELITE. " + monthly + "/MO \u00D7 " + years + " YRS = PERMANENT FREEDOM AT " + exitRound + ".";
-                    if (age < 55) return "STANDARD. " + monthly + "/MO GETS YOU THERE AT " + exitRound + ". THE RIGHT ETFs SHAVE YEARS OFF.";
-                    return "YOU HAVE THE TARGET. NOW YOU NEED THE VEHICLE.";
-                },
-
-                getStatusColor() {
-                    if (this.yearsToGoal >= 100) return "text-cyber-red animate-pulse";
-                    const age = this.exitAge;
-                    if (age < 40) return "text-cyber-green";
-                    if (age < 55) return "text-cyber-gold";
-                    return "text-cyber-red animate-pulse";
-                },
-
-                getStatusBg() {
-                    if (this.yearsToGoal >= 100) return "bg-cyber-red";
-                    const age = this.exitAge;
-                    if (age < 40) return "bg-cyber-green";
-                    if (age < 55) return "bg-cyber-gold";
-                    return "bg-cyber-red";
-                },
-
-                get ctaText() {
-                    if (!this.canProceed) {
-                        if (!this.hasValidInputs) return "ENTER YOUR NUMBERS TO UNLOCK";
-                        if (this.validationMessage) return "FIX THE INPUT ABOVE";
-                        if (this.monthlyInvest <= 0) return "ADD MONTHLY INVESTMENT TO CONTINUE";
-                        return "COMPLETE ALL FIELDS TO UNLOCK";
-                    }
-                    if (this.yearsToGoal >= 100) return "\u{1F4CA} BUILD MY PORTFOLIO";
-                    const age = this.exitAge;
-                    if (age < 40) return "\u{1F4CA} LOCK IN WITH THE RIGHT ETFs";
-                    if (age < 55) return "\u{1F4CA} FIND THE ETFs TO ACCELERATE";
-                    return "\u{1F4CA} BUILD MY PORTFOLIO";
-                },
-
-                get modalHeadline() {
-                    if (this.yearsToGoal >= 100) return "\u{1F4CA} YOU HAVE THE TARGET";
-                    const age = this.exitAge;
-                    if (age < 30) return "\u{1F3C6} LEGENDARY. NOW BUILD THE VEHICLE.";
-                    if (age < 40) return "\u{1F3C6} NOW BUILD THE VEHICLE";
-                    if (age < 55) return "\u26A1 THE RIGHT ETFs CHANGE EVERYTHING";
-                    return "\u{1F4CA} YOU HAVE THE TARGET";
-                },
-
-                get modalSubhead() {
-                    if (this.yearsToGoal >= 100) return "You know you need " + this.formatMoney(this.freedomNumber) + ". But knowing the number does not pick your investments. The Investment Simplifier removes the guessing. It tells you exactly which ETFs match your risk tolerance.";
-                    const age = this.exitAge;
-                    if (age < 40) return "Exit at " + Math.round(age) + " with " + this.formatMoney(this.freedomNumber) + ". That is the destination. Now you need the vehicle. The Investment Simplifier shows you exactly which ETFs to buy based on your risk profile.";
-                    if (age < 55) return "Exit at " + Math.round(age) + " is the math. But the right ETF selection can shave 5 to 10 years off. The Investment Simplifier builds a portfolio matched to your goals. No guessing. No analysis paralysis.";
-                    return "Your Freedom Number is " + this.formatMoney(this.freedomNumber) + ". But a number does not buy itself. The Investment Simplifier tells you exactly what to invest in. Which ETFs. What allocation. Based on your risk tolerance.";
-                },
-
                 formatMoney(val) {
                     if (isNaN(val) || !isFinite(val) || val === null) return "$0";
                     if (!this._moneyFmt) {
