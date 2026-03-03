@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Investment Simplifier | @koutalksmoney</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -67,6 +69,11 @@
             background: rgba(10,14,39,0.85); z-index: 10; backdrop-filter: blur(4px);
             border-radius: 16px; padding: 30px 20px; text-align: center;
             animation: overlayFadeIn 0.5s ease;
+        }
+        @media (max-width: 600px) {
+            .unlock-overlay {
+                justify-content: flex-start; padding-top: 20px;
+            }
         }
         .unlock-overlay.hidden { display: none; }
         @keyframes overlayFadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -525,7 +532,6 @@
             font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em;
         }
 
-        /* Cost of Waiting recommendation banner */
         .cow-rec-banner {
             display: none; align-items: center; gap: 12px;
             padding: 14px 18px; margin-bottom: 16px;
@@ -717,6 +723,42 @@
         .site-footer .footer-disclaimer {
             font-size: 0.65rem; color: #4a5568; margin-top: 8px; line-height: 1.5; max-width: 500px; margin-left: auto; margin-right: auto;
         }
+
+        /* ====== CHANGE #3: First Buy Action Card Styles ====== */
+        .first-buy-card {
+            display: none;
+            background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.04) 100%);
+            border: 2px solid rgba(16,185,129,0.4); border-radius: 16px;
+            padding: 25px; margin-top: 20px; position: relative; overflow: hidden;
+        }
+        .first-buy-card.show { display: block; animation: fadeIn 0.6s ease; }
+        .first-buy-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--success), var(--success-light)); }
+        .first-buy-header { text-align: center; margin-bottom: 20px; }
+        .first-buy-header h3 { font-size: 1.2rem; font-weight: 800; color: var(--success); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+        .first-buy-header .starting-amount { font-size: 0.9rem; color: var(--text-secondary); }
+        .first-buy-steps { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+        .first-buy-step { display: flex; align-items: flex-start; gap: 12px; padding: 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; }
+        .first-buy-step-num { width: 28px; height: 28px; background: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.8rem; flex-shrink: 0; }
+        .first-buy-step-text { flex: 1; color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5; }
+        .first-buy-step-text strong { color: var(--text-primary); }
+        .first-buy-ticker-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; margin-bottom: 8px; }
+        .first-buy-ticker-info { display: flex; align-items: center; gap: 12px; }
+        .first-buy-ticker-symbol { font-family: monospace; font-weight: 800; font-size: 1.1rem; color: var(--success); min-width: 50px; }
+        .first-buy-ticker-amount { font-weight: 700; color: var(--text-primary); font-size: 1rem; }
+        .first-buy-ticker-pct { font-size: 0.75rem; color: var(--text-muted); }
+        .first-buy-copy-btn { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: var(--success); padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .first-buy-copy-btn:hover { background: var(--success); color: white; }
+        .first-buy-copy-btn.copied { background: var(--success); color: white; }
+        .first-buy-copy-all { width: 100%; padding: 14px; background: var(--success); color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.3s; box-shadow: 0 4px 15px rgba(16,185,129,0.4); margin-top: 10px; }
+        .first-buy-copy-all:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16,185,129,0.5); }
+        .first-buy-copy-all.copied { background: #059669; }
+        .first-buy-disclaimer { font-size: 0.72rem; color: var(--text-muted); text-align: center; margin-top: 14px; line-height: 1.6; }
+
+        /* ====== Timestamp replace for session timer ====== */
+        .portfolio-timestamp {
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            margin-top: 8px; font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -793,11 +835,12 @@
         <div class="geo-social-proof" id="geoProofGate"><div class="proof-dot"></div><span id="geoTextGate">Loading...</span></div>
     </div>
 
+    <!-- CHANGE #4: Rewritten cold traffic welcome gate -->
     <div class="welcome-gate" id="welcomeGate">
         <div class="welcome-badge"><span>Free Tool &bull; No Login Required</span></div>
-        <h1 class="welcome-title">Build Your Portfolio<br>in 60 Seconds</h1>
-        <p class="welcome-subtitle">Answer 2 questions. Get a personalized ETF allocation with exact tickers, percentages, and a 30-year projection. No account needed.</p>
-        <button class="welcome-btn" onclick="enterApp()">Build My Portfolio &rarr;</button>
+        <h1 class="welcome-title">What Should I<br>Actually Buy?</h1>
+        <p class="welcome-subtitle">2 questions. 60 seconds. I'll show you the exact funds, how much of each, and what they'll be worth in 30 years. No account. No login. No cost.</p>
+        <button class="welcome-btn" onclick="enterApp()">Show Me What to Buy &rarr;</button>
         <div class="geo-social-proof" id="geoProof"><div class="proof-dot"></div><span id="geoText">Loading...</span></div>
     </div>
 
@@ -969,7 +1012,7 @@
             <div class="projection-hero" id="projectionHero" style="display:none;">
                 <p class="projection-hero-label">Your 30-Year Projection</p>
                 <p class="projection-hero-value" id="heroProjectionValue">$0</p>
-                <p class="projection-hero-sub">at $<span id="heroMonthly">500</span>/mo invested &bull; 7% avg. return</p>
+                <p class="projection-hero-sub">at $<span id="heroMonthly">100</span>/mo invested &bull; 7% avg. return</p>
                 <div class="projection-hero-comparison">
                     <div class="comparison-item">
                         <p class="comparison-item-label">You</p>
@@ -995,28 +1038,33 @@
                 <span class="savings">You save $14,000</span>
             </div>
 
+            <!-- CHANGE #1: Lump sum default $0, new anchor text -->
             <div class="lump-sum-container">
                 <div class="lump-sum-input-group">
                     <div>
-                        <span class="lump-sum-label">&#x1F4B0; How much are you starting with?</span>
-                        <p class="lump-sum-anchor">Most users start with $1,000 to $5,000</p>
+                        <span class="lump-sum-label">&#x1F4B0; Already have savings? Add them here.</span>
+                        <p class="lump-sum-anchor">Most users your age start with $25-$100/week</p>
                     </div>
-                    <input type="number" id="lumpSumInput" value="1000" placeholder="Enter amount">
+                    <input type="number" id="lumpSumInput" value="0" placeholder="$0 is fine. You don't need a lump sum.">
                 </div>
             </div>
 
             <div class="portfolio-gate-container" id="portfolioGateContainer">
+                <!-- CHANGE #4: Rewritten email gate overlay for cold traffic -->
                 <div class="unlock-overlay" id="unlockOverlay">
                     <div class="unlock-icon">&#x1F4E9;</div>
-                    <h3 class="unlock-title">Your Buy List is Ready.</h3>
-                    <p class="unlock-subtitle">The exact tickers and dollar amounts are below. One email and they're yours permanently.</p>
+                    <h3 class="unlock-title" id="unlockTitle">Your Funds Are Picked. Your Amounts Are Set.</h3>
+                    <p class="unlock-subtitle" id="unlockSubtitle">I picked the exact funds for your $<span id="unlockMonthlyAmount">100</span>/mo. Drop your email and they're yours. Takes 10 seconds.</p>
                     
-                    <div class="beehiiv-embed-container">
-                        <iframe 
+                    <div class="beehiiv-embed-container w-full" style="min-height: 280px;"
+                         onclick="setTimeout(() => this.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)"
+                         ontouchstart="setTimeout(() => this.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)">
+                        <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+                        <iframe id="beehiivFrame"
                             src="https://subscribe-forms.beehiiv.com/f719b4fc-80fe-4c51-8dfd-38a57705dfcf"
                             data-test-id="beehiiv-embed" 
-                            width="100%" height="160" frameborder="0" scrolling="no"
-                            style="border-radius: 12px; background: transparent; max-width: 100%;">
+                            frameborder="0" scrolling="no"
+                            style="width: 100%; height: 100%; min-height: 280px; border-radius: 12px !important; background: transparent; max-width: 100%;">
                         </iframe>
                     </div>
 
@@ -1027,9 +1075,9 @@
                         <span> in future wealth</span>
                     </div>
 
-                    <div class="session-timer">
-                        <span>&#x26A0;&#xFE0F; Portfolio expires in </span>
-                        <span class="timer-value" id="sessionTimerValue">15:00</span>
+                    <!-- CHANGE #2: Session timer replaced with timestamp -->
+                    <div class="portfolio-timestamp" id="portfolioTimestamp">
+                        This portfolio was generated at <strong id="portfolioTimestampValue">--</strong>. The math doesn't expire. But every day you wait costs more.
                     </div>
 
                     <div class="unlock-trust">
@@ -1037,9 +1085,35 @@
                         <span>No spam</span><span>&bull;</span>
                         <span>Instant access</span>
                     </div>
+                    <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 8px; max-width: 300px;">I'll also send you the Investment Simplifier cheat sheet so you can reference it anytime.</p>
                 </div>
                 
                 <div class="etf-cards blur-gate" id="etfCards"></div>
+            </div>
+
+            <!-- CHANGE #3: First Buy Action Card (post-unlock only) -->
+            <div class="first-buy-card" id="firstBuyCard">
+                <div class="first-buy-header">
+                    <h3>&#x1F6D2; Your First Buy</h3>
+                    <p class="starting-amount">Starting with: $<span id="firstBuyAmount">100</span></p>
+                </div>
+                <div class="first-buy-steps">
+                    <div class="first-buy-step">
+                        <div class="first-buy-step-num">1</div>
+                        <div class="first-buy-step-text"><strong>Download a brokerage app</strong> (free, 10 min). We use Fidelity in this example because it offers fractional shares and zero minimums.</div>
+                    </div>
+                    <div class="first-buy-step">
+                        <div class="first-buy-step-num">2</div>
+                        <div class="first-buy-step-text"><strong>Buy these exact amounts:</strong></div>
+                    </div>
+                </div>
+                <div id="firstBuyTickers"></div>
+                <div class="first-buy-step" style="margin-top: 14px;">
+                    <div class="first-buy-step-num">3</div>
+                    <div class="first-buy-step-text"><strong>Set $<span id="firstBuyRecurring">100</span>/mo recurring</strong> on the 1st of each month. Then forget it.</div>
+                </div>
+                <button class="first-buy-copy-all" id="copyAllTickersBtn" onclick="copyAllTickers()">&#x1F4CB; Copy All Tickers + Amounts</button>
+                <p class="first-buy-disclaimer">Schwab and Vanguard are also excellent. We have no affiliate relationship with any brokerage. Not financial advice.</p>
             </div>
 
             <div class="share-card-section" id="shareCardSection" style="display: none;">
@@ -1080,18 +1154,19 @@
             </div>
         </div>
 
+        <!-- CHANGE #1: Monthly default $100, max $2000, time horizon 30 -->
         <div class="glass-card">
             <h2 class="section-title">Project Your Growth</h2>
             <div class="input-grid">
                 <div class="input-group">
                     <label for="monthlyInvestment">Monthly Investment ($)</label>
-                    <input type="number" id="monthlyInvestment" value="500" min="50" step="50">
-                    <input type="range" id="investRange" value="500" min="50" max="5000" step="50" style="margin-top: 8px;">
+                    <input type="number" id="monthlyInvestment" value="100" min="25" step="25">
+                    <input type="range" id="investRange" value="100" min="25" max="2000" step="25" style="margin-top: 8px;">
                 </div>
                 <div class="input-group">
                     <label for="investmentPeriod">Time Horizon (Years)</label>
-                    <input type="number" id="investmentPeriod" value="20" min="5" max="40">
-                    <input type="range" id="timeRange" value="20" min="5" max="40" style="margin-top: 8px;">
+                    <input type="number" id="investmentPeriod" value="30" min="5" max="40">
+                    <input type="range" id="timeRange" value="30" min="5" max="40" style="margin-top: 8px;">
                 </div>
             </div>
             <div id="projectionResults" class="projection-results show">
@@ -1107,9 +1182,10 @@
             </div>
         </div>
 
+        <!-- CHANGE #5: Personalized bridge CTA -->
         <div class="bridge-cta" id="bridgeCta" style="display: none;">
             <h3 id="bridgeCtaTitle">&#x2705; Your Portfolio is Designed</h3>
-            <p id="bridgeCtaDesc">Now track everything from one place. Command Center shows your portfolio, progress, and next steps.</p>
+            <p id="bridgeCtaDesc">Now track everything from one place.</p>
             <a href="https://spacekou5-oss.github.io/cashvault-funnel/command-center.html" id="bridgeCtaBtn" class="bridge-cta-btn">
                 <span>&#x1F3AF;</span> <span id="bridgeCtaBtnText">Open Command Center</span> &rarr;
             </a>
@@ -1138,7 +1214,50 @@
         </footer>
     </div>
 
+
     <script>
+        // ============================================================
+        // SUPABASE INTEGRATION
+        // ============================================================
+        const SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+        
+        function getOrCreateUserId() {
+            let uid = localStorage.getItem('cashvault_uid');
+            if (!uid) {
+                uid = 'u_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('cashvault_uid', uid);
+            }
+            return uid;
+        }
+
+        async function trackEvent(eventType, eventData) {
+            try {
+                const payload = {
+                    user_id: getOrCreateUserId(),
+                    event_type: eventType,
+                    event_data: eventData,
+                    page: 'investment_simplifier',
+                    timestamp: new Date().toISOString(),
+                    referrer: document.referrer || 'direct',
+                    url_params: window.location.search
+                };
+                await fetch(SUPABASE_URL + '/rest/v1/events', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(payload)
+                });
+            } catch(e) { /* silent fail - tracking should never break UX */ }
+        }
+
+        // ============================================================
+        // CONFIG & DATA
+        // ============================================================
         const CONFIG = {
             COMMAND_CENTER_URL: "https://spacekou5-oss.github.io/cashvault-funnel/command-center.html",
             BRIDGE_URL: "https://spacekou5-oss.github.io/cashvault-funnel/bridge-investment.html",
@@ -1211,7 +1330,6 @@
         let portfolioId = null;
         let autopilotData = null;
         let useCoreFromAutopilot = false;
-        let sessionTimerInterval = null;
         let costOfInactionInterval = null;
         let costOfInactionRAF = null;
         let freedomStrategyApplied = false;
@@ -1338,11 +1456,6 @@
             } catch(e) {}
         }
 
-        // ============================================================
-        // [BRIDGE] Cost of Waiting → Investment Simplifier
-        // Prefills age + monthly from CoW data, recommends strategy,
-        // shows urgency banner with the loss amount they calculated.
-        // ============================================================
         function checkCostOfWaitingStrategy() {
             try {
                 const cowData = localStorage.getItem('cost_of_waiting_data');
@@ -1350,7 +1463,6 @@
                                 localStorage.getItem('waiting_completed') === 'true';
                 
                 if (!fromCow || !cowData) return;
-                // Don't override if Freedom Calc already applied
                 if (freedomStrategyApplied) return;
                 
                 const data = JSON.parse(cowData);
@@ -1379,7 +1491,6 @@
                     riskStyle = 'income';
                 }
                 
-                // Prefill age + monthly investment from CoW data
                 if (data.age) {
                     document.getElementById('userAge').value = data.age;
                     document.getElementById('ageRange').value = data.age;
@@ -1392,7 +1503,6 @@
                 
                 document.getElementById('riskStyle').value = riskStyle;
                 
-                // Highlight recommended chip with CoW urgency styling
                 const chip = document.getElementById(chipId);
                 if (chip) {
                     if (chipId !== 'chip-vti') {
@@ -1401,7 +1511,6 @@
                     chip.classList.add('cow-recommended');
                 }
                 
-                // Format the loss for the banner
                 const lossFormatted = loss > 0 ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(loss) : null;
                 
                 document.getElementById('cowRecTitle').textContent = 'Recommended: ' + strategyName;
@@ -1440,26 +1549,19 @@
                 });
         }
 
-        function startSessionTimer() {
-            if (sessionTimerInterval) clearInterval(sessionTimerInterval);
-            let seconds = 15 * 60;
-            const timerEl = document.getElementById('sessionTimerValue');
-            if (!timerEl) return;
-            timerEl.textContent = '15:00';
-            sessionTimerInterval = setInterval(() => {
-                seconds--;
-                if (seconds <= 0) { clearInterval(sessionTimerInterval); sessionTimerInterval = null; timerEl.textContent = 'EXPIRED'; timerEl.style.color = '#ef4444'; return; }
-                const m = Math.floor(seconds / 60);
-                const s = seconds % 60;
-                timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-            }, 1000);
+        // CHANGE #2: Session timer REMOVED. Replaced with timestamp.
+        function setPortfolioTimestamp() {
+            const now = new Date();
+            const options = { hour: 'numeric', minute: '2-digit', hour12: true, month: 'short', day: 'numeric' };
+            const timestampEl = document.getElementById('portfolioTimestampValue');
+            if (timestampEl) timestampEl.textContent = now.toLocaleString('en-US', options);
         }
 
         function startCostOfInaction() {
             if (costOfInactionInterval) cancelAnimationFrame(costOfInactionInterval);
             const el = document.getElementById('costOfInactionValue');
             if (!el) return;
-            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 100;
             const rate = 0.07; const years = 30;
             const FV = monthly * ((Math.pow(1 + rate/12, 12*years) - 1) / (rate/12));
             const dailyCost = FV / (years * 365);
@@ -1524,7 +1626,7 @@
             const monthlyInvest = localStorage.getItem('architect_monthly_invest');
             const autopilotSystemData = localStorage.getItem('autopilot_system_data');
             if (autopilotCompleted === 'true' || (etfChoice && architectId)) {
-                let etf = null; let monthly = 500;
+                let etf = null; let monthly = 100;
                 if (etfChoice) { try { etf = JSON.parse(etfChoice); } catch(e) {} }
                 if (!etf && autopilotSystemData) { try { const data = JSON.parse(autopilotSystemData); if (data.etfChoice) etf = data.etfChoice; if (data.income) monthly = Math.round(data.income * 0.2); } catch(e) {} }
                 if (monthlyInvest) monthly = parseInt(monthlyInvest);
@@ -1569,6 +1671,7 @@
         function enterApp() {
             document.getElementById('welcomeGate').classList.add('hidden');
             portfolioId = generatePortfolioId();
+            trackEvent('welcome_gate_enter', { source: 'cold_traffic' });
         }
         
         function showCoreHoldingBanner() {
@@ -1639,17 +1742,25 @@
         function setupEmailUnlockListener() {
             const checkInterval = setInterval(() => {
                 const bridgeFlag = localStorage.getItem('investmentSimplifier_bridge_email');
-                if (bridgeFlag) { unlockPortfolio(); clearInterval(checkInterval); }
+                if (bridgeFlag) { 
+                    unlockPortfolio(); 
+                    clearInterval(checkInterval);
+                    trackEvent('email_gate_conversion', { method: 'localStorage_poll' });
+                }
             }, 1000);
             
             window.addEventListener('storage', (e) => {
-                if (e.key === 'investmentSimplifier_bridge_email' && e.newValue) unlockPortfolio();
+                if (e.key === 'investmentSimplifier_bridge_email' && e.newValue) {
+                    unlockPortfolio();
+                    trackEvent('email_gate_conversion', { method: 'storage_event' });
+                }
             });
             
             window.addEventListener('message', (e) => {
                 if (e.data && (e.data.type === 'beehiiv:subscribe:success' || (typeof e.data === 'string' && e.data.includes('subscribed')))) {
                     localStorage.setItem('investmentSimplifier_bridge_email', 'true');
                     unlockPortfolio();
+                    trackEvent('email_gate_conversion', { method: 'beehiiv_message' });
                 }
             });
         }
@@ -1661,7 +1772,9 @@
             if (etfCards) etfCards.classList.add('unlocked');
             const shareSection = document.getElementById('shareCardSection');
             if (shareSection && currentPortfolioData) shareSection.style.display = 'block';
-            if (sessionTimerInterval) { clearInterval(sessionTimerInterval); sessionTimerInterval = null; }
+            // Show First Buy card on unlock
+            const firstBuyCard = document.getElementById('firstBuyCard');
+            if (firstBuyCard && currentPortfolioData) firstBuyCard.classList.add('show');
             if (costOfInactionInterval) { cancelAnimationFrame(costOfInactionInterval); costOfInactionInterval = null; }
         }
 
@@ -1695,17 +1808,18 @@
             }
         }
 
+        // CHANGE #4: Update email gate overlay with personalized monthly amount
+        function updateEmailGateOverlay() {
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 100;
+            const monthlyEl = document.getElementById('unlockMonthlyAmount');
+            if (monthlyEl) monthlyEl.textContent = monthly.toLocaleString();
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             portfolioId = generatePortfolioId();
             initGeoSocialProof();
             setupEmailUnlockListener();
             
-            // ============================================================
-            // [GATE-SKIP] Subscribers from upstream tools skip IS gate
-            // ONLY when arriving via active flow (?from=freedom or
-            // ?from=costofwaiting). Without URL param, normal gate applies.
-            // Once skipped, syncs bridge_email flag for permanent unlock.
-            // ============================================================
             const bridgeEmail = localStorage.getItem('investmentSimplifier_bridge_email');
             const freedomEmail = localStorage.getItem('freedom_email');
             const costOfWaitingEmail = localStorage.getItem('cost_of_waiting_email');
@@ -1739,7 +1853,7 @@
             }
             
             setupDualInput('userAge', 'ageRange', () => {});
-            setupDualInput('monthlyInvestment', 'investRange', calculateGrowth);
+            setupDualInput('monthlyInvestment', 'investRange', () => { calculateGrowth(); updateEmailGateOverlay(); });
             setupDualInput('investmentPeriod', 'timeRange', calculateGrowth);
             
             document.getElementById('riskStyle').addEventListener('change', (e) => {
@@ -1753,7 +1867,7 @@
                 }
             });
             
-            document.getElementById('lumpSumInput').addEventListener('input', updateDollarValues);
+            document.getElementById('lumpSumInput').addEventListener('input', () => { updateDollarValues(); updateFirstBuyCard(); });
             calculateGrowth();
         });
 
@@ -1779,7 +1893,7 @@
         function saveForBridgePage(stockPct, bondPct, alloc) {
             const age = parseInt(document.getElementById('userAge').value);
             const style = document.getElementById('riskStyle').value;
-            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 100;
             const rate = 0.07;
             const calcProjection = (years) => Math.round(monthly * ((Math.pow(1 + rate/12, 12*years) - 1) / (rate/12)));
             const etfs = alloc.map(item => {
@@ -1865,13 +1979,27 @@
             displayPortfolio(stockPct, bondPct, alloc);
             updateProjectionHero();
             updateShareCardData(stockPct, bondPct, alloc);
+            updateFirstBuyCard();
             showBridgeCta();
             savePortfolioData(stockPct, bondPct, alloc);
             saveForBridgePage(stockPct, bondPct, alloc);
             saveFormState();
-            startSessionTimer();
+            setPortfolioTimestamp();
             startCostOfInaction();
+            updateEmailGateOverlay();
             document.getElementById('advisorAnchor').style.display = 'flex';
+            
+            // Supabase: track portfolio generation
+            trackEvent('portfolio_generated', {
+                portfolio_id: portfolioId,
+                age: age,
+                risk_style: riskStyle,
+                monthly: parseInt(document.getElementById('monthlyInvestment').value) || 100,
+                stock_pct: stockPct,
+                bond_pct: bondPct,
+                etf_count: alloc.length,
+                from_autopilot: useCoreFromAutopilot
+            });
         }
 
         function updateWhyExplanationWithCore(coreTicker, coreAllocation, stockPct, bondPct, coreData, riskStyle) {
@@ -1900,7 +2028,7 @@
         }
 
         function updateProjectionHero() {
-            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 100;
             const rate = 0.07; const years = 30;
             const FV = monthly * ((Math.pow(1 + rate/12, 12*years) - 1) / (rate/12));
             const avgRetirement = 87000;
@@ -1929,7 +2057,7 @@
         }
 
         function savePortfolioData(stockPct, bondPct, alloc) {
-            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 100;
             const coreEtf = alloc.find(a => a.isCore) || alloc[0];
             const context = {
                 source: 'investment_simplifier', monthly, portfolio_id: portfolioId,
@@ -1984,6 +2112,8 @@
                 container.classList.add('unlocked');
                 const overlay = document.getElementById('unlockOverlay');
                 if (overlay) overlay.classList.add('hidden');
+                // Show First Buy card for unlocked users
+                document.getElementById('firstBuyCard').classList.add('show');
             }
             
             updateDollarValues();
@@ -1995,8 +2125,73 @@
             });
         }
 
+        // ============================================================
+        // CHANGE #3: First Buy Action Card Logic
+        // ============================================================
+        function updateFirstBuyCard() {
+            if (!currentPortfolioData) return;
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 100;
+            const lumpSum = parseFloat(document.getElementById('lumpSumInput').value) || 0;
+            const baseAmount = lumpSum > 0 ? lumpSum : monthly;
+            
+            document.getElementById('firstBuyAmount').textContent = baseAmount.toLocaleString();
+            document.getElementById('firstBuyRecurring').textContent = monthly.toLocaleString();
+            
+            const tickersContainer = document.getElementById('firstBuyTickers');
+            tickersContainer.innerHTML = '';
+            
+            currentPortfolioData.alloc.forEach(item => {
+                if (item.pct <= 0) return;
+                const data = etfData[item.id] || { ticker: item.id.toUpperCase() };
+                const dollarAmount = Math.round((baseAmount * item.pct) / 100);
+                const row = `
+                    <div class="first-buy-ticker-row">
+                        <div class="first-buy-ticker-info">
+                            <span class="first-buy-ticker-symbol">${data.ticker}</span>
+                            <span class="first-buy-ticker-amount">$${dollarAmount.toLocaleString()}</span>
+                            <span class="first-buy-ticker-pct">(${item.pct}%)</span>
+                        </div>
+                        <button class="first-buy-copy-btn" onclick="copySingleTicker('${data.ticker}', this)">copy: ${data.ticker}</button>
+                    </div>`;
+                tickersContainer.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        function copySingleTicker(ticker, btnEl) {
+            navigator.clipboard.writeText(ticker).then(() => {
+                btnEl.textContent = 'copied!';
+                btnEl.classList.add('copied');
+                setTimeout(() => { btnEl.textContent = 'copy: ' + ticker; btnEl.classList.remove('copied'); }, 1500);
+                trackEvent('ticker_copy', { ticker: ticker, type: 'single' });
+            });
+        }
+
+        function copyAllTickers() {
+            if (!currentPortfolioData) return;
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 100;
+            const lumpSum = parseFloat(document.getElementById('lumpSumInput').value) || 0;
+            const baseAmount = lumpSum > 0 ? lumpSum : monthly;
+            
+            let text = 'My Portfolio (built @koutalksmoney):\n';
+            currentPortfolioData.alloc.forEach(item => {
+                if (item.pct <= 0) return;
+                const data = etfData[item.id] || { ticker: item.id.toUpperCase() };
+                const dollarAmount = Math.round((baseAmount * item.pct) / 100);
+                text += `${data.ticker} \u2014 $${dollarAmount.toLocaleString()} (${item.pct}%)\n`;
+            });
+            text += `Monthly: $${monthly.toLocaleString()}`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copyAllTickersBtn');
+                btn.textContent = '\u2713 Copied to clipboard!';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.innerHTML = '&#x1F4CB; Copy All Tickers + Amounts'; btn.classList.remove('copied'); }, 2500);
+                trackEvent('ticker_copy', { type: 'all', etf_count: currentPortfolioData.alloc.length });
+            });
+        }
+
         function updateShareCardData(stockPct, bondPct, alloc) {
-            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 100;
             const rate = 0.07; const years = 30;
             const FV = monthly * ((Math.pow(1 + rate/12, 12*years) - 1) / (rate/12));
             const multiplier = (FV / 87000).toFixed(1);
@@ -2021,17 +2216,85 @@
             if (bridgeEmail) document.getElementById('shareCardSection').style.display = 'block';
         }
 
+        // ============================================================
+        // CHANGE #5: Personalized Bridge CTA by entry source
+        // ============================================================
         function showBridgeCta() {
             const bridgeCta = document.getElementById('bridgeCta');
             bridgeCta.style.display = 'block';
-            document.getElementById('bridgeCtaTitle').innerHTML = '&#x2705; Your Portfolio is Designed';
-            document.getElementById('bridgeCtaDesc').textContent = 'Your buy list is locked. Command Center tracks your portfolio, unlocks automation, and shows your next move.';
-            document.getElementById('bridgeCtaBtnText').textContent = 'Open Command Center';
-            document.getElementById('bridgeCtaBtn').href = CONFIG.COMMAND_CENTER_URL;
+            
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 100;
+            
+            // Check entry sources from localStorage
+            const fromFreedom = localStorage.getItem('freedom_email') === 'true' || localStorage.getItem('freedom_completed') === 'true';
+            const fromCow = localStorage.getItem('cost_of_waiting_email') === 'true' || localStorage.getItem('waiting_completed') === 'true';
+            const fromAutopilot = localStorage.getItem('autopilot_completed') === 'true';
+            
+            let title, desc, btnText, btnHref;
+            btnHref = CONFIG.COMMAND_CENTER_URL;
+            
+            if (fromFreedom) {
+                // Pull Freedom Number from localStorage
+                let freedomNumber = '';
+                try {
+                    const fd = JSON.parse(localStorage.getItem('freedom_calculator_result'));
+                    if (fd && fd.freedomNumber) freedomNumber = '$' + parseInt(fd.freedomNumber).toLocaleString();
+                } catch(e) {}
+                
+                title = freedomNumber 
+                    ? `&#x1F3AF; YOUR FREEDOM NUMBER: ${freedomNumber}. YOUR PORTFOLIO: BUILT.`
+                    : '&#x1F3AF; YOUR NUMBER IS SET. YOUR PORTFOLIO IS BUILT.';
+                desc = `Next: automate $${monthly.toLocaleString()}/mo so it runs without you. One setup. Never think about it again.`;
+                btnText = 'Set Up My Autopilot';
+            } else if (fromCow) {
+                // Pull daily cost from localStorage
+                let dailyCost = '';
+                try {
+                    const cd = JSON.parse(localStorage.getItem('cost_of_waiting_data'));
+                    if (cd && cd.loss) {
+                        const daysInPeriod = (cd.waitYears || 1) * 365;
+                        dailyCost = '$' + (cd.loss / daysInPeriod).toFixed(2);
+                    }
+                } catch(e) {}
+                
+                title = dailyCost 
+                    ? `&#x1F6A8; YOU WERE LOSING ${dailyCost}/DAY. NOW YOU HAVE THE PORTFOLIO.`
+                    : '&#x1F6A8; THE BLEEDING STOPPED. YOUR PORTFOLIO IS LIVE.';
+                desc = `Next: automate it so you never miss a deposit.`;
+                btnText = 'Lock In My System';
+            } else if (fromAutopilot) {
+                title = '&#x2705; YOUR AUTOPILOT IS RUNNING. YOUR PORTFOLIO IS DESIGNED.';
+                desc = 'Track everything from one dashboard.';
+                btnText = 'Open My Dashboard';
+            } else {
+                // Cold traffic / direct / organic fallback
+                title = '&#x2705; YOUR PORTFOLIO IS BUILT.';
+                desc = '3 tools left to automate your entire financial life.';
+                btnText = 'See What\'s Next';
+            }
+            
+            document.getElementById('bridgeCtaTitle').innerHTML = title;
+            document.getElementById('bridgeCtaDesc').textContent = desc;
+            document.getElementById('bridgeCtaBtnText').textContent = btnText;
+            document.getElementById('bridgeCtaBtn').href = btnHref;
+            
+            // Track bridge CTA view
+            trackEvent('bridge_cta_shown', { 
+                source: fromFreedom ? 'freedom' : fromCow ? 'cost_of_waiting' : fromAutopilot ? 'autopilot' : 'cold',
+                btn_text: btnText 
+            });
+            
+            // Track bridge CTA click
+            document.getElementById('bridgeCtaBtn').onclick = function() {
+                trackEvent('bridge_cta_click', { 
+                    source: fromFreedom ? 'freedom' : fromCow ? 'cost_of_waiting' : fromAutopilot ? 'autopilot' : 'cold',
+                    destination: btnHref 
+                });
+            };
         }
 
         function copyShareText() {
-            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 500;
+            const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 100;
             const rate = 0.07; const years = 30;
             const FV = monthly * ((Math.pow(1 + rate/12, 12*years) - 1) / (rate/12));
             const multiplier = (FV / 87000).toFixed(1);
@@ -2077,8 +2340,8 @@
         }
 
         function calculateGrowth() {
-            const P = parseInt(document.getElementById('monthlyInvestment').value) || 500;
-            const t = parseInt(document.getElementById('investmentPeriod').value) || 20;
+            const P = parseInt(document.getElementById('monthlyInvestment').value) || 100;
+            const t = parseInt(document.getElementById('investmentPeriod').value) || 30;
             const r = 0.07; const n = 12;
             const FV = P * ((Math.pow(1 + r/n, n*t) - 1) / (r/n));
             const totalCash = P * n * t;
