@@ -9,11 +9,13 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
     <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+    <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
     
     <script>
         (function() {
@@ -95,6 +97,38 @@
         .beehiiv-container { width: 100%; display: flex; justify-content: center; }
         .beehiiv-container iframe { max-width: 100% !important; border: none !important; }
 
+        /* === BEEHIIV EMAIL VISIBILITY FIX === */
+        .beehiiv-gate-wrapper {
+            position: relative;
+            background: #0d0d0d;
+            border: 2px solid #22c55e30;
+            border-radius: 12px;
+            padding: 16px 12px 24px 12px;
+            transition: border-color 0.3s;
+        }
+        .beehiiv-gate-wrapper.focused {
+            border-color: #22c55e;
+        }
+        .beehiiv-gate-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #22c55e;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .beehiiv-gate-label .arrow-bounce {
+            animation: arrowBounce 1.5s ease-in-out infinite;
+        }
+        @keyframes arrowBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(4px); }
+        }
+
         /* === IG BANNER === */
         .ig-banner { position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #fbbf24, #f59e0b); color: #000; font-size: 11px; font-weight: 700; text-align: center; padding: 10px 16px; z-index: 10000; display: flex; align-items: center; justify-content: center; gap: 12px; font-family: 'JetBrains Mono', monospace; }
         .ig-banner-btn { background: #000; color: #fbbf24; border: none; padding: 6px 14px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; font-family: inherit; }
@@ -119,6 +153,16 @@
 
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+        // === SUPABASE TRACKING ===
+        const _supabase = window.supabase ? window.supabase.createClient(
+            'https://wokoxddotlyuasmwylpx.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg'
+        ) : null;
+        const _sessionId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+        function _getUTM() { try { const p = new URLSearchParams(window.location.search); return { utm_source: p.get('utm_source') || null, utm_medium: p.get('utm_medium') || null, utm_campaign: p.get('utm_campaign') || null }; } catch(e) { return {}; } }
+        function _getDevice() { const w = window.innerWidth; return w < 768 ? 'mobile' : w < 1024 ? 'tablet' : 'desktop'; }
+        async function trackEvent(event, data = {}) { try { if (!_supabase) return; const utm = _getUTM(); await _supabase.from('funnel_events').insert({ app: 'autopilot', event, session_id: _sessionId, device: _getDevice(), referrer: document.referrer || null, ...utm, ...data }); } catch(e) { console.warn('Tracking error:', e); } }
 
         // === PERSISTENT STORAGE ===
         async function saveToSharedStorage(key, value) { try { if (window.storage) { await window.storage.set(key, JSON.stringify(value), true); return true; } } catch(e) {} return false; }
@@ -210,6 +254,7 @@
                 const cl = userData.checklist || {};
                 const bits = [cl.sofiCheck, cl.sofiSave, cl.roth, cl.split, cl.autoInvest].map(v => v ? '1' : '0').join('');
                 if (bits !== '00000') p.set('cl', bits);
+                if (userData.skippedInfra) p.set('sk', '1');
                 if (localStorage.getItem('autopilot_email_captured') === 'true') p.set('ec', '1');
                 return p.toString();
             },
@@ -218,7 +263,7 @@
                 try {
                     const p = new URLSearchParams(hash); if (!p.has('m') && !p.has('ec')) return null;
                     const result = { module: parseInt(p.get('m')) || 0, architectId: p.get('aid') || null, emailCaptured: p.get('ec') === '1',
-                        userData: { income: p.has('i') ? Number(p.get('i')) : 0, bills: p.has('b') ? Number(p.get('b')) : 0, userName: p.get('n') ? decodeURIComponent(p.get('n')) : "", userEmail: "", payFreq: "Bi-weekly", etfChoice: resolveEtfFromTicker(p.get('etf')), checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false } } };
+                        userData: { income: p.has('i') ? Number(p.get('i')) : 0, bills: p.has('b') ? Number(p.get('b')) : 0, userName: p.get('n') ? decodeURIComponent(p.get('n')) : "", userEmail: "", payFreq: "Bi-weekly", etfChoice: resolveEtfFromTicker(p.get('etf')), skippedInfra: p.get('sk') === '1', checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false } } };
                     if (p.has('cl')) { const bits = p.get('cl'); if (bits.length === 5) { result.userData.checklist = { sofiCheck: bits[0]==='1', sofiSave: bits[1]==='1', roth: bits[2]==='1', split: bits[3]==='1', autoInvest: bits[4]==='1' }; } }
                     if (result.emailCaptured) result.module = 6;
                     return result;
@@ -299,10 +344,12 @@
             const [architectId, setArchitectId] = useState(initialState.architectId);
             const [showIGBanner, setShowIGBanner] = useState(isInstagramBrowser());
             const [showToast, setShowToast] = useState(initialState.fromUrl && initialState.module > 0 && initialState.module < 6);
-            const defaultUserData = { userName: "", userEmail: "", income: 0, bills: 0, payFreq: "Bi-weekly", etfChoice: null, checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false } };
+            const defaultUserData = { userName: "", userEmail: "", income: 0, bills: 0, payFreq: "Bi-weekly", etfChoice: null, skippedInfra: false, checklist: { sofiCheck: false, sofiSave: false, roth: false, split: false, autoInvest: false } };
             const [userData, setUserData] = useState(initialState.userData ? { ...defaultUserData, ...initialState.userData } : defaultUserData);
 
             useEffect(() => { localStorage.setItem('autopilot_current_module', module.toString()); }, [module]);
+            useEffect(() => { trackEvent('app_opened'); }, []);
+            useEffect(() => { const moduleNames = ['bridge', 'calibrator', 'infrastructure', 'etf_selector', 'projection', 'email_gate', 'certificate']; trackEvent('module_entered', { module_number: module, module_name: moduleNames[module] || 'unknown' }); }, [module]);
             useEffect(() => { URLState.update(module, userData, architectId); }, [module, userData, architectId]);
             useEffect(() => { const handler = (e) => { if (e.key === 'autopilot_email_captured' && e.newValue === 'true') setModule(6); }; window.addEventListener('storage', handler); return () => window.removeEventListener('storage', handler); }, []);
             useEffect(() => { if (!initialState.architectId) { const existingId = localStorage.getItem('cashvault_architect_id'); if (existingId) setArchitectId(existingId); } }, []);
@@ -350,7 +397,6 @@
                                 </div>
                                 <button onClick={handleReset} className="text-xs text-gray-600 hover:text-red-400 border border-gray-800 hover:border-red-800 px-3 py-1.5 rounded-lg transition-all">{'\u21BB'} Restart</button>
                             </div>
-                            {/* Step indicators */}
                             <div className="flex gap-1.5 mb-3">
                                 {moduleLabels.map((emoji, i) => (
                                     <button key={i} onClick={() => goToModule(i)} disabled={i > module + 1} className={`flex-1 h-2 rounded-full transition-all duration-500 ${i < module ? 'bg-green-500' : i === module ? 'bg-green-500 progress-shimmer' : 'bg-gray-800'} ${i <= module ? 'cursor-pointer hover:brightness-125' : 'cursor-not-allowed'}`} title={`Step ${i + 1}`} />
@@ -365,7 +411,6 @@
 
                     <div className="w-full max-w-2xl min-h-[500px] transition-all duration-300 relative">{renderModule()}</div>
 
-                    {/* FIX #1: Grid layout centers privacy text on mobile regardless of Back button visibility */}
                     {module < 6 && (
                         <div className="w-full max-w-2xl mt-6 grid grid-cols-3 items-center text-xs text-gray-700">
                             <button onClick={() => setModule(m => Math.max(0, m - 1))} className={`hover:text-white transition-colors justify-self-start ${module === 0 ? 'invisible' : ''}`}>{'\u2190'} Back</button>
@@ -374,7 +419,6 @@
                         </div>
                     )}
 
-                    {/* FIX #2: Standardized ecosystem footer */}
                     {module < 6 && (
                         <div className="w-full max-w-2xl mt-6 pt-6 border-t border-gray-800/50 text-center">
                             <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold hover:text-white transition-colors font-mono" style={{color: '#00F0FF'}}>@koutalksmoney</a>
@@ -387,6 +431,7 @@
 
         // ==========================
         // MODULE 0: BRIDGE
+        // CHANGE #1: Recognition Shock rewrite
         // ==========================
         function ModuleBridge({ context, theme, next }) {
             const isTicker = context?.source === 'ticker';
@@ -404,17 +449,18 @@
                             <span className="text-gray-500">~4 min</span>
                         </div>
 
+                        {/* ========= CHANGE #1: COLD TRAFFIC RECOGNITION SHOCK ========= */}
                         {isCold && (
                             <div className="space-y-6 animate-fade-in">
-                                <h2 className="text-2xl sm:text-4xl font-bold text-white leading-tight">You make money.<br/>Where does it go?</h2>
-                                <p className="text-gray-400 text-sm sm:text-base max-w-md mx-auto leading-relaxed">This tool builds your wealth system in 7 steps. Zero guessing. Zero willpower. Just math and automation.</p>
+                                <h2 className="text-2xl sm:text-4xl font-bold text-white leading-tight">Your $680 paycheck disappeared by Wednesday.<br/><span className="text-gray-500">You can't name a single large purchase.</span></h2>
+                                <p className="text-gray-400 text-sm sm:text-base max-w-md mx-auto leading-relaxed">That's not a discipline problem. That's a system problem. This tool builds the system that fixes it. 7 steps. No willpower required.</p>
                                 <div className="text-left bg-black/60 border border-gray-800 rounded-xl p-5 sm:p-6 max-w-md mx-auto space-y-4">
-                                    <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">{'\uD83D\uDEE0\uFE0F'} What you'll build:</p>
+                                    <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">{'\uD83D\uDEE0\uFE0F'} What you'll walk out with:</p>
                                     {[
-                                        { emoji: '\uD83D\uDCB0', text: 'Your real spending number (not the fake one)' },
-                                        { emoji: '\uD83D\uDCC8', text: 'Your auto-invest amount, calculated from what you ACTUALLY have' },
-                                        { emoji: '\u26FD', text: 'Your ETF, matched to your risk level' },
-                                        { emoji: '\uD83D\uDCC9', text: 'Your 30-year wealth projection, based on real math' }
+                                        { emoji: '\uD83D\uDCB0', text: 'Where your $680 actually went (the answer will piss you off)' },
+                                        { emoji: '\uD83D\uDCC8', text: 'The exact amount you can invest without eating ramen' },
+                                        { emoji: '\u26FD', text: 'The one fund that does the work while you sleep' },
+                                        { emoji: '\uD83D\uDCC9', text: 'What your money looks like in 10, 20, 30 years if you stop ignoring it' }
                                     ].map((item, i) => (
                                         <div key={i} className="flex items-start gap-3">
                                             <span className="text-lg">{item.emoji}</span>
@@ -422,7 +468,11 @@
                                         </div>
                                     ))}
                                 </div>
-                                <p className="text-xs text-gray-600">No login required. No data leaves your browser.</p>
+                                {/* Peer Proximity Signal */}
+                                <div className="flex flex-col items-center gap-2">
+                                    <p className="text-xs text-gray-600">No login required. No data leaves your browser.</p>
+                                    <p className="text-xs text-gray-500 border border-gray-800 rounded-full px-4 py-1.5">Built by a 19-year-old making $18/hr from The Cockpit {'\uD83D\uDE97'}</p>
+                                </div>
                             </div>
                         )}
 
@@ -460,6 +510,7 @@
 
         // ======================================
         // MODULE 1: CALIBRATOR (SLIDERS)
+        // CHANGE #3: Recalibrated to Brandon's income
         // ======================================
         function ModuleCalibrator({ userData, updateData, theme, next }) {
             const [noBills, setNoBills] = useState(userData.bills === 0 && userData.income > 0);
@@ -477,7 +528,8 @@
             const isReady = userData.income > 0 && deployable > 0;
             const billsPct = userData.income > 0 ? Math.round((userData.bills / userData.income) * 100) : 0;
 
-            const presets = [1500, 2500, 4000, 6000];
+            {/* CHANGE #3: Brandon-calibrated presets */}
+            const presets = [680, 1000, 1400, 2000];
 
             return (
                 <div className="terminal-box p-6 sm:p-8 animate-fade-in">
@@ -486,16 +538,16 @@
                         <p className="text-sm text-gray-500 mt-2">Slide to your approximate numbers. No need to be exact.</p>
                     </div>
                     
-                    {/* INCOME SLIDER */}
+                    {/* INCOME SLIDER - CHANGE #3: Range $400-$4,000, default $1,200 */}
                     <div className="mb-8">
                         <div className="flex justify-between items-baseline mb-3">
                             <label className="text-sm text-gray-400 font-bold">{'\uD83D\uDCB5'} Monthly Income (after taxes)</label>
                             <span className="text-2xl font-bold text-white">${(userData.income || 0).toLocaleString()}</span>
                         </div>
-                        <input type="range" min="500" max="10000" step="100" value={userData.income || 2000} onChange={(e) => updateData('income', Number(e.target.value))} className="w-full mb-3" />
+                        <input type="range" min="400" max="4000" step="20" value={userData.income || 1200} onChange={(e) => updateData('income', Number(e.target.value))} className="w-full mb-3" />
                         <div className="flex gap-2">
                             {presets.map(p => (
-                                <button key={p} onClick={() => updateData('income', p)} className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${userData.income === p ? 'border-green-500 text-green-500 bg-green-500/10' : 'border-gray-800 text-gray-600 hover:border-gray-600'}`}>${(p/1000).toFixed(p >= 1000 ? (p % 1000 === 0 ? 0 : 1) : 0)}k</button>
+                                <button key={p} onClick={() => updateData('income', p)} className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${userData.income === p ? 'border-green-500 text-green-500 bg-green-500/10' : 'border-gray-800 text-gray-600 hover:border-gray-600'}`}>${p >= 1000 ? (p/1000).toFixed(0) + 'k' : p}</button>
                             ))}
                         </div>
                     </div>
@@ -513,7 +565,7 @@
 
                         {!noBills && (
                             <div className="animate-fade-in">
-                                <input type="range" min="0" max="8000" step="50" value={userData.bills || 0} onChange={(e) => updateData('bills', Number(e.target.value))} className="w-full red-slider" />
+                                <input type="range" min="0" max="3500" step="50" value={userData.bills || 0} onChange={(e) => updateData('bills', Number(e.target.value))} className="w-full red-slider" />
                                 <p className="text-xs text-gray-600 mt-2">Rent + utilities + car + loans + insurance + subscriptions. Everything non-negotiable.</p>
                             </div>
                         )}
@@ -522,7 +574,6 @@
                     {/* LIVE RESULTS */}
                     {userData.income > 0 && deployable > 0 && (
                         <div className="animate-fade-in-up space-y-6">
-                            {/* Traditional vs Yours comparison */}
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="bg-black/60 border border-red-900/50 rounded-xl p-4 text-center">
                                     <p className="text-xs text-red-400 font-bold uppercase tracking-widest mb-1">{'\u274C'} Old Rule</p>
@@ -538,14 +589,12 @@
                                 </div>
                             </div>
 
-                            {/* Visual split */}
                             <div className="bg-black/40 border border-gray-800 rounded-xl p-5">
                                 <div className="flex items-center justify-between mb-4">
                                     <span className="text-xs text-gray-500 uppercase tracking-widest font-bold">{'\uD83C\uDFAF'} Your Money Split</span>
                                     <span className="text-sm text-white font-bold">${deployable.toLocaleString()}/mo deployable</span>
                                 </div>
 
-                                {/* Donut + Labels */}
                                 <div className="flex items-center gap-6 mb-4">
                                     <DonutChart spending={spending} investing={invest} safety={safety} size={100} />
                                     <div className="flex-1 space-y-3">
@@ -564,7 +613,6 @@
                                     </div>
                                 </div>
 
-                                {/* Deploy bar */}
                                 <div className="deploy-bar rounded-lg">
                                     {billsPct > 0 && <div className="deploy-segment bg-red-900/80 text-red-300 border-r border-red-700/50" style={{width: `${billsPct}%`}}>{billsPct >= 15 ? `Bills` : ''}</div>}
                                     <div className="deploy-segment text-black font-bold" style={{width: `${100-billsPct}%`, background: theme.accent}}>Deployable ${deployable.toLocaleString()}</div>
@@ -587,7 +635,7 @@
                         </div>
                     )}
 
-                    <button onClick={next} disabled={!isReady} className={`w-full mt-6 py-4 font-bold text-base rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed ${isReady ? 'text-black hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]' : 'bg-gray-800 text-gray-600'}`} style={isReady ? {background: theme.accent} : {}}>
+                    <button onClick={() => { trackEvent('calibrator_completed', { income: userData.income, bills: userData.bills, deployable: getDeployable(userData), invest_amount: getInvest(userData) }); next(); }} disabled={!isReady} className={`w-full mt-6 py-4 font-bold text-base rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed ${isReady ? 'text-black hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]' : 'bg-gray-800 text-gray-600'}`} style={isReady ? {background: theme.accent} : {}}>
                         {isReady ? '\uD83D\uDD12 Lock In These Numbers' : 'Slide your income to continue'}
                     </button>
                 </div>
@@ -596,6 +644,7 @@
 
         // =====================================================
         // MODULE 2: INFRASTRUCTURE + AUTOMATION
+        // CHANGE #2: Advisory, not mandatory. Skip button added.
         // =====================================================
         function ModuleInfrastructure({ userData, toggleCheck, updateData, theme, next }) {
             const investAmount = getInvest(userData).toFixed(0);
@@ -608,6 +657,11 @@
             const accountsDone = userData.checklist.sofiCheck && userData.checklist.sofiSave && userData.checklist.roth;
             const allDone = accountsDone && userData.checklist.split;
 
+            const handleSkip = () => {
+                updateData('skippedInfra', true);
+                next();
+            };
+
             const Tooltip = ({ id, children }) => (
                 <span className="relative inline-block">
                     <button onClick={() => setTooltipOpen(tooltipOpen === id ? null : id)} className="text-gray-500 hover:text-green-500 text-xs ml-1 border border-gray-700 rounded-full w-4 h-4 inline-flex items-center justify-center transition-colors">?</button>
@@ -618,7 +672,7 @@
             return (
                 <div className="terminal-box p-6 sm:p-8 animate-fade-in">
                     <h2 className="text-xl sm:text-2xl font-bold mb-2 text-white flex items-center gap-2">{'\uD83C\uDFE6'} Build the Infrastructure</h2>
-                    <p className="text-sm text-gray-500 mb-6">Open three accounts, then wire the money flow.</p>
+                    <p className="text-sm text-gray-500 mb-6">Open three accounts, then wire the money flow. Already have some? Check them off.</p>
 
                     <div className="flex gap-2 mb-6">
                         <button onClick={() => setSection(1)} className={`flex-1 py-3 text-sm font-bold rounded-lg border transition-all ${section === 1 ? `${theme.border} ${theme.color}` : 'border-gray-800 text-gray-600'}`}>
@@ -699,8 +753,16 @@
                                 )}
                             </div>
 
+                            {/* Primary CTA if accounts done */}
                             {accountsDone && (
                                 <button onClick={() => setSection(2)} className="w-full py-4 text-black font-bold text-sm rounded-xl hover:brightness-110 transition-all animate-fade-in" style={{background: theme.accent}}>Accounts Ready. Wire the Money Flow {'\u2192'}</button>
+                            )}
+
+                            {/* CHANGE #2: Skip button (secondary, muted) */}
+                            {!accountsDone && (
+                                <button onClick={handleSkip} className="w-full py-3 text-sm text-gray-500 hover:text-gray-300 border border-gray-800 hover:border-gray-600 rounded-xl transition-all mt-2">
+                                    I'll set these up later. Show me the projection first {'\u2192'}
+                                </button>
                             )}
                         </div>
                     )}
@@ -754,9 +816,18 @@
                     )}
 
                     {section === 2 && (
-                        <button onClick={next} disabled={!allDone} className={`w-full mt-4 py-4 font-bold text-sm rounded-xl transition-all ${allDone ? 'text-black hover:brightness-110' : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`} style={allDone ? {background: theme.accent} : {}}>
-                            {'\u2705'} Infrastructure Complete
-                        </button>
+                        <div className="space-y-3 mt-4">
+                            {/* Primary: proceed if all done */}
+                            <button onClick={next} disabled={!allDone} className={`w-full py-4 font-bold text-sm rounded-xl transition-all ${allDone ? 'text-black hover:brightness-110' : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`} style={allDone ? {background: theme.accent} : {}}>
+                                {'\u2705'} Infrastructure Complete
+                            </button>
+                            {/* CHANGE #2: Skip from section 2 as well */}
+                            {!allDone && (
+                                <button onClick={handleSkip} className="w-full py-3 text-sm text-gray-500 hover:text-gray-300 border border-gray-800 hover:border-gray-600 rounded-xl transition-all">
+                                    I'll finish this later. Show me the projection first {'\u2192'}
+                                </button>
+                            )}
+                        </div>
                     )}
                     <div className="mt-4 text-center"><span className="text-sm text-gray-600">{['sofiCheck', 'sofiSave', 'roth', 'split'].filter(k => userData.checklist[k]).length}/4 completed</span></div>
                 </div>
@@ -890,6 +961,7 @@
 
         // ===============================
         // MODULE 4: PROJECTION
+        // CHANGE #2 continued: Goal Gradient for skipped users
         // ===============================
         function ModuleProjection({ userData, updateData, theme, next }) {
             const [isProcessing, setIsProcessing] = useState(false);
@@ -901,6 +973,20 @@
             if (isProcessing) return <ProcessingOverlay theme={theme} userName={userData.userName} onComplete={next} />;
             return (
                 <div className="terminal-box p-6 sm:p-8 animate-fade-in relative">
+                    {/* CHANGE #2: Goal Gradient nudge for skipped Module 2 users */}
+                    {userData.skippedInfra && (
+                        <div className="mb-6 bg-yellow-500/5 border border-yellow-500/30 rounded-xl p-4 animate-fade-in">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                                    <div className="h-full bg-yellow-400 rounded-full" style={{width: '70%'}}></div>
+                                </div>
+                                <span className="text-yellow-400 text-xs font-bold">70%</span>
+                            </div>
+                            <p className="text-sm text-yellow-400 font-bold">Your system is 70% built.</p>
+                            <p className="text-xs text-gray-500 mt-1">Complete the infrastructure (Step 3) after you see your projection to fully activate it.</p>
+                        </div>
+                    )}
+
                     <div className="text-center mb-6">
                         <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">{'\uD83D\uDCC8'} System Online</h2>
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-green-500/30 bg-green-500/5">
@@ -921,7 +1007,6 @@
 
                     <DisclaimerPanel expanded={disclaimerOpen} onToggle={() => setDisclaimerOpen(!disclaimerOpen)} />
 
-                    {/* Certificate explanation */}
                     <div className="mt-6 bg-black/40 border border-gray-800 rounded-xl p-5">
                         <p className="text-sm text-gray-400 mb-1">{'\uD83C\uDFC6'} <strong className="text-white">Next: Your Architect Certificate</strong></p>
                         <p className="text-sm text-gray-500">A shareable card with your unique system ID, monthly investment, ETF, and 30-year projection. Think of it as your wealth blueprint receipt. Post it, link it, verify it.</p>
@@ -941,14 +1026,50 @@
 
         // ==========================================
         // MODULE 5: EMAIL GATE
+        // CHANGE #4: Invisible Bleed Reveal + Email Visibility Fix
         // ==========================================
         function ModuleEmailGate({ userData, updateData, theme, architectId, setArchitectId, next }) {
             const [saving, setSaving] = useState(false);
+            const iframeWrapperRef = useRef(null);
             const investAmount = getInvest(userData);
             const projectedWealth = calcFutureValue(investAmount, 30).toLocaleString(undefined, {maximumFractionDigits:0});
 
+            // EMAIL VISIBILITY FIX: Scroll iframe into view on interaction
+            useEffect(() => {
+                const wrapper = iframeWrapperRef.current;
+                if (!wrapper) return;
+                
+                const handleInteraction = () => {
+                    wrapper.classList.add('focused');
+                    // Smooth scroll the iframe to center of viewport
+                    setTimeout(() => {
+                        wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                };
+                
+                const handleBlur = () => {
+                    wrapper.classList.remove('focused');
+                };
+
+                wrapper.addEventListener('click', handleInteraction);
+                wrapper.addEventListener('touchstart', handleInteraction);
+                // Listen for focus events from iframe
+                window.addEventListener('blur', () => {
+                    // When window loses focus, the iframe likely got focus
+                    if (document.activeElement?.tagName === 'IFRAME') {
+                        handleInteraction();
+                    }
+                });
+                
+                return () => {
+                    wrapper.removeEventListener('click', handleInteraction);
+                    wrapper.removeEventListener('touchstart', handleInteraction);
+                };
+            }, []);
+
             const completeGate = async () => {
                 setSaving(true);
+                trackEvent('email_captured', { architect_id: architectId || generateIdFromName(userData.userName || 'unknown'), invest_amount: Math.round(investAmount), etf_ticker: userData.etfChoice?.ticker || null, skipped_infra: userData.skippedInfra || false });
                 const fallbackEmail = `architect_${Date.now()}@autopilot.system`;
                 const generatedId = architectId || generateIdFromName(userData.userName || fallbackEmail);
                 setArchitectId(generatedId);
@@ -982,7 +1103,7 @@
                                 <span className="text-green-500 text-xs font-bold uppercase tracking-widest">{'\u2705'} System Built</span>
                             </div>
                             <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">{'\uD83D\uDD12'} Save Your Configuration</h2>
-                            <p className="text-sm text-gray-400 max-w-sm mx-auto">Enter your email to lock in your settings and receive your certificate.</p>
+                            <p className="text-sm text-gray-400 max-w-sm mx-auto">Enter your email to lock in your system and get your certificate.</p>
                         </div>
 
                         <div className="flex justify-center gap-3 text-center">
@@ -1000,25 +1121,37 @@
                             </div>
                         </div>
 
+                        {/* CHANGE #4: Invisible Bleed Reveal value proposition */}
                         <div className="bg-black/40 border border-gray-800 rounded-xl p-5">
-                            <p className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-bold">{'\uD83D\uDD13'} What this unlocks:</p>
-                            <div className="space-y-2.5">
-                                {[
-                                    ['\uD83C\uDFC6', 'Your Architect Certificate (permanent proof you built this)'],
-                                    ['\uD83D\uDCE1', 'Command Center access (your central dashboard for tracking everything)'],
-                                    ['\uD83D\uDD12', 'Your Architect ID (required to enter Command Center)']
-                                ].map((t, i) => (
-                                    <div key={i} className="flex items-start gap-3 text-sm"><span className="text-lg mt-0.5">{t[0]}</span><span className="text-gray-300 leading-relaxed">{t[1]}</span></div>
-                                ))}
+                            <p className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-bold">{'\uD83D\uDCE9'} Enter your email. I'll send you two things:</p>
+                            <div className="space-y-3">
+                                <div className="flex items-start gap-3 text-sm">
+                                    <span className="text-lg mt-0.5">{'\uD83C\uDFC6'}</span>
+                                    <span className="text-gray-300 leading-relaxed"><strong className="text-white">Your Architect Certificate</strong>: the card you just built, permanent proof your system is live.</span>
+                                </div>
+                                <div className="flex items-start gap-3 text-sm">
+                                    <span className="text-lg mt-0.5">{'\uD83D\uDCB0'}</span>
+                                    <span className="text-gray-300 leading-relaxed"><strong className="text-white">The Budget Calculator</strong> that finds the hidden money in your spending. Most users find <strong style={{color: theme.accent}}>$50-$200/mo</strong> they didn't know they were losing.</span>
+                                </div>
                             </div>
                             <div className="mt-4 pt-3 border-t border-gray-800">
                                 <p className="text-xs text-gray-600 leading-relaxed">Your certificate generates a unique Architect ID. That ID is your key into Command Center, where you track all your systems from one place.</p>
                             </div>
                         </div>
 
-                        <div className="beehiiv-container bg-black/30 border border-gray-800 rounded-xl p-4">
-                            <iframe src={CONFIG.BEEHIIV.AUTOPILOT_IFRAME_SRC} className="beehiiv-embed" frameBorder="0" scrolling="no" style={{ width: '100%', maxWidth: '600px', height: '260px', margin: '0 auto', borderRadius: '0px', backgroundColor: 'transparent', border: 'none', display: 'block' }} />
+                        {/* CHANGE #4: Beehiiv container with email visibility fix */}
+                        <div ref={iframeWrapperRef} className="beehiiv-gate-wrapper">
+                            <div className="beehiiv-gate-label">
+                                <span>{'\uD83D\uDCE7'}</span>
+                                <span>Type your email below</span>
+                                <span className="arrow-bounce">{'\u2193'}</span>
+                            </div>
+                            <div className="beehiiv-container">
+                                <iframe src={CONFIG.BEEHIIV.AUTOPILOT_IFRAME_SRC} className="beehiiv-embed" frameBorder="0" scrolling="no" style={{ width: '100%', maxWidth: '600px', height: '320px', margin: '0 auto', borderRadius: '0px', backgroundColor: 'transparent', border: 'none', display: 'block' }} />
+                            </div>
                         </div>
+                        {/* Extra padding for mobile keyboard */}
+                        <div style={{minHeight: '60px'}}></div>
 
                         <div className="flex items-center justify-center gap-4 text-xs text-gray-600">
                             <span className="flex items-center gap-1">{'\uD83D\uDD12'} Encrypted</span>
@@ -1031,9 +1164,10 @@
 
         // ==========================================================================
         // MODULE 6: CERTIFICATE
+        // CHANGE #5: Simplified to 3 sequential blocks
         // ==========================================================================
         function ModuleCertificate({ userData, theme, architectId }) {
-            const [copiedPlatform, setCopiedPlatform] = useState(null);
+            const [copiedVerify, setCopiedVerify] = useState(false);
             const [revealed, setRevealed] = useState(false);
             const [architectCount, setArchitectCount] = useState(null);
             const [downloading, setDownloading] = useState(false);
@@ -1050,19 +1184,8 @@
             useEffect(() => { const timer = setTimeout(() => { setRevealed(true); if (!confettiLaunched.current) { confettiLaunched.current = true; setTimeout(() => MoneyConfetti.launch(3000, 25), 800); } }, 100); return () => clearTimeout(timer); }, []);
 
             const verifyUrl = `${CONFIG.LINKS.VERIFY_BASE}?id=${architectId}&n=${encodeURIComponent(userData.userName || '')}&inv=${Math.round(monthlyInvest)}&etf=${userData.etfChoice?.ticker || ''}&w=${Math.round(projectedWealth30)}`;
-            const shareTemplates = {
-                INSTAGRAM: `I just automated $${Math.round(monthlyInvest)}/mo into ${userData.etfChoice?.ticker || 'ETFs'}. Projected value: $${projectedWealthStr}. Built with @koutalksmoney`,
-                TWITTER: `Just automated $${Math.round(monthlyInvest)}/mo into ${userData.etfChoice?.ticker || 'ETFs'}.\n\nProjected: $${projectedWealthStr} in 30 years.\n\nVerify my system: ${verifyUrl}\n\n@koutalksmoney`,
-                LINKEDIN: `I completed the Autopilot Money System: a 7-module financial automation protocol. I now auto-invest $${Math.round(monthlyInvest)}/mo into ${userData.etfChoice?.ticker || 'diversified ETFs'}. Verify: ${verifyUrl} #PersonalFinance #WealthBuilding`,
-                TIKTOK: `POV: You automated $${Math.round(monthlyInvest)}/mo into ${userData.etfChoice?.ticker || 'ETFs'} and your wealth is building itself. Verify: ${verifyUrl} @koutalksmoney`
-            };
 
             const handleDownload = async () => { if (!cardRef.current || downloading) return; setDownloading(true); try { const canvas = await html2canvas(cardRef.current, { backgroundColor: '#0a0a0a', scale: 3, useCORS: true, logging: false }); const link = document.createElement('a'); link.download = `autopilot-certificate-${architectId}.png`; link.href = canvas.toDataURL('image/png'); link.click(); } catch(e) {} setDownloading(false); };
-            const handleCopy = (platform) => { navigator.clipboard.writeText(shareTemplates[platform]); setCopiedPlatform(platform); setTimeout(() => setCopiedPlatform(null), 2000); };
-
-            const shareUrls = { twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTemplates.TWITTER)}`, linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(verifyUrl)}` };
-            const linkedInCertUrl = `https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${encodeURIComponent('Autopilot Money System')}&organizationName=${encodeURIComponent('Kou Talks Money')}&certUrl=${encodeURIComponent(verifyUrl)}&certId=${encodeURIComponent(architectId)}`;
-            const isHighValue = monthlyInvest >= 500;
 
             return (
                 <div className="w-full max-w-md mx-auto animate-fade-in">
@@ -1072,10 +1195,12 @@
                         <p className="text-sm text-gray-400">Your wealth machine is live. Here's your proof.</p>
                     </div>
 
-                    {/* Download button */}
+                    {/* ============================================ */}
+                    {/* BLOCK 1: DOWNLOAD / SCREENSHOT */}
+                    {/* ============================================ */}
                     <div className="text-center mb-4">
-                        <button onClick={handleDownload} disabled={downloading} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-green-500/50 text-green-500 text-xs font-bold uppercase tracking-widest screenshot-pulse hover:bg-green-500/10 transition-all disabled:opacity-50">
-                            {'\uD83D\uDCF7'} {downloading ? 'Generating...' : 'Download Certificate'}
+                        <button onClick={handleDownload} disabled={downloading} className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-green-500/50 text-green-500 text-sm font-bold uppercase tracking-widest screenshot-pulse hover:bg-green-500/10 transition-all disabled:opacity-50">
+                            {'\uD83D\uDCF7'} {downloading ? 'Generating...' : 'Download Your Certificate'}
                         </button>
                     </div>
 
@@ -1102,127 +1227,70 @@
                         </div>
                     </div>
 
-                    {/* What is this? */}
-                    <div className="bg-black/40 border border-gray-800 rounded-xl p-4 mb-6 text-center">
-                        <p className="text-xs text-gray-500 mb-1">{'\u2139\uFE0F'} <strong className="text-gray-400">What is this?</strong></p>
-                        <p className="text-xs text-gray-600 leading-relaxed">Your Architect Certificate is proof you built a real wealth automation system. Your ID (<span className="text-green-500">{architectId}</span>) is permanent. Share it anywhere to verify your system.</p>
+                    {/* Position counter */}
+                    <div className="bg-black/40 border border-gray-800 p-3 rounded-xl mb-6 text-center">
+                        <p className="text-white text-lg font-mono font-bold">Architect #{architectCount !== null ? architectCount + 1 : '...'}</p>
+                        <p className="text-xs text-gray-600">of {architectCount !== null ? architectCount + 1 : '...'} total systems installed</p>
                     </div>
 
-                    {/* Verify link */}
-                    <div className="bg-gradient-to-br from-gray-900 to-black border-2 border-green-500/30 p-4 rounded-xl mb-6 flex flex-col sm:flex-row items-center gap-4">
+                    {/* ============================================ */}
+                    {/* BLOCK 2: SHARE + UNLOCK (Primary CTA) */}
+                    {/* ============================================ */}
+                    <div className="bg-black/40 border-2 border-green-500/30 p-6 rounded-xl mb-6 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-green-500"></div>
+                        <h3 className="text-white font-bold text-lg mb-1 text-center">{'\uD83D\uDD13'} Unlock the Prompt Vault + Budget Calculator</h3>
+                        <p className="text-gray-500 text-sm mb-5 text-center">3 taps. 30 seconds. Two free tools.</p>
+
+                        <div className="space-y-4">
+                            <div className="flex gap-3 items-start">
+                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-sm font-bold text-black">1</div>
+                                <div>
+                                    <p className="text-white text-sm font-bold">Download or screenshot your certificate</p>
+                                    <p className="text-gray-500 text-xs">Use the button above.</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-3 items-start">
+                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-sm font-bold text-black">2</div>
+                                <div>
+                                    <p className="text-white text-sm font-bold">Post it to your story and tag <span className="text-green-500">@koutalksmoney</span></p>
+                                    <p className="text-gray-500 text-xs">Instagram, TikTok, X, or LinkedIn. Any platform works.</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-3 items-start">
+                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-sm font-bold text-black">3</div>
+                                <div>
+                                    <p className="text-white text-sm font-bold">DM "ARCHITECT" to <span className="text-green-500">@koutalksmoney</span></p>
+                                    <p className="text-gray-500 text-xs">Both tools delivered instantly via DM.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="share-btn share-btn-instagram mt-5">
+                            {'\uD83D\uDCF8'} Open Instagram
+                        </a>
+                    </div>
+
+                    {/* Verification link (compact) */}
+                    <div className="bg-black/40 border border-gray-800 p-4 rounded-xl mb-6 flex flex-col sm:flex-row items-center gap-3">
                         <div className="flex-1 text-center sm:text-left">
-                            <p className="text-white font-bold text-sm">{'\uD83D\uDD17'} Your Verification Page is Live</p>
-                            <p className="text-gray-500 text-xs mt-0.5">Drop this link in your bio, resume, or DMs.</p>
+                            <p className="text-white font-bold text-sm">{'\uD83D\uDD17'} Your Verification Page</p>
+                            <p className="text-gray-600 text-xs">Drop this link in your bio or resume.</p>
                         </div>
                         <div className="flex gap-2 w-full sm:w-auto">
-                            <a href={verifyUrl} target="_blank" className="flex-1 sm:flex-none py-2.5 px-5 bg-green-500 text-black font-bold text-xs rounded-lg text-center transition-all hover:brightness-110 uppercase">View</a>
-                            <button onClick={() => { navigator.clipboard.writeText(verifyUrl); setCopiedPlatform('verify'); setTimeout(() => setCopiedPlatform(null), 2000); }} className={`flex-1 sm:flex-none py-2.5 px-5 border font-bold text-xs rounded-lg text-center transition-all uppercase ${copiedPlatform === 'verify' ? 'border-green-500 text-green-500' : 'border-gray-700 text-gray-400'}`}>{copiedPlatform === 'verify' ? '\u2713 Copied' : 'Copy'}</button>
+                            <a href={verifyUrl} target="_blank" className="flex-1 sm:flex-none py-2 px-4 bg-green-500 text-black font-bold text-xs rounded-lg text-center transition-all hover:brightness-110 uppercase">View</a>
+                            <button onClick={() => { navigator.clipboard.writeText(verifyUrl); setCopiedVerify(true); setTimeout(() => setCopiedVerify(false), 2000); }} className={`flex-1 sm:flex-none py-2 px-4 border font-bold text-xs rounded-lg text-center transition-all uppercase ${copiedVerify ? 'border-green-500 text-green-500' : 'border-gray-700 text-gray-400'}`}>{copiedVerify ? '\u2713 Copied' : 'Copy'}</button>
                         </div>
                     </div>
 
-                    {/* Position */}
-                    <div className="bg-black/40 border border-gray-800 p-4 rounded-xl mb-6 text-center">
-                        <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">Your Position</p>
-                        <p className="text-white text-3xl font-mono font-bold">Architect #{architectCount !== null ? architectCount + 1 : '...'}</p>
-                        <p className="text-xs text-gray-600 mt-1">of {architectCount !== null ? architectCount + 1 : '...'} total systems installed</p>
-                    </div>
-
-                    {/* Command Center CTA - PRIMARY */}
-                    <a href={CONFIG.LINKS.COMMAND_CENTER} className="block w-full mb-6 p-5 bg-gradient-to-r from-green-500/10 to-green-500/5 border-2 border-green-500/40 rounded-xl text-center hover:border-green-500/70 transition-all group">
-                        <p className="text-white font-bold text-base">{'\uD83D\uDCE1'} Open Your Command Center</p>
-                        <p className="text-gray-400 text-sm mt-1">Track your system. Monitor your progress. Your single hub.</p>
+                    {/* ============================================ */}
+                    {/* BLOCK 3: COMMAND CENTER (Secondary) */}
+                    {/* ============================================ */}
+                    <a href={CONFIG.LINKS.COMMAND_CENTER} className="block w-full mb-6 p-4 border border-gray-800 rounded-xl text-center hover:border-gray-600 transition-all">
+                        <p className="text-gray-400 font-bold text-sm">{'\uD83D\uDCE1'} Open Command Center</p>
+                        <p className="text-gray-600 text-xs mt-1">Your central dashboard for tracking everything.</p>
                     </a>
 
-                    {/* Prompt Vault unlock */}
-                    <div className="bg-black/40 border border-gray-800 p-6 rounded-xl mb-6 shadow-xl relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-green-500"></div>
-                        <h3 className="text-white font-bold text-lg mb-1 text-center">{'\uD83D\uDD13'} Unlock the Prompt Vault</h3>
-                        <p className="text-gray-500 text-sm mb-6 text-center">Choose your path. One gets you the vault. The other gets you everything.</p>
-
-                        <div className="space-y-3 mb-6">
-                            {/* Path A */}
-                            <div className="bg-black/60 rounded-xl border border-gray-800 overflow-hidden">
-                                <div className="px-4 py-3 border-b border-gray-800 flex justify-between items-center">
-                                    <p className="text-xs text-gray-400 uppercase tracking-widest font-bold">Path A: Quick Claim</p>
-                                    <span className="text-[10px] text-gray-600 border border-gray-700 px-2 py-0.5 rounded-md">1 REWARD</span>
-                                </div>
-                                <div className="p-4">
-                                    <p className="text-white text-sm font-bold">{'\uD83D\uDCAC'} DM "ARCHITECT" to <span className="text-green-500">@koutalksmoney</span></p>
-                                    <p className="text-gray-500 text-xs mt-1">Instant delivery via ManyChat.</p>
-                                    <p className="text-xs text-gray-600 mt-2">You get: <span className="text-white font-bold bg-gray-800 px-2 py-0.5 rounded-md">Prompt Vault Cheat Sheet</span></p>
-                                </div>
-                            </div>
-
-                            {/* Path B */}
-                            <div className="bg-black/60 rounded-xl border-2 border-green-500/40 overflow-hidden relative">
-                                <div className="absolute top-0 right-0 px-2 py-0.5 text-[9px] font-bold text-black uppercase tracking-widest bg-green-500 rounded-bl-lg">Recommended</div>
-                                <div className="px-4 py-3 border-b border-gray-800 flex justify-between items-center">
-                                    <p className="text-xs text-green-500 uppercase tracking-widest font-bold">Path B: Full Unlock</p>
-                                    <span className="text-[10px] text-green-500 border border-green-500/40 px-2 py-0.5 rounded-md font-bold">2 REWARDS</span>
-                                </div>
-                                <div className="p-4 space-y-3">
-                                    {[
-                                        {n: 1, t: 'Download your certificate (button above)', s: 'Or screenshot it.'},
-                                        {n: 2, t: <span>Post it to your story and tag <span className="text-green-500">@koutalksmoney</span></span>, s: 'Instagram, X, LinkedIn, or TikTok.'},
-                                        {n: 3, t: <span>DM "ARCHITECT" to <span className="text-green-500">@koutalksmoney</span></span>, s: 'Mention you posted. Both rewards delivered.'}
-                                    ].map(({n, t, s}) => (
-                                        <div key={n} className="flex gap-3 items-start">
-                                            <div className="flex-shrink-0 w-7 h-7 rounded-full bg-green-500 flex items-center justify-center text-xs font-bold text-black">{n}</div>
-                                            <div><p className="text-white text-sm font-bold">{t}</p><p className="text-gray-500 text-xs">{s}</p></div>
-                                        </div>
-                                    ))}
-                                    <div className="mt-2 ml-10 flex flex-wrap items-center gap-2">
-                                        <span className="text-xs text-gray-500">You get:</span>
-                                        <span className="text-[10px] text-white font-bold bg-gray-800 px-2 py-0.5 rounded-md">Prompt Vault</span>
-                                        <span className="text-[10px] text-gray-600">+</span>
-                                        <span className="text-[10px] text-green-500 font-bold px-2 py-0.5 rounded-md bg-green-500/10 border border-green-500/30">Budget Calculator Code</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Level up / high value */}
-                        <div className="border-t border-gray-800 pt-4 mb-4">
-                            {isHighValue ? (
-                                <div className="bg-black/60 border border-yellow-500/30 rounded-xl p-4 text-center">
-                                    <p className="text-yellow-400 text-xs uppercase tracking-widest font-bold mb-1">{'\uD83D\uDC51'} High-Value Architect</p>
-                                    <p className="text-white font-bold text-sm mb-2">Want a personalized portfolio review?</p>
-                                    <p className="text-gray-500 text-xs mb-3">You're investing ${Math.round(monthlyInvest)}/mo. That's serious capital.</p>
-                                    <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="inline-block px-6 py-2.5 bg-yellow-400 text-black font-bold text-xs rounded-lg uppercase hover:brightness-110 transition-all">DM "STRATEGY" to Book</a>
-                                </div>
-                            ) : (
-                                <div className="bg-black/60 border border-gray-800 rounded-xl p-4 text-center">
-                                    <p className="text-gray-400 text-xs uppercase tracking-widest font-bold mb-1">{'\uD83D\uDCA1'} Level Up</p>
-                                    <p className="text-white font-bold text-sm mb-2">Find hidden cash in your spending</p>
-                                    <p className="text-gray-500 text-xs mb-3">Most users find $50-$200/mo they didn't know existed.</p>
-                                    <a href={CONFIG.LINKS.BUDGET_CALC} target="_blank" className="inline-block px-6 py-2.5 border border-gray-600 text-white font-bold text-xs rounded-lg uppercase hover:bg-gray-900 transition-all">Open Budget Calculator</a>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Share links */}
-                        <div className="border-t border-gray-800 pt-4">
-                            <p className="text-xs text-gray-500 uppercase tracking-widest mb-3 text-center">{'\uD83D\uDD17'} Quick Share</p>
-                            <div className="grid grid-cols-2 gap-3 mb-4">
-                                <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" className="share-btn share-btn-instagram col-span-2">{'\uD83D\uDCF8'} Open Instagram</a>
-                                <a href={shareUrls.twitter} target="_blank" className="share-btn share-btn-twitter">Open X</a>
-                                <a href={shareUrls.linkedin} target="_blank" className="share-btn share-btn-linkedin">Open LinkedIn</a>
-                            </div>
-                        </div>
-
-                        <div className="border-t border-gray-800 pt-4">
-                            <p className="text-xs text-gray-500 uppercase tracking-widest mb-3 text-center">{'\uD83D\uDCCB'} Copy Captions</p>
-                            <div className="grid grid-cols-2 gap-2">
-                                {['INSTAGRAM', 'TWITTER', 'LINKEDIN', 'TIKTOK'].map(platform => (
-                                    <button key={platform} onClick={() => handleCopy(platform)} className={`share-btn share-btn-copy text-xs py-2 ${copiedPlatform === platform ? 'copied' : ''}`}>{copiedPlatform === platform ? '\u2713 Copied' : platform}</button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    <a href={linkedInCertUrl} target="_blank" className="block w-full mb-6 bg-[#0077B5] hover:bg-[#006097] text-white text-center py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">{'\uD83D\uDCBC'} Add to LinkedIn Profile</a>
-
-                    {/* FIX #3: Standardized ecosystem footer */}
+                    {/* Footer */}
                     <div className="text-center pb-12 space-y-3 pt-6 border-t border-gray-800/50">
                         <p className="text-xs text-gray-700">Your Architect ID is permanent. Share it anywhere.</p>
                         <a href={CONFIG.LINKS.INSTAGRAM} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold hover:text-white transition-colors font-mono block" style={{color: '#00F0FF'}}>@koutalksmoney</a>
