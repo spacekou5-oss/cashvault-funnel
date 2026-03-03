@@ -798,6 +798,7 @@
                         </div>
                     </div>
 
+                    <!-- FIX #1: Iframe height: 100%; min-height: 380px (was 285px) -->
                     <div class="flex justify-center pb-2">
                         <iframe id="beehiivFrame"
                                 src="https://subscribe-forms.beehiiv.com/63ac9ac6-ada8-47a5-b5b6-654bdf88a7b6" 
@@ -805,9 +806,10 @@
                                 data-test-id="beehiiv-embed" 
                                 frameborder="0" 
                                 scrolling="no" 
-                                style="width: 400px; height: 285px; margin: 0; border-radius: 16px 16px 16px 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
+                                style="width: 400px; height: 100%; min-height: 380px; margin: 0; border-radius: 16px 16px 16px 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
                     </div>
                     <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+                    <!-- BEEHIIV ATTRIBUTION TRACKING (PRESERVED) -->
                     <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
 
                     <div class="text-center mt-2 pb-2">
@@ -832,7 +834,7 @@
     </main>
 
     <script>
-        // === SUPABASE TRACKING ===
+        // === SUPABASE TRACKING (PRESERVED) ===
         const _supabase = window.supabase ? window.supabase.createClient(
             'https://wokoxddotlyuasmwylpx.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg'
@@ -1019,14 +1021,12 @@
                 },
 
                 _redirectHandler: null,
-                _heightObserver: null,
                 _hasRedirected: false,
 
                 init() {
                     const hasSavedState = this.loadState();
                     trackEvent('app_opened');
                     
-                    // Always attempt Freedom Calculator prefill for exit age
                     this.prefillFromFreedomCalc();
 
                     if (hasSavedState) {
@@ -1077,6 +1077,7 @@
                     window.top.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=costofwaiting';
                 },
 
+                // FIX #2: MutationObserver deleted. Only message listener remains.
                 activateRedirectHandler() {
                     const self = this;
                     this._redirectHandler = function(event) {
@@ -1096,30 +1097,11 @@
                         }
                     };
                     window.addEventListener('message', this._redirectHandler);
-
-                    const iframe = document.getElementById('beehiivFrame');
-                    if (iframe) {
-                        const initialHeight = iframe.style.height;
-                        const observerActivatedAt = Date.now();
-                        this._heightObserver = new MutationObserver(function(mutations) {
-                            if (!self.showModal) return;
-                            if (Date.now() - observerActivatedAt < 3000) return;
-                            mutations.forEach(function(mutation) {
-                                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                                    const newHeight = iframe.style.height;
-                                    if (newHeight !== initialHeight && initialHeight) {
-                                        setTimeout(function() { self.doBeehiivRedirect(); }, 1500);
-                                    }
-                                }
-                            });
-                        });
-                        this._heightObserver.observe(iframe, { attributes: true, attributeFilter: ['style', 'height'] });
-                    }
                 },
 
+                // FIX #3: Clean deactivation. No _heightObserver reference.
                 deactivateRedirectHandler() {
                     if (this._redirectHandler) { window.removeEventListener('message', this._redirectHandler); this._redirectHandler = null; }
-                    if (this._heightObserver) { this._heightObserver.disconnect(); this._heightObserver = null; }
                 },
 
                 animateLossCounter(from, to) {
