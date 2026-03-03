@@ -8,6 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Beehiiv Attribution Tracking -->
+    <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
+    
     <style>
         :root {
             --bg-primary: #050505;
@@ -25,6 +28,9 @@
             --accent-pink: #ec4899;
             --accent-pink-dim: rgba(236, 72, 153, 0.15);
             --accent-pink-glow: rgba(236, 72, 153, 0.4);
+            --accent-red: #ef4444;
+            --accent-red-dim: rgba(239, 68, 68, 0.15);
+            --accent-red-glow: rgba(239, 68, 68, 0.4);
             --text-primary: #ffffff;
             --text-secondary: #a1a1aa;
             --text-muted: #52525b;
@@ -64,9 +70,7 @@
             position: relative; z-index: 1;
         }
 
-        /* ===================== */
         /* CELEBRATION PARTICLES */
-        /* ===================== */
         .celebration-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 9000; overflow: hidden;
@@ -81,9 +85,7 @@
             100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0) rotate(var(--rot)); }
         }
 
-        /* ===================== */
-        /* ACCESS GATE           */
-        /* ===================== */
+        /* ACCESS GATE */
         .access-gate {
             display: none; position: relative; z-index: 1;
             min-height: 100vh; overflow: hidden;
@@ -141,6 +143,7 @@
             color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5;
         }
         .gate-hook strong { color: var(--accent-green); }
+        .gate-hook .gate-hook-red { color: var(--accent-red); font-weight: 700; }
         .gate-proof {
             display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
             background: var(--accent-green-dim); border: 1px solid rgba(34,197,94,0.25);
@@ -248,9 +251,7 @@
         .gate-manual-section { transition: opacity 0.3s; }
         .gate-manual-section.hidden { opacity: 0; pointer-events: none; height: 0; overflow: hidden; margin: 0; padding: 0; }
 
-        /* ============================================
-           ECOSYSTEM PROCESSING THEATER
-        ============================================ */
+        /* ECOSYSTEM PROCESSING THEATER */
         .ecosystem-theater {
             position: fixed; inset: 0; background: var(--bg-primary); z-index: 2000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -354,7 +355,6 @@
             border-color: var(--accent-gold); background: var(--accent-gold-dim);
         }
 
-        /* FIX 3: Dashboard brand attribution line */
         .dashboard-brand-line {
             text-align: center; padding: 6px 0 18px;
         }
@@ -415,6 +415,13 @@
             background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, var(--bg-card) 100%);
             border-color: rgba(251, 191, 36, 0.3);
         }
+        /* CHANGE #4: Danger variant for Daily Leak */
+        .hero-stat.danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, var(--bg-card) 100%);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        .hero-stat.danger .hero-stat-value { color: var(--accent-red); }
+        .hero-stat.danger .hero-stat-cta { color: var(--accent-red); }
         .hero-stat.clickable { cursor: pointer; }
         .hero-stat-label {
             font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
@@ -469,6 +476,88 @@
         .level-progress-bar.elite { background: linear-gradient(90deg, #166534, #22c55e); }
         .level-info { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); }
         .level-info span:last-child { color: var(--accent-green); font-weight: 600; }
+
+        /* NEXT ACTION */
+        .next-action {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, var(--bg-card) 100%);
+            border: 2px solid var(--accent-green); border-radius: 16px;
+            padding: 22px; margin-bottom: 25px; position: relative; overflow: hidden;
+        }
+        .next-action::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.05), transparent);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .next-action-badge {
+            display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
+            background: var(--accent-green); color: #000; border-radius: 50px;
+            font-size: 0.6rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.1em; margin-bottom: 12px;
+        }
+        .next-action-title { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+        .next-action-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px; }
+        .next-action-btn {
+            display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px;
+            background: var(--accent-green); color: #000; border: none; border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700;
+            text-decoration: none; cursor: pointer; transition: all 0.2s; position: relative; z-index: 1;
+        }
+        .next-action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-green-glow); }
+        .next-action.level-up { border-color: var(--accent-gold); background: linear-gradient(135deg, rgba(251,191,36,0.1) 0%, var(--bg-card) 100%); }
+        .next-action.level-up .next-action-badge { background: var(--accent-gold); }
+        .next-action.level-up .next-action-btn { background: var(--accent-gold); }
+
+        /* ===================================
+           CHANGE #2: SOCIAL UNLOCKS SECTION
+           =================================== */
+        .social-unlocks-section { margin-bottom: 25px; }
+        .social-unlocks-grid { display: flex; flex-direction: column; gap: 10px; }
+        .social-unlock-card {
+            display: flex; align-items: center; gap: 14px; padding: 18px 16px;
+            border-radius: 14px; cursor: pointer; transition: all 0.25s;
+            text-decoration: none; position: relative; overflow: hidden;
+        }
+        .social-unlock-card.dm {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, var(--bg-card) 100%);
+            border: 1.5px solid rgba(236, 72, 153, 0.35);
+        }
+        .social-unlock-card.dm:hover { border-color: var(--accent-pink); box-shadow: 0 0 30px var(--accent-pink-glow); transform: translateX(4px); }
+        .social-unlock-card.story {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, var(--bg-card) 100%);
+            border: 1.5px solid rgba(251, 191, 36, 0.35);
+        }
+        .social-unlock-card.story:hover { border-color: var(--accent-gold); box-shadow: 0 0 30px var(--accent-gold-glow); transform: translateX(4px); }
+        .social-unlock-card.unlocked { opacity: 0.4; pointer-events: none; }
+        .social-unlock-card.unlocked::after {
+            content: '\2705 UNLOCKED'; position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+            font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700;
+            color: var(--accent-green); letter-spacing: 0.08em;
+        }
+        .social-unlock-icon {
+            width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; font-size: 1.3rem; flex-shrink: 0;
+        }
+        .social-unlock-card.dm .social-unlock-icon { background: var(--accent-pink-dim); }
+        .social-unlock-card.story .social-unlock-icon { background: var(--accent-gold-dim); }
+        .social-unlock-info { flex: 1; min-width: 0; }
+        .social-unlock-action {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700;
+            color: var(--text-primary); margin-bottom: 4px; line-height: 1.3;
+        }
+        .social-unlock-card.dm .social-unlock-action { color: var(--accent-pink); }
+        .social-unlock-card.story .social-unlock-action { color: var(--accent-gold); }
+        .social-unlock-reward { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4; }
+        .social-unlock-arrow {
+            font-family: 'JetBrains Mono', monospace; font-size: 1.2rem;
+            font-weight: 700; flex-shrink: 0; transition: transform 0.2s;
+        }
+        .social-unlock-card.dm .social-unlock-arrow { color: var(--accent-pink); }
+        .social-unlock-card.story .social-unlock-arrow { color: var(--accent-gold); }
+        .social-unlock-card:hover .social-unlock-arrow { transform: translateX(4px); }
+        @media (max-width: 700px) {
+            .social-unlock-reward { font-size: 0.7rem; }
+        }
 
         /* SYSTEMS GRID */
         .systems-section { margin-bottom: 25px; }
@@ -536,37 +625,6 @@
         .system-desc { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .system-desc.completed-context { color: var(--accent-green); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 600; }
         .system-status { font-size: 1.2rem; }
-
-        /* NEXT ACTION */
-        .next-action {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, var(--bg-card) 100%);
-            border: 2px solid var(--accent-green); border-radius: 16px;
-            padding: 22px; margin-bottom: 25px; position: relative; overflow: hidden;
-        }
-        .next-action::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.05), transparent);
-            animation: shimmer 3s infinite;
-        }
-        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-        .next-action-badge {
-            display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
-            background: var(--accent-green); color: #000; border-radius: 50px;
-            font-size: 0.6rem; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 0.1em; margin-bottom: 12px;
-        }
-        .next-action-title { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
-        .next-action-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px; }
-        .next-action-btn {
-            display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px;
-            background: var(--accent-green); color: #000; border: none; border-radius: 10px;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700;
-            text-decoration: none; cursor: pointer; transition: all 0.2s; position: relative; z-index: 1;
-        }
-        .next-action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-green-glow); }
-        .next-action.level-up { border-color: var(--accent-gold); background: linear-gradient(135deg, rgba(251,191,36,0.1) 0%, var(--bg-card) 100%); }
-        .next-action.level-up .next-action-badge { background: var(--accent-gold); }
-        .next-action.level-up .next-action-btn { background: var(--accent-gold); }
 
         /* SHARE SECTION */
         .share-section {
@@ -654,7 +712,7 @@
         .share-card-brand { font-size: 0.7rem; color: var(--text-muted); }
         .share-instructions { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 15px; }
 
-        /* === STANDARDIZED FOOTER === */
+        /* FOOTER */
         .site-footer {
             margin-top: 35px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center;
         }
@@ -693,7 +751,9 @@
     <div class="bg-glow bg-glow-1"></div>
     <div class="bg-glow bg-glow-2"></div>
 
-    <!-- ACCESS GATE (cold IG traffic only) -->
+    <!-- =============================================
+         CHANGE #5: ACCESS GATE (Brandon-specific copy)
+         ============================================= -->
     <div class="access-gate" id="accessGate">
         <div class="gate-preview" id="gatePreview" aria-hidden="true">
             <div class="gp-header">
@@ -732,21 +792,25 @@
                     <div class="gate-brand-dot"></div>
                     <span>@koutalksmoney</span>
                 </div>
+                <!-- CHANGE #5: Brandon-specific headline -->
                 <h1 class="gate-title">Command Center</h1>
                 <div class="gate-hook">
-                    <strong>7 tools.</strong> One machine.<br>Zero willpower.
+                    Your <span class="gate-hook-red">$680 paycheck has 30 holes.</span><br>
+                    <strong>7 tools</strong> to plug every one.<br>
+                    No willpower required.
                 </div>
                 <div class="gate-proof" id="gateProof">
                     <div class="gate-proof-dot"></div>
                     <span id="gateProofText">47 Architects building</span>
                 </div>
+                <!-- CHANGE #5: Brandon-language pillar labels -->
                 <div class="gate-pillars">
-                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F916;</div><div class="gate-pillar-name">Automate</div></div>
-                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F4CA;</div><div class="gate-pillar-name">Invest</div></div>
-                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F4B3;</div><div class="gate-pillar-name">Credit</div></div>
-                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F3AF;</div><div class="gate-pillar-name">Freedom #</div></div>
-                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F4B0;</div><div class="gate-pillar-name">Cash Flow</div></div>
-                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F9E0;</div><div class="gate-pillar-name">AI Vault</div></div>
+                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F916;</div><div class="gate-pillar-name">Auto-Save</div></div>
+                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F4CA;</div><div class="gate-pillar-name">$25/Week</div></div>
+                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F4B3;</div><div class="gate-pillar-name">Hit 800</div></div>
+                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F3AF;</div><div class="gate-pillar-name">Your Number</div></div>
+                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F4B0;</div><div class="gate-pillar-name">Where $ Goes</div></div>
+                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F9E0;</div><div class="gate-pillar-name">Cheat Codes</div></div>
                 </div>
                 <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="gate-cta" id="gateCta">Start The System &#8594;</a>
                 <div class="gate-divider">Already have an Architect ID?</div>
@@ -873,7 +937,9 @@
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD -->
+    <!-- ========================
+         MAIN DASHBOARD
+         ======================== -->
     <div class="container" id="mainDashboard" style="display:none;">
         <div class="header">
             <div class="header-left">
@@ -886,7 +952,6 @@
             </div>
         </div>
 
-        <!-- FIX 3: Brand attribution in dashboard screenshot zone -->
         <div class="dashboard-brand-line">
             <span>@koutalksmoney</span>
         </div>
@@ -900,17 +965,18 @@
             <a href="#" class="welcome-banner-btn" id="welcomeBannerBtn"><span id="welcomeBannerBtnText">Next Tool</span> <span>&rarr;</span></a>
         </div>
 
+        <!-- CHANGE #4: Smart conditional hero stat (middle column) -->
         <div class="hero-stats">
             <div class="hero-stat primary">
                 <div class="hero-stat-label">Tools Active</div>
                 <div class="hero-stat-value" id="systemsCompleted">0/7</div>
                 <div class="hero-stat-sub">Keep building</div>
             </div>
-            <div class="hero-stat clickable" id="freedomStat" onclick="goToFreedomCalc()">
-                <div class="hero-stat-label">Freedom Year</div>
-                <div class="hero-stat-value" id="freedomDate">&mdash;</div>
-                <div class="hero-stat-sub" id="freedomSub">Your target</div>
-                <div class="hero-stat-cta" id="freedomCta">Calculate &rarr;</div>
+            <div class="hero-stat clickable" id="smartStat" onclick="handleSmartStatClick()">
+                <div class="hero-stat-label" id="smartStatLabel">Daily Leak</div>
+                <div class="hero-stat-value" id="smartStatValue">$??</div>
+                <div class="hero-stat-sub" id="smartStatSub">You're building blind</div>
+                <div class="hero-stat-cta" id="smartStatCta">Calculate yours &rarr;</div>
             </div>
             <div class="hero-stat gold">
                 <div class="hero-stat-label">Days Building</div>
@@ -951,6 +1017,32 @@
             <a href="#" class="next-action-btn" id="nextActionBtn"><span id="nextActionBtnText">Continue</span><span>&rarr;</span></a>
         </div>
 
+        <!-- CHANGE #2: Social Unlocks Section (visible, not hidden behind modals) -->
+        <div class="social-unlocks-section" id="socialUnlocksSection" style="display:none;">
+            <div class="section-header">
+                <span class="section-title">Bonus Unlocks</span>
+                <span class="section-count" id="socialUnlocksCount" style="background: var(--accent-pink-dim); color: var(--accent-pink);">2 Available</span>
+            </div>
+            <div class="social-unlocks-grid">
+                <div class="social-unlock-card dm" id="socialDmCard" onclick="handleSocialDmClick()">
+                    <div class="social-unlock-icon">&#x1F4B0;</div>
+                    <div class="social-unlock-info">
+                        <div class="social-unlock-action">DM "INNERLOOP" to @koutalksmoney</div>
+                        <div class="social-unlock-reward">Unlock the Budget Calculator. See where every dollar of your paycheck actually goes. Most people find $50-$200/mo in spending they forgot existed.</div>
+                    </div>
+                    <div class="social-unlock-arrow">&rarr;</div>
+                </div>
+                <div class="social-unlock-card story" id="socialStoryCard" onclick="handleSocialStoryClick()">
+                    <div class="social-unlock-icon">&#x1F9E0;</div>
+                    <div class="social-unlock-info">
+                        <div class="social-unlock-action">Post your Architect Certificate on your story. Tag @koutalksmoney.</div>
+                        <div class="social-unlock-reward">Unlock the AI Prompt Vault. The exact prompts I use to manage my money in 10 minutes/week. Copy them.</div>
+                    </div>
+                    <div class="social-unlock-arrow">&rarr;</div>
+                </div>
+            </div>
+        </div>
+
         <div class="all-complete" id="allComplete" style="display: none;">
             <div class="all-complete-icon">&#128081;</div>
             <h3 class="all-complete-title">ELITE ARCHITECT</h3>
@@ -976,7 +1068,6 @@
             </div>
         </div>
 
-        <!-- FIX 2: Standardized footer -->
         <footer class="site-footer">
             <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a>
             <p class="footer-copy">Built by Kou Talks Money. 2026. All rights reserved.</p>
@@ -985,9 +1076,106 @@
 
     <script>
         /* ================================================
-           CELEBRATION PARTICLES (FIX 1)
-           Fires on successful sign-in from any path.
-           Multi-shape burst from center of screen.
+           SUPABASE ANALYTICS INTEGRATION
+           Fire-and-forget. Dashboard works even if Supabase is down.
+           ================================================ */
+        var SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
+        var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+
+        function sbInsert(table, data) {
+            try {
+                fetch(SUPABASE_URL + '/rest/v1/' + table, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                        'Prefer': 'return=minimal,resolution=ignore-duplicates'
+                    },
+                    body: JSON.stringify(data)
+                }).catch(function() {});
+            } catch(e) {}
+        }
+
+        function sbUpsert(table, data) {
+            try {
+                fetch(SUPABASE_URL + '/rest/v1/' + table, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                        'Prefer': 'return=minimal,resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify(data)
+                }).catch(function() {});
+            } catch(e) {}
+        }
+
+        function sbCount(table) {
+            return fetch(SUPABASE_URL + '/rest/v1/' + table + '?select=id', {
+                method: 'GET',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                    'Range': '0-0',
+                    'Prefer': 'count=exact'
+                }
+            }).then(function(r) {
+                var range = r.headers.get('content-range');
+                if (range) {
+                    var total = parseInt(range.split('/')[1]);
+                    return isNaN(total) ? null : total;
+                }
+                return null;
+            }).catch(function() { return null; });
+        }
+
+        function trackArchitect(architectId, isTemp, source) {
+            sbInsert('architects', {
+                architect_id: architectId,
+                is_temp: isTemp,
+                source: source || 'direct'
+            });
+        }
+
+        function trackVisit(architectId, entryPoint) {
+            sbInsert('visits', {
+                architect_id: architectId,
+                page: 'command-center',
+                entry_point: entryPoint || 'direct',
+                user_agent: navigator.userAgent.substring(0, 255)
+            });
+        }
+
+        function trackToolCompletion(architectId, toolId, contextData) {
+            sbUpsert('tool_completions', {
+                architect_id: architectId,
+                tool_id: toolId,
+                context_data: contextData || {}
+            });
+        }
+
+        function trackVelocity(architectId, score, level, count, tools) {
+            sbInsert('velocity_snapshots', {
+                architect_id: architectId,
+                velocity_score: score,
+                level: level,
+                completed_count: count,
+                completed_tools: tools
+            });
+        }
+
+        function trackSocialAction(architectId, actionType, context) {
+            sbInsert('social_actions', {
+                architect_id: architectId,
+                action_type: actionType,
+                context: context || ''
+            });
+        }
+
+        /* ================================================
+           CELEBRATION PARTICLES
            ================================================ */
         function triggerCelebration() {
             var container = document.createElement('div');
@@ -1020,6 +1208,9 @@
             setTimeout(function() { container.remove(); }, 3000);
         }
 
+        /* ================================================
+           CONFIG
+           ================================================ */
         var CONFIG = {
             AUTOPILOT_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html',
             FREEDOM_CALCULATOR_URL: 'https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html',
@@ -1033,14 +1224,21 @@
             ARCHITECT_BASE_COUNT: 47
         };
 
+        /* Gate proof: try real Supabase count, fallback to formula */
         function updateArchitectCount() {
-            var count = CONFIG.ARCHITECT_BASE_COUNT;
-            var launchDate = new Date('2025-06-01');
-            var now = new Date();
-            var daysSinceLaunch = Math.max(0, Math.floor((now - launchDate) / (1000 * 60 * 60 * 24)));
-            count = count + Math.floor(daysSinceLaunch * 0.3);
             var el = document.getElementById('gateProofText');
-            if (el) el.textContent = count + ' Architects building';
+            sbCount('architects').then(function(realCount) {
+                if (realCount && realCount > 0) {
+                    el.textContent = realCount + ' Architects building';
+                } else {
+                    var count = CONFIG.ARCHITECT_BASE_COUNT;
+                    var launchDate = new Date('2025-06-01');
+                    var now = new Date();
+                    var daysSinceLaunch = Math.max(0, Math.floor((now - launchDate) / (1000 * 60 * 60 * 24)));
+                    count = count + Math.floor(daysSinceLaunch * 0.3);
+                    el.textContent = count + ' Architects building';
+                }
+            });
         }
 
         function simpleHash(str) {
@@ -1076,8 +1274,8 @@
             try {
                 switch(systemId) {
                     case 'autopilot': var archId = localStorage.getItem('cashvault_architect_id'); return archId ? 'ID: ' + archId : null;
-                    case 'freedom': var fData = JSON.parse(localStorage.getItem('freedom_calculator_result') || 'null'); if (fData && fData.exitAge) return 'Freedom Age: ' + fData.exitAge; if (fData && fData.freedomYears) return 'In ' + fData.freedomYears + ' years'; return null;
-                    case 'waiting': var wData = JSON.parse(localStorage.getItem('cost_of_waiting_data') || 'null'); if (wData && wData.costPerDay) return 'Cost: $' + Math.round(wData.costPerDay) + '/day'; return null;
+                    case 'freedom': var fData = JSON.parse(localStorage.getItem('freedom_calculator_result') || 'null'); if (fData && fData.exitAge) return 'Freedom Age: ' + fData.exitAge; if (fData && fData.freedomYears) return 'Freedom: ' + fData.freedomYears + ' yrs'; return null;
+                    case 'waiting': var wData = JSON.parse(localStorage.getItem('cost_of_waiting_data') || 'null'); if (wData && wData.costPerDay) return 'Leak: $' + Math.round(wData.costPerDay) + '/day'; return null;
                     case 'investment': var iData = JSON.parse(localStorage.getItem('investmentSimplifier_portfolio') || 'null'); if (iData && iData.etf) return 'Portfolio: ' + iData.etf; return null;
                     case '800club': var score = localStorage.getItem('credit_protocol_score'); if (score) return 'Score: ' + score + '%'; return null;
                     case 'budget': var bData = JSON.parse(localStorage.getItem('budget_calculator_result') || 'null'); if (bData && bData.selectedSystem) return 'System: ' + bData.selectedSystem; return null;
@@ -1087,20 +1285,26 @@
             return null;
         }
 
+        /* ================================================
+           SYSTEMS DEFINITION
+           CHANGE #3: Updated unlock explanations for parallel unlocks
+           ================================================ */
         var SYSTEMS = [
             { id: 'autopilot', name: 'Autopilot System', desc: 'Your wealth machine', icon: '\uD83E\uDD16', url: CONFIG.AUTOPILOT_URL, storageKey: 'autopilot_completed', unlockType: 'always', priority: 1, socialAction: null, unlockExplanation: { title: 'Always Available', subtitle: 'This is your entry point. Start here.', steps: ['Click to begin the Autopilot System', 'Complete all 6 modules', 'Claim your unique Architect ID'] } },
-            { id: 'freedom', name: 'Freedom Calculator', desc: 'Know your number', icon: '\uD83C\uDFAF', url: CONFIG.FREEDOM_CALCULATOR_URL, storageKey: 'freedom_completed', unlockType: 'completion', unlockRequires: 'autopilot', priority: 2, socialAction: null, unlockExplanation: { title: 'Complete Autopilot System', subtitle: "Install your core wealth machine first.", steps: ['Open the Autopilot System', 'Complete all 6 modules', 'Claim your Architect ID', 'Freedom Calculator unlocks automatically'] } },
-            { id: 'waiting', name: 'Cost of Waiting', desc: 'Urgency multiplier', icon: '\u23F0', url: CONFIG.COST_OF_WAITING_URL, storageKey: 'waiting_completed', unlockType: 'completion', unlockRequires: 'freedom', priority: 3, socialAction: null, unlockExplanation: { title: 'Complete Freedom Calculator', subtitle: "Know your target before seeing what delays cost you.", steps: ['Open the Freedom Calculator', 'Enter your financial details', 'Get your Freedom Number', 'Cost of Waiting unlocks automatically'] } },
-            { id: 'investment', name: 'Investment Simplifier', desc: 'Portfolio builder', icon: '\uD83D\uDCCA', url: CONFIG.INVESTMENT_SIMPLIFIER_URL, storageKey: 'investment_completed', unlockType: 'completion', unlockRequires: 'waiting', priority: 4, socialAction: null, unlockExplanation: { title: 'Complete Cost of Waiting', subtitle: "Now that you feel the urgency, learn HOW to invest.", steps: ['Open Cost of Waiting Calculator', 'See what procrastination costs', 'Get motivated to act', 'Investment Simplifier unlocks automatically'] } },
-            { id: '800club', name: '800-Club Protocol', desc: 'Credit leverage', icon: '\uD83D\uDCB3', url: CONFIG.EIGHT_HUNDRED_CLUB_URL, storageKey: 'eightclub_completed', unlockType: 'level', unlockLevel: 'silver', priority: 5, socialAction: null, unlockExplanation: { title: 'Reach Silver Level', subtitle: "Complete 3 tools to reach Silver and unlock credit mastery.", steps: ['Complete any 3 tools', 'Reach Silver Architect level', '800-Club Protocol unlocks automatically'], showProgress: true } },
-            { id: 'budget', name: 'Budget Calculator', desc: 'Cash flow control', icon: '\uD83D\uDCB0', url: CONFIG.BUDGET_CALCULATOR_URL, storageKey: 'budget_completed', unlockType: 'code', unlockKey: 'budget_unlocked', priority: 6, socialAction: 'dm', unlockExplanation: { title: 'DM Secret Keyword', subtitle: "Get exclusive access by connecting with me directly.", secretKeyword: 'INNERLOOP', steps: ['DM @koutalksmoney on Instagram', 'Send the secret keyword: INNERLOOP', "I'll reply with your unlock code instantly", 'Enter the code to unlock'], hasCodeInput: true } },
-            { id: 'prompt', name: 'Prompt Vault', desc: 'AI arsenal', icon: '\uD83E\uDDE0', url: CONFIG.PROMPT_VAULT_URL, storageKey: 'prompt_completed', unlockType: 'dual', unlockLevel: 'gold', unlockKey: 'vault_unlocked', priority: 7, socialAction: 'story', unlockExplanation: { title: 'Two Ways to Unlock', subtitle: "Choose your path to the AI arsenal.", dualOptions: [{ icon: '\u2B50', title: 'Reach Gold Level', desc: 'Complete 5 tools', steps: ['Complete any 5 tools', 'Reach Gold Architect level', 'Prompt Vault unlocks automatically'] }, { icon: '\uD83D\uDCF8', title: 'Post Certificate', desc: 'Tag me on your story', steps: ['Open Autopilot System', 'Scroll to your Architect Certificate', 'Screenshot the certificate card', '<strong>Post it on your Instagram Story</strong>', '<strong>Tag @koutalksmoney in the story</strong>', "I'll DM you the Vault code!"] }], hasCodeInput: true } }
+            /* CHANGE #3: freedom, waiting, investment all unlock after autopilot */
+            { id: 'freedom', name: 'Freedom Calculator', desc: 'Know your number', icon: '\uD83C\uDFAF', url: CONFIG.FREEDOM_CALCULATOR_URL, storageKey: 'freedom_completed', unlockType: 'after-autopilot', priority: 2, socialAction: null, unlockExplanation: { title: 'Complete Autopilot System', subtitle: 'Install your core wealth machine first. Then choose any path.', steps: ['Open the Autopilot System', 'Complete all 6 modules', 'Claim your Architect ID', 'Freedom Calculator, Cost of Waiting, and Investment Simplifier all unlock at once'] } },
+            { id: 'waiting', name: 'Cost of Waiting', desc: 'Urgency multiplier', icon: '\u23F0', url: CONFIG.COST_OF_WAITING_URL, storageKey: 'waiting_completed', unlockType: 'after-autopilot', priority: 3, socialAction: null, unlockExplanation: { title: 'Complete Autopilot System', subtitle: 'Install your core wealth machine first. Then choose any path.', steps: ['Open the Autopilot System', 'Complete all 6 modules', 'Claim your Architect ID', 'Freedom Calculator, Cost of Waiting, and Investment Simplifier all unlock at once'] } },
+            { id: 'investment', name: 'Investment Simplifier', desc: 'Portfolio builder', icon: '\uD83D\uDCCA', url: CONFIG.INVESTMENT_SIMPLIFIER_URL, storageKey: 'investment_completed', unlockType: 'after-autopilot', priority: 4, socialAction: null, unlockExplanation: { title: 'Complete Autopilot System', subtitle: 'Install your core wealth machine first. Then choose any path.', steps: ['Open the Autopilot System', 'Complete all 6 modules', 'Claim your Architect ID', 'Freedom Calculator, Cost of Waiting, and Investment Simplifier all unlock at once'] } },
+            { id: '800club', name: '800-Club Protocol', desc: 'Credit leverage', icon: '\uD83D\uDCB3', url: CONFIG.EIGHT_HUNDRED_CLUB_URL, storageKey: 'eightclub_completed', unlockType: 'level', unlockLevel: 'silver', priority: 5, socialAction: null, unlockExplanation: { title: 'Reach Silver Level', subtitle: 'Complete 3 tools to reach Silver and unlock credit mastery.', steps: ['Complete any 3 tools', 'Reach Silver Architect level', '800-Club Protocol unlocks automatically'], showProgress: true } },
+            { id: 'budget', name: 'Budget Calculator', desc: 'Cash flow control', icon: '\uD83D\uDCB0', url: CONFIG.BUDGET_CALCULATOR_URL, storageKey: 'budget_completed', unlockType: 'code', unlockKey: 'budget_unlocked', priority: 6, socialAction: 'dm', unlockExplanation: { title: 'DM Secret Keyword', subtitle: 'Get exclusive access by connecting with me directly.', secretKeyword: 'INNERLOOP', steps: ['DM @koutalksmoney on Instagram', 'Send the secret keyword: INNERLOOP', "I'll reply with your unlock code instantly", 'Enter the code to unlock'], hasCodeInput: true } },
+            { id: 'prompt', name: 'Prompt Vault', desc: 'AI arsenal', icon: '\uD83E\uDDE0', url: CONFIG.PROMPT_VAULT_URL, storageKey: 'prompt_completed', unlockType: 'dual', unlockLevel: 'gold', unlockKey: 'vault_unlocked', priority: 7, socialAction: 'story', unlockExplanation: { title: 'Two Ways to Unlock', subtitle: 'Choose your path to the AI arsenal.', dualOptions: [{ icon: '\u2B50', title: 'Reach Gold Level', desc: 'Complete 5 tools', steps: ['Complete any 5 tools', 'Reach Gold Architect level', 'Prompt Vault unlocks automatically'] }, { icon: '\uD83D\uDCF8', title: 'Post Certificate', desc: 'Tag me on your story', steps: ['Open Autopilot System', 'Scroll to your Architect Certificate', 'Screenshot the certificate card', '<strong>Post it on your Instagram Story</strong>', '<strong>Tag @koutalksmoney in the story</strong>', "I'll DM you the Vault code!"] }], hasCodeInput: true } }
         ];
 
         var currentArchitectId = '';
         var completedSystems = [];
         var unlockedSystems = ['autopilot'];
         var currentModalSystem = null;
+        var currentEntryPoint = 'direct';
 
         function generateTempArchitectId() {
             var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -1152,6 +1356,7 @@
         }
 
         function runEcosystemTheater(tempId) {
+            currentEntryPoint = 'theater';
             var gate = document.getElementById('accessGate');
             gate.classList.remove('show');
 
@@ -1212,7 +1417,7 @@
                     setTimeout(function() {
                         theater.classList.add('hidden');
                         document.getElementById('mainDashboard').style.display = 'block';
-                        triggerCelebration(); /* FIX 1: Celebration on theater complete */
+                        triggerCelebration();
                         initDashboard();
                     }, 500);
                 }
@@ -1220,6 +1425,7 @@
         }
 
         function runVerificationCeremony(architectId) {
+            currentEntryPoint = 'ceremony';
             var gate = document.getElementById('accessGate');
             var gateContent = document.getElementById('gateContent');
             var gatePreview = document.getElementById('gatePreview');
@@ -1246,7 +1452,7 @@
             setTimeout(function() {
                 gate.classList.remove('show');
                 document.getElementById('mainDashboard').style.display = 'block';
-                triggerCelebration(); /* FIX 1: Celebration on ceremony complete */
+                triggerCelebration();
                 initDashboard();
             }, 2700);
         }
@@ -1260,6 +1466,7 @@
                     localStorage.setItem('cashvault_architect_id', paramId);
                     localStorage.setItem('command_center_architect_id', paramId);
                     try { var cleanUrl = window.location.pathname + window.location.hash; window.history.replaceState({}, document.title, cleanUrl); } catch(e) {}
+                    trackArchitect(paramId, false, 'url_param');
                     runVerificationCeremony(paramId);
                     return 'ceremony';
                 }
@@ -1275,6 +1482,7 @@
                 var tempId = localStorage.getItem('command_center_temp_id');
                 if (!tempId) { tempId = generateTempArchitectId(); localStorage.setItem('command_center_temp_id', tempId); }
                 localStorage.setItem('command_center_architect_id', tempId);
+                trackArchitect(tempId, true, 'bridge');
                 runVerificationCeremony(tempId);
                 return 'ceremony';
             }
@@ -1283,6 +1491,7 @@
                 var ecoTempId = localStorage.getItem('command_center_temp_id');
                 if (!ecoTempId) { ecoTempId = generateTempArchitectId(); localStorage.setItem('command_center_temp_id', ecoTempId); }
                 localStorage.setItem('command_center_architect_id', ecoTempId);
+                trackArchitect(ecoTempId, true, 'ecosystem');
                 runEcosystemTheater(ecoTempId);
                 return 'theater';
             }
@@ -1292,7 +1501,9 @@
             document.getElementById('gatePreview').style.display = 'block';
             document.getElementById('gateVerifyState').classList.remove('show');
             document.getElementById('accessGate').classList.add('show');
+            currentEntryPoint = 'gate';
             updateArchitectCount();
+            trackVisit(null, 'gate');
             return 'gate';
         }
 
@@ -1304,6 +1515,7 @@
                 localStorage.setItem('cashvault_architect_id', id);
                 localStorage.setItem('command_center_architect_id', id);
                 error.style.display = 'none';
+                trackArchitect(id, false, 'gate_manual');
                 runVerificationCeremony(id);
             } else {
                 error.style.display = 'block';
@@ -1327,6 +1539,9 @@
 
         document.addEventListener('DOMContentLoaded', function() { checkAccess(); });
 
+        /* ================================================
+           DASHBOARD INIT
+           ================================================ */
         function initDashboard() {
             loadArchitectId();
             loadCompletionStatus();
@@ -1335,6 +1550,18 @@
             trackStartDate();
             updateWelcomeBanner();
             writeEcosystemContext();
+            renderSocialUnlocks();
+
+            /* Supabase: track visit + velocity snapshot */
+            trackVisit(currentArchitectId, currentEntryPoint);
+            var vel = getVelocityScore();
+            trackVelocity(currentArchitectId, vel.score, getArchitectLevel(), completedSystems.length, completedSystems);
+
+            /* Supabase: track each completed tool */
+            completedSystems.forEach(function(sysId) {
+                var ctx = getCompletionContext(sysId);
+                trackToolCompletion(currentArchitectId, sysId, ctx ? { context: ctx } : {});
+            });
         }
 
         function loadArchitectId() {
@@ -1366,27 +1593,42 @@
             }
         }
 
+        /* ================================================
+           CHANGE #3: PARALLEL UNLOCK LOGIC
+           After Autopilot, freedom + waiting + investment unlock simultaneously.
+           Level gates and social gates stay intact.
+           ================================================ */
         function loadUnlockStatus() {
             unlockedSystems = ['autopilot'];
+            var autopilotDone = completedSystems.indexOf('autopilot') !== -1;
+
             SYSTEMS.forEach(function(system) {
+                /* Already completed = always accessible */
                 if (completedSystems.indexOf(system.id) !== -1) {
                     if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
                     return;
                 }
-                if (system.unlockType === 'completion' && system.unlockRequires) {
-                    if (completedSystems.indexOf(system.unlockRequires) !== -1) {
-                        if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
-                    }
+
+                /* CHANGE #3: Parallel unlock for tools 2, 3, 4 */
+                if (system.unlockType === 'after-autopilot' && autopilotDone) {
+                    if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
+                    return;
                 }
+
+                /* Level gates (800-Club at Silver) */
                 if (system.unlockType === 'level') {
                     var level = getArchitectLevel();
                     if (system.unlockLevel === 'silver' && ['silver', 'gold', 'elite'].indexOf(level) !== -1) {
                         if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
                     }
                 }
+
+                /* Code gates (Budget Calculator) */
                 if (system.unlockType === 'code' && localStorage.getItem(system.unlockKey) === 'true') {
                     if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
                 }
+
+                /* Dual gates (Prompt Vault) */
                 if (system.unlockType === 'dual') {
                     var lvl = getArchitectLevel();
                     var hasCode = localStorage.getItem(system.unlockKey) === 'true';
@@ -1452,6 +1694,135 @@
             banner.classList.add('show');
         }
 
+        /* ================================================
+           CHANGE #4: SMART CONDITIONAL HERO STAT
+           Priority: Daily Leak (red) > Freedom Year (default) > "Building Blind"
+           ================================================ */
+        function updateSmartStat() {
+            var statEl = document.getElementById('smartStat');
+            var labelEl = document.getElementById('smartStatLabel');
+            var valueEl = document.getElementById('smartStatValue');
+            var subEl = document.getElementById('smartStatSub');
+            var ctaEl = document.getElementById('smartStatCta');
+
+            /* Check for Cost of Waiting data (highest priority: Invisible Bleed Reveal) */
+            var waitingData = null;
+            try { waitingData = JSON.parse(localStorage.getItem('cost_of_waiting_data') || 'null'); } catch(e) {}
+
+            if (waitingData && waitingData.costPerDay) {
+                /* State: Daily Leak KNOWN (red, emotional, drives return visits) */
+                statEl.className = 'hero-stat danger clickable';
+                labelEl.textContent = 'Daily Leak';
+                valueEl.textContent = '$' + Math.round(waitingData.costPerDay);
+                subEl.textContent = 'Lost per day of waiting';
+                ctaEl.textContent = 'Every day counts';
+                ctaEl.style.display = '';
+                statEl.onclick = function() { window.location.href = CONFIG.COST_OF_WAITING_URL; };
+                return;
+            }
+
+            /* Check for Freedom Calculator data (second priority) */
+            var freedomData = null;
+            try { freedomData = JSON.parse(localStorage.getItem('freedom_calculator_result') || 'null'); } catch(e) {}
+
+            if (freedomData && freedomData.freedomYears) {
+                /* State: Freedom Year KNOWN */
+                var freedomYear = new Date().getFullYear() + parseInt(freedomData.freedomYears);
+                statEl.className = 'hero-stat clickable';
+                labelEl.textContent = 'Freedom Year';
+                valueEl.textContent = freedomYear;
+                subEl.textContent = freedomData.freedomYears + ' years';
+                ctaEl.style.display = 'none';
+                statEl.onclick = function() { window.location.href = CONFIG.FREEDOM_CALCULATOR_URL; };
+                return;
+            }
+
+            /* State: NOTHING KNOWN (Uncertainty Anxiety trigger) */
+            statEl.className = 'hero-stat danger clickable';
+            labelEl.textContent = 'Daily Leak';
+            valueEl.textContent = '$??';
+            subEl.textContent = "You're building blind";
+            ctaEl.textContent = 'Calculate yours \u2192';
+            ctaEl.style.display = '';
+            statEl.onclick = function() { handleSmartStatClick(); };
+        }
+
+        function handleSmartStatClick() {
+            /* Route to whichever calculator is unlocked and incomplete */
+            if (unlockedSystems.indexOf('waiting') !== -1 && completedSystems.indexOf('waiting') === -1) {
+                window.location.href = CONFIG.COST_OF_WAITING_URL;
+            } else if (unlockedSystems.indexOf('freedom') !== -1 && completedSystems.indexOf('freedom') === -1) {
+                window.location.href = CONFIG.FREEDOM_CALCULATOR_URL;
+            } else {
+                /* If nothing unlocked yet, show the Autopilot unlock explanation */
+                var waitingSystem = SYSTEMS.find(function(s) { return s.id === 'waiting'; });
+                showInfoModal(waitingSystem);
+            }
+        }
+
+        /* ================================================
+           CHANGE #2: SOCIAL UNLOCKS RENDERING
+           Visible cards between Next Action and Systems Grid.
+           Hide cards that are already unlocked/completed.
+           ================================================ */
+        function renderSocialUnlocks() {
+            var section = document.getElementById('socialUnlocksSection');
+            var dmCard = document.getElementById('socialDmCard');
+            var storyCard = document.getElementById('socialStoryCard');
+            var countEl = document.getElementById('socialUnlocksCount');
+
+            var budgetUnlocked = localStorage.getItem('budget_unlocked') === 'true' || completedSystems.indexOf('budget') !== -1;
+            var vaultUnlocked = localStorage.getItem('vault_unlocked') === 'true' || completedSystems.indexOf('prompt') !== -1;
+
+            /* If both are unlocked, hide entire section */
+            if (budgetUnlocked && vaultUnlocked) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+
+            /* Mark completed cards */
+            if (budgetUnlocked) { dmCard.classList.add('unlocked'); } else { dmCard.classList.remove('unlocked'); }
+            if (vaultUnlocked) { storyCard.classList.add('unlocked'); } else { storyCard.classList.remove('unlocked'); }
+
+            var available = (budgetUnlocked ? 0 : 1) + (vaultUnlocked ? 0 : 1);
+            countEl.textContent = available + ' Available';
+        }
+
+        function handleSocialDmClick() {
+            var budgetUnlocked = localStorage.getItem('budget_unlocked') === 'true';
+            if (budgetUnlocked) return;
+
+            /* Copy keyword to clipboard, then open Instagram */
+            navigator.clipboard.writeText('INNERLOOP').then(function() {
+                trackSocialAction(currentArchitectId, 'dm_copy', 'INNERLOOP');
+                /* Brief visual feedback */
+                var actionEl = document.querySelector('#socialDmCard .social-unlock-action');
+                var original = actionEl.textContent;
+                actionEl.textContent = '\u2705 "INNERLOOP" copied! Opening Instagram...';
+                setTimeout(function() {
+                    actionEl.textContent = original;
+                    window.open('https://ig.me/m/koutalksmoney', '_blank');
+                }, 1200);
+            }).catch(function() {
+                trackSocialAction(currentArchitectId, 'dm_copy', 'INNERLOOP');
+                window.open('https://ig.me/m/koutalksmoney', '_blank');
+            });
+        }
+
+        function handleSocialStoryClick() {
+            var vaultUnlocked = localStorage.getItem('vault_unlocked') === 'true';
+            if (vaultUnlocked) return;
+
+            trackSocialAction(currentArchitectId, 'story_click', 'certificate');
+            /* Open share modal with certificate instructions */
+            shareToInstagram();
+        }
+
+        /* ================================================
+           RENDER DASHBOARD
+           ================================================ */
         function renderDashboard() {
             document.getElementById('displayArchitectId').textContent = currentArchitectId;
 
@@ -1461,18 +1832,8 @@
                 document.getElementById('daysBuilding').textContent = days;
             }
 
-            var freedomData = localStorage.getItem('freedom_calculator_result');
-            if (freedomData) {
-                try {
-                    var data = JSON.parse(freedomData);
-                    if (data.freedomYears) {
-                        var freedomYear = new Date().getFullYear() + parseInt(data.freedomYears);
-                        document.getElementById('freedomDate').textContent = freedomYear;
-                        document.getElementById('freedomSub').textContent = data.freedomYears + ' years';
-                        document.getElementById('freedomCta').style.display = 'none';
-                    }
-                } catch(e) {}
-            }
+            /* CHANGE #4: Update smart stat instead of static Freedom Year */
+            updateSmartStat();
 
             var velocity = getVelocityScore();
             document.getElementById('velocityScore').textContent = velocity.score;
@@ -1488,12 +1849,8 @@
             updateArchitectLevel();
             updateNextAction();
             updateWelcomeBanner();
+            renderSocialUnlocks();
             writeEcosystemContext();
-        }
-
-        function goToFreedomCalc() {
-            if (unlockedSystems.indexOf('freedom') !== -1) { window.location.href = CONFIG.FREEDOM_CALCULATOR_URL; }
-            else { var freedomSystem = SYSTEMS.find(function(s) { return s.id === 'freedom'; }); showInfoModal(freedomSystem); }
         }
 
         function renderSystemsGrid() {
@@ -1596,9 +1953,9 @@
                     var needed = system.unlockLevel === 'silver' ? 3 : 5;
                     contentHtml += '<p style="text-align:center;color:var(--accent-gold);font-weight:700;">Your progress: ' + completedSystems.length + '/' + needed + ' tools</p>';
                 }
-                if (system.unlockType === 'completion' && system.unlockRequires) {
-                    var reqSystem = SYSTEMS.find(function(s) { return s.id === system.unlockRequires; });
-                    primaryBtn.textContent = 'Open ' + reqSystem.name + ' \u2192';
+                /* CHANGE #3: For after-autopilot tools, point to Autopilot */
+                if (system.unlockType === 'after-autopilot') {
+                    primaryBtn.textContent = 'Open Autopilot System \u2192';
                     primaryBtn.className = 'info-modal-btn primary';
                     primaryBtn.style.display = 'flex';
                 } else if (system.unlockType === 'level') {
@@ -1616,9 +1973,8 @@
         function handleInfoModalAction() {
             if (!currentModalSystem) return;
             if (currentModalSystem.unlockType === 'code') { closeInfoModal(); showBudgetCodeModal(); }
-            else if (currentModalSystem.unlockType === 'completion' && currentModalSystem.unlockRequires) {
-                var reqSystem = SYSTEMS.find(function(s) { return s.id === currentModalSystem.unlockRequires; });
-                window.location.href = reqSystem.url;
+            else if (currentModalSystem.unlockType === 'after-autopilot') {
+                window.location.href = CONFIG.AUTOPILOT_URL;
             } else { closeInfoModal(); }
         }
 
@@ -1640,6 +1996,7 @@
                 loadUnlockStatus();
                 renderDashboard();
                 showSuccessModal('Budget Calculator Unlocked!', 'Cash flow control activated.');
+                trackSocialAction(currentArchitectId, 'budget_code_success', code);
             } else { error.style.display = 'block'; input.style.borderColor = 'var(--danger)'; }
         }
 
@@ -1656,6 +2013,7 @@
                 loadUnlockStatus();
                 renderDashboard();
                 showSuccessModal('Prompt Vault Unlocked!', 'AI arsenal activated.');
+                trackSocialAction(currentArchitectId, 'vault_code_success', code);
             } else { error.style.display = 'block'; input.style.borderColor = 'var(--danger)'; }
         }
 
@@ -1669,7 +2027,7 @@
             document.getElementById('infoModalContent').innerHTML = '';
             document.getElementById('infoModalPrimaryBtn').style.display = 'none';
             modal.classList.add('show');
-            triggerCelebration(); /* FIX 1: Celebration on unlock success too */
+            triggerCelebration();
             setTimeout(function() { modal.classList.remove('show'); }, 2000);
         }
 
@@ -1695,6 +2053,10 @@
             next.textContent = nextReward;
         }
 
+        /* ================================================
+           CHANGE #1: REWRITTEN NEXT ACTION COPY
+           Specific dollar amounts + specific time + specific outcome
+           ================================================ */
         function updateNextAction() {
             var title = document.getElementById('nextActionTitle');
             var desc = document.getElementById('nextActionDesc');
@@ -1708,14 +2070,36 @@
 
             if (nextSystem) {
                 actionSection.className = 'next-action';
+                /* CHANGE #1: Math-driven copy, not motivational copy */
                 var messages = {
-                    autopilot: { title: 'Install Autopilot System', desc: 'Your core wealth machine. Everything builds on this.' },
-                    freedom: { title: 'Calculate Freedom Number', desc: "Can't hit a target you can't see." },
-                    waiting: { title: 'See What Waiting Costs', desc: 'Every day you delay costs you money.' },
-                    investment: { title: 'Build Your Portfolio', desc: 'Turn deposits into a growing wealth engine.' },
-                    '800club': { title: 'Hit 800 Credit Score', desc: 'Credit is leverage. Follow the protocol.' },
-                    budget: { title: 'Map Cash Flow', desc: 'Know where every dollar goes.' },
-                    prompt: { title: 'Unlock AI Vault', desc: 'Pre-built prompts for acceleration.' }
+                    autopilot: {
+                        title: 'Install Autopilot System',
+                        desc: 'Your paycheck hits your account. Within 24 hours, half is gone and you can\'t explain where. This system auto-routes every dollar before you can touch it. 10-minute setup. Runs forever.'
+                    },
+                    freedom: {
+                        title: 'Calculate Your Freedom Number',
+                        desc: "You don't know your Freedom Number. That's the exact monthly income where you never need a paycheck again. One calculation. 10 seconds. You'll either feel relieved or terrified. Either way, you'll know."
+                    },
+                    waiting: {
+                        title: 'See What Waiting Costs You',
+                        desc: 'At your income, every year you wait to invest costs you $17,000 by age 40. The calculator shows YOUR exact number. Not a guess. Math.'
+                    },
+                    investment: {
+                        title: 'Pick Your First Fund',
+                        desc: "You've seen the math. Now pick the one fund that does the work. $25/week. One ETF. Set it and walk away."
+                    },
+                    '800club': {
+                        title: 'Stop Overpaying on Everything',
+                        desc: "A 650 credit score costs you $3,000 more on your first car loan than an 800. That's 200+ hours of work at your wage. The checklist takes 10 minutes."
+                    },
+                    budget: {
+                        title: 'Find Your Hidden Spending',
+                        desc: 'Most people your age lose $50-$200/mo to subscriptions they forgot about. That\'s 50+ hours of work per year. This calculator finds every dollar.'
+                    },
+                    prompt: {
+                        title: 'Copy My AI Shortcuts',
+                        desc: 'One AI prompt saves me 3 hours/week managing money. You can copy it in 30 seconds. No learning curve.'
+                    }
                 };
                 var msg = messages[nextSystem.id];
                 title.textContent = msg.title;
@@ -1746,18 +2130,21 @@
             document.getElementById('shareCardStats').textContent = completedSystems.length + '/7 Tools Active';
             document.getElementById('shareCardLevel').textContent = getArchitectLevel().charAt(0).toUpperCase() + getArchitectLevel().slice(1) + ' Architect';
             modal.classList.add('show');
+            trackSocialAction(currentArchitectId, 'ig_open', 'share_modal');
         }
         function closeShareModal() { document.getElementById('shareModal').classList.remove('show'); }
 
         function shareToTwitter() {
             var text = encodeURIComponent(completedSystems.length + '/7 wealth tools active \u26A1\n\nArchitect ID: ' + currentArchitectId + '\n\n@koutalksmoney');
             window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
+            trackSocialAction(currentArchitectId, 'share_twitter', currentArchitectId);
         }
 
         function copyShareText() {
             var text = completedSystems.length + '/7 wealth tools active \u26A1\n\nArchitect ID: ' + currentArchitectId + '\n\nBuilding the machine.\n\n@koutalksmoney';
             navigator.clipboard.writeText(text);
             showSuccessModal('Copied!', 'Caption ready to paste.');
+            trackSocialAction(currentArchitectId, 'share_copy', currentArchitectId);
         }
 
         function copyArchitectId() {
