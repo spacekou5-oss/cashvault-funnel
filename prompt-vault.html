@@ -12,6 +12,40 @@
     <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
     <!-- Supabase JS client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const _sbUrl = 'https://wokoxddotlyuasmwylpx.supabase.co';
+        const _sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+        window._sb = null;
+        try { window._sb = window.supabase.createClient(_sbUrl, _sbKey); } catch(e) {}
+
+        window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        function trackVisit() {
+            if (!window._sb) return;
+            try {
+                const p = new URLSearchParams(window.location.search);
+                window._sb.from('visits').insert({
+                    architect_id: window._sessionId,
+                    page: window.location.pathname.split('/').pop() || 'unknown',
+                    entry_point: p.get('from') || document.referrer || 'direct',
+                    user_agent: navigator.userAgent
+                }).then(() => {}).catch(() => {});
+            } catch(e) {}
+        }
+        trackVisit();
+
+        async function captureHighLeverageData(appName, userInputs) {
+            if (!window._sb) return;
+            try {
+                await window._sb.from('tool_completions').insert({
+                    architect_id: window._sessionId,
+                    tool_id: appName,
+                    context_data: userInputs,
+                    completed_at: new Date().toISOString()
+                });
+            } catch(e) { console.error("Data capture failed silently", e); }
+        }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -393,26 +427,7 @@
             award: (color = '#10b981') => <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
         };
 
-        // Supabase client initialization
-        // Table: vault_leads (columns: id, email, source, category, prompt_name, created_at)
-        const SUPABASE_URL = "https://wokoxddotlyuasmwylpx.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg";
-        const supabaseClient = (window.supabase) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
-
-        // Writes a subscriber lead to Supabase vault_leads table.
-        // Fires after localStorage unlock so it never blocks the UX.
-        // Silent fail on any error.
-        async function trackLeadToSupabase(email, source, category, promptName) {
-            if (!supabaseClient) return;
-            try {
-                await supabaseClient.from("vault_leads").insert([{
-                    email: email,
-                    source: source || "vault-gate",
-                    category: category || null,
-                    prompt_name: promptName || null,
-                }]);
-            } catch(e) { /* silent fail */ }
-        }
+        // [REMOVED] Old Supabase init replaced by Universal Head Script (window._sb + captureHighLeverageData)
 
         const CONFIG = {
             BEEHIIV_EMBED_URL: "https://subscribe-forms.beehiiv.com/0eaa449a-fbba-4cff-96e5-88b3f0b82849",
@@ -533,7 +548,7 @@
            Captures email instantly, unlocks prompt immediately,
            submits to Beehiiv in the background.
            ===================================================== */
-        function NativeEmailCapture({ onEmailSubmit, promptName }) {
+        function NativeEmailCapture({ onEmailSubmit, promptName, category, inputs }) {
             const [email, setEmail] = useState('');
             const [loading, setLoading] = useState(false);
             const [error, setError] = useState('');
@@ -552,10 +567,9 @@
                 localStorage.setItem('vault_email_captured', 'true');
                 localStorage.setItem('vault_user_email', email);
 
-                // Step 2: Background Beehiiv submission via bridge page iframe
-                // Silent fail is acceptable; user is already unlocked
+                // Step 2: Background Beehiiv submission via bridge page iframe (with session_id injected)
                 try {
-                    const bridgeUrl = `${CONFIG.BRIDGE_PAGE_URL}?email=${encodeURIComponent(email)}&autosubmit=true&source=vault-gate`;
+                    const bridgeUrl = `${CONFIG.BRIDGE_PAGE_URL}?email=${encodeURIComponent(email)}&autosubmit=true&source=vault-gate&session_id=${window._sessionId}`;
                     const hiddenFrame = document.createElement('iframe');
                     hiddenFrame.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;';
                     hiddenFrame.src = bridgeUrl;
@@ -563,10 +577,15 @@
                     setTimeout(() => { try { document.body.removeChild(hiddenFrame); } catch(e){} }, 5000);
                 } catch(e) { /* silent fail */ }
 
-                // Step 3: Supabase lead tracking (background, silent fail)
-                // Reads URL param for traffic source attribution (e.g. ?src=cheat)
+                // Step 3: High-Leverage Payload Capture to tool_completions
                 const urlSrc = new URLSearchParams(window.location.search).get('src') || 'vault-gate';
-                trackLeadToSupabase(email, urlSrc, null, promptName);
+                captureHighLeverageData('prompt_vault', { 
+                    email: email, 
+                    source: urlSrc,
+                    category: category,
+                    prompt_name: promptName,
+                    user_inputs: inputs
+                });
 
                 // Step 4: Notify parent to trigger unlock animation
                 onEmailSubmit(email);
@@ -894,6 +913,16 @@
                     const status = isUnlocked ? 'unlocked' : 'pending';
                     onGenerated(category, text, status);
                     if (!isUnlocked) saveForBridgePage(category, currentConfig.name, text);
+                    
+                    // Capture high-leverage data on generation (email glued to every row)
+                    const knownEmail = localStorage.getItem('vault_user_email') || 'anonymous_or_pending';
+                    captureHighLeverageData('prompt_vault_generate', {
+                        category: category,
+                        prompt_name: currentConfig.name,
+                        user_email: knownEmail,
+                        user_inputs: inputs,
+                        is_unlocked: isUnlocked
+                    });
                 }, 3000);
             };
 
@@ -1008,6 +1037,8 @@
                                         {/* FIX 2: Native email capture replaces Beehiiv iframe */}
                                         <NativeEmailCapture
                                             promptName={currentConfig.name}
+                                            category={category}
+                                            inputs={inputs}
                                             onEmailSubmit={(email) => onEmailCapture(email)}
                                         />
 
