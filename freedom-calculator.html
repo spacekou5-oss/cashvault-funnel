@@ -15,44 +15,30 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- ================================================ -->
-    <!-- RANK #9: Supabase Tracking Infrastructure        -->
+    <!-- Universal Tracking Infrastructure (Pure Signal)  -->
     <!-- ================================================ -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const _sbUrl = 'https://ynkrbhgevqjicxospatd.supabase.co';
-        const _sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlua3JiaGdldnFqaWN4b3NwYXRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc1OTQ5NTQsImV4cCI6MjA1MzE3MDk1NH0.aBrsONBkI8jIFy1S6Ik9sSursr8xaMpuYijCs3DPONU';
-        let _sb = null;
-        try { _sb = supabase.createClient(_sbUrl, _sbKey); } catch(e) { console.warn('Supabase init failed:', e); }
+        const _sbUrl = 'https://wokoxddotlyuasmwylpx.supabase.co';
+        const _sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+        window._sb = null;
+        try { window._sb = window.supabase.createClient(_sbUrl, _sbKey); } catch(e) {}
 
-        const _sessionId = 'fc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         
-        function getUTMParams() {
-            const p = new URLSearchParams(window.location.search);
-            return { utm_source: p.get('utm_source'), utm_medium: p.get('utm_medium'), utm_campaign: p.get('utm_campaign'), from: p.get('from') };
-        }
-        
-        function getDeviceInfo() {
-            const w = window.innerWidth;
-            return { device: w < 768 ? 'mobile' : w < 1024 ? 'tablet' : 'desktop', width: w, ua: navigator.userAgent.substring(0, 120) };
-        }
-
-        function trackEvent(eventName, data) {
-            if (!_sb) return;
+        function trackVisit() {
+            if (!window._sb) return;
             try {
-                _sb.from('funnel_events').insert({
-                    session_id: _sessionId,
-                    app: 'freedom_calculator',
-                    event: eventName,
-                    data: JSON.stringify(data || {}),
-                    utm: JSON.stringify(getUTMParams()),
-                    device: JSON.stringify(getDeviceInfo()),
-                    url: window.location.href,
-                    created_at: new Date().toISOString()
+                const p = new URLSearchParams(window.location.search);
+                window._sb.from('visits').insert({
+                    architect_id: window._sessionId,
+                    page: window.location.pathname.split('/').pop() || 'unknown',
+                    entry_point: p.get('from') || document.referrer || 'direct',
+                    user_agent: navigator.userAgent
                 }).then(() => {}).catch(() => {});
             } catch(e) {}
         }
-        
-        trackEvent('app_opened', { referrer: document.referrer });
+        trackVisit();
     </script>
     
     <script>
@@ -685,16 +671,16 @@
 
                 <div class="flex justify-center pb-2">
                     <iframe id="beehiivFrame"
-                            src="https://subscribe-forms.beehiiv.com/63ac9ac6-ada8-47a5-b5b6-654bdf88a7b6" 
+                            :src="`https://subscribe-forms.beehiiv.com/63ac9ac6-ada8-47a5-b5b6-654bdf88a7b6?session_id=${window._sessionId}`" 
                             class="beehiiv-embed" 
                             data-test-id="beehiiv-embed" 
                             frameborder="0" 
                             scrolling="no" 
-                            style="width: 400px; height: 100%; min-height: 380px; margin: 0; border-radius: 16px 16px 16px 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
+                            style="width: 100%; max-width: 400px; height: 100%; min-height: 380px; margin: 0; border-radius: 16px !important; background-color: transparent; box-shadow: 0 0 #0000;"></iframe>
                 </div>
                 <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
-                <!-- RANK #9: Beehiiv Attribution -->
-                <script async src="https://universal.beehiiv.com/v1/attribution.js"></script>
+                <!-- Beehiiv Attribution -->
+                <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
 
                 <!-- RANK #1: Rewritten email prompt -->
                 <div class="text-center mt-2 pb-2">
@@ -786,7 +772,6 @@
                         this.savedExitLabel = this.exitAgeDisplay;
                         this.savedExitColor = this.exitAgeColor;
                         
-                        trackEvent('smart_router_shown', { state: this.isReturningSubscriber ? 'subscribed' : 'calculator' });
                         this.showSmartRouter = true;
                     } else {
                         this.applyDefaults();
@@ -803,7 +788,6 @@
                     this.$watch('showModal', (isOpen) => {
                         if (isOpen) {
                             this.activateRedirectHandler();
-                            trackEvent('modal_opened', { freedomNumber: this.freedomNumber, exitAge: this.exitAge });
                         } else {
                             this.deactivateRedirectHandler();
                         }
@@ -829,7 +813,6 @@
 
                 dismissSmartRouter() {
                     this.showSmartRouter = false;
-                    trackEvent('smart_router_choice', { choice: 'recalculate' });
                 },
 
                 // ===========================
@@ -856,7 +839,6 @@
                     } else {
                         this.saveDebounceTimer = setTimeout(() => {
                             this.saveResults();
-                            trackEvent('input_changed', { age: this.age, income: this.desiredIncome, monthly: this.monthlyInvest, saved: this.currentWealth });
                         }, 300);
                     }
                 },
@@ -1132,14 +1114,11 @@
                     if (oldAge >= 30 && newAge < 30) {
                         this.triggerCelebration();
                         this.showMiniCelebration('FREEDOM AT ' + Math.round(newAge) + '. MOST PEOPLE RETIRE AT 65.');
-                        trackEvent('celebration_triggered', { type: 'legendary', exitAge: newAge });
                     } else if (oldAge >= 40 && newAge < 40) {
                         this.triggerCelebration();
                         this.showMiniCelebration('FREEDOM AT ' + Math.round(newAge) + '. ELITE.');
-                        trackEvent('celebration_triggered', { type: 'elite', exitAge: newAge });
                     } else if (oldAge >= 50 && newAge < 50) {
                         this.showMiniCelebration('UNDER 50!');
-                        trackEvent('celebration_triggered', { type: 'under50', exitAge: newAge });
                     }
                 },
 
@@ -1177,12 +1156,34 @@
                 // ===========================
                 handleCTA() {
                     if (!this.canProceed) return;
-                    trackEvent('cta_clicked', { exitAge: this.exitAge, freedomNumber: this.freedomNumber });
+                    
                     try {
                         const alreadySubscribed = localStorage.getItem('freedom_calculator_email') === 'true';
-                        if (alreadySubscribed) { this.showSubPopup = true; }
-                        else { this.showModal = true; }
-                    } catch(e) { this.showModal = true; }
+                        if (alreadySubscribed) { 
+                            this.showSubPopup = true; 
+                        } else { 
+                            this.showModal = true; 
+                            
+                            // SUPABASE HIGH-LEVERAGE DATA CAPTURE
+                            if (window._sb) {
+                                window._sb.from('tool_completions').insert({
+                                    architect_id: window._sessionId,
+                                    tool_id: 'freedom_calculator',
+                                    context_data: {
+                                        age: this.age,
+                                        current_wealth: this.currentWealth,
+                                        desired_income: this.desiredIncome,
+                                        monthly_investment: this.monthlyInvest,
+                                        freedom_number: this.freedomNumber,
+                                        exit_age: this.yearsToGoal >= 100 ? 'NEVER' : this.exitAge,
+                                        cost_of_waiting_per_year: this.costOfWaitingPerYear
+                                    }
+                                }).then(() => {}).catch(() => {});
+                            }
+                        }
+                    } catch(e) { 
+                        this.showModal = true; 
+                    }
 
                     this.showFallbackLink = false;
                     clearTimeout(this._fallbackTimer);
@@ -1199,7 +1200,6 @@
                         localStorage.setItem('freedom_completed', 'true');
                         localStorage.setItem('freedom_calculator_email', 'true');
                     } catch(e) {}
-                    trackEvent('email_captured', { freedomNumber: this.freedomNumber, exitAge: this.exitAge });
                     window.top.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=freedom';
                 },
 
