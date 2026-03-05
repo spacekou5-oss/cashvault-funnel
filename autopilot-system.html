@@ -10,6 +10,27 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const _sbUrl = 'https://wokoxddotlyuasmwylpx.supabase.co';
+        const _sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+        window._sb = null;
+        try { window._sb = window.supabase.createClient(_sbUrl, _sbKey); } catch(e) {}
+        window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        function trackVisit() {
+            if (!window._sb) return;
+            try {
+                const p = new URLSearchParams(window.location.search);
+                window._sb.from('visits').insert({
+                    architect_id: window._sessionId,
+                    page: window.location.pathname.split('/').pop() || 'unknown',
+                    entry_point: p.get('from') || document.referrer || 'direct',
+                    user_agent: navigator.userAgent
+                }).then(() => {}).catch(() => {});
+            } catch(e) {}
+        }
+        trackVisit();
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -154,15 +175,7 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
-        // === SUPABASE TRACKING ===
-        const _supabase = window.supabase ? window.supabase.createClient(
-            'https://wokoxddotlyuasmwylpx.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg'
-        ) : null;
-        const _sessionId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
-        function _getUTM() { try { const p = new URLSearchParams(window.location.search); return { utm_source: p.get('utm_source') || null, utm_medium: p.get('utm_medium') || null, utm_campaign: p.get('utm_campaign') || null }; } catch(e) { return {}; } }
-        function _getDevice() { const w = window.innerWidth; return w < 768 ? 'mobile' : w < 1024 ? 'tablet' : 'desktop'; }
-        async function trackEvent(event, data = {}) { try { if (!_supabase) return; const utm = _getUTM(); await _supabase.from('funnel_events').insert({ app: 'autopilot', event, session_id: _sessionId, device: _getDevice(), referrer: document.referrer || null, ...utm, ...data }); } catch(e) { console.warn('Tracking error:', e); } }
+        // === SUPABASE: Using Universal Head Script (window._sb, window._sessionId) ===
 
         // === PERSISTENT STORAGE ===
         async function saveToSharedStorage(key, value) { try { if (window.storage) { await window.storage.set(key, JSON.stringify(value), true); return true; } } catch(e) {} return false; }
@@ -348,8 +361,6 @@
             const [userData, setUserData] = useState(initialState.userData ? { ...defaultUserData, ...initialState.userData } : defaultUserData);
 
             useEffect(() => { localStorage.setItem('autopilot_current_module', module.toString()); }, [module]);
-            useEffect(() => { trackEvent('app_opened'); }, []);
-            useEffect(() => { const moduleNames = ['bridge', 'calibrator', 'infrastructure', 'etf_selector', 'projection', 'email_gate', 'certificate']; trackEvent('module_entered', { module_number: module, module_name: moduleNames[module] || 'unknown' }); }, [module]);
             useEffect(() => { URLState.update(module, userData, architectId); }, [module, userData, architectId]);
             useEffect(() => { const handler = (e) => { if (e.key === 'autopilot_email_captured' && e.newValue === 'true') setModule(6); }; window.addEventListener('storage', handler); return () => window.removeEventListener('storage', handler); }, []);
             useEffect(() => { if (!initialState.architectId) { const existingId = localStorage.getItem('cashvault_architect_id'); if (existingId) setArchitectId(existingId); } }, []);
@@ -635,7 +646,7 @@
                         </div>
                     )}
 
-                    <button onClick={() => { trackEvent('calibrator_completed', { income: userData.income, bills: userData.bills, deployable: getDeployable(userData), invest_amount: getInvest(userData) }); next(); }} disabled={!isReady} className={`w-full mt-6 py-4 font-bold text-base rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed ${isReady ? 'text-black hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]' : 'bg-gray-800 text-gray-600'}`} style={isReady ? {background: theme.accent} : {}}>
+                    <button onClick={next} disabled={!isReady} className={`w-full mt-6 py-4 font-bold text-base rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed ${isReady ? 'text-black hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]' : 'bg-gray-800 text-gray-600'}`} style={isReady ? {background: theme.accent} : {}}>
                         {isReady ? '\uD83D\uDD12 Lock In These Numbers' : 'Slide your income to continue'}
                     </button>
                 </div>
@@ -1069,9 +1080,25 @@
 
             const completeGate = async () => {
                 setSaving(true);
-                trackEvent('email_captured', { architect_id: architectId || generateIdFromName(userData.userName || 'unknown'), invest_amount: Math.round(investAmount), etf_ticker: userData.etfChoice?.ticker || null, skipped_infra: userData.skippedInfra || false });
                 const fallbackEmail = `architect_${Date.now()}@autopilot.system`;
                 const generatedId = architectId || generateIdFromName(userData.userName || fallbackEmail);
+                
+                // HIGH-LEVERAGE SUPABASE PAYLOAD: Only fires once, at the moment of commitment
+                if (window._sb && window._sessionId) {
+                    window._sb.from('tool_completions').insert({
+                        tool_id: 'autopilot_machine',
+                        session_id: window._sessionId,
+                        context_data: {
+                            user_name: userData.userName,
+                            monthly_income: userData.income,
+                            monthly_bills: userData.bills,
+                            investable_cash: Math.round(investAmount),
+                            target_etf: userData.etfChoice?.ticker || 'None',
+                            projected_30yr_wealth: Math.round(calcFutureValue(investAmount, 30))
+                        }
+                    }).then(() => {}).catch(() => {});
+                }
+
                 setArchitectId(generatedId);
                 localStorage.setItem('autopilot_email_captured', 'true');
                 localStorage.setItem('cashvault_architect_id', generatedId);
@@ -1147,7 +1174,7 @@
                                 <span className="arrow-bounce">{'\u2193'}</span>
                             </div>
                             <div className="beehiiv-container">
-                                <iframe src={CONFIG.BEEHIIV.AUTOPILOT_IFRAME_SRC} className="beehiiv-embed" frameBorder="0" scrolling="no" style={{ width: '100%', maxWidth: '600px', height: '320px', margin: '0 auto', borderRadius: '0px', backgroundColor: 'transparent', border: 'none', display: 'block' }} />
+                                <iframe src={`${CONFIG.BEEHIIV.AUTOPILOT_IFRAME_SRC}?session_id=${window._sessionId}`} className="beehiiv-embed" frameBorder="0" scrolling="no" style={{ width: '100%', maxWidth: '400px', minHeight: '350px', margin: '0 auto', borderRadius: '0px', backgroundColor: 'transparent', border: 'none', display: 'block' }} />
                             </div>
                         </div>
                         {/* Extra padding for mobile keyboard */}
