@@ -15,7 +15,41 @@
     <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <script>
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var isInIframe = window.self !== window.top;
+            if (isInIframe && params.get('verified') === 'true') {
+                window.parent.postMessage({ type: 'EIGHTCLUB_EMAIL_CAPTURED', verified: true }, '*');
+                document.documentElement.style.display = 'none';
+            }
+        })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const _sbUrl = 'https://wokoxddotlyuasmwylpx.supabase.co';
+        const _sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+        window._sb = null;
+        try { window._sb = window.supabase.createClient(_sbUrl, _sbKey); } catch(e) {}
+        window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        function trackVisit() {
+            if (!window._sb) return;
+            try {
+                const p = new URLSearchParams(window.location.search);
+                window._sb.from('visits').insert({
+                    architect_id: window._sessionId,
+                    page: window.location.pathname.split('/').pop() || 'unknown',
+                    entry_point: p.get('from') || document.referrer || 'direct',
+                    user_agent: navigator.userAgent
+                }).then(() => {}).catch(() => {});
+            } catch(e) {}
+        }
+        trackVisit();
+    </script>
     
     <script>
         tailwind.config = {
@@ -542,7 +576,7 @@
                         Your credit protocol is solid. Most people find $50-200/mo in spending they didn't know they were losing. Ready to see yours?
                     </p>
                     <div class="space-y-2 pt-1">
-                        <button @click="showReturnPopup = false; showModal = true;" 
+                        <button @click="showReturnPopup = false; handleCTA();" 
                                 class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-stealth-gold hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all cursor-pointer">
                             &#x1F50D; SEE WHERE MY PAYCHECK GOES
                         </button>
@@ -829,7 +863,7 @@
                 <!-- LOCKED LEVEL 2 PREVIEW (Change #1: Brandon-language labels) -->
                 <div class="mt-12 relative pt-6 pb-6">
                     <div class="absolute inset-0 z-20 flex flex-col items-center justify-center"
-                         @click="progress >= 70 ? showModal = true : null"
+                         @click="progress >= 70 ? handleCTA() : null"
                          :class="progress >= 70 ? 'cursor-pointer' : ''">
                          <div class="bg-black/90 border border-stealth-gold px-6 py-3 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(255,215,0,0.2)] flex flex-col items-center gap-2 transform transition-transform duration-300 hover:scale-105">
                             <span class="text-2xl animate-bounce" x-text="progress >= 70 ? '&#x1F513;' : '&#x1F512;'"></span>
@@ -879,7 +913,7 @@
              x-transition:enter-end="translate-y-0">
             
             <button x-show="progress >= 70" 
-                    @click="showModal = true"
+                    @click="handleCTA()"
                     class="flex items-center justify-center gap-3 w-full max-w-lg mx-auto py-4 rounded-xl font-black uppercase text-center transition-all duration-500 bg-stealth-gold text-black shadow-[0_0_20px_#FFD700] hover:scale-[1.02] animate-pulse-fast cursor-pointer">
                <span>&#x1F513;</span>
                <span>SEE WHERE YOUR PAYCHECK GOES</span>
@@ -974,12 +1008,12 @@
                      @click="setTimeout(() => $el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)"
                      @touchstart.passive="setTimeout(() => $el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)">
                     <iframe id="beehiivFrame"
-                            src="https://subscribe-forms.beehiiv.com/90d138cb-47b1-4e1c-a5e2-ffd2119b2021" 
+                            :src="`https://subscribe-forms.beehiiv.com/90d138cb-47b1-4e1c-a5e2-ffd2119b2021?session_id=${window._sessionId}`" 
                             class="beehiiv-embed" 
                             data-test-id="beehiiv-embed" 
                             frameborder="0" 
                             scrolling="no" 
-                            style="width: 400px; height: 100%; min-height: 380px; margin: 0; border-radius: 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
+                            style="width: 100%; max-width: 400px; height: 100%; min-height: 380px; margin: 0; border-radius: 16px !important; background-color: transparent; box-shadow: 0 0 #0000;"></iframe>
                 </div>
                 <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
 
@@ -995,42 +1029,7 @@
 
     <script>
         // ============================================
-        // SUPABASE ANALYTICS (fire-and-forget)
-        // ============================================
-        const SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
-
-        function getSessionId() {
-            let sid = sessionStorage.getItem('_ftk_sid');
-            if (!sid) {
-                sid = 'ses_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
-                sessionStorage.setItem('_ftk_sid', sid);
-            }
-            return sid;
-        }
-
-        async function trackEvent(eventType, metadata) {
-            try {
-                await fetch(SUPABASE_URL + '/rest/v1/funnel_events', {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': 'Bearer ' + SUPABASE_KEY,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({
-                        session_id: getSessionId(),
-                        event_type: eventType,
-                        tool_name: '800-club',
-                        metadata: metadata || {}
-                    })
-                });
-            } catch(e) { /* Silent fail: never block UX for analytics */ }
-        }
-
-        // ============================================
-        // MAIN APP
+        // MAIN APP (Using Universal Head Script: window._sb, window._sessionId)
         // ============================================
         function creditProtocol() {
             return {
@@ -1167,7 +1166,6 @@
                     this.scanPhase = 0;
                     this.scanComplete = false;
                     this.scanText = '';
-                    trackEvent('scan_started');
                     setTimeout(() => { this.runScanPhase(0); }, 600);
                 },
 
@@ -1177,7 +1175,6 @@
                         this.scanPhase = 4;
                         setTimeout(() => {
                             this.scanComplete = true;
-                            trackEvent('scan_completed');
                         }, 400);
                         return;
                     }
@@ -1202,7 +1199,6 @@
                         const hasEmail = localStorage.getItem('eightclub_email');
                         if (hasEmail === 'true') {
                             this.returnState = 'completed';
-                            trackEvent('return_visit', { state: 'completed', progress: this.progress });
                             return;
                         }
                     } catch(e) {}
@@ -1211,7 +1207,6 @@
                     } else {
                         this.returnState = 'inprogress';
                     }
-                    trackEvent('return_visit', { state: this.returnState, progress: this.progress });
                 },
 
                 // ===========================
@@ -1262,16 +1257,37 @@
                     return 'A 650 SCORE COSTS YOU $4,800 ON A CAR LOAN.<br><span class="text-stealth-blue text-base">THE NEXT TOOL SHOWS YOU WHERE THAT MONEY IS HIDING.</span>';
                 },
 
+                // ===========================
+                // HIGH-LEVERAGE CTA HANDLER
+                // ===========================
+                _payloadSent: false,
+
+                handleCTA() {
+                    this.showModal = true;
+                    if (window._sb && !this._payloadSent) {
+                        this._payloadSent = true;
+                        window._sb.from('tool_completions').insert({
+                            tool_id: '800_club',
+                            session_id: window._sessionId,
+                            context_data: {
+                                credit_score: this.userCreditScore,
+                                progress_percent: this.progress,
+                                steps_completed: this.checkedCount,
+                                interest_penalty: this.getScorePenaltyRaw(this.userCreditScore),
+                                completed_step_ids: this.items.filter(i => i.checked).map(i => i.id)
+                            }
+                        }).then(() => {}).catch(() => {});
+                    }
+                },
+
                 submitScore() {
                     this.showScoreInput = false;
-                    trackEvent('score_input', { score: this.userCreditScore, label: this.getScoreLabel(this.userCreditScore) });
                     this.saveProgress();
                 },
 
                 skipScore() {
                     this.userCreditScore = 0;
                     this.showScoreInput = false;
-                    trackEvent('score_skipped');
                     this.saveProgress();
                 },
 
@@ -1281,7 +1297,6 @@
                 showCompletionCertificate() {
                     this.showCertificate = true;
                     this.certCountdown = 7;
-                    trackEvent('certificate_shown', { progress: this.progress, score: this.userCreditScore });
                     
                     // Countdown display
                     this.certCountdownInterval = setInterval(() => {
@@ -1301,14 +1316,12 @@
                     if (this.certTimer) clearTimeout(this.certTimer);
                     if (this.certCountdownInterval) clearInterval(this.certCountdownInterval);
                     this.showCertificate = false;
-                    trackEvent('certificate_dismissed', { method: this.certCountdown <= 0 ? 'auto' : 'tap' });
                     
                     // THEN open email gate
                     if (!this.modalAutoTriggered) {
                         this.modalAutoTriggered = true;
                         setTimeout(() => { 
-                            this.showModal = true;
-                            trackEvent('email_gate_opened', { trigger: 'certificate_flow', progress: this.progress });
+                            this.handleCTA();
                         }, 300);
                     }
                 },
@@ -1396,36 +1409,16 @@
 
                     this.$watch('showModal', (isOpen) => {
                         if (isOpen) {
-                            if (!this._modalTracked) {
-                                trackEvent('email_gate_opened', { trigger: 'manual', progress: this.progress });
-                                this._modalTracked = true;
-                            }
                             this.activateRedirectHandler();
                         } else {
-                            trackEvent('email_gate_dismissed', { progress: this.progress });
                             this.deactivateRedirectHandler();
                         }
                     });
-
-                    // Track progress milestones
-                    this._trackedMilestones = {};
-                    this.$watch('progress', (p) => {
-                        [30, 50, 70, 100].forEach(m => {
-                            if (p >= m && !this._trackedMilestones[m]) {
-                                this._trackedMilestones[m] = true;
-                                trackEvent('progress_' + m, { progress: p, checkedCount: this.checkedCount });
-                            }
-                        });
-                    });
                 },
-
-                _modalTracked: false,
-                _trackedMilestones: {},
 
                 doBeehiivRedirect() {
                     if (this._hasRedirected) return;
                     this._hasRedirected = true;
-                    trackEvent('email_submitted', { progress: this.progress, score: this.userCreditScore });
                     try {
                         localStorage.setItem('eightclub_completed', 'true');
                         localStorage.setItem('eightclub_email', 'true');
@@ -1437,6 +1430,13 @@
                     const self = this;
                     this._redirectHandler = function(event) {
                         if (!self.showModal) return;
+                        
+                        // 1. Fallback for custom iframe redirect (any origin)
+                        if (event.data && event.data.type === 'EIGHTCLUB_EMAIL_CAPTURED') {
+                            self.doBeehiivRedirect();
+                            return;
+                        }
+                        // 2. Native Beehiiv broadcast
                         if (event.origin && event.origin.includes('beehiiv.com')) {
                             const data = event.data;
                             if (typeof data === 'string') {
@@ -1497,11 +1497,6 @@
                 onCheckChange(item) {
                     this.scorePop = true;
                     setTimeout(() => this.scorePop = false, 300);
-                    
-                    // Track item check/uncheck
-                    trackEvent(item.checked ? 'item_checked' : 'item_unchecked', { 
-                        item_id: item.id, item_title: item.title, progress: this.progress 
-                    });
 
                     const newStatus = this.statusText;
                     if (newStatus !== this.previousStatus) {
