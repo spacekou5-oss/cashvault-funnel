@@ -3,1373 +3,1340 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KTM Conversion Flow System v2.3 // PMV Research Layer</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<title>KTM ManyChat Flow Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body, #root { height: 100%; width: 100%; overflow: auto; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-  @keyframes glow { 0%, 100% { box-shadow: 0 0 8px var(--glow-color, #22d3ee); } 50% { box-shadow: 0 0 20px var(--glow-color, #22d3ee); } }
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: #0a0a0f; }
-  ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+:root {
+  --void: #0a0a0a;
+  --void-light: #141414;
+  --void-card: #1a1a1a;
+  --void-border: #2a2a2a;
+  --tape-blue: #3b82f6;
+  --tape-blue-dim: #1e3a5f;
+  --tape-blue-glow: rgba(59,130,246,0.15);
+  --burn-orange: #f97316;
+  --burn-orange-dim: #5c2d0e;
+  --burn-orange-glow: rgba(249,115,22,0.15);
+  --text-primary: #e8e8e8;
+  --text-secondary: #888;
+  --text-dim: #555;
+  --green: #22c55e;
+  --green-dim: #0a3d1e;
+  --green-glow: rgba(34,197,94,0.12);
+  --red: #ef4444;
+  --purple: #a855f7;
+  --purple-dim: #3b1764;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--void);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* HEADER */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--void-border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.header-brand h1 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: var(--tape-blue);
+  line-height: 1;
+}
+
+.header-brand .sub {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.header-clock {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 14px;
+  color: var(--burn-orange);
+  letter-spacing: 2px;
+  background: var(--burn-orange-glow);
+  border: 1px solid var(--burn-orange-dim);
+  padding: 4px 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.search-bar {
+  flex: 1;
+  max-width: 400px;
+  position: relative;
+}
+
+.search-bar input {
+  width: 100%;
+  background: var(--void-light);
+  border: 1px solid var(--void-border);
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 8px 12px 8px 36px;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-bar input:focus {
+  border-color: var(--tape-blue);
+}
+
+.search-bar::before {
+  content: "⌕";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.stats-bar {
+  display: flex;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.stat-chip {
+  font-size: 10px;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+
+.stat-chip span {
+  color: var(--tape-blue);
+  font-weight: 600;
+}
+
+/* NAV TABS */
+.nav-tabs {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: rgba(10,10,10,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--void-border);
+  display: flex;
+  overflow-x: auto;
+  padding: 0 16px;
+  gap: 2px;
+  scrollbar-width: none;
+}
+
+.nav-tabs::-webkit-scrollbar { display: none; }
+
+.nav-tab {
+  flex-shrink: 0;
+  padding: 10px 16px;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.nav-tab:hover { color: var(--text-secondary); }
+
+.nav-tab.active {
+  color: var(--tape-blue);
+  border-bottom-color: var(--tape-blue);
+}
+
+.nav-tab .kw {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--burn-orange);
+  margin-left: 6px;
+  opacity: 0.7;
+}
+
+/* MAIN */
+.main {
+  margin-top: 96px;
+  padding: 24px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* PILLAR SECTION */
+.pillar-section {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.pillar-section.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pillar-header {
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--void-border);
+}
+
+.pillar-header h2 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 36px;
+  letter-spacing: 4px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.pillar-header .keyword-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--burn-orange);
+  background: var(--burn-orange-glow);
+  border: 1px solid var(--burn-orange-dim);
+  padding: 3px 10px;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.pillar-header .angle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 8px;
+}
+
+.pillar-header .asset-link {
+  font-size: 11px;
+  color: var(--tape-blue);
+  margin-top: 6px;
+  word-break: break-all;
+  opacity: 0.7;
+}
+
+/* FLOW CONTAINER */
+.flow-container {
+  position: relative;
+  padding-left: 40px;
+}
+
+.flow-container::before {
+  content: '';
+  position: absolute;
+  left: 18px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--tape-blue) 0%, var(--void-border) 100%);
+  opacity: 0.4;
+}
+
+/* FLOW NODE */
+.flow-node {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.flow-node::before {
+  content: '';
+  position: absolute;
+  left: -26px;
+  top: 16px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--void-card);
+  border: 2px solid var(--tape-blue);
+  z-index: 1;
+}
+
+.flow-node.entry-node::before {
+  background: var(--burn-orange);
+  border-color: var(--burn-orange);
+  box-shadow: 0 0 12px var(--burn-orange-glow);
+}
+
+.flow-node.day7-node::before {
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 0 12px var(--green-glow);
+}
+
+.node-card {
+  background: var(--void-card);
+  border: 1px solid var(--void-border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.node-card:hover { border-color: var(--tape-blue-dim); }
+
+.node-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--void-border);
+  background: rgba(59,130,246,0.04);
+}
+
+.node-header.entry-header { background: rgba(249,115,22,0.06); }
+.node-header.day7-header { background: rgba(34,197,94,0.06); }
+
+.node-timing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timing-badge {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: var(--tape-blue-dim);
+  color: var(--tape-blue);
+}
+
+.timing-badge.entry { background: var(--burn-orange-dim); color: var(--burn-orange); }
+.timing-badge.day7 { background: var(--green-dim); color: var(--green); }
+
+.timing-delay {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.node-type {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.node-body { padding: 16px; }
+
+.message-copy {
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  position: relative;
+}
+
+.message-copy .no-button-note {
+  display: block;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* BUTTON BLOCK */
+.button-block {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--tape-blue-glow);
+  border: 1px solid var(--tape-blue-dim);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.button-block .btn-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.button-block .btn-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tape-blue);
+  flex: 1;
+}
+
+.button-block .btn-url {
+  font-size: 10px;
+  color: var(--text-dim);
+  word-break: break-all;
+  max-width: 100%;
+  flex-basis: 100%;
+  margin-top: 4px;
+}
+
+/* COMMENT REPLIES SECTION */
+.comment-replies-group {
+  margin-bottom: 16px;
+}
+
+.comment-replies-group .cr-label {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--burn-orange);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cr-label .arrow {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0;
+}
+
+.reply-card {
+  background: var(--void-card);
+  border: 1px solid var(--burn-orange-dim);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reply-card:hover {
+  border-color: var(--burn-orange);
+  background: rgba(249,115,22,0.04);
+}
+
+.reply-card .reply-num {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 11px;
+  color: var(--burn-orange);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.reply-card .reply-text {
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--text-primary);
+}
+
+/* COPY BUTTON */
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--void-light);
+  border: 1px solid var(--void-border);
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 2;
+  letter-spacing: 0.5px;
+}
+
+.copy-btn:hover {
+  border-color: var(--tape-blue);
+  color: var(--tape-blue);
+}
+
+.copy-btn.copied {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* NODE COPY BTN */
+.node-copy-btn {
+  background: var(--void-light);
+  border: 1px solid var(--void-border);
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.node-copy-btn:hover {
+  border-color: var(--tape-blue);
+  color: var(--tape-blue);
+}
+
+.node-copy-btn.copied {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* URL COPY */
+.url-copy-btn {
+  background: none;
+  border: 1px solid var(--void-border);
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.url-copy-btn:hover { border-color: var(--tape-blue); color: var(--tape-blue); }
+.url-copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+/* SECTION DIVIDER */
+.flow-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0 20px;
+  padding-left: 0;
+  position: relative;
+}
+
+.flow-divider::before {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--void-border);
+}
+
+.flow-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--void-border);
+}
+
+.flow-divider span {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* OVERVIEW TAB */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.overview-card {
+  background: var(--void-card);
+  border: 1px solid var(--void-border);
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.overview-card:hover {
+  border-color: var(--tape-blue-dim);
+  transform: translateY(-2px);
+}
+
+.overview-card h3 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 20px;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+.overview-card .oc-keyword {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--burn-orange);
+  margin-bottom: 8px;
+}
+
+.overview-card .oc-angle {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.overview-card .oc-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.overview-card .oc-stats span {
+  color: var(--tape-blue);
+}
+
+/* SEARCH HIGHLIGHT */
+.highlight {
+  background: rgba(249,115,22,0.3);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .header { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
+  .search-bar { max-width: 100%; order: 10; flex-basis: 100%; }
+  .stats-bar { display: none; }
+  .main { padding: 16px; }
+  .flow-container { padding-left: 28px; }
+  .flow-container::before { left: 10px; }
+  .flow-node::before { left: -22px; }
+  .pillar-header h2 { font-size: 28px; }
+  .header-clock { font-size: 11px; padding: 3px 8px; }
+}
+
+/* NO-MATCH */
+.no-match {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.no-match .big { font-size: 40px; margin-bottom: 12px; }
+
+/* SCROLL TO TOP */
+.scroll-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  background: var(--void-card);
+  border: 1px solid var(--void-border);
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-size: 18px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  transition: all 0.2s;
+}
+
+.scroll-top:hover { border-color: var(--tape-blue); color: var(--tape-blue); }
+.scroll-top.visible { display: flex; }
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel" data-presets="env,react">
-const { useState, useEffect, useRef } = React;
 
-// ═══════════════════════════════════════════════
-// COLOR SYSTEM
-// ═══════════════════════════════════════════════
-const C = {
-  AUTOPILOT: "#10b981",
-  LEAK: "#f59e0b",
-  ELITE800: "#8b5cf6",
-  MYNUMBER: "#3b82f6",
-  CHEAT: "#ef4444",
-  BUILD50: "#06b6d4",
-  PAYDAY: "#ec4899",
-  STORYTAG: "#f97316",
-  INNERLOOP: "#a855f7",
-  WELCOME: "#22d3ee",
-  PMV: "#f97316",
-};
+<!-- HEADER -->
+<div class="header">
+  <div class="header-brand">
+    <div>
+      <h1>KTM FLOW COMMAND CENTER</h1>
+      <div class="sub">MANYCHAT AUTOMATION REFERENCE</div>
+    </div>
+  </div>
+  <div class="header-clock" id="clock">🕒 THE CLOCK: 1,731 DAYS</div>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search messages, keywords, URLs..." />
+  </div>
+  <div class="stats-bar">
+    <div class="stat-chip"><span>7</span> Pillars</div>
+    <div class="stat-chip"><span>35</span> Messages</div>
+    <div class="stat-chip"><span>21</span> Comment Replies</div>
+    <div class="stat-chip"><span>28</span> Buttons</div>
+  </div>
+</div>
 
-const BASE = "https://spacekou5-oss.github.io/cashvault-funnel/";
+<!-- NAV -->
+<div class="nav-tabs" id="navTabs">
+  <div class="nav-tab active" data-tab="overview">OVERVIEW</div>
+  <div class="nav-tab" data-tab="p1">P1: THE MACHINE <span class="kw">AUTOPILOT</span></div>
+  <div class="nav-tab" data-tab="p2">P2: THE FUEL <span class="kw">LEAK</span></div>
+  <div class="nav-tab" data-tab="p3">P3: THE LEVERAGE <span class="kw">ELITE800</span></div>
+  <div class="nav-tab" data-tab="p4">P4: THE MIND <span class="kw">MYNUMBER</span></div>
+  <div class="nav-tab" data-tab="p5">P5: THE TECH <span class="kw">CHEAT</span></div>
+  <div class="nav-tab" data-tab="p6">P6: INVESTMENT <span class="kw">BUILD50</span></div>
+  <div class="nav-tab" data-tab="p7">P7: BUDGET <span class="kw">PAYDAY</span></div>
+</div>
 
-// ═══════════════════════════════════════════════
-// PMV RESEARCH CONCEPTS
-// ═══════════════════════════════════════════════
-const PMV_CONCEPTS = {
-  A: {
-    name: "IMPLEMENTATION BRIDGE",
-    short: "Walk me through it",
-    color: "#10b981",
-    icon: "\u{1F6A7}",
-    description: "Help them DO it. Step-by-step hand-holding from numbers to action.",
-  },
-  B: {
-    name: "TRACKING SYSTEM",
-    short: "Track my progress",
-    color: "#3b82f6",
-    icon: "\u{1F4C8}",
-    description: "Help them MEASURE it. Dashboard that shows if numbers are improving.",
-  },
-  C: {
-    name: "PERSONALIZED PLAYBOOK",
-    short: "My exact plan",
-    color: "#a855f7",
-    icon: "\u{1F3AF}",
-    description: "Tell them EXACTLY what to do. 90-day action plan from their data.",
-  },
-};
+<!-- MAIN -->
+<div class="main" id="mainContent"></div>
 
-// ═══════════════════════════════════════════════
-// NEW FOLLOWER WELCOME FLOW (v2.3 w/ RESEARCH LAYER)
-// ═══════════════════════════════════════════════
-const WELCOME_FLOW = {
-  color: C.WELCOME,
-  label: "WELCOME",
-  pillar: "NEW FOLLOWER ONBOARDING",
-  angle: "Every new follower gets routed to their highest-leverage tool in under 60 seconds. Every reply feeds PMV intelligence.",
-  trigger: "New Instagram follow (2-minute delay)",
-  opener: "I build free money tools for people our age. No courses. No guru stuff. Just systems that work at $14-18/hr. Quick question so I send you the right one:",
-  question: "What's your biggest problem with money right now?",
-  buttons: [
-    {
-      label: "My paycheck vanishes before Wednesday",
-      routes: "AUTOPILOT",
-      bridge: "That's the most common one. Your paycheck has holes and the fix takes 10 minutes. I built a system for this.",
-    },
-    {
-      label: "I don't know where my money goes",
-      routes: "PAYDAY",
-      bridge: "Most people can't name where $680 disappears to. I built a calculator that shows you every dollar. Prepare for the \"oh my god\" moment.",
-    },
-    {
-      label: "I should be investing but haven't started",
-      routes: "LEAK",
-      bridge: "Every year you wait costs roughly $17,000 in compound growth. That's not motivational talk. That's math. I built a calculator that runs YOUR number.",
-    },
-    {
-      label: "Credit makes zero sense to me",
-      routes: "ELITE800",
-      bridge: "Nobody explained it to you because nobody explained it to them. Credit is 8 steps, not a mystery. I built the exact checklist.",
-    },
-    {
-      label: "I just feel behind with money",
-      routes: "MYNUMBER",
-      bridge: "That feeling has a fix: one specific number. Your Freedom Number is the exact monthly monthly amount where passive income covers your bills. Takes 10 seconds to calculate.",
-    },
-  ],
-  researchProbe: {
-    delay: "4 hours after tool link clicked",
-    triggerCondition: "User clicked the tool link (confirmed by ManyChat click tracking)",
-    message: "Glad you checked it out. Building more tools and I want to make the next one stupid useful. One quick question:",
-    question: "After seeing your numbers, what would actually help you most right now?",
-    buttons: [
+<!-- SCROLL TOP -->
+<button class="scroll-top" id="scrollTop">↑</button>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────
+const PILLARS = [
+  {
+    id: "p1",
+    name: "THE MACHINE",
+    keyword: "AUTOPILOT",
+    angle: '"Willpower is for losers. Build a machine."',
+    asset: "The Autopilot Architecture Map",
+    url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html",
+    commentReplies: [
+      `sent it 📬 3 accounts, 10-minute setup, your paycheck routes itself. 92% of people who save manually fail within 90 days. you just picked the other path. check your DMs ⚙`,
+      `check your DMs 📬 the Autopilot Map is in there. most people let 30 micro-leaks drain every paycheck without noticing. you're about to seal all of them in one sitting 🔧`,
+      `it's in your DMs 📬 fair warning: once you set up the split deposit, you'll wonder why nobody told you about this 3 years ago. 10 minutes and your money stops disappearing. go check ⚙`
+    ],
+    messages: [
       {
-        label: "Walk me through actually doing it step by step",
-        concept: "A",
-        color: PMV_CONCEPTS.A.color,
+        timing: "INSTANT REPLY",
+        delay: "Immediate",
+        type: "PRIMARY DELIVERY",
+        isEntry: true,
+        copy: `yo, you dropped AUTOPILOT. respect 🎯\n\nhere's the Autopilot Map. 3 accounts, 10-minute setup, your paycheck routes itself before you can spend it.\n\ngo through the full map tonight. set up the split deposit FIRST. that one move does 80% of the work.`,
+        button: { text: "⚙ Open the Autopilot Map", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" }
       },
       {
-        label: "A way to track if my money is getting better each month",
-        concept: "B",
-        color: PMV_CONCEPTS.B.color,
+        timing: "DAY 1",
+        delay: "24hr Smart Delay",
+        type: "RE-ENGAGEMENT",
+        copy: `quick question. did you get the split deposit set up?\n\nif yes, you just did something 92% of people never do. manual saving fails almost every time. you just removed yourself from that stat permanently.\n\nif you haven't yet, here's the move: open your banking app, find "split deposit" or "direct deposit," and route even $50/paycheck to a separate savings account. takes 4 minutes. that's the foundation everything else builds on.`,
+        button: { text: "🔧 Re-Open the Autopilot Map", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" }
       },
       {
-        label: "A personalized plan based on MY exact situation",
-        concept: "C",
-        color: PMV_CONCEPTS.C.color,
+        timing: "DAY 3",
+        delay: "72hr Smart Delay",
+        type: "DEEPENING (TEXT ONLY)",
+        copy: `one number that might hit different now that you have the system running.\n\nthe average person at $18/hr leaks $2,088/year through micro-charges they can't even name. Starbucks, DoorDash, iCloud, subscriptions they forgot. none of those feel like a problem individually. combined, that's 116 hours of your labor gone without a trace.\n\nyour Autopilot Map intercepted the money BEFORE those leaks could reach it. that's not saving. that's plumbing.`,
+        noButton: true
       },
-    ],
-    responses: {
-      A: {
-        msg: "That keeps coming up. The \"I know what to do but haven't done it\" gap. I'm building something for exactly this. Want me to message you when it's ready?",
-        captureBtn: "Yeah, let me know",
-        declineBtn: "I'm good for now",
+      {
+        timing: "DAY 5",
+        delay: "120hr Smart Delay",
+        type: "CROSS-SELL",
+        copy: `now that your paycheck has a route, there's one more thing worth 2 minutes 🔍\n\nmost people automate their savings but never actually audit where the other money was going. the Budget Calculator shows you every dollar of your paycheck converted to hours of labor at your wage. one screen. 2 minutes. you'll probably cancel at least one subscription.\n\nthink of it as the x-ray that shows you exactly what your automation is protecting you from.`,
+        button: { text: "🔍 Audit My Paycheck", url: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html" }
       },
-      B: {
-        msg: "You're not the first person to say that. Knowing your number once is step 1. Tracking it monthly is where the real shift happens. Working on something for this. Want first access?",
-        captureBtn: "Yeah, I want in",
-        declineBtn: "Maybe later",
+      {
+        timing: "DAY 7",
+        delay: "168hr Smart Delay",
+        type: "EMAIL CAPTURE",
+        isDay7: true,
+        copy: `real talk. you set up automation, you've seen the audit. you've done more in a week than most people do in a year with their money 💰\n\nI'm building a system that connects all of these tools into one financial operating system. the people on my email list get everything first: free tools, new calculators, and the exact playbook I'm using to hit $1M by November 2030 from $18/hr.\n\ndrop your email on the calculator page. that's it. welcome to the build.`,
+        button: { text: "📬 Get the Full System", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
+      }
+    ]
+  },
+  {
+    id: "p2",
+    name: "THE FUEL",
+    keyword: "LEAK",
+    angle: '"Urgency. Every day you wait costs you real money."',
+    asset: "The Cost of Waiting Calculator",
+    url: "https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html",
+    commentReplies: [
+      `check your DMs 📬 the calculator is in there. plug in your age and watch the number. most people at $18/hr have never seen what one year of delay actually costs in dollars. you're about to ⏳`,
+      `sent 📬 the Cost of Waiting Calculator is in your DMs. takes 10 seconds, shows one number, and that number does not get better with time. go run yours 💰`,
+      `it's in your DMs 📬 $25/week at 19 turns into $48,726 by 40. but every year you wait shaves off $17,000+. the calculator shows your exact cost of delay. go look before another day passes ⏳`
+    ],
+    messages: [
+      {
+        timing: "INSTANT REPLY",
+        delay: "Immediate",
+        type: "PRIMARY DELIVERY",
+        isEntry: true,
+        copy: `you commented LEAK. good ⏳\n\nhere's the Cost of Waiting Calculator. plug in your age and it shows the exact dollar amount every day of delay costs you at your income.\n\ntakes 10 seconds. fair warning: most people don't like their number.`,
+        button: { text: "⏳ See My Cost of Delay", url: "https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html" }
       },
-      C: {
-        msg: "Makes sense. Generic advice is useless at our income level. A plan that accounts for YOUR rent, YOUR paycheck, YOUR debt hits different. Building this now. Want me to hit you when it drops?",
-        captureBtn: "Yeah, send it my way",
-        declineBtn: "I'll think about it",
+      {
+        timing: "DAY 1",
+        delay: "24hr Smart Delay",
+        type: "RE-ENGAGEMENT",
+        copy: `did you run your number?\n\nif you did, that feeling in your stomach is the correct response. that's not fear. that's math. and now you can't un-see it.\n\nhere's the thing nobody tells you: knowing the number is the hard part. the actual investing setup at $25/week takes 8 minutes. the emotional hurdle was always bigger than the technical one. you just cleared the emotional hurdle.`,
+        button: { text: "⏳ Run My Number Again", url: "https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html" }
       },
-    },
-    emailCapture: {
-      trigger: "User taps the positive capture button",
-      msg: "Drop your best email and you'll be first in line. No spam, just one message when it's live:",
-      inputPlaceholder: "your email",
-      submitBtn: "Lock In Early Access",
-      confirmation: "Locked in. You'll hear from me before anyone else.",
-      beehiivTag: "pmv-early-access",
-      conceptTag: "pmv-concept-{A/B/C}",
-    },
-    noProbeResponse: {
-      action: "No follow-up. User already received tool value. Research probe is bonus data, not a conversion requirement. Do not chase.",
-    },
+      {
+        timing: "DAY 3",
+        delay: "72hr Smart Delay",
+        type: "DEEPENING (TEXT ONLY)",
+        copy: `here's a number most people at $25/week never see.\n\nyou deposit $26,000 over 20 years. the market adds $22,726 on top. for free. you don't manage it. you don't monitor it. you don't time it. you just let the automation run and the math does the rest.\n\n$22,726 of growth you didn't earn through labor. you earned it by starting.`,
+        noButton: true
+      },
+      {
+        timing: "DAY 5",
+        delay: "120hr Smart Delay",
+        type: "CROSS-SELL",
+        copy: `you've seen what delay costs. here's the part where you actually start 📈\n\nthe Investment Simplifier walks you through the exact setup. one account, one fund, $25/week on automatic. 4 steps, 8 minutes, and you go from "I know I should" to "I already do."\n\nthis is the bridge between knowing the math and owning the result.`,
+        button: { text: "📈 Start the $25/Week Setup", url: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" }
+      },
+      {
+        timing: "DAY 7",
+        delay: "168hr Smart Delay",
+        type: "EMAIL CAPTURE",
+        isDay7: true,
+        copy: `you ran your cost-of-delay number. you've seen the compound math. you've got the setup guide 💰\n\nyou're already further than 90% of people your age who are still saying "I'll invest when I make more." you're not saying it. you're doing the math.\n\nI send new tools, calculators, and the full playbook for building wealth from a part-time paycheck to my email list. everything free.`,
+        button: { text: "📬 Get the Full Playbook", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
+      }
+    ]
   },
-  noResponse: {
-    delay: "24 hours",
-    msg: "No pressure on the question above. If you ever want a free money tool, just DM me one of these words: AUTOPILOT, LEAK, ELITE800, MYNUMBER, PAYDAY, CHEAT, or BUILD50. Each one sends you a different tool instantly.",
-  },
-};
-
-// ═══════════════════════════════════════════════
-// ALL 7 KEYWORD FLOWS (unchanged from v2.2)
-// ═══════════════════════════════════════════════
-const FLOWS = {
-  AUTOPILOT: {
-    color: C.AUTOPILOT, label: "AUTOPILOT", pillar: "THE MACHINE",
-    angle: "Willpower is for losers. Build a machine.",
-    url: `${BASE}autopilot-system.html`,
-    reelCTA: {
-      gain: "Manual saving fails 92% in 90 days. Comment AUTOPILOT.",
-      loss: "If your $680 vanishes by Wednesday, comment AUTOPILOT.",
-    },
-    expandedCTA: {
-      gain: "Manual saving has a 92% failure rate. Comment AUTOPILOT and I'll DM you the 10-minute system.",
-      loss: "Your $680 vanishes by Wednesday because you save last. Comment AUTOPILOT. I'll send the architecture fix.",
-      wordCount: { gain: 17, loss: 16 },
-    },
+  {
+    id: "p3",
+    name: "THE LEVERAGE",
+    keyword: "ELITE800",
+    angle: '"Stop guessing. Hit 800."',
+    asset: "The 800-Club Interactive Checklist",
+    url: "https://spacekou5-oss.github.io/cashvault-funnel/800-club.html",
     commentReplies: [
-      "Sent it. Check DMs. 10-minute setup, runs forever.",
-      "DM'd you the blueprint. Automate once, never worry again.",
-      "Just sent the system. Your money moves before you wake up.",
+      `check your DMs 📬 the full 800-Club Checklist is in there. 5 steps, each under 10 minutes. a 650 score costs you $3,000 more on your first car loan than an 800. this fixes that 🛡`,
+      `sent it 📬 the checklist is in your DMs. most people have no idea their utilization ratio is tanking their score every billing cycle. you're about to find out yours and fix it this week ✅`,
+      `it's in your DMs 📬 5 numbered steps. no guessing. nobody explains statement dates, utilization timing, or limit increase calls at our income level. the checklist does. go check your messages 🛡`
     ],
-    dm: {
-      hook: "Every month you \"try to save\" manually, you're running a system with a 92% failure rate. Not because you're bad with money. Because willpower was never designed to manage money. This 10-minute setup builds an automatic machine that routes your paycheck before you can touch it.",
-      cta: "Tap below to see the Autopilot Architecture Map.",
-      primaryBtn: "Open The Autopilot Map",
-      objection: "I don't have enough to save",
-      objectionReply: "That's exactly why the system starts at $25. It's not about amount. It's about installing the habit before the money disappears. Even $10/paycheck proves the machine works.",
-    },
-    followUp: {
-      day1: { msg: "The Autopilot Map is still unlocked for you. One setup, 10 minutes, then your money moves on every payday without you touching it.", btn: "Open The Autopilot Map" },
-      day3: { msg: "Still thinking about it? The tool is here whenever you're ready.", btn: "Open The Autopilot Map", valueDrop: "Quick win you can use right now: flip your paycheck order. Savings first, bills second, spending last. Most people reverse it. That single change stops the bleed before any automation." },
-      day7: { msg: "Last check on the Autopilot setup. It's still unlocked. One tap, 10 minutes, done forever.", btn: "Open The Autopilot Map", requalify: true },
-    },
-    crossSell: "CHEAT", crossSellReason: "Systems need AI optimization",
-    crossSellMsg: "Now that your money moves automatically, want to see the AI prompts I use to audit where it goes? Comment CHEAT and I'll send you the vault.",
+    messages: [
+      {
+        timing: "INSTANT REPLY",
+        delay: "Immediate",
+        type: "PRIMARY DELIVERY",
+        isEntry: true,
+        copy: `you dropped ELITE800. smart move 🛡\n\nhere's the 800-Club Checklist. 5 steps, each under 10 minutes. this is the exact sequence that takes your credit score from "I think it's okay?" to a specific number you control.\n\nstart with step 1 tonight. don't skip ahead. the order matters.`,
+        button: { text: "🛡 Open the 800-Club Checklist", url: "https://spacekou5-oss.github.io/cashvault-funnel/800-club.html" }
+      },
+      {
+        timing: "DAY 1",
+        delay: "24hr Smart Delay",
+        type: "RE-ENGAGEMENT",
+        copy: `did you check your utilization ratio yet?\n\nthat's step 1 on the checklist. most people have never looked at it. here's the fast version: if your credit limit is $500 and you're using $400, your utilization is 80%. that alone tanks your score every single billing cycle, even if you pay it off.\n\nthe target is under 10%. under 30% at minimum. check yours right now. that one number tells you more about your score than anything else.`,
+        button: { text: "✅ Re-Open the Checklist", url: "https://spacekou5-oss.github.io/cashvault-funnel/800-club.html" }
+      },
+      {
+        timing: "DAY 3",
+        delay: "72hr Smart Delay",
+        type: "DEEPENING (WITH BUTTON)",
+        copy: `one stat that reframes everything about credit.\n\na 650 credit score on a $20,000 car loan costs you roughly $3,000 more in interest than an 800 score on the same loan. same car. same person. same income. different score, different price tag.\n\nthat $3,000 is 167 hours of work at $18/hr. the 5 steps on your checklist prevent that. each step takes under 10 minutes. 50 minutes of effort to save 167 hours of labor. the math is absurd.`,
+        button: { text: "🛡 Finish the 5 Steps", url: "https://spacekou5-oss.github.io/cashvault-funnel/800-club.html" }
+      },
+      {
+        timing: "DAY 5",
+        delay: "120hr Smart Delay",
+        type: "CROSS-SELL",
+        copy: `your credit score is a weapon. but a weapon without a target is just a number on a screen 🎯\n\nthe Freedom Calculator shows you the exact dollar amount you're building toward. one number. 10 seconds. it turns your credit score from "I think it's good?" into "this score saves me $X on my path to $Y."\n\nyour score is the armor. your Freedom Number is the destination.`,
+        button: { text: "🎯 Calculate My Freedom Number", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
+      },
+      {
+        timing: "DAY 7",
+        delay: "168hr Smart Delay",
+        type: "EMAIL CAPTURE",
+        isDay7: true,
+        copy: `you've got the checklist. you know the utilization game. you've seen what a high score saves you in real dollars 💰\n\nmost people your age don't know what a statement date is. you're running a 5-step protocol. that gap gets wider every month.\n\nI send new tools and the full financial playbook to my email list. everything's built for our income level, no $100K salary assumptions, no guru nonsense. want in:`,
+        button: { text: "📬 Join the Build", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
+      }
+    ]
   },
-  LEAK: {
-    color: C.LEAK, label: "LEAK", pillar: "THE FUEL",
-    angle: "Every day you wait costs you real money.",
-    url: `${BASE}cost-of-waiting.html`,
-    reelCTA: {
-      gain: "$25/week at 19 turns into $48,726. Comment LEAK.",
-      loss: "Every day you delay costs $47. Comment LEAK.",
-    },
-    expandedCTA: {
-      gain: "$25/week at 19 becomes $48,726 by 40. Comment LEAK and I'll send you the calculator.",
-      loss: "Every year you delay investing costs roughly $17,000. Comment LEAK. I'll DM you the math at your income.",
-      wordCount: { gain: 16, loss: 17 },
-    },
+  {
+    id: "p4",
+    name: "THE MIND",
+    keyword: "MYNUMBER",
+    angle: '"Financial Freedom is just a math problem."',
+    asset: "The Freedom Number Calculator",
+    url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html",
     commentReplies: [
-      "Sent it. Your personal cost-of-delay number is in DMs.",
-      "DM'd you. The number will change how you think about waiting.",
-      "Just sent the calculator. Enter your age and watch the math hit.",
+      `check your DMs 📬 the Freedom Calculator is in there. 10 seconds, one number, and you replace "I feel behind" with an exact percentage. you can't un-see it once you run it 🎯`,
+      `sent 📬 the calculator is in your DMs. your Freedom Number is the exact dollar amount where your paycheck becomes optional. most people never calculate it. you're about to 🔒`,
+      `it's in your DMs 📬 one number that turns every vague financial worry into a measurable distance. takes 10 seconds. most people at our income level are surprised how reachable the number actually is. go look 🎯`
     ],
-    dm: {
-      hook: "Every year you delay investing $25/week, the final number drops by roughly $17,000. Not because you lose money. Because the compounding you would have earned disappears. This calculator runs YOUR number at YOUR income.",
-      cta: "Tap below to calculate your Cost of Waiting.",
-      primaryBtn: "See My Cost of Waiting",
-      objection: "I don't have money to invest",
-      objectionReply: "The calculator starts at $25/week. That's one Chipotle bowl. The point isn't the amount, it's seeing what that small number becomes over 20 years. The math changes how you think about \"too little.\"",
-    },
-    followUp: {
-      day1: { msg: "Your Cost of Waiting calculator is ready. Enter your age and income. One number that changes how you see every dollar you don't invest.", btn: "See My Cost of Waiting" },
-      day3: { msg: "The calculator is still here whenever you want to run your number.", btn: "See My Cost of Waiting", valueDrop: "Free insight: you don't need to pick stocks or follow the market. One index fund (it holds 500 companies at once), $25/week on repeat. That's the entire strategy. The simplicity is the advantage." },
-      day7: { msg: "Final reminder: every week you delay that first $25, roughly $47 in future compound value disappears. The calculator link is still active.", btn: "See My Cost of Waiting", requalify: true },
-    },
-    crossSell: "AUTOPILOT", crossSellReason: "Cost awareness needs system fix",
-    crossSellMsg: "Now that you see what delay costs, the next move is automating the first $25/week so you never have to \"remember\" to invest. Comment AUTOPILOT and I'll send you the setup.",
+    messages: [
+      {
+        timing: "INSTANT REPLY",
+        delay: "Immediate",
+        type: "PRIMARY DELIVERY",
+        isEntry: true,
+        copy: `you commented MYNUMBER. here it is 🎯\n\nthe Freedom Calculator. plug in your numbers, 10 seconds, and it gives you the exact dollar amount where your paycheck becomes optional.\n\none number. that number replaces every vague financial worry with a measurable distance.`,
+        button: { text: "🎯 Calculate My Freedom Number", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
+      },
+      {
+        timing: "DAY 1",
+        delay: "24hr Smart Delay",
+        type: "RE-ENGAGEMENT",
+        copy: `did you get your number?\n\nhere's what just happened. you went from "I feel behind" to "I am X% of the way there." that shift is permanent. you can never go back to not knowing.\n\nthe comparison spiral breaks the moment you have your own math. you're not measuring against Instagram anymore. you're measuring against YOUR number. that's the whole game.`,
+        button: { text: "🔒 See My Number Again", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
+      },
+      {
+        timing: "DAY 3",
+        delay: "72hr Smart Delay",
+        type: "DEEPENING (TEXT ONLY)",
+        copy: `here's something most people don't realize about their Freedom Number.\n\nthe gap between where you are and where that number is looks massive on day one. but the first 10% is the hardest and you close it the fastest once a system is running. from $0 to 10% feels impossible. from 10% to 25% happens almost without noticing because the automation and compound math start stacking.\n\nyou're in the hardest stretch right now. it does not stay this hard.`,
+        noButton: true
+      },
+      {
+        timing: "DAY 5",
+        delay: "120hr Smart Delay",
+        type: "CROSS-SELL",
+        copy: `you know your number. the next question is: what system gets you there? ⚙\n\nthe Autopilot Map sets up the infrastructure. 3 accounts, 10-minute setup, your paycheck routes itself toward your Freedom Number on autopilot. no willpower. no monthly "I'll save this time" ritual. the system does the moving.\n\nyour number is the destination. this is the engine.`,
+        button: { text: "⚙ Build the Autopilot System", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" }
+      },
+      {
+        timing: "DAY 7",
+        delay: "168hr Smart Delay",
+        type: "EMAIL CAPTURE",
+        isDay7: true,
+        copy: `you calculated your Freedom Number. you've seen the system that moves you toward it 💰\n\nyou're thinking about money differently than you were 7 days ago. that's not motivation. that's math replacing guesswork. the feeling doesn't fade because the number doesn't change.\n\nI build new tools for this exact income level and send them to my email list first. free calculators, frameworks, and the full documented playbook of a 19-year-old building to $1M by 2030.`,
+        button: { text: "📬 Get Every New Tool First", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
+      }
+    ]
   },
-  ELITE800: {
-    color: C.ELITE800, label: "ELITE800", pillar: "THE LEVERAGE",
-    angle: "Stop guessing. Hit 800.",
-    url: `${BASE}800-club.html`,
-    reelCTA: {
-      gain: "If nobody explained credit to you, comment ELITE800.",
-      loss: "A 650 score costs $3,000 extra on your first car. Comment ELITE800.",
-    },
-    expandedCTA: {
-      gain: "Credit is 8 steps, not a mystery. Comment ELITE800 and I'll DM you the full interactive checklist.",
-      loss: "A 650 score costs $3,000 extra on your first car. Comment ELITE800. I'll send you the 800-Club protocol.",
-      wordCount: { gain: 17, loss: 17 },
-    },
+  {
+    id: "p5",
+    name: "THE TECH",
+    keyword: "CHEAT",
+    angle: '"Don\'t work hard. Copy my homework."',
+    asset: "The Hustler's Prompt Vault",
+    url: "https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html",
     commentReplies: [
-      "Sent. 8 steps. Your score starts moving this week.",
-      "DM'd the full checklist. Step 1 takes under 10 minutes.",
-      "Just sent it. Credit is 8 actions in order, not a mystery.",
+      `check your DMs 📬 the full Prompt Vault is in there. copy, paste, 90 seconds, your entire spending audit runs itself. one prompt found $840/year in subscriptions I forgot existed. see what yours finds 🤖`,
+      `sent it 📬 the prompts are in your DMs. 4 hours of manual budget tracking or 90 seconds with one AI paste. same output. zero maintenance. go grab them ⚡`,
+      `it's in your DMs 📬 every AI prompt I use to manage my money at $18/hr. copy-paste ready. start with the spending audit prompt and a screenshot of your bank statement. 90 seconds, full clarity 🤖`
     ],
-    dm: {
-      hook: "Credit is not a mystery. It is 8 specific actions in a specific order. This interactive checklist breaks each one into a step you can finish in under 10 minutes. A 650 score costs you $3,200 more on your first car loan than an 800.",
-      cta: "Tap below to open the 800-Club Protocol.",
-      primaryBtn: "Open The 800-Club Checklist",
-      objection: "I don't even have a credit card yet",
-      objectionReply: "Perfect. Step 1 on the checklist is literally how to pick your first card. The protocol works whether you're starting from zero or fixing damage. Most people's biggest mistake is starting without a sequence.",
-    },
-    followUp: {
-      day1: { msg: "The 800-Club checklist is still ready. 8 steps, each takes under 10 minutes. Start with step 1 and your score starts moving this week.", btn: "Open The 800-Club Checklist" },
-      day3: { msg: "The protocol is here whenever you're ready to start.", btn: "Open The 800-Club Checklist", valueDrop: "One credit concept that changes everything: utilization ratio. If your limit is $500 and you spend $400, your score drops. Not because of debt. Because the ratio hit 80%. Keep it under 30%. Under 10% is where scores climb fastest." },
-      day7: { msg: "Last check: the 800-Club checklist is still unlocked. A 650 vs 800 = $3,200 difference on your first car loan. The fix takes 10 minutes per step.", btn: "Open The 800-Club Checklist", requalify: true },
-    },
-    crossSell: "PAYDAY", crossSellReason: "Credit connects to cash flow",
-    crossSellMsg: "Your credit is moving. Next step that connects: knowing where your paycheck actually goes. Comment PAYDAY and I'll send you the breakdown calculator.",
+    messages: [
+      {
+        timing: "INSTANT REPLY",
+        delay: "Immediate",
+        type: "PRIMARY DELIVERY",
+        isEntry: true,
+        copy: `you commented CHEAT. here's the vault 🤖\n\nevery AI prompt I use to run my finances in 90 seconds per week. copy them. paste them. get the same output I get without the 4 hours of manual tracking.\n\nstart with the spending audit prompt. screenshot your bank statement, paste it with the prompt, read the output. 90 seconds. that's it.`,
+        button: { text: "🤖 Open the Prompt Vault", url: "https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" }
+      },
+      {
+        timing: "DAY 1",
+        delay: "24hr Smart Delay",
+        type: "RE-ENGAGEMENT",
+        copy: `did you run the spending audit prompt yet?\n\nif you did, you probably found at least one subscription you forgot about. the average person at our income level has $70/month in charges they can't name without looking. that's $840/year. 60 hours of labor at $14/hr. funding apps you don't open.\n\none prompt. 90 seconds. found money you were already earning but handing to companies you forgot existed.`,
+        button: { text: "⚡ Re-Open the Vault", url: "https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" }
+      },
+      {
+        timing: "DAY 3",
+        delay: "72hr Smart Delay",
+        type: "DEEPENING (TEXT ONLY)",
+        copy: `here's why AI changes the math on managing money.\n\nthe old way: download a budgeting app, manually categorize every transaction, check it daily, abandon it in 60 days. 73% of people delete the app within 2 months.\n\nthe new way: one prompt, one screenshot, one 90-second audit per month. no app. no daily habit. no willpower. the prompt does the categorization, the analysis, and the recommendations in one pass.\n\nsame output. zero maintenance. that's the difference between a tool and a system.`,
+        noButton: true
+      },
+      {
+        timing: "DAY 5",
+        delay: "120hr Smart Delay",
+        type: "CROSS-SELL",
+        copy: `the prompts work best when they have real data to chew on 🔍\n\nthe Budget Calculator lets you enter your actual paycheck and see every dollar mapped out, with each expense converted to hours of labor at your wage. once you see that breakdown, paste it into the audit prompt from the vault. the AI will flag the 3 biggest leaks instantly.\n\nprompts + real numbers = a financial audit that would cost $200/hr from an advisor. yours costs 90 seconds.`,
+        button: { text: "🔍 Run My Paycheck Audit", url: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html" }
+      },
+      {
+        timing: "DAY 7",
+        delay: "168hr Smart Delay",
+        type: "EMAIL CAPTURE",
+        isDay7: true,
+        copy: `you've got the prompts. you've run the audit. you've seen what 90 seconds of AI replaces 💰\n\nmost people your age are still tracking expenses in a Notes app or not tracking at all. you have a system that runs itself monthly in less time than it takes to order food.\n\nI build new prompts, tools, and financial systems every week and send them to my email list before they go anywhere else. same philosophy: built at $18/hr, copy-paste ready, zero fluff.`,
+        button: { text: "📬 Get New Prompts First", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
+      }
+    ]
   },
-  MYNUMBER: {
-    color: C.MYNUMBER, label: "MYNUMBER", pillar: "THE MIND",
-    angle: "Financial Freedom is just a math problem.",
-    url: `${BASE}freedom-calculator.html`,
-    reelCTA: {
-      gain: "Your Freedom Number takes 10 seconds. Comment MYNUMBER.",
-      loss: "If you check your balance 5x daily, comment MYNUMBER.",
-    },
-    expandedCTA: {
-      gain: "Your Freedom Number is one calculation, 10 seconds. Comment MYNUMBER and I'll send you the calculator.",
-      loss: "Checking your bank 5x daily means you don't know your number yet. Comment MYNUMBER. I'll DM it to you.",
-      wordCount: { gain: 16, loss: 17 },
-    },
+  {
+    id: "p6",
+    name: "INVESTMENT SIMPLIFIER",
+    keyword: "BUILD50",
+    angle: '"From "I know I should" to "I already do" in 8 minutes."',
+    asset: "Investment Simplifier",
+    url: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html",
     commentReplies: [
-      "Sent. 10 seconds and you'll never think about money the same.",
-      "DM'd you. One number replaces all the financial anxiety.",
-      "Just sent the calculator. Your Freedom Number is one input away.",
+      `check your DMs 📬 the setup guide is in there. 4 steps, 8 minutes, $25/week on autopilot. you go from "I know I should invest" to "I invest" in one sitting. the hardest part was commenting. you already did that 📈`,
+      `sent 📬 the Investment Simplifier is in your DMs. one account, one fund, one automatic transfer. no jargon, no $500/month examples. built for your actual paycheck. go set it up tonight 💰`,
+      `it's in your DMs 📬 90% of people who say "I'll invest soon" still have $0 invested 12 months later. the guide takes 8 minutes and removes every friction point between knowing and doing. go check 📈`
     ],
-    dm: {
-      hook: "\"Financial freedom\" is not a fantasy. It is one specific number: the exact monthly amount where passive income covers your bills permanently. This calculator finds yours in 10 seconds. Once you know it, every dollar has a direction.",
-      cta: "Tap below to find your Freedom Number.",
-      primaryBtn: "Calculate My Freedom Number",
-      objection: "I'm too young to think about this",
-      objectionReply: "You're the exact right age. At 19, your Freedom Number is smaller than you think, and the time to reach it is longer. That combination is the entire advantage. 10 seconds to see it.",
-    },
-    followUp: {
-      day1: { msg: "Your Freedom Number calculator is still unlocked. 10 seconds. One number that replaces the vague anxiety with a specific, measurable target.", btn: "Calculate My Freedom Number" },
-      day3: { msg: "The calculator is here whenever you're ready to find your number.", btn: "Calculate My Freedom Number", valueDrop: "How to think about the number once you have it: say yours is $2,400/month. That's not one impossible leap. That's $600 from investments + $800 from a side system + $1,000 from a skill. You build income sources that stack." },
-      day7: { msg: "Last check. Your Freedom Number takes 10 seconds. Everyone who's calculated it says the same thing: \"I wish I'd done this earlier.\" The link is still active.", btn: "Calculate My Freedom Number", requalify: true },
-    },
-    crossSell: "AUTOPILOT", crossSellReason: "Freedom Number needs infrastructure",
-    crossSellMsg: "Now that you know your number, the fastest way to move it is automating $25/week. Comment AUTOPILOT and I'll send you the 10-minute setup that runs without you.",
+    messages: [
+      {
+        timing: "INSTANT REPLY",
+        delay: "Immediate",
+        type: "PRIMARY DELIVERY",
+        isEntry: true,
+        copy: `you dropped BUILD50. let's go 📈\n\nhere's the Investment Simplifier. 4 steps, 8 minutes, takes you from "I know I should invest" to "$25/week automated." no jargon. no $500/month examples. built for your paycheck.\n\ngo through all 4 steps in one sitting. don't split it across days. momentum matters more than perfection on this one.`,
+        button: { text: "📈 Start the 4-Step Setup", url: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" }
+      },
+      {
+        timing: "DAY 1",
+        delay: "24hr Smart Delay",
+        type: "RE-ENGAGEMENT",
+        copy: `did you get through the 4 steps?\n\nif you set up the automatic $25/week transfer, something just happened that you probably didn't feel yet. you crossed the line from "someone who thinks about investing" to "someone who invests." those are two completely different categories of people.\n\n92% of people your age are still in category one. you're not. that gap gets wider every single week your automation runs.`,
+        button: { text: "📈 Finish the Setup", url: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" }
+      },
+      {
+        timing: "DAY 3",
+        delay: "72hr Smart Delay",
+        type: "DEEPENING (TEXT ONLY)",
+        copy: `here's the math that makes the first month feel different.\n\nafter month 1, your account shows ~$100. that looks tiny. but here's what $100 invested at 19 becomes by 40 with compound growth at 8% average: roughly $466. your hundred dollars is already worth more than $100. you just can't see it yet because the compounding is invisible for the first few years.\n\nthe people who quit are the ones who judge year 1 results on a year 20 timeline. you're not quitting. you're running the math.`,
+        noButton: true
+      },
+      {
+        timing: "DAY 5",
+        delay: "120hr Smart Delay",
+        type: "CROSS-SELL",
+        copy: `your $25/week is running. now make sure the rest of your paycheck has a route too ⚙\n\nthe Autopilot Map sets up the full infrastructure. your investment is one pipe. the map adds the emergency vault, the bills account, and the spending allowance. 3 accounts total. 10-minute setup. your entire paycheck runs on rails.\n\nyou already have the investing pipe. this completes the plumbing.`,
+        button: { text: "⚙ Complete the Full System", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" }
+      },
+      {
+        timing: "DAY 7",
+        delay: "168hr Smart Delay",
+        type: "EMAIL CAPTURE",
+        isDay7: true,
+        copy: `$25/week. automated. compounding. you set up a machine most people spend years "planning" to build 💰\n\nthe difference between you and the person who watched the same video but didn't comment BUILD50 is not intelligence or income. it's action. they know the math. you run the math.\n\nI send new tools, compound growth updates, and the full system I'm building at $18/hr to my email list. everything free. everything built at our scale.`,
+        button: { text: "📬 Stay Plugged In", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
+      }
+    ]
   },
-  CHEAT: {
-    color: C.CHEAT, label: "CHEAT", pillar: "THE TECH",
-    angle: "Don't work hard. Copy my homework.",
-    url: `${BASE}prompt-vault.html`,
-    reelCTA: {
-      gain: "One AI prompt replaced 3 hours of my week. Comment CHEAT.",
-      loss: "If you still budget manually in 2026, comment CHEAT.",
-    },
-    expandedCTA: {
-      gain: "One AI prompt saves me 3 hours/week on finances. Comment CHEAT and I'll send you the full vault.",
-      loss: "Still budgeting manually in 2026? Comment CHEAT. I'll DM you the AI prompts that run my money.",
-      wordCount: { gain: 17, loss: 16 },
-    },
+  {
+    id: "p7",
+    name: "BUDGET CALCULATOR",
+    keyword: "PAYDAY",
+    angle: '"See where your paycheck actually goes. In hours, not dollars."',
+    asset: "Kou's Budget Calculator",
+    url: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html",
     commentReplies: [
-      "Sent. Start with Prompt #1. 90 seconds and it finds your leaks.",
-      "DM'd the full vault. Copy, paste, get answers. No learning curve.",
-      "Just sent it. These are the exact prompts running my finances.",
+      `check your DMs 📬 the Budget Calculator is in there. enter your paycheck, see every dollar mapped, watch your spending get converted to hours of labor at your wage. fair warning: the output hits different 🔍`,
+      `sent it 📬 the calculator is in your DMs. $70/month in forgotten subscriptions = 60 hours of your life per year at $14/hr. you're about to see where your paycheck actually goes. most people cancel something within 10 minutes 💸`,
+      `it's in your DMs 📬 one screen, 2 minutes, your entire paycheck audited. every expense converted to hours worked. you'll never say "I don't know where it went" again after running this. go look 🔍`
     ],
-    dm: {
-      hook: "These are the exact AI prompts I use to run my finances in under 10 minutes a week. Not theory. Not \"learn AI.\" Copy, paste, get an answer. Start with Prompt #1: the spending audit. It finds your leaks in 90 seconds flat.",
-      cta: "Tap below to open the Prompt Vault.",
-      primaryBtn: "Open The Prompt Vault",
-      objection: "I don't know how to use AI",
-      objectionReply: "You don't need to. You literally copy a prompt, paste it into ChatGPT (free version works), and paste your bank transactions. The AI does the thinking. Prompt #1 takes 90 seconds start to finish.",
-    },
-    followUp: {
-      day1: { msg: "The Prompt Vault is still unlocked. Start with Prompt #1 (the spending audit). Copy it, paste into ChatGPT, see your top 3 money leaks in 90 seconds.", btn: "Open The Prompt Vault" },
-      day3: { msg: "The vault is here whenever you want to try Prompt #1.", btn: "Open The Prompt Vault", valueDrop: "How Prompt #1 works: paste your last 30 days of transactions from your bank app. The AI sorts them, finds recurring charges you forgot, shows your top 3 biggest leaks by dollar amount. No spreadsheet. No math. It does the thinking." },
-      day7: { msg: "Last check. When I ran Prompt #1 last month it found $73/month in forgotten subscriptions. That's $876/year. At $18/hr, that's 48 hours of my life. The vault is still unlocked.", btn: "Open The Prompt Vault", requalify: true },
-    },
-    crossSell: "BUILD50", crossSellReason: "Prompts reveal investing opportunity",
-    crossSellMsg: "Prompt #1 found your leaks. Now put that recovered money to work. Comment BUILD50 and I'll walk you through automating $25/week into an index fund.",
-  },
-  BUILD50: {
-    color: C.BUILD50, label: "BUILD50", pillar: "INVESTMENT SIMPLIFIER",
-    angle: "From zero to automated in one session.",
-    url: `${BASE}Investment-Simplifier.html`,
-    reelCTA: {
-      gain: "$25/week automated in one session. Comment BUILD50.",
-      loss: "If 'I don't know how to start investing' is you, comment BUILD50.",
-    },
-    expandedCTA: {
-      gain: "$25/week automated in one session. Comment BUILD50 and I'll walk you through the exact setup.",
-      loss: "\"I don't know how to start investing\" ends today. Comment BUILD50. I'll send you the step-by-step guide.",
-      wordCount: { gain: 16, loss: 16 },
-    },
-    commentReplies: [
-      "Sent. One session, three decisions, you're set.",
-      "DM'd the full setup guide. $25/week on autopilot after this.",
-      "Just sent it. Which app, which fund, how to automate. All covered.",
-    ],
-    dm: {
-      hook: "This setup guide takes you from \"I know I should invest\" to \"it runs automatically.\" It walks through which app (Fidelity or Schwab, both free), which fund (one index fund), and how to set $25/week on repeat. One session. Zero guessing.",
-      cta: "Tap below to open the Investment Simplifier.",
-      primaryBtn: "Open The Investment Simplifier",
-      objection: "$25/week sounds like nothing",
-      objectionReply: "$25/week at 19 turns into $48,726 by 40. You deposited $27,300. The other $21,426 showed up because you started, not because you started with a lot. The math doesn't care about the amount. It cares about the time.",
-    },
-    followUp: {
-      day1: { msg: "The Investment Simplifier is still ready. Three decisions (where, what, how much), one session, and your $25/week runs automatically from there.", btn: "Open The Investment Simplifier" },
-      day3: { msg: "Still here if you want to start the setup.", btn: "Open The Investment Simplifier", valueDrop: "Preview of the 3 decisions: (1) Where: Fidelity or Schwab, $0 minimum, no fees. (2) What: one total market index fund. (3) How much: $25/week. That's the whole thing. Three choices and you're set." },
-      day7: { msg: "Final check. Every week you delay that $25 transfer, roughly $47 in future compound value vanishes. It doesn't pause while you think about it. The Simplifier is still unlocked.", btn: "Open The Investment Simplifier", requalify: true },
-    },
-    crossSell: "AUTOPILOT", crossSellReason: "Investment needs automation backbone",
-    crossSellMsg: "Your investment is running. Now automate the rest of your paycheck so savings, bills, and spending all route automatically. Comment AUTOPILOT for the 10-minute setup.",
-  },
-  PAYDAY: {
-    color: C.PAYDAY, label: "PAYDAY", pillar: "BUDGET CALCULATOR",
-    angle: "See where every dollar actually goes.",
-    url: `${BASE}Kou's-Budget-Calculator.html`,
-    reelCTA: {
-      gain: "You work 60 hours/year for apps you forgot. Comment PAYDAY.",
-      loss: "If you can't name where your last paycheck went, comment PAYDAY.",
-    },
-    expandedCTA: {
-      gain: "60 hours of your work per year going to forgotten apps. Comment PAYDAY and I'll send you the paycheck mirror.",
-      loss: "You can't name where your last paycheck went. Comment PAYDAY. I'll DM you the full breakdown tool.",
-      wordCount: { gain: 18, loss: 16 },
-    },
-    commentReplies: [
-      "Sent. Prepare for the \"oh my god\" moment when you see the breakdown.",
-      "DM'd the calculator. Every dollar of your paycheck, mapped and visible.",
-      "Just sent it. This mirror shows what nobody else will tell you.",
-    ],
-    dm: {
-      hook: "This calculator shows you exactly where every dollar of your paycheck goes. Not a budget template. Not a spending plan. A mirror. Most people find $40-90/month in forgotten subscriptions alone. At $14/hr, that's 60 hours of work per year for apps you don't open.",
-      cta: "Tap below to see your real paycheck breakdown.",
-      primaryBtn: "Open The Budget Calculator",
-      objection: "I already know I spend too much",
-      objectionReply: "Knowing you spend too much and seeing exactly where each dollar goes are two completely different things. The calculator doesn't judge. It shows. Most people's faces change when they see the subscription number.",
-    },
-    followUp: {
-      day1: { msg: "Your paycheck mirror is still ready. Enter your income and expenses. The breakdown shows you exactly where every dollar of your $680 goes.", btn: "Open The Budget Calculator" },
-      day3: { msg: "The calculator is here whenever you want to see the real numbers.", btn: "Open The Budget Calculator", valueDrop: "Top 3 paycheck killers at our income level: (1) food outside home, $180-240/mo. (2) Subscriptions you forgot, $40-90/mo. (3) Impulse purchases under $15 that stack to $200+/mo. Number 2 is the one that makes people's faces change." },
-      day7: { msg: "Last check. $70/month in forgotten subscriptions = 60 hours of work per year at $14/hr. The calculator finds yours in under 2 minutes. Still unlocked.", btn: "Open The Budget Calculator", requalify: true },
-    },
-    crossSell: "LEAK", crossSellReason: "Budget reveals investing gap",
-    crossSellMsg: "Now you can see where the money goes. The next question: what would $25/week of it become if you invested it? Comment LEAK and I'll send you the compound math.",
-  },
-};
-
-const SPECIAL = {
-  STORYTAG: {
-    color: C.STORYTAG, label: "STORY TAG", pillar: "SOCIAL FLYWHEEL",
-    angle: "User tags you on story. Flywheel activates.",
-    trigger: "Instagram story mention/tag",
-    dm: {
-      hook: "You just shared your results with your people. That's the move. Most people find out they have a money problem and keep it to themselves. You made it social. Here's your unlock code: CERTIFIED. Paste it in the Command Center to access the next level.",
-      code: "CERTIFIED", destination: "Command Center (deeper access)",
-      url: `${BASE}command-center.html`,
-    },
-  },
-  INNERLOOP: {
-    color: C.INNERLOOP, label: "INNERLOOP", pillar: "RETENTION ENGINE",
-    angle: "Hidden keyword inside Command Center.",
-    trigger: "Hidden keyword discovered inside Command Center",
-    dm: {
-      hook: "You found the hidden door. Most people scroll past it. The fact that you're here means you're building, not browsing. Here's your unlock code: CASHFLOW. This opens the Budget Calculator with your data pre-loaded from the Command Center.",
-      code: "CASHFLOW", destination: "Budget Calculator (pre-loaded data)",
-      url: `${BASE}Kou's-Budget-Calculator.html`,
-    },
-  },
-};
-
-const CHAIN = [
-  { from: "AUTOPILOT", to: "CHEAT", label: "Systems need AI optimization" },
-  { from: "CHEAT", to: "BUILD50", label: "Prompts reveal investing opportunity" },
-  { from: "BUILD50", to: "AUTOPILOT", label: "Investment needs automation backbone" },
-  { from: "LEAK", to: "AUTOPILOT", label: "Cost awareness needs system fix" },
-  { from: "ELITE800", to: "PAYDAY", label: "Credit connects to cash flow" },
-  { from: "PAYDAY", to: "LEAK", label: "Budget reveals investing gap" },
-  { from: "MYNUMBER", to: "AUTOPILOT", label: "Freedom Number needs infrastructure" },
+    messages: [
+      {
+        timing: "INSTANT REPLY",
+        delay: "Immediate",
+        type: "PRIMARY DELIVERY",
+        isEntry: true,
+        copy: `you dropped PAYDAY. good 🔍\n\nhere's the Budget Calculator. enter your actual paycheck and it shows you exactly where every dollar goes, converted to hours of your life at your wage.\n\nbe honest with the numbers. the tool only works if the data is real. most people's "oh my god" moment happens within 60 seconds.`,
+        button: { text: "🔍 Audit My Paycheck", url: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html" }
+      },
+      {
+        timing: "DAY 1",
+        delay: "24hr Smart Delay",
+        type: "RE-ENGAGEMENT",
+        copy: `did you run the audit?\n\nif you did, you probably saw at least one category that made you pause. that's the invisible bleed. those charges never felt like a problem one at a time. stacked into an annual total and converted to hours of labor, they hit different.\n\nthe median person at $18/hr has $70/month in spending they can't explain. that's 47 hours of work per year. almost 6 full shifts funding things they don't think about.\n\nhere's the move: pick the ONE biggest surprise from your audit. cancel it, reduce it, or redirect it today. one action. that's all.`,
+        button: { text: "🔍 Re-Run My Audit", url: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html" }
+      },
+      {
+        timing: "DAY 3",
+        delay: "72hr Smart Delay",
+        type: "DEEPENING (TEXT ONLY)",
+        copy: `here's something your audit revealed that most people miss.\n\nthe problem was never one big purchase. nobody at $680/paycheck blows it on a single item. the problem is 30 charges between $5 and $20 that each feel responsible in isolation. $7.49 Starbucks. $9.99 streaming. $14.22 Uber. $6.99 iCloud. individually harmless. collectively catastrophic.\n\nyour audit is the first time those 30 charges stood in a line together. that visibility is permanent now. you can't un-see the total.`,
+        noButton: true
+      },
+      {
+        timing: "DAY 5",
+        delay: "120hr Smart Delay",
+        type: "CROSS-SELL",
+        copy: `you found the leaks. now seal them ⚙\n\nthe Autopilot Map sets up a paycheck routing system that moves your savings, emergency fund, and investment money OUT of your checking account on payday, before any of those 30 micro-charges can touch it. 3 accounts. 10-minute setup. the money you're keeping never hits the account where the leaks live.\n\nthe Budget Calculator diagnosed the problem. the Autopilot Map is the surgery.`,
+        button: { text: "⚙ Seal the Leaks", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" }
+      },
+      {
+        timing: "DAY 7",
+        delay: "168hr Smart Delay",
+        type: "EMAIL CAPTURE",
+        isDay7: true,
+        copy: `you audited your paycheck. you found the leaks. you've got the system that seals them 💰\n\nmost people your age have never converted a single expense to hours of labor. you've mapped your entire paycheck. that's not a small thing. that's the foundation every other financial decision gets built on.\n\nI'm building the full system: new tools, calculators, and the exact playbook I use at $18/hr. sending it to my email list first. free. no fluff. built at our income level.`,
+        button: { text: "📬 Get the Full System", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
+      }
+    ]
+  }
 ];
 
-const REQUALIFY = [
-  { label: "I can't save anything", routes: "AUTOPILOT" },
-  { label: "I don't know how to invest", routes: "BUILD50" },
-  { label: "My credit confuses me", routes: "ELITE800" },
-  { label: "I don't know where my money goes", routes: "PAYDAY" },
-  { label: "I just feel behind", routes: "MYNUMBER" },
-];
+// ─── RENDER ─────────────────────────────────────────────
+const mainEl = document.getElementById('mainContent');
+const searchInput = document.getElementById('searchInput');
+let activeTab = 'overview';
 
-const FLYWHEEL = [
-  { label: "Command Center", color: C.MYNUMBER, icon: "\u26A1" },
-  { label: "INNERLOOP trigger", color: C.INNERLOOP, icon: "\uD83D\uDD11" },
-  { label: "CASHFLOW code", color: C.PAYDAY, icon: "\uD83D\uDCB0" },
-  { label: "Budget Calculator", color: C.PAYDAY, icon: "\uD83D\uDCCA" },
-  { label: "User screenshots results", color: C.STORYTAG, icon: "\uD83D\uDCF1" },
-  { label: "Story tag", color: C.STORYTAG, icon: "\uD83D\uDCE2" },
-  { label: "CERTIFIED code", color: C.AUTOPILOT, icon: "\u2705" },
-  { label: "Deeper Command Center access", color: C.INNERLOOP, icon: "\uD83D\uDD13" },
-];
-
-// ═══════════════════════════════════════════════
-// UI COMPONENTS
-// ═══════════════════════════════════════════════
-
-function Badge({ num, color, label }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-      <div style={{
-        width: 30, height: 30, borderRadius: "50%", background: color,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: 13, fontWeight: 900, color: "#0a0a0f", flexShrink: 0,
-        boxShadow: `0 0 14px ${color}44`,
-      }}>{num}</div>
-      <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.8, color, textTransform: "uppercase" }}>{label}</span>
-    </div>
-  );
-}
-
-function Bubble({ children, variant = "dark", style: extra = {} }) {
-  const bgs = {
-    dark: ["#252532", "#33333380"], accent: ["#1a1a24", "#33333360"],
-    success: ["#10b98112", "#10b98130"], warning: ["#f59e0b10", "#f59e0b28"],
-    info: ["#3b82f610", "#3b82f628"], danger: ["#ef444410", "#ef444428"],
-    purple: ["#8b5cf610", "#8b5cf628"], pink: ["#ec489910", "#ec489928"],
-    cyan: ["#22d3ee10", "#22d3ee28"], orange: ["#f9731610", "#f9731628"],
-  };
-  const [bg, bd] = bgs[variant] || bgs.dark;
-  return (
-    <div style={{
-      background: bg, border: `1px solid ${bd}`, borderRadius: 10,
-      padding: "11px 15px", fontSize: 12.5, lineHeight: 1.6, color: "#d1d5db", marginBottom: 6, ...extra,
-    }}>{children}</div>
-  );
-}
-
-function Btn({ label, color, variant = "solid", small, url }) {
-  const solid = variant === "solid";
-  return (
-    <div style={{ display: "inline-flex", flexDirection: "column", gap: 2 }}>
-      <div style={{
-        display: "inline-flex", alignItems: "center", gap: 6,
-        padding: small ? "5px 12px" : "8px 16px", borderRadius: 8,
-        background: solid ? color : "transparent",
-        border: solid ? "none" : `1px solid ${color}50`,
-        color: solid ? "#0a0a0f" : color,
-        fontSize: small ? 10.5 : 12, fontWeight: 700, letterSpacing: 0.3,
-        boxShadow: solid ? `0 0 16px ${color}25` : "none",
-      }}>{label}</div>
-      {url && (
-        <span style={{ fontSize: 8.5, color: "#4b5563", fontFamily: "monospace", maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {url.replace("https://spacekou5-oss.github.io/cashvault-funnel/", ".../")}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function Arrow({ color = "#333", label = "" }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", margin: "6px 0" }}>
-      <div style={{ width: 2, height: 14, background: `${color}50` }} />
-      {label && <span style={{ fontSize: 9, color: `${color}99`, fontWeight: 600, letterSpacing: 0.5, margin: "2px 0", textAlign: "center", maxWidth: 260 }}>{label}</span>}
-      <div style={{ width: 0, height: 0, borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: `6px solid ${color}50` }} />
-    </div>
-  );
-}
-
-function Tag({ text, color, bg }) {
-  return (
-    <span style={{
-      fontSize: 9, fontWeight: 700, color: color || "#9ca3af", background: bg || "#252532",
-      padding: "2px 8px", borderRadius: 4, letterSpacing: 0.8, display: "inline-block",
-    }}>{text}</span>
-  );
-}
-
-function UrlRef({ url }) {
-  return (
-    <div style={{
-      fontSize: 10, color: "#4b5563", fontFamily: "monospace", padding: "4px 10px",
-      background: "#1a1a24", borderRadius: 6, marginTop: 4, wordBreak: "break-all",
-      border: "1px solid #252532",
-    }}>
-      <span style={{ color: "#6b7280" }}>URL: </span>{url}
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════
-// PMV TRACKER VIEW
-// ═══════════════════════════════════════════════
-function PMVTracker() {
-  return (
-    <div>
-      <div style={{ marginBottom: 22 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
-          <span style={{ fontSize: 24, fontWeight: 900, color: C.PMV, letterSpacing: 1 }}>PMV TRACKER</span>
-          <Tag text="PRODUCT-MARKET VALIDATION" color={C.PMV} bg={`${C.PMV}15`} />
-        </div>
-        <p style={{ fontSize: 12, color: "#6b7280", fontStyle: "italic", margin: "4px 0 0" }}>
-          Every Welcome Flow reply feeds this intelligence system. The concept with the most "yes" responses wins.
-        </p>
+function renderOverview() {
+  return `
+    <div class="pillar-section active" data-section="overview">
+      <div class="pillar-header">
+        <h2>SYSTEM OVERVIEW</h2>
+        <div class="angle">7 Pillars. 35 DM Messages. 21 Comment Replies. 28 Buttons. All converging to email capture.</div>
       </div>
-
-      {/* How it works */}
-      <div style={{
-        padding: "16px 20px", background: "#1a1a24", border: "1px solid #252532",
-        borderRadius: 10, marginBottom: 20,
-      }}>
-        <div style={{ fontSize: 12, fontWeight: 800, color: "#d1d5db", marginBottom: 10, letterSpacing: 0.5 }}>
-          HOW THE DATA FLOWS
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {[
-            { step: "1", label: "New follower triggers Welcome Flow", color: C.WELCOME },
-            { step: "2", label: "Brandon picks a pain button, receives tool", color: C.WELCOME },
-            { step: "3", label: "4 hours later: Research Probe fires (3 concept buttons)", color: C.PMV },
-            { step: "4", label: "Brandon picks a concept. Response logs to tracker.", color: C.PMV },
-            { step: "5", label: "If interested: email captured with concept tag in Beehiiv", color: "#10b981" },
-          ].map((s, i) => (
-            <div key={i} style={{
-              display: "flex", alignItems: "center", gap: 10, padding: "8px 12px",
-              background: `${s.color}06`, border: `1px solid ${s.color}15`, borderRadius: 8,
-            }}>
-              <span style={{
-                fontSize: 10, fontWeight: 900, color: "#0a0a0f", background: s.color,
-                width: 22, height: 22, borderRadius: 4, display: "flex", alignItems: "center",
-                justifyContent: "center", flexShrink: 0,
-              }}>{s.step}</span>
-              <span style={{ fontSize: 11.5, color: "#9ca3af" }}>{s.label}</span>
+      <div class="overview-grid">
+        ${PILLARS.map((p, i) => `
+          <div class="overview-card" onclick="switchTab('${p.id}')">
+            <h3>P${i+1}: ${p.name}</h3>
+            <div class="oc-keyword">${p.keyword}</div>
+            <div class="oc-angle">${p.angle}</div>
+            <div class="oc-stats">
+              <div><span>5</span> DM msgs</div>
+              <div><span>3</span> comment replies</div>
+              <div><span>${p.messages.filter(m => m.button).length}</span> buttons</div>
             </div>
-          ))}
-        </div>
+          </div>
+        `).join('')}
       </div>
 
-      {/* 3 Concepts */}
-      <div style={{ fontSize: 14, fontWeight: 800, color: "#d1d5db", marginBottom: 12 }}>THE 3 CONCEPTS BEING TESTED</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
-        {Object.entries(PMV_CONCEPTS).map(([key, concept]) => (
-          <div key={key} style={{
-            padding: "16px 20px", background: `${concept.color}06`,
-            border: `1px solid ${concept.color}20`, borderRadius: 12,
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-              <span style={{ fontSize: 20 }}>{concept.icon}</span>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 14, fontWeight: 900, color: concept.color }}>CONCEPT {key}</span>
-                  <Tag text={concept.name} color={concept.color} bg={`${concept.color}15`} />
+      <div class="flow-divider" style="margin-top:40px"><span>DAY 7 CONVERGENCE MAP</span></div>
+      <div style="background:var(--void-card);border:1px solid var(--void-border);border-radius:8px;padding:20px;margin-top:8px;">
+        <div style="font-size:12px;color:var(--text-secondary);line-height:2;">
+          ${PILLARS.map((p, i) => {
+            const d7 = p.messages[4];
+            return `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span style="color:var(--burn-orange);font-weight:600;min-width:90px;">P${i+1} ${p.keyword}</span>
+              <span style="color:var(--text-dim);">Day 7 →</span>
+              <span style="color:var(--green);font-weight:600;">${d7.button.text}</span>
+              <span style="color:var(--text-dim);font-size:10px;">→ ${d7.button.url}</span>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="margin-top:16px;font-size:11px;color:var(--green);font-weight:600;">ALL DAY 7 BUTTONS → FREEDOM CALCULATOR (EMAIL CAPTURE) ✓</div>
+      </div>
+
+      <div class="flow-divider"><span>CROSS-SELL MAP (DAY 5)</span></div>
+      <div style="background:var(--void-card);border:1px solid var(--void-border);border-radius:8px;padding:20px;margin-top:8px;">
+        <div style="font-size:12px;color:var(--text-secondary);line-height:2;">
+          ${PILLARS.map((p, i) => {
+            const d5 = p.messages[3];
+            return `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span style="color:var(--burn-orange);font-weight:600;min-width:90px;">P${i+1} ${p.keyword}</span>
+              <span style="color:var(--text-dim);">Day 5 →</span>
+              <span style="color:var(--tape-blue);font-weight:600;">${d5.button.text}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderPillar(pillar, index) {
+  return `
+    <div class="pillar-section" data-section="${pillar.id}">
+      <div class="pillar-header">
+        <h2>P${index+1}: ${pillar.name}</h2>
+        <span class="keyword-badge">${pillar.keyword}</span>
+        <div class="angle">${pillar.angle}</div>
+        <div class="asset-link">ASSET: ${pillar.asset} → ${pillar.url}</div>
+      </div>
+
+      <!-- COMMENT REPLIES ENTRY -->
+      <div class="comment-replies-group">
+        <div class="cr-label">
+          PUBLIC COMMENT REPLIES (ENTRY POINT)
+          <span class="arrow">→ Rotate 1/2/3 per comment section</span>
+        </div>
+        ${pillar.commentReplies.map((reply, ri) => `
+          <div class="reply-card" onclick="copyText(this, '${escapeForAttr(reply)}')">
+            <button class="copy-btn" onclick="event.stopPropagation(); copyText(this.parentElement, '${escapeForAttr(reply)}')">COPY</button>
+            <div class="reply-num">REPLY ${ri+1}</div>
+            <div class="reply-text">${escapeHtml(reply)}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="flow-divider"><span>DM SEQUENCE FLOW → INSTANT THROUGH DAY 7</span></div>
+
+      <!-- DM FLOW -->
+      <div class="flow-container">
+        ${pillar.messages.map((msg, mi) => `
+          <div class="flow-node ${msg.isEntry ? 'entry-node' : ''} ${msg.isDay7 ? 'day7-node' : ''}" data-search="${escapeForAttr(msg.copy + ' ' + (msg.button ? msg.button.text + ' ' + msg.button.url : ''))}">
+            <div class="node-card">
+              <div class="node-header ${msg.isEntry ? 'entry-header' : ''} ${msg.isDay7 ? 'day7-header' : ''}">
+                <div class="node-timing">
+                  <span class="timing-badge ${msg.isEntry ? 'entry' : ''} ${msg.isDay7 ? 'day7' : ''}">${msg.timing}</span>
+                  <span class="timing-delay">${msg.delay}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span class="node-type">${msg.type}</span>
+                  <button class="node-copy-btn" onclick="copyNodeText(this, ${index}, ${mi})">COPY ALL</button>
                 </div>
               </div>
-            </div>
-            <p style={{ fontSize: 12, color: "#9ca3af", lineHeight: 1.6, marginBottom: 10 }}>{concept.description}</p>
-            <div style={{
-              padding: "8px 12px", background: "#0a0a0f", borderRadius: 6,
-              border: `1px solid ${concept.color}15`,
-            }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: "#4b5563", letterSpacing: 1 }}>BUTTON TEXT IN RESEARCH PROBE:</span>
-              <p style={{ fontSize: 11.5, color: concept.color, fontWeight: 600, marginTop: 4 }}>
-                "{WELCOME_FLOW.researchProbe.buttons.find(b => b.concept === key)?.label}"
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Decision Criteria */}
-      <div style={{ fontSize: 14, fontWeight: 800, color: "#d1d5db", marginBottom: 12 }}>DECISION CRITERIA</div>
-      <div style={{
-        padding: "16px 20px", background: "#1a1a24", border: "1px solid #252532",
-        borderRadius: 10, marginBottom: 20,
-      }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <div style={{ padding: "10px 14px", background: "#10b98108", border: "1px solid #10b98120", borderRadius: 8 }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: "#10b981", marginBottom: 4 }}>GREEN LIGHT: BUILD IT</div>
-            <p style={{ fontSize: 11, color: "#9ca3af", lineHeight: 1.5 }}>
-              One concept captures 50%+ of responses AND 5%+ of those people tap "let me know" AND provide email. That's demand + willingness to act.
-            </p>
-          </div>
-          <div style={{ padding: "10px 14px", background: "#f59e0b08", border: "1px solid #f59e0b20", borderRadius: 8 }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: "#f59e0b", marginBottom: 4 }}>YELLOW: REFINE AND RETEST</div>
-            <p style={{ fontSize: 11, color: "#9ca3af", lineHeight: 1.5 }}>
-              No clear winner (all concepts within 10% of each other). Rewrite the button text to sharpen differentiation. Or: clear winner on concept but low email capture (offer framing is weak, not the concept).
-            </p>
-          </div>
-          <div style={{ padding: "10px 14px", background: "#ef444408", border: "1px solid #ef444420", borderRadius: 8 }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: "#ef4444", marginBottom: 4 }}>RED: PIVOT</div>
-            <p style={{ fontSize: 11, color: "#9ca3af", lineHeight: 1.5 }}>
-              Under 10% response rate on the research probe after 50+ tool deliveries. The audience is not engaged enough to provide data. Fix the Welcome Flow engagement first, then retest.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Beehiiv Tag Structure */}
-      <div style={{ fontSize: 14, fontWeight: 800, color: "#d1d5db", marginBottom: 12 }}>BEEHIIV TAG STRUCTURE</div>
-      <div style={{
-        padding: "16px 20px", background: "#1a1a24", border: "1px solid #252532",
-        borderRadius: 10, marginBottom: 20,
-      }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {[
-            { tag: "pmv-early-access", desc: "All research probe email captures (master list)" },
-            { tag: "pmv-concept-A", desc: "Chose Implementation Bridge" },
-            { tag: "pmv-concept-B", desc: "Chose Tracking System" },
-            { tag: "pmv-concept-C", desc: "Chose Personalized Playbook" },
-            { tag: "pmv-pain-{keyword}", desc: "Original pain button (AUTOPILOT, PAYDAY, etc.)" },
-          ].map((t, i) => (
-            <div key={i} style={{
-              display: "flex", alignItems: "center", gap: 12, padding: "6px 10px",
-              background: "#12121a", borderRadius: 6,
-            }}>
-              <code style={{
-                fontSize: 10.5, fontWeight: 700, color: C.PMV, background: `${C.PMV}10`,
-                padding: "2px 8px", borderRadius: 4, fontFamily: "monospace", whiteSpace: "nowrap",
-              }}>{t.tag}</code>
-              <span style={{ fontSize: 10.5, color: "#6b7280" }}>{t.desc}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Tracking Sheet Template */}
-      <div style={{ fontSize: 14, fontWeight: 800, color: "#d1d5db", marginBottom: 12 }}>MANUAL TRACKING SHEET (until volume justifies automation)</div>
-      <div style={{
-        padding: "16px 20px", background: "#1a1a24", border: "1px solid #252532",
-        borderRadius: 10, overflowX: "auto",
-      }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5 }}>
-          <thead>
-            <tr>
-              {["Date", "Username", "Pain Button", "Concept Picked", "Email?", "Notes"].map(h => (
-                <th key={h} style={{
-                  padding: "8px 10px", textAlign: "left", color: "#4b5563",
-                  borderBottom: "1px solid #252532", fontWeight: 700, letterSpacing: 1,
-                  textTransform: "uppercase", fontSize: 9, whiteSpace: "nowrap",
-                }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              ["2/28", "@user1", "Paycheck vanishes", "A", "Y", "Said 'I know what to do but...'"],
-              ["2/28", "@user2", "Should be investing", "C", "Y", "Wants plan for $16/hr income"],
-              ["3/1", "@user3", "Feel behind", "B", "N", "Engaged but declined email"],
-              ["3/1", "@user4", "Credit confused", "A", "Y", "Never opened a brokerage"],
-              ["...", "...", "...", "...", "...", "Minimum 20 rows before decision"],
-            ].map((row, i) => (
-              <tr key={i} style={{ opacity: i === 4 ? 0.4 : 1 }}>
-                {row.map((cell, j) => (
-                  <td key={j} style={{
-                    padding: "6px 10px", borderBottom: "1px solid #1a1a24",
-                    color: j === 3 ? PMV_CONCEPTS[cell]?.color || "#6b7280" : "#9ca3af",
-                    fontWeight: j === 3 ? 700 : 400, whiteSpace: "nowrap",
-                  }}>{cell}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <p style={{ fontSize: 10, color: "#4b5563", fontStyle: "italic", marginTop: 10 }}>
-          Minimum sample: 20 research probe responses before making MVO decision. Target: 50+ for high confidence.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════
-// WELCOME FLOW DETAIL VIEW (v2.3 with Research Layer)
-// ═══════════════════════════════════════════════
-
-function WelcomeDetail() {
-  const w = WELCOME_FLOW;
-  const c = w.color;
-  const rp = w.researchProbe;
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      {/* Header */}
-      <div style={{ marginBottom: 22 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 24, fontWeight: 900, color: c, letterSpacing: 1 }}>NEW FOLLOWER</span>
-          <Tag text={w.pillar} color={c} bg={`${c}15`} />
-          <Tag text="PMV RESEARCH ACTIVE" color={C.PMV} bg={`${C.PMV}15`} />
-        </div>
-        <p style={{ fontSize: 12, color: "#6b7280", fontStyle: "italic", margin: "0 0 8px" }}>"{w.angle}"</p>
-        <div style={{
-          display: "flex", alignItems: "center", gap: 8, padding: "8px 14px",
-          background: "#1a1a24", border: "1px solid #252532", borderRadius: 8,
-        }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: c, boxShadow: `0 0 8px ${c}` }} />
-          <span style={{ fontSize: 11, fontWeight: 700, color: c }}>TRIGGER:</span>
-          <span style={{ fontSize: 11, color: "#9ca3af" }}>{w.trigger}</span>
-        </div>
-      </div>
-
-      {/* v2.3 CALLOUT */}
-      <div style={{
-        padding: "14px 18px", background: `${C.PMV}08`, border: `1px solid ${C.PMV}25`,
-        borderRadius: 10, marginBottom: 20,
-      }}>
-        <div style={{ fontSize: 11, fontWeight: 800, color: C.PMV, marginBottom: 6, letterSpacing: 0.5 }}>
-          v2.3 UPGRADE: DUAL-PURPOSE FLOW
-        </div>
-        <div style={{ fontSize: 11.5, color: "#9ca3af", lineHeight: 1.7 }}>
-          This flow now serves two functions simultaneously. <span style={{ color: c, fontWeight: 600 }}>Purpose 1 (permanent):</span> Route new followers to their highest-leverage tool. <span style={{ color: C.PMV, fontWeight: 600 }}>Purpose 2 (Phase 0 research):</span> Extract product validation data from every reply. The research probe fires 4 hours after tool delivery. It does not interrupt the conversion flow. It rides on top of it.
-        </div>
-      </div>
-
-      {/* STAGE 1: OPENER */}
-      <Badge num={1} color={c} label="Welcome Message (after 2-min delay)" />
-      <div style={{ paddingLeft: 40, marginBottom: 4 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-          <Tag text="2-MINUTE DELAY" color={c} bg={`${c}15`} />
-          <span style={{ fontSize: 9, color: "#4b5563" }}>Fires automatically on new follow</span>
-        </div>
-        <Bubble variant="cyan">{w.opener}</Bubble>
-        <div style={{ marginTop: 6 }}>
-          <Bubble variant="cyan" style={{ borderLeft: `3px solid ${c}`, fontWeight: 600 }}>{w.question}</Bubble>
-        </div>
-      </div>
-
-      <Arrow color={c} label="BRANDON SEES 5 QUICK-REPLY BUTTONS" />
-
-      {/* STAGE 2: SELF-SELECTION BUTTONS */}
-      <Badge num={2} color={c} label="Self-Selection (Pain Statement Buttons)" />
-      <div style={{ paddingLeft: 40, marginBottom: 4 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {w.buttons.map((btn, i) => {
-            const routeColor = FLOWS[btn.routes]?.color || "#666";
-            return (
-              <div key={i} style={{
-                padding: "10px 14px", background: `${routeColor}08`,
-                border: `1px solid ${routeColor}22`, borderRadius: 10,
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
-                  <Btn label={btn.label} color={routeColor} variant="outline" small />
-                  <span style={{ fontSize: 10, color: "#4b5563" }}>\u2192</span>
-                  <span style={{ fontSize: 11, fontWeight: 900, color: routeColor }}>{btn.routes}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <Arrow color={c} label="BRANDON TAPS A BUTTON" />
-
-      {/* STAGE 3: BRIDGE MESSAGES */}
-      <Badge num={3} color={c} label="Bridge Message + Tool Delivery" />
-      <div style={{ paddingLeft: 40, marginBottom: 4 }}>
-        <p style={{ fontSize: 10, color: "#4b5563", marginBottom: 10 }}>
-          Each button triggers a unique bridge message that acknowledges Brandon's specific pain, then immediately feeds into that pillar's existing Initial DM sequence.
-        </p>
-        {w.buttons.map((btn, i) => {
-          const routeColor = FLOWS[btn.routes]?.color || "#666";
-          const f = FLOWS[btn.routes];
-          return (
-            <div key={i} style={{ marginBottom: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                <Tag text={btn.routes} color={routeColor} bg={`${routeColor}18`} />
-                <span style={{ fontSize: 9, color: "#4b5563" }}>"{btn.label}"</span>
-              </div>
-              <Bubble variant="accent" style={{ borderLeft: `3px solid ${routeColor}` }}>
-                <span style={{ color: routeColor, fontWeight: 600 }}>Bridge: </span>
-                {btn.bridge}
-              </Bubble>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "4px 0 4px 12px" }}>
-                <div style={{ width: 2, height: 16, background: `${routeColor}30` }} />
-                <span style={{ fontSize: 9, color: "#4b5563", fontStyle: "italic" }}>3-second delay, then Initial DM fires:</span>
-              </div>
-              <Bubble style={{ opacity: 0.7, fontSize: 11 }}>
-                {f?.dm?.hook?.substring(0, 120)}...
-              </Bubble>
-              <div style={{ marginTop: 4 }}>
-                <Btn label={f?.dm?.primaryBtn} color={routeColor} small url={f?.url} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <Arrow color={C.PMV} label="4 HOURS AFTER TOOL LINK CLICKED (ManyChat click tracking)" />
-
-      {/* ═══════════════════════════════════════════════ */}
-      {/* STAGE 4: RESEARCH PROBE (NEW IN v2.3) */}
-      {/* ═══════════════════════════════════════════════ */}
-      <div style={{
-        padding: "3px", borderRadius: 14, marginBottom: 6,
-        background: `linear-gradient(135deg, ${C.PMV}40, ${C.PMV}10, ${C.PMV}40)`,
-      }}>
-        <div style={{ background: "#12121a", borderRadius: 12, padding: "16px 0 0" }}>
-          <div style={{ paddingLeft: 16 }}>
-            <Badge num={4} color={C.PMV} label="Research Probe (PMV Intelligence Layer)" />
-          </div>
-          <div style={{ paddingLeft: 40, paddingRight: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
-              <Tag text="4-HOUR DELAY" color={C.PMV} bg={`${C.PMV}15`} />
-              <Tag text="ONLY IF LINK CLICKED" color="#6b7280" bg="#252532" />
-              <Tag text="PMV DATA COLLECTION" color={C.PMV} bg={`${C.PMV}15`} />
-            </div>
-            <p style={{ fontSize: 10, color: "#4b5563", marginBottom: 10 }}>
-              This message ONLY fires if Brandon clicked the tool link (ManyChat tracks this). If they never clicked, no probe is sent. We don't ask for feedback on something they didn't use.
-            </p>
-
-            {/* Research message */}
-            <Bubble variant="orange">{rp.message}</Bubble>
-            <Bubble variant="orange" style={{ borderLeft: `3px solid ${C.PMV}`, fontWeight: 600 }}>
-              {rp.question}
-            </Bubble>
-
-            {/* 3 Concept buttons */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, margin: "12px 0" }}>
-              {rp.buttons.map((btn, i) => {
-                const concept = PMV_CONCEPTS[btn.concept];
-                return (
-                  <div key={i} style={{
-                    padding: "12px 16px", background: `${concept.color}06`,
-                    border: `1px solid ${concept.color}20`, borderRadius: 10,
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
-                      <span style={{ fontSize: 16 }}>{concept.icon}</span>
-                      <Btn label={btn.label} color={concept.color} variant="outline" small />
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ fontSize: 10, color: "#4b5563" }}>Maps to:</span>
-                      <span style={{ fontSize: 11, fontWeight: 900, color: concept.color }}>CONCEPT {btn.concept}</span>
-                      <Tag text={concept.name} color={concept.color} bg={`${concept.color}12`} />
-                    </div>
+              <div class="node-body">
+                <div class="message-copy">${escapeHtml(msg.copy)}${msg.noButton ? '<span class="no-button-note">(No button. Text-only deepening. Let the stat do the work.)</span>' : ''}</div>
+                ${msg.button ? `
+                  <div class="button-block">
+                    <span class="btn-label">BUTTON</span>
+                    <span class="btn-text">${escapeHtml(msg.button.text)}</span>
+                    <button class="url-copy-btn" onclick="copyUrl(this, '${escapeForAttr(msg.button.url)}')">COPY URL</button>
+                    <span class="btn-url">${escapeHtml(msg.button.url)}</span>
                   </div>
-                );
-              })}
-            </div>
-
-            <Arrow color={C.PMV} label="BRANDON PICKS A CONCEPT" />
-
-            {/* Concept-specific responses */}
-            <div style={{ fontSize: 11, fontWeight: 800, color: C.PMV, marginBottom: 8, letterSpacing: 0.5 }}>
-              RESPONSE PER CONCEPT (acknowledges + captures interest)
-            </div>
-            {Object.entries(rp.responses).map(([key, resp]) => {
-              const concept = PMV_CONCEPTS[key];
-              return (
-                <div key={key} style={{ marginBottom: 14 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                    <Tag text={`CONCEPT ${key}`} color={concept.color} bg={`${concept.color}18`} />
-                    <span style={{ fontSize: 9, color: "#4b5563" }}>{concept.name}</span>
-                  </div>
-                  <Bubble variant="accent" style={{ borderLeft: `3px solid ${concept.color}` }}>
-                    {resp.msg}
-                  </Bubble>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
-                    <Btn label={resp.captureBtn} color={concept.color} small />
-                    <Btn label={resp.declineBtn} color="#4b5563" variant="outline" small />
-                  </div>
-                </div>
-              );
-            })}
-
-            <Arrow color="#10b981" label="IF BRANDON TAPS THE POSITIVE BUTTON" />
-
-            {/* Email capture */}
-            <div style={{ fontSize: 11, fontWeight: 800, color: "#10b981", marginBottom: 8, letterSpacing: 0.5 }}>
-              EMAIL CAPTURE (DEMAND + WILLINGNESS SIGNAL)
-            </div>
-            <div style={{ marginBottom: 16 }}>
-              <Bubble variant="success">{rp.emailCapture.msg}</Bubble>
-              <div style={{
-                display: "flex", alignItems: "center", gap: 6, padding: "8px 14px",
-                background: "#10b98108", border: "1px solid #10b98120", borderRadius: 8,
-                marginTop: 6,
-              }}>
-                <div style={{
-                  flex: 1, padding: "6px 12px", background: "#1a1a24", borderRadius: 6,
-                  fontSize: 11, color: "#4b5563", border: "1px solid #252532",
-                }}>{rp.emailCapture.inputPlaceholder}</div>
-                <Btn label={rp.emailCapture.submitBtn} color="#10b981" small />
+                ` : ''}
               </div>
-              <div style={{ marginTop: 8 }}>
-                <Bubble variant="success" style={{ borderLeft: "3px solid #10b981" }}>
-                  {rp.emailCapture.confirmation}
-                </Bubble>
-              </div>
-              <div style={{ marginTop: 10, display: "flex", gap: 6, flexWrap: "wrap" }}>
-                <Tag text={`BEEHIIV: ${rp.emailCapture.beehiivTag}`} color="#10b981" bg="#10b98112" />
-                <Tag text={`BEEHIIV: ${rp.emailCapture.conceptTag}`} color={C.PMV} bg={`${C.PMV}12`} />
-              </div>
-              <p style={{ fontSize: 9, color: "#4b5563", fontStyle: "italic", marginTop: 8 }}>
-                Dual-tagged: master early-access list + specific concept chosen. When the winning concept is identified, the launch email goes ONLY to that concept's tag. Hyper-targeted.
-              </p>
-            </div>
-
-            {/* No response handling */}
-            <div style={{
-              padding: "10px 14px", background: "#252532", borderRadius: 8, marginBottom: 16,
-            }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: "#4b5563", letterSpacing: 1, marginBottom: 4 }}>IF NO PROBE RESPONSE</div>
-              <p style={{ fontSize: 11, color: "#6b7280", lineHeight: 1.5 }}>
-                {rp.noProbeResponse.action}
-              </p>
             </div>
           </div>
-        </div>
+        `).join('')}
       </div>
 
-      <Arrow color={c} label="IF NO PAIN BUTTON TAPPED (ORIGINAL FLOW)" />
-
-      {/* STAGE 5: NO-RESPONSE FALLBACK (was Stage 4 in v2.2) */}
-      <Badge num={5} color={c} label="No-Response Fallback (24hr)" />
-      <div style={{ paddingLeft: 40 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-          <Tag text="24-HOUR DELAY" color="#f59e0b" bg="#f59e0b12" />
-          <span style={{ fontSize: 9, color: "#4b5563" }}>Only fires if Brandon never tapped a pain button</span>
-        </div>
-        <Bubble variant="warning">{w.noResponse.msg}</Bubble>
-        <p style={{ fontSize: 9, color: "#4b5563", fontStyle: "italic", marginTop: 6 }}>
-          This catches silent followers by listing all 7 keywords. Any future DM keyword triggers the matching flow. Brandon stays in the system permanently.
-        </p>
-      </div>
-
-      {/* ARCHITECTURE NOTE */}
-      <div style={{
-        marginTop: 24, padding: "14px 18px", background: "#1a1a24",
-        border: `1px solid ${C.PMV}20`, borderRadius: 10,
-      }}>
-        <div style={{ fontSize: 12, fontWeight: 800, color: C.PMV, marginBottom: 8, letterSpacing: 0.5 }}>
-          v2.3 ARCHITECTURE: DUAL-PURPOSE INTELLIGENCE
-        </div>
-        <div style={{ fontSize: 11, color: "#9ca3af", lineHeight: 1.7 }}>
-          The research probe is a <strong style={{ color: "#d1d5db" }}>non-blocking overlay</strong> on the existing conversion flow. It fires only after value is delivered (tool link clicked). It asks one question with three buttons (zero typing friction). It captures email only from people who express interest (highest-intent signal). If nobody responds, the conversion flow is unharmed. This is the difference between a survey (which asks before giving value) and intelligence extraction (which asks after). The former annoys. The latter converts.
-        </div>
-        <div style={{
-          marginTop: 12, padding: "10px 14px", background: `${C.PMV}06`,
-          border: `1px solid ${C.PMV}15`, borderRadius: 8,
-        }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: C.PMV, marginBottom: 4, letterSpacing: 0.5 }}>DATA OUTPUT</div>
-          <div style={{ fontSize: 11, color: "#9ca3af", lineHeight: 1.6 }}>
-            Every research probe response gives you THREE data points: (1) which pain button they originally chose (segmentation), (2) which concept they want most (product direction), (3) whether they gave their email (willingness to act). Compound these across 20+ responses and you have a statistically directional PMV signal with zero dollars spent on testing.
-          </div>
-        </div>
+      <!-- MANYCHAT SETUP NOTES -->
+      <div class="flow-divider"><span>MANYCHAT SETUP CHECKLIST</span></div>
+      <div style="background:var(--void-card);border:1px solid var(--void-border);border-radius:8px;padding:16px;font-size:12px;color:var(--text-secondary);line-height:1.8;">
+        <div>1. Create keyword trigger: comment = <span style="color:var(--burn-orange);font-weight:600;">${pillar.keyword}</span></div>
+        <div>2. Set Instant Reply as immediate auto-response</div>
+        <div>3. Add Day 1, 3, 5, 7 as Smart Delay nodes (24hr, 72hr, 120hr, 168hr)</div>
+        <div>4. Add each button as "Open Website" type below the text block</div>
+        <div>5. Tag subscriber with <span style="color:var(--burn-orange);">${pillar.keyword}</span> on Instant Reply node</div>
+        <div>6. Optional: Add "Reply STOP to unsubscribe" on Day 7 for compliance</div>
       </div>
     </div>
-  );
+  `;
 }
 
-// ═══════════════════════════════════════════════
-// KEYWORD FLOW DETAIL VIEW (unchanged from v2.2)
-// ═══════════════════════════════════════════════
-
-function FlowDetail({ flowKey }) {
-  const f = FLOWS[flowKey];
-  if (!f) return null;
-  const c = f.color;
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <div style={{ marginBottom: 22 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
-          <span style={{ fontSize: 24, fontWeight: 900, color: c, letterSpacing: 1 }}>{f.label}</span>
-          <Tag text={f.pillar} />
-        </div>
-        <p style={{ fontSize: 12, color: "#6b7280", fontStyle: "italic", margin: "0 0 8px" }}>"{f.angle}"</p>
-        <UrlRef url={f.url} />
-      </div>
-
-      <Badge num={1} color={c} label="Reel CTA (A/B Variants)" />
-      <div style={{ paddingLeft: 40, marginBottom: 4 }}>
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <Tag text="OVERLAY / SPOKEN" color="#9ca3af" bg="#1a1a24" />
-            <span style={{ fontSize: 9, color: "#4b5563" }}>6-9 words</span>
-          </div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: 200 }}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: "#10b981", marginBottom: 4, letterSpacing: 1 }}>GAIN</div>
-              <Bubble variant="success">{f.reelCTA.gain}</Bubble>
-            </div>
-            <div style={{ flex: 1, minWidth: 200 }}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: "#ef4444", marginBottom: 4, letterSpacing: 1 }}>LOSS</div>
-              <Bubble variant="danger">{f.reelCTA.loss}</Bubble>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <Tag text="CAPTION / PINNED COMMENT" color={c} bg={`${c}18`} />
-            <span style={{ fontSize: 9, color: "#4b5563" }}>14-17 words</span>
-          </div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: 200 }}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: "#10b981", marginBottom: 4, letterSpacing: 1 }}>GAIN ({f.expandedCTA.wordCount.gain}w)</div>
-              <Bubble variant="success" style={{ borderLeft: `3px solid ${c}` }}>{f.expandedCTA.gain}</Bubble>
-            </div>
-            <div style={{ flex: 1, minWidth: 200 }}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: "#ef4444", marginBottom: 4, letterSpacing: 1 }}>LOSS ({f.expandedCTA.wordCount.loss}w)</div>
-              <Bubble variant="danger" style={{ borderLeft: `3px solid ${c}` }}>{f.expandedCTA.loss}</Bubble>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <Arrow color={c} label="COMMENT TRIGGERS MANYCHAT" />
-
-      <Badge num={2} color={c} label="Public Comment Reply (3 Random)" />
-      <div style={{ paddingLeft: 40, marginBottom: 4 }}>
-        {f.commentReplies.map((r, i) => <Bubble key={i} variant="accent">{i + 1}. {r}</Bubble>)}
-      </div>
-
-      <Arrow color={c} label="DM FIRES AUTOMATICALLY" />
-
-      <Badge num={3} color={c} label="Initial DM Sequence" />
-      <div style={{ paddingLeft: 40 }}>
-        <Tag text="MSG 1: HOOK + VALUE" color="#9ca3af" />
-        <div style={{ height: 4 }} />
-        <Bubble>{f.dm.hook}</Bubble>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "10px 0 4px" }}>
-          <Tag text="MSG 2: CTA" color="#9ca3af" />
-          <span style={{ fontSize: 9, color: "#4b5563" }}>3-second delay</span>
-        </div>
-        <Bubble variant="info">{f.dm.cta}</Bubble>
-        <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap", alignItems: "flex-start" }}>
-          <Btn label={f.dm.primaryBtn} color={c} url={f.url} />
-          <Btn label={`"${f.dm.objection}"`} color="#f59e0b" variant="outline" />
-        </div>
-        <div style={{ marginTop: 14 }}>
-          <Tag text="OBJECTION HANDLER" color="#f59e0b" bg="#f59e0b15" />
-          <div style={{ height: 4 }} />
-          <Bubble variant="warning">{f.dm.objectionReply}</Bubble>
-          <div style={{ marginTop: 6 }}>
-            <Btn label={f.dm.primaryBtn} color={c} small url={f.url} />
-          </div>
-        </div>
-      </div>
-
-      <Arrow color={c} label="IF NO CLICK ON PRIMARY BUTTON" />
-
-      <Badge num={4} color={c} label="Follow-Up Recovery Track" />
-      <div style={{ paddingLeft: 40 }}>
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <span style={{ fontSize: 10, fontWeight: 900, color: "#0a0a0f", background: c, padding: "2px 10px", borderRadius: 4 }}>DAY 1</span>
-            <span style={{ fontSize: 9, color: "#4b5563" }}>Single button, no exit</span>
-          </div>
-          <Bubble>{f.followUp.day1.msg}</Bubble>
-          <Btn label={f.followUp.day1.btn} color={c} small url={f.url} />
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <span style={{ fontSize: 10, fontWeight: 900, color: "#0a0a0f", background: c, padding: "2px 10px", borderRadius: 4 }}>DAY 3</span>
-            <span style={{ fontSize: 9, color: "#4b5563" }}>Button + "Not Now" value drop</span>
-          </div>
-          <Bubble>{f.followUp.day3.msg}</Bubble>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
-            <Btn label={f.followUp.day3.btn} color={c} small url={f.url} />
-            <Btn label="Not Now" color="#6b7280" variant="outline" small />
-          </div>
-          <div style={{ marginTop: 10 }}>
-            <Tag text="VALUE DROP ON 'NOT NOW'" color="#3b82f6" bg="#3b82f612" />
-            <div style={{ height: 4 }} />
-            <Bubble variant="info">{f.followUp.day3.valueDrop}</Bubble>
-          </div>
-        </div>
-        <div style={{ marginBottom: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <span style={{ fontSize: 10, fontWeight: 900, color: "#0a0a0f", background: c, padding: "2px 10px", borderRadius: 4 }}>DAY 7</span>
-            <span style={{ fontSize: 9, color: "#4b5563" }}>Button + "Maybe Later" requalify</span>
-          </div>
-          <Bubble>{f.followUp.day7.msg}</Bubble>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
-            <Btn label={f.followUp.day7.btn} color={c} small url={f.url} />
-            <Btn label="Maybe Later" color="#a855f7" variant="outline" small />
-          </div>
-          <div style={{ marginTop: 10 }}>
-            <Tag text="RE-QUALIFICATION ON 'MAYBE LATER'" color="#a855f7" bg="#a855f712" />
-            <div style={{ height: 4 }} />
-            <Bubble variant="purple">No worries. Quick question: what's your biggest money challenge right now?</Bubble>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
-              {REQUALIFY.map((opt, i) => (
-                <Btn key={i} label={opt.label} color={FLOWS[opt.routes]?.color} variant="outline" small />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <Arrow color={c} label="24HR AFTER COMPLETION" />
-
-      <Badge num={5} color={c} label="Cross-Sell" />
-      <div style={{ paddingLeft: 40 }}>
-        <div style={{
-          padding: "12px 16px", background: `${FLOWS[f.crossSell]?.color || "#666"}08`,
-          border: `1px solid ${FLOWS[f.crossSell]?.color || "#666"}25`, borderRadius: 10,
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-            <span style={{ fontSize: 12, color: "#6b7280" }}>Next flow:</span>
-            <span style={{ fontSize: 16, fontWeight: 900, color: FLOWS[f.crossSell]?.color }}>{f.crossSell}</span>
-            <Tag text={f.crossSellReason} color="#6b7280" />
-          </div>
-          <Bubble variant="accent">{f.crossSellMsg}</Bubble>
-        </div>
-      </div>
-    </div>
-  );
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
 }
 
-// ═══════════════════════════════════════════════
-// SPECIAL FLOW + FLYWHEEL
-// ═══════════════════════════════════════════════
-
-function SpecialDetail({ flowKey }) {
-  const f = SPECIAL[flowKey];
-  if (!f) return null;
-  const c = f.color;
-  return (
-    <div>
-      <div style={{ marginBottom: 22 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
-          <span style={{ fontSize: 24, fontWeight: 900, color: c, letterSpacing: 1 }}>{f.label}</span>
-          <Tag text={f.pillar} />
-        </div>
-        <p style={{ fontSize: 12, color: "#6b7280", fontStyle: "italic", margin: "0 0 8px" }}>"{f.angle}"</p>
-        <UrlRef url={f.dm.url} />
-      </div>
-      <Badge num="!" color={c} label={`Trigger: ${f.trigger}`} />
-      <div style={{ paddingLeft: 40, marginTop: 4 }}>
-        <Bubble>{f.dm.hook}</Bubble>
-        <div style={{ marginTop: 12, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-          <div style={{
-            padding: "8px 16px", background: `${c}15`, border: `1px dashed ${c}`,
-            borderRadius: 8, fontSize: 15, fontWeight: 900, color: c, letterSpacing: 3,
-          }}>CODE: {f.dm.code}</div>
-          <span style={{ fontSize: 11, color: "#6b7280" }}>{f.dm.destination}</span>
-        </div>
-        <UrlRef url={f.dm.url} />
-      </div>
-    </div>
-  );
+function escapeForAttr(str) {
+  return str.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n');
 }
 
-function FlywheelView() {
-  return (
-    <div>
-      <div style={{ marginBottom: 22 }}>
-        <span style={{ fontSize: 24, fontWeight: 900, color: "#f59e0b", letterSpacing: 1 }}>THE FLYWHEEL</span>
-        <p style={{ fontSize: 12, color: "#6b7280", fontStyle: "italic", margin: "4px 0 0" }}>
-          Self-perpetuating organic growth engine. Zero paid distribution.
-        </p>
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 0, marginBottom: 28 }}>
-        {FLYWHEEL.map((step, i) => (
-          <div key={i}>
-            <div style={{
-              display: "flex", alignItems: "center", gap: 12, padding: "10px 16px",
-              background: `${step.color}08`, border: `1px solid ${step.color}20`, borderRadius: 10,
-            }}>
-              <span style={{ fontSize: 18 }}>{step.icon}</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: step.color, flex: 1 }}>{step.label}</span>
-              <span style={{
-                fontSize: 10, fontWeight: 900, color: "#0a0a0f", background: step.color,
-                padding: "2px 10px", borderRadius: 4,
-              }}>STEP {i + 1}</span>
-            </div>
-            {i < FLYWHEEL.length - 1 && (
-              <div style={{ display: "flex", justifyContent: "center", padding: "2px 0" }}>
-                <div style={{ width: 2, height: 10, background: "#333" }} />
-              </div>
-            )}
-          </div>
-        ))}
-        <div style={{ textAlign: "center", padding: "10px 0", fontSize: 11, fontWeight: 700, color: "#f59e0b", letterSpacing: 1 }}>
-          LOOPS BACK TO STEP 1. EACH CYCLE = ORGANIC IMPRESSIONS.
-        </div>
-      </div>
-      <div>
-        <div style={{ fontSize: 15, fontWeight: 800, color: "#d1d5db", marginBottom: 14 }}>CROSS-SELL CHAIN</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {CHAIN.map((link, i) => (
-            <div key={i} style={{
-              display: "flex", alignItems: "center", gap: 8, padding: "8px 14px",
-              background: "#1a1a24", borderRadius: 8, fontSize: 12, flexWrap: "wrap",
-            }}>
-              <span style={{ fontWeight: 900, color: FLOWS[link.from]?.color, minWidth: 85 }}>{link.from}</span>
-              <span style={{ color: "#444", fontSize: 14 }}>\u2192</span>
-              <span style={{ fontWeight: 900, color: FLOWS[link.to]?.color, minWidth: 85 }}>{link.to}</span>
-              <span style={{ color: "#6b7280", fontSize: 10, fontStyle: "italic" }}>{link.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div style={{ marginTop: 24 }}>
-        <div style={{ fontSize: 13, fontWeight: 800, color: "#d1d5db", marginBottom: 10 }}>CLOSED LOOPS</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ padding: "10px 14px", background: "#10b98108", border: "1px solid #10b98120", borderRadius: 8, fontSize: 11, color: "#9ca3af" }}>
-            <span style={{ fontWeight: 800, color: C.AUTOPILOT }}>AUTOPILOT</span> \u2192{" "}
-            <span style={{ fontWeight: 800, color: C.CHEAT }}>CHEAT</span> \u2192{" "}
-            <span style={{ fontWeight: 800, color: C.BUILD50 }}>BUILD50</span> \u2192{" "}
-            <span style={{ fontWeight: 800, color: C.AUTOPILOT }}>AUTOPILOT</span>
-            <span style={{ marginLeft: 8, color: "#4b5563" }}>(primary triangle)</span>
-          </div>
-          <div style={{ padding: "10px 14px", background: "#8b5cf608", border: "1px solid #8b5cf620", borderRadius: 8, fontSize: 11, color: "#9ca3af" }}>
-            <span style={{ fontWeight: 800, color: C.ELITE800 }}>ELITE800</span> \u2192{" "}
-            <span style={{ fontWeight: 800, color: C.PAYDAY }}>PAYDAY</span> \u2192{" "}
-            <span style={{ fontWeight: 800, color: C.LEAK }}>LEAK</span> \u2192{" "}
-            <span style={{ fontWeight: 800, color: C.AUTOPILOT }}>AUTOPILOT</span>
-            <span style={{ marginLeft: 8, color: "#4b5563" }}>(secondary chain)</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+function buildAll() {
+  let html = renderOverview();
+  PILLARS.forEach((p, i) => { html += renderPillar(p, i); });
+  mainEl.innerHTML = html;
+  showSection(activeTab);
 }
 
-// ═══════════════════════════════════════════════
-// MAIN APP
-// ═══════════════════════════════════════════════
-
-function App() {
-  const tabs = ["WELCOME", ...Object.keys(FLOWS), "STORYTAG", "INNERLOOP", "FLYWHEEL", "PMV"];
-  const [active, setActive] = useState("WELCOME");
-  const ref = useRef(null);
-
-  useEffect(() => { if (ref.current) ref.current.scrollTop = 0; }, [active]);
-
-  const getColor = (t) => {
-    if (t === "WELCOME") return C.WELCOME;
-    if (t === "FLYWHEEL") return "#f59e0b";
-    if (t === "PMV") return C.PMV;
-    return FLOWS[t]?.color || SPECIAL[t]?.color || "#555";
-  };
-  const getLabel = (t) => {
-    if (t === "WELCOME") return "WELCOME";
-    if (t === "STORYTAG") return "STORY TAG";
-    if (t === "FLYWHEEL") return "FLYWHEEL";
-    if (t === "PMV") return "PMV TRACKER";
-    return t;
-  };
-
-  return (
-    <div style={{
-      background: "#0a0a0f", height: "100vh", color: "#d1d5db",
-      fontFamily: "'SF Pro Display', 'Segoe UI', system-ui, -apple-system, sans-serif",
-      display: "flex", flexDirection: "column",
-    }}>
-      {/* Top bar */}
-      <div style={{
-        padding: "12px 20px", borderBottom: "1px solid #1a1a24",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        flexShrink: 0, background: "#0d0d14", flexWrap: "wrap", gap: 8,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 8, height: 8, borderRadius: "50%", background: "#10b981",
-            boxShadow: "0 0 8px #10b981", animation: "pulse 2s infinite",
-          }} />
-          <span style={{ fontSize: 13, fontWeight: 900, letterSpacing: 2, color: "#d1d5db" }}>KOU TALKS MONEY</span>
-          <span style={{ fontSize: 11, color: "#4b5563" }}>CONVERSION FLOW SYSTEM v2.3</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{
-            fontSize: 9, fontWeight: 700, color: C.PMV, background: `${C.PMV}15`,
-            padding: "3px 10px", borderRadius: 4, letterSpacing: 1, border: `1px solid ${C.PMV}30`,
-          }}>PMV RESEARCH LAYER ACTIVE</div>
-          <div style={{ fontSize: 10, color: "#6b7280", letterSpacing: 0.5 }}>
-            WELCOME + 7 KW + 2 SPECIAL + FLYWHEEL + PMV
-          </div>
-        </div>
-      </div>
-
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        {/* Sidebar */}
-        <div style={{
-          width: 140, flexShrink: 0, borderRight: "1px solid #1a1a24",
-          background: "#0d0d14", overflowY: "auto", padding: "6px 0",
-        }}>
-          {tabs.map((t) => {
-            const isActive = active === t;
-            const color = getColor(t);
-            const sep = t === "AUTOPILOT" || t === "STORYTAG" || t === "FLYWHEEL" || t === "PMV";
-            return (
-              <div key={t}>
-                {sep && <div style={{ height: 1, background: "#1a1a24", margin: "5px 12px" }} />}
-                <button onClick={() => setActive(t)} style={{
-                  display: "flex", alignItems: "center", gap: 8, width: "100%",
-                  padding: "7px 12px", border: "none",
-                  background: isActive ? `${color}12` : "transparent",
-                  borderRight: isActive ? `3px solid ${color}` : "3px solid transparent",
-                  cursor: "pointer",
-                }}>
-                  <div style={{
-                    width: 6, height: 6, borderRadius: "50%", background: color, flexShrink: 0,
-                    boxShadow: isActive ? `0 0 8px ${color}` : "none",
-                  }} />
-                  <span style={{
-                    fontSize: 10, fontWeight: isActive ? 800 : 600,
-                    color: isActive ? color : "#6b7280", letterSpacing: 0.8, textAlign: "left",
-                  }}>{getLabel(t)}</span>
-                </button>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Content */}
-        <div ref={ref} style={{ flex: 1, overflowY: "auto", padding: "24px 28px", background: "#12121a" }}>
-          {active === "WELCOME" && <WelcomeDetail />}
-          {active === "PMV" && <PMVTracker />}
-          {FLOWS[active] && <FlowDetail flowKey={active} />}
-          {SPECIAL[active] && <SpecialDetail flowKey={active} />}
-          {active === "FLYWHEEL" && <FlywheelView />}
-        </div>
-      </div>
-    </div>
-  );
+function showSection(id) {
+  document.querySelectorAll('.pillar-section').forEach(s => s.classList.remove('active'));
+  const target = document.querySelector(`[data-section="${id}"]`);
+  if (target) target.classList.add('active');
 }
 
-ReactDOM.render(<App />, document.getElementById("root"));
+function switchTab(id) {
+  activeTab = id;
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const tab = document.querySelector(`.nav-tab[data-tab="${id}"]`);
+  if (tab) tab.classList.add('active');
+  showSection(id);
+  window.scrollTo({ top: 96, behavior: 'smooth' });
+}
+
+// NAV CLICKS
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+
+// COPY FUNCTIONS
+function copyText(el, text) {
+  const decoded = text.replace(/\\n/g, '\n').replace(/\\'/g, "'").replace(/\\\\/g, '\\');
+  navigator.clipboard.writeText(decoded).then(() => {
+    const btn = el.querySelector('.copy-btn');
+    if (btn) {
+      btn.textContent = 'COPIED';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1500);
+    }
+  });
+}
+
+function copyNodeText(btn, pillarIdx, msgIdx) {
+  const msg = PILLARS[pillarIdx].messages[msgIdx];
+  let fullText = msg.copy;
+  if (msg.button) {
+    fullText += '\n\n[BUTTON] "' + msg.button.text + '" → ' + msg.button.url;
+  }
+  navigator.clipboard.writeText(fullText).then(() => {
+    btn.textContent = 'COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY ALL'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function copyUrl(btn, url) {
+  navigator.clipboard.writeText(url).then(() => {
+    btn.textContent = 'COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY URL'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+// SEARCH
+searchInput.addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase().trim();
+  if (!query) {
+    // Reset: show active section normally
+    document.querySelectorAll('.flow-node, .reply-card').forEach(el => { el.style.display = ''; });
+    document.querySelectorAll('.highlight').forEach(h => {
+      h.outerHTML = h.textContent;
+    });
+    return;
+  }
+
+  // Show all pillar sections for searching, hide overview
+  document.querySelectorAll('.pillar-section').forEach(s => {
+    if (s.dataset.section === 'overview') {
+      s.classList.remove('active');
+    } else {
+      s.classList.add('active');
+    }
+  });
+
+  // Filter nodes
+  document.querySelectorAll('.flow-node').forEach(node => {
+    const text = (node.dataset.search || node.textContent).toLowerCase();
+    node.style.display = text.includes(query) ? '' : 'none';
+  });
+
+  document.querySelectorAll('.reply-card').forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = text.includes(query) ? '' : 'none';
+  });
+
+  // Update nav
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+});
+
+// SCROLL TOP
+const scrollTopBtn = document.getElementById('scrollTop');
+window.addEventListener('scroll', () => {
+  scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+});
+scrollTopBtn.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// CLOCK UPDATE
+function updateClock() {
+  const target = new Date('2030-11-30T23:59:59');
+  const now = new Date();
+  const days = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+  document.getElementById('clock').textContent = `🕒 THE CLOCK: ${days.toLocaleString()} DAYS`;
+}
+updateClock();
+
+// INIT
+buildAll();
 </script>
+
 </body>
 </html>
