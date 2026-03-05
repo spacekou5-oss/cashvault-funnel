@@ -6,6 +6,27 @@
     <title>Investment Simplifier | @koutalksmoney</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const _sbUrl = 'https://wokoxddotlyuasmwylpx.supabase.co';
+        const _sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+        window._sb = null;
+        try { window._sb = window.supabase.createClient(_sbUrl, _sbKey); } catch(e) {}
+        window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        function trackVisit() {
+            if (!window._sb) return;
+            try {
+                const p = new URLSearchParams(window.location.search);
+                window._sb.from('visits').insert({
+                    architect_id: window._sessionId,
+                    page: window.location.pathname.split('/').pop() || 'unknown',
+                    entry_point: p.get('from') || document.referrer || 'direct',
+                    user_agent: navigator.userAgent
+                }).then(() => {}).catch(() => {});
+            } catch(e) {}
+        }
+        trackVisit();
+    </script>
     <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -724,7 +745,6 @@
             font-size: 0.65rem; color: #4a5568; margin-top: 8px; line-height: 1.5; max-width: 500px; margin-left: auto; margin-right: auto;
         }
 
-        /* ====== CHANGE #3: First Buy Action Card Styles ====== */
         .first-buy-card {
             display: none;
             background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.04) 100%);
@@ -754,7 +774,6 @@
         .first-buy-copy-all.copied { background: #059669; }
         .first-buy-disclaimer { font-size: 0.72rem; color: var(--text-muted); text-align: center; margin-top: 14px; line-height: 1.6; }
 
-        /* ====== Timestamp replace for session timer ====== */
         .portfolio-timestamp {
             display: flex; align-items: center; justify-content: center; gap: 6px;
             margin-top: 8px; font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; text-align: center;
@@ -835,7 +854,6 @@
         <div class="geo-social-proof" id="geoProofGate"><div class="proof-dot"></div><span id="geoTextGate">Loading...</span></div>
     </div>
 
-    <!-- CHANGE #4: Rewritten cold traffic welcome gate -->
     <div class="welcome-gate" id="welcomeGate">
         <div class="welcome-badge"><span>Free Tool &bull; No Login Required</span></div>
         <h1 class="welcome-title">What Should I<br>Actually Buy?</h1>
@@ -1038,7 +1056,6 @@
                 <span class="savings">You save $14,000</span>
             </div>
 
-            <!-- CHANGE #1: Lump sum default $0, new anchor text -->
             <div class="lump-sum-container">
                 <div class="lump-sum-input-group">
                     <div>
@@ -1050,7 +1067,6 @@
             </div>
 
             <div class="portfolio-gate-container" id="portfolioGateContainer">
-                <!-- CHANGE #4: Rewritten email gate overlay for cold traffic -->
                 <div class="unlock-overlay" id="unlockOverlay">
                     <div class="unlock-icon">&#x1F4E9;</div>
                     <h3 class="unlock-title" id="unlockTitle">Your Funds Are Picked. Your Amounts Are Set.</h3>
@@ -1064,7 +1080,7 @@
                             src="https://subscribe-forms.beehiiv.com/f719b4fc-80fe-4c51-8dfd-38a57705dfcf"
                             data-test-id="beehiiv-embed" 
                             frameborder="0" scrolling="no"
-                            style="width: 100%; height: 100%; min-height: 280px; border-radius: 12px !important; background: transparent; max-width: 100%;">
+                            style="width: 100%; height: 100%; min-height: 280px; border-radius: 12px !important; background: transparent; max-width: 400px;">
                         </iframe>
                     </div>
 
@@ -1075,7 +1091,6 @@
                         <span> in future wealth</span>
                     </div>
 
-                    <!-- CHANGE #2: Session timer replaced with timestamp -->
                     <div class="portfolio-timestamp" id="portfolioTimestamp">
                         This portfolio was generated at <strong id="portfolioTimestampValue">--</strong>. The math doesn't expire. But every day you wait costs more.
                     </div>
@@ -1091,7 +1106,6 @@
                 <div class="etf-cards blur-gate" id="etfCards"></div>
             </div>
 
-            <!-- CHANGE #3: First Buy Action Card (post-unlock only) -->
             <div class="first-buy-card" id="firstBuyCard">
                 <div class="first-buy-header">
                     <h3>&#x1F6D2; Your First Buy</h3>
@@ -1154,7 +1168,6 @@
             </div>
         </div>
 
-        <!-- CHANGE #1: Monthly default $100, max $2000, time horizon 30 -->
         <div class="glass-card">
             <h2 class="section-title">Project Your Growth</h2>
             <div class="input-grid">
@@ -1182,7 +1195,6 @@
             </div>
         </div>
 
-        <!-- CHANGE #5: Personalized bridge CTA -->
         <div class="bridge-cta" id="bridgeCta" style="display: none;">
             <h3 id="bridgeCtaTitle">&#x2705; Your Portfolio is Designed</h3>
             <p id="bridgeCtaDesc">Now track everything from one place.</p>
@@ -1216,45 +1228,6 @@
 
 
     <script>
-        // ============================================================
-        // SUPABASE INTEGRATION
-        // ============================================================
-        const SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
-        
-        function getOrCreateUserId() {
-            let uid = localStorage.getItem('cashvault_uid');
-            if (!uid) {
-                uid = 'u_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('cashvault_uid', uid);
-            }
-            return uid;
-        }
-
-        async function trackEvent(eventType, eventData) {
-            try {
-                const payload = {
-                    user_id: getOrCreateUserId(),
-                    event_type: eventType,
-                    event_data: eventData,
-                    page: 'investment_simplifier',
-                    timestamp: new Date().toISOString(),
-                    referrer: document.referrer || 'direct',
-                    url_params: window.location.search
-                };
-                await fetch(SUPABASE_URL + '/rest/v1/events', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify(payload)
-                });
-            } catch(e) { /* silent fail - tracking should never break UX */ }
-        }
-
         // ============================================================
         // CONFIG & DATA
         // ============================================================
@@ -1549,7 +1522,6 @@
                 });
         }
 
-        // CHANGE #2: Session timer REMOVED. Replaced with timestamp.
         function setPortfolioTimestamp() {
             const now = new Date();
             const options = { hour: 'numeric', minute: '2-digit', hour12: true, month: 'short', day: 'numeric' };
@@ -1671,7 +1643,6 @@
         function enterApp() {
             document.getElementById('welcomeGate').classList.add('hidden');
             portfolioId = generatePortfolioId();
-            trackEvent('welcome_gate_enter', { source: 'cold_traffic' });
         }
         
         function showCoreHoldingBanner() {
@@ -1745,14 +1716,12 @@
                 if (bridgeFlag) { 
                     unlockPortfolio(); 
                     clearInterval(checkInterval);
-                    trackEvent('email_gate_conversion', { method: 'localStorage_poll' });
                 }
             }, 1000);
             
             window.addEventListener('storage', (e) => {
                 if (e.key === 'investmentSimplifier_bridge_email' && e.newValue) {
                     unlockPortfolio();
-                    trackEvent('email_gate_conversion', { method: 'storage_event' });
                 }
             });
             
@@ -1760,7 +1729,25 @@
                 if (e.data && (e.data.type === 'beehiiv:subscribe:success' || (typeof e.data === 'string' && e.data.includes('subscribed')))) {
                     localStorage.setItem('investmentSimplifier_bridge_email', 'true');
                     unlockPortfolio();
-                    trackEvent('email_gate_conversion', { method: 'beehiiv_message' });
+                    
+                    // HIGH-LEVERAGE PAYLOAD: tool_completions insert on email gate conversion
+                    if (window._sb && window._sessionId) {
+                        window._sb.from('tool_completions').insert({
+                            tool_id: 'investment_simplifier',
+                            session_id: window._sessionId,
+                            context_data: {
+                                age: parseInt(document.getElementById('userAge').value),
+                                risk_style: document.getElementById('riskStyle').value,
+                                monthly_investment: parseInt(document.getElementById('monthlyInvestment').value) || 100,
+                                lump_sum_saved: parseFloat(document.getElementById('lumpSumInput').value) || 0,
+                                investment_period: parseInt(document.getElementById('investmentPeriod').value) || 30,
+                                projected_future_value: document.getElementById('projectedValue').innerText,
+                                stock_pct: currentPortfolioData?.stockPct || 0,
+                                bond_pct: currentPortfolioData?.bondPct || 0,
+                                portfolio_allocation: window.lastAllocation || currentPortfolioData?.alloc || 'Unknown'
+                            }
+                        }).then(() => {}).catch(() => {});
+                    }
                 }
             });
         }
@@ -1772,7 +1759,6 @@
             if (etfCards) etfCards.classList.add('unlocked');
             const shareSection = document.getElementById('shareCardSection');
             if (shareSection && currentPortfolioData) shareSection.style.display = 'block';
-            // Show First Buy card on unlock
             const firstBuyCard = document.getElementById('firstBuyCard');
             if (firstBuyCard && currentPortfolioData) firstBuyCard.classList.add('show');
             if (costOfInactionInterval) { cancelAnimationFrame(costOfInactionInterval); costOfInactionInterval = null; }
@@ -1808,7 +1794,6 @@
             }
         }
 
-        // CHANGE #4: Update email gate overlay with personalized monthly amount
         function updateEmailGateOverlay() {
             const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 100;
             const monthlyEl = document.getElementById('unlockMonthlyAmount');
@@ -1816,18 +1801,21 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // STEP 4: Inject session ID into Beehiiv iframe
+            document.getElementById('beehiivFrame').src = 'https://subscribe-forms.beehiiv.com/f719b4fc-80fe-4c51-8dfd-38a57705dfcf?session_id=' + window._sessionId;
+            
             portfolioId = generatePortfolioId();
             initGeoSocialProof();
             setupEmailUnlockListener();
             
+            // ECOSYSTEM GATE BYPASS: Check if user already entered funnel via Freedom, CoW, or Autopilot
             const bridgeEmail = localStorage.getItem('investmentSimplifier_bridge_email');
-            const freedomEmail = localStorage.getItem('freedom_email');
-            const costOfWaitingEmail = localStorage.getItem('cost_of_waiting_email');
-            const fromParam = new URLSearchParams(window.location.search).get('from');
-            const fromFreedomFlow = fromParam === 'freedom';
-            const fromCostOfWaitingFlow = fromParam === 'costofwaiting';
-            if (bridgeEmail || (freedomEmail && fromFreedomFlow) || (costOfWaitingEmail && fromCostOfWaitingFlow)) {
+            const fromFreedom = localStorage.getItem('freedom_email') === 'true' || localStorage.getItem('freedom_completed') === 'true';
+            const fromCow = localStorage.getItem('cost_of_waiting_email') === 'true' || localStorage.getItem('waiting_completed') === 'true';
+            const fromAutopilot = localStorage.getItem('autopilot_completed') === 'true';
+            if (bridgeEmail || fromFreedom || fromCow || fromAutopilot) {
                 if (!bridgeEmail) {
+                    // Silently flag them as unlocked for this specific tool to prevent future popups
                     localStorage.setItem('investmentSimplifier_bridge_email', 'true');
                 }
                 unlockPortfolio();
@@ -1988,18 +1976,6 @@
             startCostOfInaction();
             updateEmailGateOverlay();
             document.getElementById('advisorAnchor').style.display = 'flex';
-            
-            // Supabase: track portfolio generation
-            trackEvent('portfolio_generated', {
-                portfolio_id: portfolioId,
-                age: age,
-                risk_style: riskStyle,
-                monthly: parseInt(document.getElementById('monthlyInvestment').value) || 100,
-                stock_pct: stockPct,
-                bond_pct: bondPct,
-                etf_count: alloc.length,
-                from_autopilot: useCoreFromAutopilot
-            });
         }
 
         function updateWhyExplanationWithCore(coreTicker, coreAllocation, stockPct, bondPct, coreData, riskStyle) {
@@ -2112,7 +2088,6 @@
                 container.classList.add('unlocked');
                 const overlay = document.getElementById('unlockOverlay');
                 if (overlay) overlay.classList.add('hidden');
-                // Show First Buy card for unlocked users
                 document.getElementById('firstBuyCard').classList.add('show');
             }
             
@@ -2125,9 +2100,6 @@
             });
         }
 
-        // ============================================================
-        // CHANGE #3: First Buy Action Card Logic
-        // ============================================================
         function updateFirstBuyCard() {
             if (!currentPortfolioData) return;
             const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 100;
@@ -2162,7 +2134,6 @@
                 btnEl.textContent = 'copied!';
                 btnEl.classList.add('copied');
                 setTimeout(() => { btnEl.textContent = 'copy: ' + ticker; btnEl.classList.remove('copied'); }, 1500);
-                trackEvent('ticker_copy', { ticker: ticker, type: 'single' });
             });
         }
 
@@ -2186,7 +2157,6 @@
                 btn.textContent = '\u2713 Copied to clipboard!';
                 btn.classList.add('copied');
                 setTimeout(() => { btn.innerHTML = '&#x1F4CB; Copy All Tickers + Amounts'; btn.classList.remove('copied'); }, 2500);
-                trackEvent('ticker_copy', { type: 'all', etf_count: currentPortfolioData.alloc.length });
             });
         }
 
@@ -2216,16 +2186,12 @@
             if (bridgeEmail) document.getElementById('shareCardSection').style.display = 'block';
         }
 
-        // ============================================================
-        // CHANGE #5: Personalized Bridge CTA by entry source
-        // ============================================================
         function showBridgeCta() {
             const bridgeCta = document.getElementById('bridgeCta');
             bridgeCta.style.display = 'block';
             
             const monthly = parseInt(document.getElementById('monthlyInvestment').value) || 100;
             
-            // Check entry sources from localStorage
             const fromFreedom = localStorage.getItem('freedom_email') === 'true' || localStorage.getItem('freedom_completed') === 'true';
             const fromCow = localStorage.getItem('cost_of_waiting_email') === 'true' || localStorage.getItem('waiting_completed') === 'true';
             const fromAutopilot = localStorage.getItem('autopilot_completed') === 'true';
@@ -2234,7 +2200,6 @@
             btnHref = CONFIG.COMMAND_CENTER_URL;
             
             if (fromFreedom) {
-                // Pull Freedom Number from localStorage
                 let freedomNumber = '';
                 try {
                     const fd = JSON.parse(localStorage.getItem('freedom_calculator_result'));
@@ -2247,7 +2212,6 @@
                 desc = `Next: automate $${monthly.toLocaleString()}/mo so it runs without you. One setup. Never think about it again.`;
                 btnText = 'Set Up My Autopilot';
             } else if (fromCow) {
-                // Pull daily cost from localStorage
                 let dailyCost = '';
                 try {
                     const cd = JSON.parse(localStorage.getItem('cost_of_waiting_data'));
@@ -2267,7 +2231,6 @@
                 desc = 'Track everything from one dashboard.';
                 btnText = 'Open My Dashboard';
             } else {
-                // Cold traffic / direct / organic fallback
                 title = '&#x2705; YOUR PORTFOLIO IS BUILT.';
                 desc = '3 tools left to automate your entire financial life.';
                 btnText = 'See What\'s Next';
@@ -2277,20 +2240,6 @@
             document.getElementById('bridgeCtaDesc').textContent = desc;
             document.getElementById('bridgeCtaBtnText').textContent = btnText;
             document.getElementById('bridgeCtaBtn').href = btnHref;
-            
-            // Track bridge CTA view
-            trackEvent('bridge_cta_shown', { 
-                source: fromFreedom ? 'freedom' : fromCow ? 'cost_of_waiting' : fromAutopilot ? 'autopilot' : 'cold',
-                btn_text: btnText 
-            });
-            
-            // Track bridge CTA click
-            document.getElementById('bridgeCtaBtn').onclick = function() {
-                trackEvent('bridge_cta_click', { 
-                    source: fromFreedom ? 'freedom' : fromCow ? 'cost_of_waiting' : fromAutopilot ? 'autopilot' : 'cold',
-                    destination: btnHref 
-                });
-            };
         }
 
         function copyShareText() {
