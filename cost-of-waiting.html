@@ -14,6 +14,41 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Beehiiv attribution tracking -->
+    <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
+
+    <!-- =========================================
+         STEP 1: UNIVERSAL HEAD SCRIPT
+         Centralized Supabase init. Fires trackVisit()
+         immediately on page load - before Alpine runs.
+         _sessionId links this visit to the eventual
+         tool_completions insert for cross-table attribution.
+         Replaces the old fragmented _supabase / trackEvent()
+         block that lived at the bottom of the <script> tag.
+         ========================================= -->
+    <script>
+        const _sbUrl = 'https://wokoxddotlyuasmwylpx.supabase.co';
+        const _sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+        window._sb = null;
+        try { window._sb = window.supabase.createClient(_sbUrl, _sbKey); } catch(e) {}
+
+        window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+        function trackVisit() {
+            if (!window._sb) return;
+            try {
+                const p = new URLSearchParams(window.location.search);
+                window._sb.from('visits').insert({
+                    architect_id: window._sessionId,
+                    page: window.location.pathname.split('/').pop() || 'unknown',
+                    entry_point: p.get('from') || document.referrer || 'direct',
+                    user_agent: navigator.userAgent
+                }).then(() => {}).catch(() => {});
+            } catch(e) {}
+        }
+        trackVisit();
+    </script>
     
     <script>
         tailwind.config = {
@@ -445,10 +480,11 @@
                     </div>
 
                     <div class="space-y-2 pt-2">
-                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=costofwaiting"
-                           class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-cyber-green hover:shadow-[0_0_20px_rgba(0,255,65,0.4)] transition-all cursor-pointer no-underline shadow-[0_0_15px_rgba(0,255,65,0.3)]">
+                        <!-- STEP 4: <a> converted to <button> with handleCrossSell interceptor -->
+                        <button @click="handleCrossSell($event, 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=costofwaiting')"
+                                class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-cyber-green hover:shadow-[0_0_20px_rgba(0,255,65,0.4)] transition-all cursor-pointer shadow-[0_0_15px_rgba(0,255,65,0.3)] border-none">
                             SHOW ME WHAT TO BUY &#x279C;
-                        </a>
+                        </button>
                         <button @click="showReturnPopup = false" 
                                 class="w-full py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-cyber-gray bg-transparent border border-cyber-gray hover:border-white hover:text-white transition-all cursor-pointer">
                             Run new numbers
@@ -546,6 +582,7 @@
                         <label class="text-sm font-bold uppercase tracking-wider text-cyber-red">Years You Wait</label>
                         <span class="text-3xl font-black font-mono text-cyber-red" x-text="waitYears + ' YRS'"></span>
                     </div>
+                    <!-- STEP 2: @input calls onSliderChange() which no longer fires trackEvent -->
                     <input type="range" min="0" max="10" step="1" x-model.number="waitYears" @input="onSliderChange()" class="w-full mb-2">
                     <p class="text-center text-[10px] text-cyber-gray uppercase mt-2">Slide right to see the damage</p>
                 </div>
@@ -713,10 +750,11 @@
                     </p>
 
                     <div class="space-y-3">
-                        <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=costofwaiting"
-                           class="block w-full py-3 rounded-lg font-bold uppercase tracking-widest text-sm text-black bg-cyber-green hover:bg-green-400 transition-all cursor-pointer text-center shadow-[0_0_20px_rgba(0,255,65,0.3)]">
+                        <!-- STEP 4: <a> converted to <button> with handleCrossSell interceptor -->
+                        <button @click="handleCrossSell($event, 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=costofwaiting')"
+                                class="block w-full py-3 rounded-lg font-bold uppercase tracking-widest text-sm text-black bg-cyber-green hover:bg-green-400 transition-all cursor-pointer text-center shadow-[0_0_20px_rgba(0,255,65,0.3)] border-none">
                             Open Investment Simplifier &#x279C;
-                        </a>
+                        </button>
                         <button @click="showSubPopup = false"
                                 class="block w-full py-3 rounded-lg font-bold uppercase tracking-widest text-sm text-gray-400 bg-transparent border border-cyber-gray hover:border-white hover:text-white transition-all cursor-pointer">
                             Keep Using Calculator
@@ -798,21 +836,22 @@
                         </div>
                     </div>
 
-                    <!-- FIX: Scroll-into-view on tap for mobile keyboard visibility -->
+                    <!-- STEP 4: iframe src dynamically injected with session_id via Alpine :src binding.
+                         Hardcoded width: 400px replaced with width: 100% + max-width: 400px.
+                         session_id links Beehiiv submission to the tool_completions row
+                         and the visits row for full cross-table attribution. -->
                     <div class="flex justify-center pb-2 w-full"
                          @click="setTimeout(() => $el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)"
                          @touchstart.passive="setTimeout(() => $el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)">
                         <iframe id="beehiivFrame"
-                                src="https://subscribe-forms.beehiiv.com/63ac9ac6-ada8-47a5-b5b6-654bdf88a7b6" 
+                                :src="`https://subscribe-forms.beehiiv.com/63ac9ac6-ada8-47a5-b5b6-654bdf88a7b6?session_id=${window._sessionId}`"
                                 class="beehiiv-embed" 
                                 data-test-id="beehiiv-embed" 
                                 frameborder="0" 
                                 scrolling="no" 
-                                style="width: 400px; height: 100%; min-height: 380px; margin: 0; border-radius: 16px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
+                                style="width: 100%; max-width: 400px; height: 100%; min-height: 380px; margin: 0; border-radius: 16px !important; background-color: transparent; box-shadow: 0 0 #0000;"></iframe>
                     </div>
                     <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
-                    <!-- BEEHIIV ATTRIBUTION TRACKING (PRESERVED) -->
-                    <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
 
                     <div class="text-center mt-2 pb-2">
                         <p class="text-[10px] text-gray-500 font-mono tracking-wide">
@@ -836,15 +875,14 @@
     </main>
 
     <script>
-        // === SUPABASE TRACKING (PRESERVED) ===
-        const _supabase = window.supabase ? window.supabase.createClient(
-            'https://wokoxddotlyuasmwylpx.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg'
-        ) : null;
-        const _sessionId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
-        function _getUTM() { try { const p = new URLSearchParams(window.location.search); return { utm_source: p.get('utm_source') || null, utm_medium: p.get('utm_medium') || null, utm_campaign: p.get('utm_campaign') || null }; } catch(e) { return {}; } }
-        function _getDevice() { const w = window.innerWidth; return w < 768 ? 'mobile' : w < 1024 ? 'tablet' : 'desktop'; }
-        async function trackEvent(event, data = {}) { try { if (!_supabase) return; const utm = _getUTM(); await _supabase.from('funnel_events').insert({ app: 'cost-of-waiting', event, session_id: _sessionId, device: _getDevice(), referrer: document.referrer || null, ...utm, ...data }); } catch(e) { console.warn('Tracking error:', e); } }
+        // =========================================
+        // STEP 1: OLD SUPABASE BLOCK DELETED.
+        // _supabase, _sessionId, _getUTM, _getDevice,
+        // and trackEvent() are all gone.
+        // window._sb and window._sessionId now live in
+        // the <head> Universal Script and fire on page load
+        // before Alpine initializes. Zero duplication.
+        // =========================================
 
         function costEngine() {
             return {
@@ -917,8 +955,9 @@
                     setTimeout(() => { this.runScanPhase(index + 1); }, durations[index]);
                 },
 
+                // STEP 2: trackEvent('scan_completed') removed.
+                // No partial data pings on scan exit. Zero Noise rule enforced.
                 exitScanScreen() {
-                    trackEvent('scan_completed');
                     this.showScanScreen = false;
                     setTimeout(() => {
                         this.state = 'active';
@@ -1014,20 +1053,83 @@
                     } catch(e) { return false; }
                 },
 
+                // =========================================
+                // STEP 1: CENTRALIZED UPSERT TRACKER
+                // Reusable async method. Uses window._sb and window._sessionId.
+                // upsert() with onConflict: 'architect_id' means re-fires from
+                // handleCtaClick, doBeehiivRedirect, and handleCrossSell all
+                // update the SAME row. Zero duplicate rows. Zero data loss.
+                // Requires UNIQUE constraint on architect_id in tool_completions.
+                // =========================================
+                async trackCompletion() {
+                    if (!window._sb) return;
+                    try {
+                        await window._sb.from('tool_completions').upsert({
+                            architect_id: window._sessionId,
+                            tool_id: 'cost_of_waiting',
+                            context_data: {
+                                age: this.age,
+                                monthly_contribution: this.contribution,
+                                current_wealth: this.currentWealth,
+                                years_waited: this.waitYears,
+                                total_damage_calculated: this.freedomLoss || this.loss,
+                                daily_cost_to_fix: this.dailyCost
+                            },
+                            completed_at: new Date().toISOString()
+                        }, { onConflict: 'architect_id' });
+                    } catch(e) { console.error('Data capture failed silently'); }
+                },
+
+                // =========================================
+                // STEP 2: UPDATED handleCtaClick() WITH ECOSYSTEM BYPASS
+                // Recognizes subscribers from 800-Club and Budget Calculator.
+                // trackCompletion() fires on EVERY CTA click - subscribed or not.
+                // This is the intent capture: user saw their damage and acted.
+                // upsert() means this safely re-fires without duplicate rows.
+                // =========================================
                 handleCtaClick() {
                     try {
-                        const alreadySubscribed = localStorage.getItem('cost_of_waiting_email') === 'true';
-                        if (alreadySubscribed) { this.showSubPopup = true; }
-                        else { this.showModal = true; trackEvent('module_entered', { module_name: 'email_gate' }); }
-                    } catch(e) { this.showModal = true; }
+                        // Ecosystem-wide bypass. Recognizes all upstream apps.
+                        const isSubscribed = localStorage.getItem('cost_of_waiting_email') === 'true' ||
+                                             localStorage.getItem('eightclub_email') === 'true' ||
+                                             localStorage.getItem('budgetCalc_gate_email') === 'true';
+
+                        this.trackCompletion(); // Always capture the intent signal
+
+                        if (isSubscribed) {
+                            this.showSubPopup = true;
+                        } else {
+                            this.showModal = true;
+                        }
+                    } catch(e) {
+                        this.showModal = true;
+                    }
+                },
+
+                // =========================================
+                // STEP 4: CROSS-SELL INTERCEPTOR HELPER
+                // Intercepts both Investment Simplifier links in the return
+                // popup and sub-popup. Fires final trackCompletion() upsert
+                // before navigation so no data is lost on cross-sell click.
+                // btn.innerHTML feedback ("Securing Data...") provides
+                // Operational Transparency while the await resolves (~200ms).
+                // =========================================
+                async handleCrossSell(event, url) {
+                    event.preventDefault();
+                    const btn = event.currentTarget;
+                    btn.innerHTML = 'Securing Data...';
+                    await this.trackCompletion();
+                    window.location.href = url;
                 },
 
                 _redirectHandler: null,
                 _hasRedirected: false,
 
+                // STEP 2: trackEvent('app_opened') removed from init().
+                // trackVisit() in <head> handles the visit signal.
+                // No duplicate rows, no partial-data noise.
                 init() {
                     const hasSavedState = this.loadState();
-                    trackEvent('app_opened');
                     
                     this.prefillFromFreedomCalc();
 
@@ -1068,42 +1170,54 @@
                     });
                 },
 
-                doBeehiivRedirect() {
+                // =========================================
+                // STEP 3: ASYNC doBeehiivRedirect() WITH DOUBLE-LOCK
+                // Made async so we can await trackCompletion() before redirect.
+                // Final upsert captures the confirmed email conversion row.
+                // Prevents data loss on slow connections - redirect only fires
+                // after Supabase write completes. localStorage flags preserved.
+                // =========================================
+                async doBeehiivRedirect() {
                     if (this._hasRedirected) return;
                     this._hasRedirected = true;
-                    trackEvent('email_captured', { income: this.contribution, invest_amount: this.contribution, module_name: 'cost_of_waiting' });
                     try {
                         localStorage.setItem('waiting_completed', 'true');
                         localStorage.setItem('cost_of_waiting_email', 'true');
                     } catch(e) {}
+
+                    // Double-lock: final upsert before routing to Investment Simplifier
+                    await this.trackCompletion();
+
                     window.top.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=costofwaiting';
                 },
 
-                // FIX #2: MutationObserver deleted. Only message listener remains.
+                // =========================================
+                // STEP 4 + ECOSYSTEM STANDARD:
+                // Replaced loose string matching with strict
+                // origin + event type check (matches Budget Calculator).
+                // Only fires on 'submission_success' from the exact
+                // Beehiiv domain. Zero false positives.
+                // Old loose checks deleted:
+                //   event.origin.includes('beehiiv.com') - GONE
+                //   data.includes('subscribed') - GONE
+                //   data.type === 'beehiiv:subscribe:success' - GONE
+                // =========================================
                 activateRedirectHandler() {
                     const self = this;
                     this._redirectHandler = function(event) {
-                        if (!self.showModal) return;
-                        if (event.origin && event.origin.includes('beehiiv.com')) {
-                            const data = event.data;
-                            if (typeof data === 'string') {
-                                if (data.includes('subscribed') || data.includes('success') || data.includes('confirmed')) {
-                                    self.doBeehiivRedirect();
-                                }
-                            }
-                            if (typeof data === 'object' && data !== null) {
-                                if (data.type === 'beehiiv:subscribe:success' || data.event === 'subscribed' || data.subscribed === true || data.type === 'subscribe_success') {
-                                    self.doBeehiivRedirect();
-                                }
-                            }
+                        if (event.origin !== 'https://subscribe-forms.beehiiv.com') return;
+                        if (event.data && event.data.type === 'submission_success') {
+                            self.doBeehiivRedirect();
                         }
                     };
                     window.addEventListener('message', this._redirectHandler);
                 },
 
-                // FIX #3: Clean deactivation. No _heightObserver reference.
                 deactivateRedirectHandler() {
-                    if (this._redirectHandler) { window.removeEventListener('message', this._redirectHandler); this._redirectHandler = null; }
+                    if (this._redirectHandler) {
+                        window.removeEventListener('message', this._redirectHandler);
+                        this._redirectHandler = null;
+                    }
                 },
 
                 animateLossCounter(from, to) {
@@ -1145,9 +1259,11 @@
                     setTimeout(() => { this.showDamageFlash = false; }, 600);
                 },
                 
+                // STEP 2: trackEvent('slider_changed') removed.
+                // Slider drags are high-frequency noise, not signal.
+                // debounceSave() preserves state to localStorage only.
                 onSliderChange() {
                     this.previousWaitYears = this.waitYears;
-                    trackEvent('slider_changed', { module_number: this.waitYears, module_name: 'wait_years', income: this.contribution });
                     this.debounceSave();
                 },
 
@@ -1184,22 +1300,11 @@
                 getFeedback() {
                     const loss = this.displayFreedomLoss;
                     const contrib = this.contribution || 1;
-
                     if (loss === 0) return "YOU ARE ON TRACK. STAY LOCKED IN.";
-
                     const monthsOfContrib = Math.round(loss / contrib);
-
-                    if (loss < 50000) {
-                        return "THAT IS " + monthsOfContrib.toLocaleString() + " MONTHS OF YOUR $" + contrib + "/MO. GONE WITHOUT BUYING ANYTHING.";
-                    }
-                    if (loss < 100000) {
-                        const years = Math.round(monthsOfContrib / 12);
-                        return "YOU WOULD NEED TO SAVE $" + contrib + "/MO FOR " + years + " YEARS JUST TO REPLACE WHAT WAITING DELETED.";
-                    }
-                    if (loss < 500000) {
-                        const years = Math.round(monthsOfContrib / 12);
-                        return "THAT IS " + years + " YEARS OF YOUR $" + contrib + "/MO. A HOUSE. VAPORIZED BY DOING NOTHING.";
-                    }
+                    if (loss < 50000) return "THAT IS " + monthsOfContrib.toLocaleString() + " MONTHS OF YOUR $" + contrib + "/MO. GONE WITHOUT BUYING ANYTHING.";
+                    if (loss < 100000) { const years = Math.round(monthsOfContrib / 12); return "YOU WOULD NEED TO SAVE $" + contrib + "/MO FOR " + years + " YEARS JUST TO REPLACE WHAT WAITING DELETED."; }
+                    if (loss < 500000) { const years = Math.round(monthsOfContrib / 12); return "THAT IS " + years + " YEARS OF YOUR $" + contrib + "/MO. A HOUSE. VAPORIZED BY DOING NOTHING."; }
                     const years = Math.round(monthsOfContrib / 12);
                     return "YOU JUST BURNED " + years + " YEARS OF SAVINGS. WHILE SCROLLING.";
                 },
