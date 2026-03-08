@@ -365,6 +365,83 @@
             letter-spacing: 0.08em;
         }
 
+        /* ============================
+           CHANGE 8: EMOTIONAL HOOK
+           ============================ */
+        .emotional-hook {
+            text-align: center; padding: 0 10px 18px;
+        }
+        .emotional-hook-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem; font-weight: 600;
+            color: var(--text-secondary); line-height: 1.5;
+        }
+        .emotional-hook-text strong { color: var(--accent-green); }
+        .emotional-hook-text .hook-red { color: var(--accent-red); font-weight: 700; }
+
+        /* ============================
+           CHANGE 12: RETURN DASHBOARD
+           ============================ */
+        .return-dashboard {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, var(--bg-card) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+            border-radius: 16px; padding: 20px; margin-bottom: 20px;
+            display: none;
+        }
+        .return-dashboard.show { display: block; }
+        .return-dashboard-title {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--accent-green); margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .return-dashboard-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+        }
+        .return-dashboard-item {
+            background: rgba(10,10,10,0.6); border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px; text-align: center;
+        }
+        .return-dashboard-item-value {
+            font-family: 'JetBrains Mono', monospace; font-size: 1.1rem;
+            font-weight: 800; color: var(--text-primary); margin-bottom: 2px;
+        }
+        .return-dashboard-item-value.green { color: var(--accent-green); }
+        .return-dashboard-item-value.red { color: var(--accent-red); }
+        .return-dashboard-item-value.gold { color: var(--accent-gold); }
+        .return-dashboard-item-label {
+            font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        @media (max-width: 700px) {
+            .return-dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        }
+
+        /* ============================
+           CHANGE 4: TIME BADGES
+           ============================ */
+        .time-badge {
+            position: absolute; top: 8px; right: 8px; padding: 2px 8px;
+            background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 20px; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.55rem; font-weight: 600; color: var(--accent-green);
+            letter-spacing: 0.03em;
+        }
+        .system-card.locked .time-badge { display: none; }
+        .system-card.completed .time-badge { display: none; }
+
+        /* ============================
+           CHANGE 5: UNLOCK HINTS
+           ============================ */
+        .unlock-hint {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.58rem; color: var(--text-muted);
+            margin-top: 2px; line-height: 1.3;
+        }
+        .unlock-hint .hint-free {
+            color: var(--accent-green); font-weight: 700;
+        }
+
         /* WELCOME BANNER */
         .welcome-banner {
             display: none; position: relative; overflow: hidden;
@@ -415,7 +492,6 @@
             background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, var(--bg-card) 100%);
             border-color: rgba(251, 191, 36, 0.3);
         }
-        /* CHANGE #4: Danger variant for Daily Leak */
         .hero-stat.danger {
             background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, var(--bg-card) 100%);
             border-color: rgba(239, 68, 68, 0.3);
@@ -508,9 +584,7 @@
         .next-action.level-up .next-action-badge { background: var(--accent-gold); }
         .next-action.level-up .next-action-btn { background: var(--accent-gold); }
 
-        /* ===================================
-           CHANGE #2: SOCIAL UNLOCKS SECTION
-           =================================== */
+        /* SOCIAL UNLOCKS SECTION */
         .social-unlocks-section { margin-bottom: 25px; }
         .social-unlocks-grid { display: flex; flex-direction: column; gap: 10px; }
         .social-unlock-card {
@@ -743,6 +817,7 @@
             .share-btn { justify-content: center; }
             .dual-options { flex-direction: column; }
             .velocity-section { flex-direction: column; gap: 15px; text-align: center; }
+            .emotional-hook-text { font-size: 0.78rem; }
         }
     </style>
 </head>
@@ -752,7 +827,7 @@
     <div class="bg-glow bg-glow-2"></div>
 
     <!-- =============================================
-         CHANGE #5: ACCESS GATE (Brandon-specific copy)
+         ACCESS GATE (CHANGE 3, 11, A: CTA + proof + softened Architect)
          ============================================= -->
     <div class="access-gate" id="accessGate">
         <div class="gate-preview" id="gatePreview" aria-hidden="true">
@@ -792,35 +867,36 @@
                     <div class="gate-brand-dot"></div>
                     <span>@koutalksmoney</span>
                 </div>
-                <!-- CHANGE #5: Brandon-specific headline -->
                 <h1 class="gate-title">Command Center</h1>
                 <div class="gate-hook">
                     Your <span class="gate-hook-red">$680 paycheck has 30 holes.</span><br>
                     <strong>7 tools</strong> to plug every one.<br>
                     No willpower required.
                 </div>
+                <!-- CHANGE 11: Peer-proximity proof instead of counter -->
                 <div class="gate-proof" id="gateProof">
                     <div class="gate-proof-dot"></div>
-                    <span id="gateProofText">47 Architects building</span>
+                    <span id="gateProofText">Built by a 19-year-old making $18/hr. Not a guru. A peer.</span>
                 </div>
-                <!-- CHANGE #5: Brandon-language pillar labels -->
                 <div class="gate-pillars">
                     <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F916;</div><div class="gate-pillar-name">Auto-Save</div></div>
                     <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F4CA;</div><div class="gate-pillar-name">$25/Week</div></div>
                     <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F4B3;</div><div class="gate-pillar-name">Hit 800</div></div>
-                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F3AF;</div><div class="gate-pillar-name">Your Number</div></div>
+                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F3AF;</div><div class="gate-pillar-name">Quit-Work #</div></div>
                     <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F4B0;</div><div class="gate-pillar-name">Where $ Goes</div></div>
-                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F9E0;</div><div class="gate-pillar-name">Cheat Codes</div></div>
+                    <div class="gate-pillar"><div class="gate-pillar-icon">&#x1F9E0;</div><div class="gate-pillar-name">AI Shortcuts</div></div>
                 </div>
-                <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="gate-cta" id="gateCta">Start The System &#8594;</a>
-                <div class="gate-divider">Already have an Architect ID?</div>
+                <!-- CHANGE 3: Specific, transparent CTA -->
+                <a href="https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" class="gate-cta" id="gateCta">Set Up Your Autopilot (10 min, free) &#8594;</a>
+                <!-- CHANGE A: Softened Architect language at gate -->
+                <div class="gate-divider">Already started? Enter your code</div>
                 <div class="gate-id-section">
-                    <div class="gate-id-label">Enter your Architect ID</div>
+                    <div class="gate-id-label">Enter your code</div>
                     <div class="gate-id-input-wrapper">
                         <input type="text" id="gateIdInput" class="gate-id-input" placeholder="KOU-XXXXXX" maxlength="10" autocomplete="off">
                         <button class="gate-id-btn" onclick="gateManualEntry()">Enter</button>
                     </div>
-                    <p class="gate-error" id="gateError">Invalid ID format. Must be KOU- followed by 6 characters.</p>
+                    <p class="gate-error" id="gateError">Invalid format. Must be KOU- followed by 6 characters.</p>
                 </div>
                 <div class="gate-footer">
                     <a href="https://instagram.com/koutalksmoney" target="_blank">@koutalksmoney</a>
@@ -837,11 +913,11 @@
                 <div class="gate-verify-check">
                     <div class="gate-verify-step" id="gvStep1">
                         <div class="step-dot"></div>
-                        <span>Verifying Architect ID</span>
+                        <span>Verifying your code</span>
                     </div>
                     <div class="gate-verify-step" id="gvStep2">
                         <div class="step-dot"></div>
-                        <span>Loading your systems</span>
+                        <span>Loading your tools</span>
                     </div>
                     <div class="gate-verify-step" id="gvStep3">
                         <div class="step-dot"></div>
@@ -939,6 +1015,10 @@
 
     <!-- ========================
          MAIN DASHBOARD
+         CHANGE 1: Next Action moved above hero stats
+         CHANGE 7: Dollar-impact hero stat
+         CHANGE 8: Emotional hook line
+         CHANGE 12: Return-visit dashboard
          ======================== -->
     <div class="container" id="mainDashboard" style="display:none;">
         <div class="header">
@@ -956,6 +1036,11 @@
             <span>@koutalksmoney</span>
         </div>
 
+        <!-- CHANGE 8: Emotional hook line -->
+        <div class="emotional-hook" id="emotionalHook">
+            <div class="emotional-hook-text" id="emotionalHookText"></div>
+        </div>
+
         <div class="welcome-banner" id="welcomeBanner">
             <div class="welcome-banner-icon">&#x26A1;</div>
             <div class="welcome-banner-content">
@@ -965,7 +1050,20 @@
             <a href="#" class="welcome-banner-btn" id="welcomeBannerBtn"><span id="welcomeBannerBtnText">Next Tool</span> <span>&rarr;</span></a>
         </div>
 
-        <!-- CHANGE #4: Smart conditional hero stat (middle column) -->
+        <!-- CHANGE 12: Return-visit dashboard summary -->
+        <div class="return-dashboard" id="returnDashboard">
+            <div class="return-dashboard-title">&#x1F4CA; Your Money Dashboard</div>
+            <div class="return-dashboard-grid" id="returnDashboardGrid"></div>
+        </div>
+
+        <!-- CHANGE 1: Next Action moved ABOVE hero stats -->
+        <div class="next-action" id="nextAction">
+            <div class="next-action-badge"><span>&#9889;</span><span>Next Step</span></div>
+            <h3 class="next-action-title" id="nextActionTitle">Start Building</h3>
+            <p class="next-action-desc" id="nextActionDesc">Begin with the Autopilot System.</p>
+            <a href="#" class="next-action-btn" id="nextActionBtn"><span id="nextActionBtnText">Continue</span><span>&rarr;</span></a>
+        </div>
+
         <div class="hero-stats">
             <div class="hero-stat primary">
                 <div class="hero-stat-label">Tools Active</div>
@@ -978,10 +1076,12 @@
                 <div class="hero-stat-sub" id="smartStatSub">You're building blind</div>
                 <div class="hero-stat-cta" id="smartStatCta">Calculate yours &rarr;</div>
             </div>
-            <div class="hero-stat gold">
-                <div class="hero-stat-label">Days Building</div>
-                <div class="hero-stat-value" id="daysBuilding">1</div>
-                <div class="hero-stat-sub">Your streak</div>
+            <!-- CHANGE 7: Dollar-impact metric instead of Days Building -->
+            <div class="hero-stat gold clickable" id="dollarImpactStat" onclick="handleDollarImpactClick()">
+                <div class="hero-stat-label" id="dollarImpactLabel">Money Automated</div>
+                <div class="hero-stat-value" id="dollarImpactValue">$0/mo</div>
+                <div class="hero-stat-sub" id="dollarImpactSub">Set up Autopilot to start</div>
+                <div class="hero-stat-cta" id="dollarImpactCta">Automate yours &rarr;</div>
             </div>
         </div>
 
@@ -1005,30 +1105,23 @@
                 <div class="level-progress-bar bronze" id="levelProgressBar" style="width: 0%;"></div>
             </div>
             <div class="level-info">
-                <span id="levelCurrentXp">0 / 7 systems</span>
+                <span id="levelCurrentXp">0 / 7 tools</span>
                 <span id="levelNextReward">3 more &rarr; Silver</span>
             </div>
         </div>
 
-        <div class="next-action" id="nextAction">
-            <div class="next-action-badge"><span>&#9889;</span><span>Next Step</span></div>
-            <h3 class="next-action-title" id="nextActionTitle">Start Building</h3>
-            <p class="next-action-desc" id="nextActionDesc">Begin with the Autopilot System.</p>
-            <a href="#" class="next-action-btn" id="nextActionBtn"><span id="nextActionBtnText">Continue</span><span>&rarr;</span></a>
-        </div>
-
-        <!-- CHANGE #2: Social Unlocks Section (visible, not hidden behind modals) -->
         <div class="social-unlocks-section" id="socialUnlocksSection" style="display:none;">
             <div class="section-header">
                 <span class="section-title">Bonus Unlocks</span>
                 <span class="section-count" id="socialUnlocksCount" style="background: var(--accent-pink-dim); color: var(--accent-pink);">2 Available</span>
             </div>
+            <!-- CHANGE 9: Simplified social unlock copy -->
             <div class="social-unlocks-grid">
                 <div class="social-unlock-card dm" id="socialDmCard" onclick="handleSocialDmClick()">
                     <div class="social-unlock-icon">&#x1F4B0;</div>
                     <div class="social-unlock-info">
                         <div class="social-unlock-action">DM "INNERLOOP" to @koutalksmoney</div>
-                        <div class="social-unlock-reward">Unlock the Budget Calculator. See where every dollar of your paycheck actually goes. Most people find $50-$200/mo in spending they forgot existed.</div>
+                        <div class="social-unlock-reward">Unlock the Budget Calculator. See where every dollar actually goes. I'll send you a direct link back instantly. One DM. Done.</div>
                     </div>
                     <div class="social-unlock-arrow">&rarr;</div>
                 </div>
@@ -1036,7 +1129,7 @@
                     <div class="social-unlock-icon">&#x1F9E0;</div>
                     <div class="social-unlock-info">
                         <div class="social-unlock-action">Post your Architect Certificate on your story. Tag @koutalksmoney.</div>
-                        <div class="social-unlock-reward">Unlock the AI Prompt Vault. The exact prompts I use to manage my money in 10 minutes/week. Copy them.</div>
+                        <div class="social-unlock-reward">Unlock the AI Prompt Vault. The exact prompts I use to manage money in 10 min/week. I'll DM your unlock link back.</div>
                     </div>
                     <div class="social-unlock-arrow">&rarr;</div>
                 </div>
@@ -1054,7 +1147,7 @@
                 <span class="section-title">Your Tools</span>
                 <span class="section-count" id="systemsCount">0/7</span>
             </div>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin:-8px 0 14px; line-height:1.4;">Each tool builds one piece of your wealth machine. Complete them all to reach Elite.</p>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin:-8px 0 14px; line-height:1.4;">Each tool builds one piece of your money machine. Complete them all to reach Elite.</p>
             <div class="systems-grid" id="systemsGrid"></div>
         </div>
 
@@ -1077,7 +1170,6 @@
     <script>
         /* ================================================
            SUPABASE ANALYTICS INTEGRATION
-           Fire-and-forget. Dashboard works even if Supabase is down.
            ================================================ */
         var SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
         var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
@@ -1086,12 +1178,7 @@
             try {
                 fetch(SUPABASE_URL + '/rest/v1/' + table, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-                        'Prefer': 'return=minimal,resolution=ignore-duplicates'
-                    },
+                    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Prefer': 'return=minimal,resolution=ignore-duplicates' },
                     body: JSON.stringify(data)
                 }).catch(function() {});
             } catch(e) {}
@@ -1101,12 +1188,7 @@
             try {
                 fetch(SUPABASE_URL + '/rest/v1/' + table, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-                        'Prefer': 'return=minimal,resolution=merge-duplicates'
-                    },
+                    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Prefer': 'return=minimal,resolution=merge-duplicates' },
                     body: JSON.stringify(data)
                 }).catch(function() {});
             } catch(e) {}
@@ -1115,64 +1197,19 @@
         function sbCount(table) {
             return fetch(SUPABASE_URL + '/rest/v1/' + table + '?select=id', {
                 method: 'GET',
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-                    'Range': '0-0',
-                    'Prefer': 'count=exact'
-                }
+                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Range': '0-0', 'Prefer': 'count=exact' }
             }).then(function(r) {
                 var range = r.headers.get('content-range');
-                if (range) {
-                    var total = parseInt(range.split('/')[1]);
-                    return isNaN(total) ? null : total;
-                }
+                if (range) { var total = parseInt(range.split('/')[1]); return isNaN(total) ? null : total; }
                 return null;
             }).catch(function() { return null; });
         }
 
-        function trackArchitect(architectId, isTemp, source) {
-            sbInsert('architects', {
-                architect_id: architectId,
-                is_temp: isTemp,
-                source: source || 'direct'
-            });
-        }
-
-        function trackVisit(architectId, entryPoint) {
-            sbInsert('visits', {
-                architect_id: architectId,
-                page: 'command-center',
-                entry_point: entryPoint || 'direct',
-                user_agent: navigator.userAgent.substring(0, 255)
-            });
-        }
-
-        function trackToolCompletion(architectId, toolId, contextData) {
-            sbUpsert('tool_completions', {
-                architect_id: architectId,
-                tool_id: toolId,
-                context_data: contextData || {}
-            });
-        }
-
-        function trackVelocity(architectId, score, level, count, tools) {
-            sbInsert('velocity_snapshots', {
-                architect_id: architectId,
-                velocity_score: score,
-                level: level,
-                completed_count: count,
-                completed_tools: tools
-            });
-        }
-
-        function trackSocialAction(architectId, actionType, context) {
-            sbInsert('social_actions', {
-                architect_id: architectId,
-                action_type: actionType,
-                context: context || ''
-            });
-        }
+        function trackArchitect(architectId, isTemp, source) { sbInsert('architects', { architect_id: architectId, is_temp: isTemp, source: source || 'direct' }); }
+        function trackVisit(architectId, entryPoint) { sbInsert('visits', { architect_id: architectId, page: 'command-center', entry_point: entryPoint || 'direct', user_agent: navigator.userAgent.substring(0, 255) }); }
+        function trackToolCompletion(architectId, toolId, contextData) { sbUpsert('tool_completions', { architect_id: architectId, tool_id: toolId, context_data: contextData || {} }); }
+        function trackVelocity(architectId, score, level, count, tools) { sbInsert('velocity_snapshots', { architect_id: architectId, velocity_score: score, level: level, completed_count: count, completed_tools: tools }); }
+        function trackSocialAction(architectId, actionType, context) { sbInsert('social_actions', { architect_id: architectId, action_type: actionType, context: context || '' }); }
 
         /* ================================================
            CELEBRATION PARTICLES
@@ -1182,22 +1219,17 @@
             container.className = 'celebration-container';
             document.body.appendChild(container);
             var colors = ['#22c55e', '#fbbf24', '#8b5cf6', '#3b82f6', '#ec4899', '#10b981'];
-            var cx = window.innerWidth / 2;
-            var cy = window.innerHeight / 3;
-
+            var cx = window.innerWidth / 2, cy = window.innerHeight / 3;
             for (var i = 0; i < 50; i++) {
                 (function(idx) {
                     setTimeout(function() {
                         var p = document.createElement('div');
                         p.className = 'c-particle' + (Math.random() > 0.6 ? ' square' : '');
-                        p.style.left = cx + 'px';
-                        p.style.top = cy + 'px';
+                        p.style.left = cx + 'px'; p.style.top = cy + 'px';
                         p.style.background = colors[Math.floor(Math.random() * colors.length)];
                         var size = (Math.random() * 10 + 4) + 'px';
-                        p.style.width = size;
-                        p.style.height = size;
-                        var angle = Math.random() * Math.PI * 2;
-                        var dist = 100 + Math.random() * 250;
+                        p.style.width = size; p.style.height = size;
+                        var angle = Math.random() * Math.PI * 2, dist = 100 + Math.random() * 250;
                         p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
                         p.style.setProperty('--ty', (Math.sin(angle) * dist - 60) + 'px');
                         p.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
@@ -1224,32 +1256,7 @@
             ARCHITECT_BASE_COUNT: 47
         };
 
-        /* Gate proof: try real Supabase count, fallback to formula */
-        function updateArchitectCount() {
-            var el = document.getElementById('gateProofText');
-            sbCount('architects').then(function(realCount) {
-                if (realCount && realCount > 0) {
-                    el.textContent = realCount + ' Architects building';
-                } else {
-                    var count = CONFIG.ARCHITECT_BASE_COUNT;
-                    var launchDate = new Date('2025-06-01');
-                    var now = new Date();
-                    var daysSinceLaunch = Math.max(0, Math.floor((now - launchDate) / (1000 * 60 * 60 * 24)));
-                    count = count + Math.floor(daysSinceLaunch * 0.3);
-                    el.textContent = count + ' Architects building';
-                }
-            });
-        }
-
-        function simpleHash(str) {
-            var hash = 0;
-            for (var i = 0; i < str.length; i++) {
-                var ch = str.charCodeAt(i);
-                hash = ((hash << 5) - hash) + ch;
-                hash = hash & hash;
-            }
-            return hash;
-        }
+        function simpleHash(str) { var hash = 0; for (var i = 0; i < str.length; i++) { var ch = str.charCodeAt(i); hash = ((hash << 5) - hash) + ch; hash = hash & hash; } return hash; }
         var BUDGET_HASH = simpleHash('CASHFLOW');
         var VAULT_HASH = simpleHash('CERTIFIED');
 
@@ -1263,12 +1270,7 @@
             'prompt': { primaryKey: 'prompt_completed', fallbackKey: 'vault_saved_prompts', logic: function(p, f) { if (p === 'true') return true; try { var categories = JSON.parse(localStorage.getItem('prompt_vault_categories_used') || '[]'); var savedPrompts = JSON.parse(localStorage.getItem(f) || '[]'); return categories.length >= 3 || savedPrompts.length > 0; } catch(e) { return false; } } }
         };
 
-        function checkSystemCompletion(systemId) {
-            var config = SYSTEM_CONFIG[systemId];
-            if (!config) return false;
-            var primary = localStorage.getItem(config.primaryKey);
-            return config.logic(primary, config.fallbackKey);
-        }
+        function checkSystemCompletion(systemId) { var config = SYSTEM_CONFIG[systemId]; if (!config) return false; var primary = localStorage.getItem(config.primaryKey); return config.logic(primary, config.fallbackKey); }
 
         function getCompletionContext(systemId) {
             try {
@@ -1287,17 +1289,17 @@
 
         /* ================================================
            SYSTEMS DEFINITION
-           CHANGE #3: Updated unlock explanations for parallel unlocks
+           CHANGE 2: Brandon-language descriptions
+           CHANGE 4: timeBadge added
            ================================================ */
         var SYSTEMS = [
-            { id: 'autopilot', name: 'Autopilot System', desc: 'Your wealth machine', icon: '\uD83E\uDD16', url: CONFIG.AUTOPILOT_URL, storageKey: 'autopilot_completed', unlockType: 'always', priority: 1, socialAction: null, unlockExplanation: { title: 'Always Available', subtitle: 'This is your entry point. Start here.', steps: ['Click to begin the Autopilot System', 'Complete all 6 modules', 'Claim your unique Architect ID'] } },
-            /* CHANGE #3: freedom, waiting, investment all unlock after autopilot */
-            { id: 'freedom', name: 'Freedom Calculator', desc: 'Know your number', icon: '\uD83C\uDFAF', url: CONFIG.FREEDOM_CALCULATOR_URL, storageKey: 'freedom_completed', unlockType: 'after-autopilot', priority: 2, socialAction: null, unlockExplanation: { title: 'Complete Autopilot System', subtitle: 'Install your core wealth machine first. Then choose any path.', steps: ['Open the Autopilot System', 'Complete all 6 modules', 'Claim your Architect ID', 'Freedom Calculator, Cost of Waiting, and Investment Simplifier all unlock at once'] } },
-            { id: 'waiting', name: 'Cost of Waiting', desc: 'Urgency multiplier', icon: '\u23F0', url: CONFIG.COST_OF_WAITING_URL, storageKey: 'waiting_completed', unlockType: 'after-autopilot', priority: 3, socialAction: null, unlockExplanation: { title: 'Complete Autopilot System', subtitle: 'Install your core wealth machine first. Then choose any path.', steps: ['Open the Autopilot System', 'Complete all 6 modules', 'Claim your Architect ID', 'Freedom Calculator, Cost of Waiting, and Investment Simplifier all unlock at once'] } },
-            { id: 'investment', name: 'Investment Simplifier', desc: 'Portfolio builder', icon: '\uD83D\uDCCA', url: CONFIG.INVESTMENT_SIMPLIFIER_URL, storageKey: 'investment_completed', unlockType: 'after-autopilot', priority: 4, socialAction: null, unlockExplanation: { title: 'Complete Autopilot System', subtitle: 'Install your core wealth machine first. Then choose any path.', steps: ['Open the Autopilot System', 'Complete all 6 modules', 'Claim your Architect ID', 'Freedom Calculator, Cost of Waiting, and Investment Simplifier all unlock at once'] } },
-            { id: '800club', name: '800-Club Protocol', desc: 'Credit leverage', icon: '\uD83D\uDCB3', url: CONFIG.EIGHT_HUNDRED_CLUB_URL, storageKey: 'eightclub_completed', unlockType: 'level', unlockLevel: 'silver', priority: 5, socialAction: null, unlockExplanation: { title: 'Reach Silver Level', subtitle: 'Complete 3 tools to reach Silver and unlock credit mastery.', steps: ['Complete any 3 tools', 'Reach Silver Architect level', '800-Club Protocol unlocks automatically'], showProgress: true } },
-            { id: 'budget', name: 'Budget Calculator', desc: 'Cash flow control', icon: '\uD83D\uDCB0', url: CONFIG.BUDGET_CALCULATOR_URL, storageKey: 'budget_completed', unlockType: 'code', unlockKey: 'budget_unlocked', priority: 6, socialAction: 'dm', unlockExplanation: { title: 'DM Secret Keyword', subtitle: 'Get exclusive access by connecting with me directly.', secretKeyword: 'INNERLOOP', steps: ['DM @koutalksmoney on Instagram', 'Send the secret keyword: INNERLOOP', "I'll reply with your unlock code instantly", 'Enter the code to unlock'], hasCodeInput: true } },
-            { id: 'prompt', name: 'Prompt Vault', desc: 'AI arsenal', icon: '\uD83E\uDDE0', url: CONFIG.PROMPT_VAULT_URL, storageKey: 'prompt_completed', unlockType: 'dual', unlockLevel: 'gold', unlockKey: 'vault_unlocked', priority: 7, socialAction: 'story', unlockExplanation: { title: 'Two Ways to Unlock', subtitle: 'Choose your path to the AI arsenal.', dualOptions: [{ icon: '\u2B50', title: 'Reach Gold Level', desc: 'Complete 5 tools', steps: ['Complete any 5 tools', 'Reach Gold Architect level', 'Prompt Vault unlocks automatically'] }, { icon: '\uD83D\uDCF8', title: 'Post Certificate', desc: 'Tag me on your story', steps: ['Open Autopilot System', 'Scroll to your Architect Certificate', 'Screenshot the certificate card', '<strong>Post it on your Instagram Story</strong>', '<strong>Tag @koutalksmoney in the story</strong>', "I'll DM you the Vault code!"] }], hasCodeInput: true } }
+            { id: 'autopilot', name: 'Autopilot System', desc: 'Auto-save before you can spend it', icon: '\uD83E\uDD16', url: CONFIG.AUTOPILOT_URL, storageKey: 'autopilot_completed', unlockType: 'always', priority: 1, socialAction: null, timeBadge: '10 min', unlockExplanation: { title: 'Always Available', subtitle: 'This is your starting point. Takes 10 minutes.', steps: ['Click to open the Autopilot System', 'Complete all 6 modules', 'Claim your unique Architect ID'] } },
+            { id: 'freedom', name: 'Freedom Calculator', desc: 'The exact $ to never need a paycheck', icon: '\uD83C\uDFAF', url: CONFIG.FREEDOM_CALCULATOR_URL, storageKey: 'freedom_completed', unlockType: 'after-autopilot', priority: 2, socialAction: null, timeBadge: '30 sec', unlockExplanation: { title: 'Complete Autopilot System', subtitle: 'Set up your money machine first. Then choose any path.', steps: ['Open the Autopilot System', 'Complete all 6 modules', 'Claim your Architect ID', 'Freedom Calculator, Cost of Waiting, and Investment Simplifier all unlock at once'] } },
+            { id: 'waiting', name: 'Cost of Waiting', desc: 'What every day of delay costs you', icon: '\u23F0', url: CONFIG.COST_OF_WAITING_URL, storageKey: 'waiting_completed', unlockType: 'after-autopilot', priority: 3, socialAction: null, timeBadge: '30 sec', unlockExplanation: { title: 'Complete Autopilot System', subtitle: 'Set up your money machine first. Then choose any path.', steps: ['Open the Autopilot System', 'Complete all 6 modules', 'Claim your Architect ID', 'Freedom Calculator, Cost of Waiting, and Investment Simplifier all unlock at once'] } },
+            { id: 'investment', name: 'Investment Simplifier', desc: 'Pick your first fund in 5 min', icon: '\uD83D\uDCCA', url: CONFIG.INVESTMENT_SIMPLIFIER_URL, storageKey: 'investment_completed', unlockType: 'after-autopilot', priority: 4, socialAction: null, timeBadge: '5 min', unlockExplanation: { title: 'Complete Autopilot System', subtitle: 'Set up your money machine first. Then choose any path.', steps: ['Open the Autopilot System', 'Complete all 6 modules', 'Claim your Architect ID', 'Freedom Calculator, Cost of Waiting, and Investment Simplifier all unlock at once'] } },
+            { id: '800club', name: '800-Club Protocol', desc: 'Stop overpaying on everything', icon: '\uD83D\uDCB3', url: CONFIG.EIGHT_HUNDRED_CLUB_URL, storageKey: 'eightclub_completed', unlockType: 'level', unlockLevel: 'silver', priority: 5, socialAction: null, timeBadge: '10 min', unlockExplanation: { title: 'Reach Silver Level', subtitle: 'Complete 3 tools to reach Silver and unlock credit mastery.', steps: ['Complete any 3 tools', 'Reach Silver Architect level', '800-Club Protocol unlocks automatically'], showProgress: true } },
+            { id: 'budget', name: 'Budget Calculator', desc: 'Where your paycheck actually goes', icon: '\uD83D\uDCB0', url: CONFIG.BUDGET_CALCULATOR_URL, storageKey: 'budget_completed', unlockType: 'code', unlockKey: 'budget_unlocked', priority: 6, socialAction: 'dm', timeBadge: '5 min', unlockExplanation: { title: 'DM Secret Keyword', subtitle: 'Get exclusive access by connecting with me directly.', secretKeyword: 'INNERLOOP', steps: ['DM @koutalksmoney on Instagram', 'Send the secret keyword: INNERLOOP', "I'll reply with your unlock link instantly", 'Click the link. Done.'], hasCodeInput: true } },
+            { id: 'prompt', name: 'Prompt Vault', desc: 'AI prompts that save 3 hrs/week', icon: '\uD83E\uDDE0', url: CONFIG.PROMPT_VAULT_URL, storageKey: 'prompt_completed', unlockType: 'dual', unlockLevel: 'gold', unlockKey: 'vault_unlocked', priority: 7, socialAction: 'story', timeBadge: '5 min', unlockExplanation: { title: 'Two Ways to Unlock', subtitle: 'Choose your path to the AI arsenal.', dualOptions: [{ icon: '\u2B50', title: 'Reach Gold Level', desc: 'Complete 5 tools', steps: ['Complete any 5 tools', 'Reach Gold Architect level', 'Prompt Vault unlocks automatically'] }, { icon: '\uD83D\uDCF8', title: 'Post Certificate', desc: 'Tag me on your story', steps: ['Open Autopilot System', 'Scroll to your Architect Certificate', 'Screenshot the certificate card', '<strong>Post it on your Instagram Story</strong>', '<strong>Tag @koutalksmoney in the story</strong>', "I'll DM you the Vault link!"] }], hasCodeInput: true } }
         ];
 
         var currentArchitectId = '';
@@ -1306,50 +1308,30 @@
         var currentModalSystem = null;
         var currentEntryPoint = 'direct';
 
-        function generateTempArchitectId() {
-            var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            var id = 'KOU-T';
-            for (var i = 0; i < 5; i++) id += chars.charAt(Math.floor(Math.random() * chars.length));
-            return id;
-        }
-
+        function generateTempArchitectId() { var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; var id = 'KOU-T'; for (var i = 0; i < 5; i++) id += chars.charAt(Math.floor(Math.random() * chars.length)); return id; }
         function isBridgeUser() { return localStorage.getItem('vault_email_captured') === 'true'; }
         function isTempId(id) { return id && id.length === 10 && id.substring(0, 5) === 'KOU-T'; }
 
         function hasEcosystemActivity() {
-            var flags = [
-                'freedom_completed', 'freedom_calculator_result', 'freedom_email',
-                'waiting_completed', 'cost_of_waiting_data', 'cost_of_waiting_email',
-                'investment_completed', 'investment_simplifier_completed', 'investmentSimplifier_bridge_email',
-                'eightclub_completed', 'credit_protocol_score',
-                'budget_completed', 'budget_unlocked',
-                'prompt_completed', 'prompt_vault_categories_used'
-            ];
-            for (var i = 0; i < flags.length; i++) {
-                var val = localStorage.getItem(flags[i]);
-                if (val && val !== 'false' && val !== '0' && val !== 'null' && val !== '[]') return true;
-            }
+            var flags = ['freedom_completed','freedom_calculator_result','freedom_email','waiting_completed','cost_of_waiting_data','cost_of_waiting_email','investment_completed','investment_simplifier_completed','investmentSimplifier_bridge_email','eightclub_completed','credit_protocol_score','budget_completed','budget_unlocked','prompt_completed','prompt_vault_categories_used'];
+            for (var i = 0; i < flags.length; i++) { var val = localStorage.getItem(flags[i]); if (val && val !== 'false' && val !== '0' && val !== 'null' && val !== '[]') return true; }
             return false;
         }
 
         function getEcosystemCompletions() {
             var found = [];
             var checks = [
-                { flags: ['freedom_completed', 'freedom_calculator_result', 'freedom_email'], name: 'Freedom Calculator', icon: '\uD83C\uDFAF' },
-                { flags: ['waiting_completed', 'cost_of_waiting_data', 'cost_of_waiting_email'], name: 'Cost of Waiting', icon: '\u23F0' },
-                { flags: ['investment_completed', 'investment_simplifier_completed', 'investmentSimplifier_bridge_email'], name: 'Investment Simplifier', icon: '\uD83D\uDCCA' },
-                { flags: ['eightclub_completed', 'credit_protocol_score'], name: '800-Club Protocol', icon: '\uD83D\uDCB3' },
-                { flags: ['budget_completed', 'budget_unlocked'], name: 'Budget Calculator', icon: '\uD83D\uDCB0' },
+                { flags: ['freedom_completed','freedom_calculator_result','freedom_email'], name: 'Freedom Calculator', icon: '\uD83C\uDFAF' },
+                { flags: ['waiting_completed','cost_of_waiting_data','cost_of_waiting_email'], name: 'Cost of Waiting', icon: '\u23F0' },
+                { flags: ['investment_completed','investment_simplifier_completed','investmentSimplifier_bridge_email'], name: 'Investment Simplifier', icon: '\uD83D\uDCCA' },
+                { flags: ['eightclub_completed','credit_protocol_score'], name: '800-Club Protocol', icon: '\uD83D\uDCB3' },
+                { flags: ['budget_completed','budget_unlocked'], name: 'Budget Calculator', icon: '\uD83D\uDCB0' },
                 { flags: ['prompt_completed'], name: 'Prompt Vault', icon: '\uD83E\uDDE0' }
             ];
             for (var c = 0; c < checks.length; c++) {
-                var check = checks[c];
-                for (var f = 0; f < check.flags.length; f++) {
-                    var val = localStorage.getItem(check.flags[f]);
-                    if (val && val !== 'false' && val !== '0' && val !== 'null' && val !== '[]') {
-                        found.push({ name: check.name, icon: check.icon });
-                        break;
-                    }
+                for (var f = 0; f < checks[c].flags.length; f++) {
+                    var val = localStorage.getItem(checks[c].flags[f]);
+                    if (val && val !== 'false' && val !== '0' && val !== 'null' && val !== '[]') { found.push({ name: checks[c].name, icon: checks[c].icon }); break; }
                 }
             }
             return found;
@@ -1357,69 +1339,30 @@
 
         function runEcosystemTheater(tempId) {
             currentEntryPoint = 'theater';
-            var gate = document.getElementById('accessGate');
-            gate.classList.remove('show');
-
+            document.getElementById('accessGate').classList.remove('show');
             var theater = document.getElementById('ecosystemTheater');
             theater.classList.remove('hidden');
-
-            var titleEl = document.getElementById('ecoTheaterTitle');
-            var stepEl = document.getElementById('ecoTheaterStep');
-            var progressFill = document.getElementById('ecoTheaterProgressFill');
-            var pctEl = document.getElementById('ecoTheaterPct');
-            var valueFrame = document.getElementById('ecoTheaterValueFrame');
-            var valueText = document.getElementById('ecoTheaterValueText');
-
-            var completions = getEcosystemCompletions();
-            var count = completions.length;
-            var names = '';
-            for (var n = 0; n < completions.length; n++) {
-                names += completions[n].icon + ' ' + completions[n].name;
-                if (n < completions.length - 1) names += ', ';
-            }
-
-            var velScore = '1.0x';
-            if (count >= 5) velScore = '1.5x';
-            else if (count >= 3) velScore = '1.25x';
-            else if (count >= 2) velScore = '1.1x';
-
-            var level = 'Bronze';
-            if (count >= 7) level = 'Elite';
-            else if (count >= 5) level = 'Gold';
-            else if (count >= 3) level = 'Silver';
-
+            var titleEl = document.getElementById('ecoTheaterTitle'), stepEl = document.getElementById('ecoTheaterStep'), progressFill = document.getElementById('ecoTheaterProgressFill'), pctEl = document.getElementById('ecoTheaterPct'), valueFrame = document.getElementById('ecoTheaterValueFrame'), valueText = document.getElementById('ecoTheaterValueText');
+            var completions = getEcosystemCompletions(); var count = completions.length;
+            var names = completions.map(function(c) { return c.icon + ' ' + c.name; }).join(', ');
+            var velScore = count >= 5 ? '1.5x' : count >= 3 ? '1.25x' : count >= 2 ? '1.1x' : '1.0x';
+            var level = count >= 7 ? 'Elite' : count >= 5 ? 'Gold' : count >= 3 ? 'Silver' : 'Bronze';
             var steps = [
                 { title: 'Scanning ecosystem...', step: 'Checking for active tools...', pct: 20, label: null, value: null },
                 { title: 'Found ' + count + ' active tool' + (count !== 1 ? 's' : '') + '.', step: 'Loading completion data...', pct: 45, label: 'Tools Detected', value: names || 'Ecosystem activity detected' },
                 { title: 'Calculating Wealth Velocity...', step: 'Analyzing your progress...', pct: 70, label: 'Your Status', value: 'Velocity: ' + velScore + '  |  Level: ' + level + '  |  ' + count + '/7 tools active' },
-                { title: 'Assigning Architect ID...', step: 'Generating temporary credentials...', pct: 90, label: 'Your Architect ID', value: tempId + '  (complete Autopilot to claim permanent ID)' },
+                { title: 'Assigning Architect ID...', step: 'Generating credentials...', pct: 90, label: 'Your Architect ID', value: tempId + '  (complete Autopilot to claim permanent ID)' },
                 { title: 'Dashboard ready.', step: 'Access granted.', pct: 100, label: null, value: null }
             ];
-
             var i = 0;
             var interval = setInterval(function() {
                 if (i < steps.length) {
-                    titleEl.textContent = steps[i].title;
-                    stepEl.textContent = steps[i].step;
-                    progressFill.style.width = steps[i].pct + '%';
-                    pctEl.textContent = steps[i].pct + '%';
-                    if (steps[i].value) {
-                        var labelEl = document.querySelector('.eco-theater-value-label');
-                        if (labelEl && steps[i].label) labelEl.textContent = steps[i].label;
-                        valueText.textContent = steps[i].value;
-                        valueFrame.classList.add('show');
-                    } else {
-                        valueFrame.classList.remove('show');
-                    }
+                    titleEl.textContent = steps[i].title; stepEl.textContent = steps[i].step; progressFill.style.width = steps[i].pct + '%'; pctEl.textContent = steps[i].pct + '%';
+                    if (steps[i].value) { var labelEl = document.querySelector('.eco-theater-value-label'); if (labelEl && steps[i].label) labelEl.textContent = steps[i].label; valueText.textContent = steps[i].value; valueFrame.classList.add('show'); } else { valueFrame.classList.remove('show'); }
                     i++;
                 } else {
                     clearInterval(interval);
-                    setTimeout(function() {
-                        theater.classList.add('hidden');
-                        document.getElementById('mainDashboard').style.display = 'block';
-                        triggerCelebration();
-                        initDashboard();
-                    }, 500);
+                    setTimeout(function() { theater.classList.add('hidden'); document.getElementById('mainDashboard').style.display = 'block'; triggerCelebration(); initDashboard(); }, 500);
                 }
             }, 950);
         }
@@ -1427,398 +1370,317 @@
         function runVerificationCeremony(architectId) {
             currentEntryPoint = 'ceremony';
             var gate = document.getElementById('accessGate');
-            var gateContent = document.getElementById('gateContent');
-            var gatePreview = document.getElementById('gatePreview');
+            document.getElementById('gateContent').style.display = 'none';
+            document.getElementById('gatePreview').style.display = 'none';
             var verifyState = document.getElementById('gateVerifyState');
-            var verifyId = document.getElementById('gateVerifyId');
-            var verifyBar = document.getElementById('gateVerifyBar');
-            var verifyStatus = document.getElementById('gateVerifyStatus');
-            var step1 = document.getElementById('gvStep1');
-            var step2 = document.getElementById('gvStep2');
-            var step3 = document.getElementById('gvStep3');
-
-            gate.classList.add('show');
-            gateContent.style.display = 'none';
-            gatePreview.style.display = 'none';
-            verifyState.classList.add('show');
-            verifyId.textContent = architectId;
-
-            setTimeout(function() { verifyBar.style.width = '33%'; verifyStatus.textContent = 'Verifying Architect ID...'; step1.classList.add('active'); }, 100);
-            setTimeout(function() { step1.classList.remove('active'); step1.classList.add('done'); step1.querySelector('.step-dot').textContent = '\u2713'; }, 800);
-            setTimeout(function() { verifyBar.style.width = '66%'; verifyStatus.textContent = 'Loading your systems...'; step2.classList.add('active'); }, 900);
-            setTimeout(function() { step2.classList.remove('active'); step2.classList.add('done'); step2.querySelector('.step-dot').textContent = '\u2713'; }, 1800);
-            setTimeout(function() { verifyBar.style.width = '100%'; verifyStatus.textContent = 'Access granted.'; verifyStatus.style.color = 'var(--accent-green)'; step3.classList.add('active'); }, 1900);
-            setTimeout(function() { step3.classList.remove('active'); step3.classList.add('done'); step3.querySelector('.step-dot').textContent = '\u2713'; }, 2400);
-            setTimeout(function() {
-                gate.classList.remove('show');
-                document.getElementById('mainDashboard').style.display = 'block';
-                triggerCelebration();
-                initDashboard();
-            }, 2700);
+            gate.classList.add('show'); verifyState.classList.add('show');
+            document.getElementById('gateVerifyId').textContent = architectId;
+            var bar = document.getElementById('gateVerifyBar'), status = document.getElementById('gateVerifyStatus');
+            var s1 = document.getElementById('gvStep1'), s2 = document.getElementById('gvStep2'), s3 = document.getElementById('gvStep3');
+            setTimeout(function() { bar.style.width = '33%'; status.textContent = 'Verifying your code...'; s1.classList.add('active'); }, 100);
+            setTimeout(function() { s1.classList.remove('active'); s1.classList.add('done'); s1.querySelector('.step-dot').textContent = '\u2713'; }, 800);
+            setTimeout(function() { bar.style.width = '66%'; status.textContent = 'Loading your tools...'; s2.classList.add('active'); }, 900);
+            setTimeout(function() { s2.classList.remove('active'); s2.classList.add('done'); s2.querySelector('.step-dot').textContent = '\u2713'; }, 1800);
+            setTimeout(function() { bar.style.width = '100%'; status.textContent = 'Access granted.'; status.style.color = 'var(--accent-green)'; s3.classList.add('active'); }, 1900);
+            setTimeout(function() { s3.classList.remove('active'); s3.classList.add('done'); s3.querySelector('.step-dot').textContent = '\u2713'; }, 2400);
+            setTimeout(function() { gate.classList.remove('show'); document.getElementById('mainDashboard').style.display = 'block'; triggerCelebration(); initDashboard(); }, 2700);
         }
 
         function checkAccess() {
             var urlParams = new URLSearchParams(window.location.search);
+            /* CHANGE 9: Support auto-unlock via URL params */
+            var budgetCode = urlParams.get('budget_code');
+            if (budgetCode && simpleHash(budgetCode.trim().toUpperCase()) === BUDGET_HASH) { localStorage.setItem('budget_unlocked', 'true'); }
+            var vaultCode = urlParams.get('vault_code');
+            if (vaultCode && simpleHash(vaultCode.trim().toUpperCase()) === VAULT_HASH) { localStorage.setItem('vault_unlocked', 'true'); }
+
             var paramId = urlParams.get('id');
             if (paramId) {
                 paramId = paramId.trim().toUpperCase();
                 if (/^KOU-[A-Z0-9]{6}$/.test(paramId)) {
-                    localStorage.setItem('cashvault_architect_id', paramId);
-                    localStorage.setItem('command_center_architect_id', paramId);
-                    try { var cleanUrl = window.location.pathname + window.location.hash; window.history.replaceState({}, document.title, cleanUrl); } catch(e) {}
-                    trackArchitect(paramId, false, 'url_param');
-                    runVerificationCeremony(paramId);
-                    return 'ceremony';
+                    localStorage.setItem('cashvault_architect_id', paramId); localStorage.setItem('command_center_architect_id', paramId);
+                    try { window.history.replaceState({}, document.title, window.location.pathname + window.location.hash); } catch(e) {}
+                    trackArchitect(paramId, false, 'url_param'); runVerificationCeremony(paramId); return 'ceremony';
                 }
             }
-
             var storedId = localStorage.getItem('cashvault_architect_id') || localStorage.getItem('command_center_architect_id');
-            if (storedId) {
-                runVerificationCeremony(storedId);
-                return 'ceremony';
-            }
-
+            if (storedId) { runVerificationCeremony(storedId); return 'ceremony'; }
             if (isBridgeUser()) {
                 var tempId = localStorage.getItem('command_center_temp_id');
                 if (!tempId) { tempId = generateTempArchitectId(); localStorage.setItem('command_center_temp_id', tempId); }
-                localStorage.setItem('command_center_architect_id', tempId);
-                trackArchitect(tempId, true, 'bridge');
-                runVerificationCeremony(tempId);
-                return 'ceremony';
+                localStorage.setItem('command_center_architect_id', tempId); trackArchitect(tempId, true, 'bridge'); runVerificationCeremony(tempId); return 'ceremony';
             }
-
             if (hasEcosystemActivity()) {
                 var ecoTempId = localStorage.getItem('command_center_temp_id');
                 if (!ecoTempId) { ecoTempId = generateTempArchitectId(); localStorage.setItem('command_center_temp_id', ecoTempId); }
-                localStorage.setItem('command_center_architect_id', ecoTempId);
-                trackArchitect(ecoTempId, true, 'ecosystem');
-                runEcosystemTheater(ecoTempId);
-                return 'theater';
+                localStorage.setItem('command_center_architect_id', ecoTempId); trackArchitect(ecoTempId, true, 'ecosystem'); runEcosystemTheater(ecoTempId); return 'theater';
             }
-
             document.getElementById('mainDashboard').style.display = 'none';
             document.getElementById('gateContent').style.display = 'block';
             document.getElementById('gatePreview').style.display = 'block';
             document.getElementById('gateVerifyState').classList.remove('show');
             document.getElementById('accessGate').classList.add('show');
             currentEntryPoint = 'gate';
-            updateArchitectCount();
             trackVisit(null, 'gate');
             return 'gate';
         }
 
         function gateManualEntry() {
-            var input = document.getElementById('gateIdInput');
-            var error = document.getElementById('gateError');
+            var input = document.getElementById('gateIdInput'), error = document.getElementById('gateError');
             var id = input.value.trim().toUpperCase();
             if (/^KOU-[A-Z0-9]{6}$/.test(id)) {
-                localStorage.setItem('cashvault_architect_id', id);
-                localStorage.setItem('command_center_architect_id', id);
-                error.style.display = 'none';
-                trackArchitect(id, false, 'gate_manual');
-                runVerificationCeremony(id);
-            } else {
-                error.style.display = 'block';
-                input.style.borderColor = 'var(--danger)';
-                setTimeout(function() { input.style.borderColor = ''; }, 2000);
-            }
+                localStorage.setItem('cashvault_architect_id', id); localStorage.setItem('command_center_architect_id', id);
+                error.style.display = 'none'; trackArchitect(id, false, 'gate_manual'); runVerificationCeremony(id);
+            } else { error.style.display = 'block'; input.style.borderColor = 'var(--danger)'; setTimeout(function() { input.style.borderColor = ''; }, 2000); }
         }
 
         document.getElementById('gateIdInput').addEventListener('input', function(e) {
             var value = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
-            if (value.length > 0 && !value.startsWith('KOU-') && !value.startsWith('KOU') && !value.startsWith('KO') && !value.startsWith('K')) {
-                if (value.length <= 6) value = 'KOU-' + value;
-            }
+            if (value.length > 0 && !value.startsWith('KOU-') && !value.startsWith('KOU') && !value.startsWith('KO') && !value.startsWith('K')) { if (value.length <= 6) value = 'KOU-' + value; }
             if (value.length > 4 && value[3] !== '-') value = value.slice(0, 3) + '-' + value.slice(3);
             e.target.value = value.slice(0, 10);
         });
-
-        document.getElementById('gateIdInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') gateManualEntry();
-        });
-
+        document.getElementById('gateIdInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') gateManualEntry(); });
         document.addEventListener('DOMContentLoaded', function() { checkAccess(); });
 
         /* ================================================
            DASHBOARD INIT
            ================================================ */
         function initDashboard() {
-            loadArchitectId();
-            loadCompletionStatus();
-            loadUnlockStatus();
-            renderDashboard();
-            trackStartDate();
-            updateWelcomeBanner();
-            writeEcosystemContext();
-            renderSocialUnlocks();
-
-            /* Supabase: track visit + velocity snapshot */
+            loadArchitectId(); loadCompletionStatus(); loadUnlockStatus(); renderDashboard(); trackStartDate();
+            updateWelcomeBanner(); updateEmotionalHook(); updateReturnDashboard(); writeEcosystemContext(); renderSocialUnlocks();
             trackVisit(currentArchitectId, currentEntryPoint);
             var vel = getVelocityScore();
             trackVelocity(currentArchitectId, vel.score, getArchitectLevel(), completedSystems.length, completedSystems);
-
-            /* Supabase: track each completed tool */
-            completedSystems.forEach(function(sysId) {
-                var ctx = getCompletionContext(sysId);
-                trackToolCompletion(currentArchitectId, sysId, ctx ? { context: ctx } : {});
-            });
+            completedSystems.forEach(function(sysId) { var ctx = getCompletionContext(sysId); trackToolCompletion(currentArchitectId, sysId, ctx ? { context: ctx } : {}); });
         }
 
-        function loadArchitectId() {
-            currentArchitectId = localStorage.getItem('cashvault_architect_id') ||
-                                localStorage.getItem('command_center_architect_id') ||
-                                localStorage.getItem('command_center_temp_id') ||
-                                'KOU-??????';
-        }
-
-        function trackStartDate() {
-            if (!localStorage.getItem('architect_start_date')) {
-                localStorage.setItem('architect_start_date', new Date().toISOString());
-            }
-        }
+        function loadArchitectId() { currentArchitectId = localStorage.getItem('cashvault_architect_id') || localStorage.getItem('command_center_architect_id') || localStorage.getItem('command_center_temp_id') || 'KOU-??????'; }
+        function trackStartDate() { if (!localStorage.getItem('architect_start_date')) localStorage.setItem('architect_start_date', new Date().toISOString()); }
 
         function loadCompletionStatus() {
             completedSystems = [];
-            SYSTEMS.forEach(function(system) {
-                if (checkSystemCompletion(system.id)) {
-                    completedSystems.push(system.id);
-                    if (localStorage.getItem(system.storageKey) !== 'true') {
-                        localStorage.setItem(system.storageKey, 'true');
-                    }
-                }
-            });
-            if (localStorage.getItem('cashvault_architect_id') && completedSystems.indexOf('autopilot') === -1) {
-                completedSystems.push('autopilot');
-                localStorage.setItem('autopilot_completed', 'true');
-            }
+            SYSTEMS.forEach(function(system) { if (checkSystemCompletion(system.id)) { completedSystems.push(system.id); if (localStorage.getItem(system.storageKey) !== 'true') localStorage.setItem(system.storageKey, 'true'); } });
+            if (localStorage.getItem('cashvault_architect_id') && completedSystems.indexOf('autopilot') === -1) { completedSystems.push('autopilot'); localStorage.setItem('autopilot_completed', 'true'); }
         }
 
-        /* ================================================
-           CHANGE #3: PARALLEL UNLOCK LOGIC
-           After Autopilot, freedom + waiting + investment unlock simultaneously.
-           Level gates and social gates stay intact.
-           ================================================ */
         function loadUnlockStatus() {
             unlockedSystems = ['autopilot'];
             var autopilotDone = completedSystems.indexOf('autopilot') !== -1;
-
             SYSTEMS.forEach(function(system) {
-                /* Already completed = always accessible */
-                if (completedSystems.indexOf(system.id) !== -1) {
-                    if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
-                    return;
-                }
-
-                /* CHANGE #3: Parallel unlock for tools 2, 3, 4 */
-                if (system.unlockType === 'after-autopilot' && autopilotDone) {
-                    if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
-                    return;
-                }
-
-                /* Level gates (800-Club at Silver) */
-                if (system.unlockType === 'level') {
-                    var level = getArchitectLevel();
-                    if (system.unlockLevel === 'silver' && ['silver', 'gold', 'elite'].indexOf(level) !== -1) {
-                        if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
-                    }
-                }
-
-                /* Code gates (Budget Calculator) */
-                if (system.unlockType === 'code' && localStorage.getItem(system.unlockKey) === 'true') {
-                    if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
-                }
-
-                /* Dual gates (Prompt Vault) */
-                if (system.unlockType === 'dual') {
-                    var lvl = getArchitectLevel();
-                    var hasCode = localStorage.getItem(system.unlockKey) === 'true';
-                    if ((system.unlockLevel === 'gold' && ['gold', 'elite'].indexOf(lvl) !== -1) || hasCode) {
-                        if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id);
-                    }
-                }
+                if (completedSystems.indexOf(system.id) !== -1) { if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id); return; }
+                if (system.unlockType === 'after-autopilot' && autopilotDone) { if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id); return; }
+                if (system.unlockType === 'level') { var level = getArchitectLevel(); if (system.unlockLevel === 'silver' && ['silver','gold','elite'].indexOf(level) !== -1) { if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id); } }
+                if (system.unlockType === 'code' && localStorage.getItem(system.unlockKey) === 'true') { if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id); }
+                if (system.unlockType === 'dual') { var lvl = getArchitectLevel(); var hasCode = localStorage.getItem(system.unlockKey) === 'true'; if ((system.unlockLevel === 'gold' && ['gold','elite'].indexOf(lvl) !== -1) || hasCode) { if (unlockedSystems.indexOf(system.id) === -1) unlockedSystems.push(system.id); } }
             });
         }
 
-        function getArchitectLevel() {
-            var count = completedSystems.length;
-            if (count >= 7) return 'elite';
-            if (count >= 5) return 'gold';
-            if (count >= 3) return 'silver';
-            return 'bronze';
-        }
+        function getArchitectLevel() { var c = completedSystems.length; if (c >= 7) return 'elite'; if (c >= 5) return 'gold'; if (c >= 3) return 'silver'; return 'bronze'; }
 
         function getVelocityScore() {
-            var count = completedSystems.length;
-            if (count >= 7) return { score: '2.0x', desc: 'Maximum velocity. All tools operational. You are the machine.', label: 'elite' };
-            if (count >= 5) return { score: '1.5x', desc: 'High velocity. Two more tools to max. Do not lose momentum.', label: 'high' };
-            if (count >= 3) return { score: '1.25x', desc: "You're accelerating. The compound effect is kicking in.", label: 'mid' };
-            if (count >= 2) return { score: '1.1x', desc: 'Second system online. Velocity climbing. Keep stacking.', label: 'rising' };
-            if (count >= 1) return { score: '1.0x', desc: 'Engine started. Each tool you complete compounds the last.', label: 'low' };
+            var c = completedSystems.length;
+            if (c >= 7) return { score: '2.0x', desc: 'Maximum velocity. All tools operational. Your money runs itself.', label: 'elite' };
+            if (c >= 5) return { score: '1.5x', desc: 'Your money is growing 1.5x faster than someone without this setup.', label: 'high' };
+            if (c >= 3) return { score: '1.25x', desc: 'Each tool stacks on the last. The compound effect is kicking in.', label: 'mid' };
+            if (c >= 2) return { score: '1.1x', desc: 'Second tool online. Each one you add accelerates the rest.', label: 'rising' };
+            if (c >= 1) return { score: '1.0x', desc: 'Engine started. Each tool you complete compounds the last.', label: 'low' };
             return { score: '1.0x', desc: 'Complete your first tool to start building velocity.', label: 'zero' };
+        }
+
+        /* ================================================
+           CHANGE 8: EMOTIONAL HOOK
+           ================================================ */
+        function updateEmotionalHook() {
+            var el = document.getElementById('emotionalHookText');
+            var count = completedSystems.length;
+            if (count === 0) {
+                el.innerHTML = 'Your <span class="hook-red">$680 paycheck has 30 holes.</span> Let\'s plug them.';
+            } else if (count <= 2) {
+                var autoSaveAmt = getAutoSaveAmount();
+                if (autoSaveAmt > 0) {
+                    el.innerHTML = 'Your system is running. <strong>$' + autoSaveAmt + '/mo already automated.</strong>';
+                } else {
+                    el.innerHTML = 'Your system is running. <strong>' + count + ' tool' + (count > 1 ? 's' : '') + ' active.</strong> Keep stacking.';
+                }
+            } else {
+                el.innerHTML = 'Most people your age have zero systems. <strong>You have ' + count + '.</strong>';
+            }
+        }
+
+        function getAutoSaveAmount() {
+            try {
+                var autopilotData = JSON.parse(localStorage.getItem('autopilot_savings_amount') || 'null');
+                if (autopilotData) return Math.round(autopilotData);
+            } catch(e) {}
+            return 0;
+        }
+
+        /* ================================================
+           CHANGE 12: RETURN-VISIT DASHBOARD
+           ================================================ */
+        function updateReturnDashboard() {
+            var section = document.getElementById('returnDashboard');
+            var grid = document.getElementById('returnDashboardGrid');
+            if (completedSystems.length < 2) { section.classList.remove('show'); return; }
+
+            var items = [];
+
+            /* Auto-saved amount */
+            var autoAmt = getAutoSaveAmount();
+            if (autoAmt > 0) { items.push({ value: '$' + autoAmt + '/mo', label: 'Auto-Saved', cls: 'green' }); }
+            else if (completedSystems.indexOf('autopilot') !== -1) { items.push({ value: 'Active', label: 'Autopilot', cls: 'green' }); }
+
+            /* Daily leak */
+            try {
+                var wData = JSON.parse(localStorage.getItem('cost_of_waiting_data') || 'null');
+                var cpd = wData && (wData.costPerDay || wData.dailyCost);
+                if (cpd) items.push({ value: '$' + Math.round(cpd) + '/day', label: 'Cost of Waiting', cls: 'red' });
+            } catch(e) {}
+
+            /* Freedom timeline */
+            try {
+                var fData = JSON.parse(localStorage.getItem('freedom_calculator_result') || 'null');
+                if (fData && fData.freedomYears && fData.freedomYears < 100) {
+                    items.push({ value: fData.freedomYears + ' yrs', label: 'Freedom Timeline', cls: 'gold' });
+                }
+            } catch(e) {}
+
+            /* Credit score progress */
+            var creditScore = localStorage.getItem('credit_protocol_score');
+            if (creditScore) items.push({ value: creditScore + '%', label: 'Credit Progress', cls: 'green' });
+
+            /* Investment */
+            try {
+                var iData = JSON.parse(localStorage.getItem('investmentSimplifier_portfolio') || 'null');
+                if (iData && iData.etfs && iData.etfs.length > 0) {
+                    var core = iData.etfs.find(function(e) { return e.type === 'core'; }) || iData.etfs[0];
+                    items.push({ value: '$25/wk', label: core.ticker + ' Fund', cls: 'green' });
+                }
+            } catch(e) {}
+
+            /* Tools count as fallback */
+            if (items.length < 2) { items.push({ value: completedSystems.length + '/7', label: 'Tools Active', cls: 'green' }); }
+
+            if (items.length < 2) { section.classList.remove('show'); return; }
+
+            grid.innerHTML = '';
+            items.slice(0, 4).forEach(function(item) {
+                grid.innerHTML += '<div class="return-dashboard-item"><div class="return-dashboard-item-value ' + item.cls + '">' + item.value + '</div><div class="return-dashboard-item-label">' + item.label + '</div></div>';
+            });
+            section.classList.add('show');
+        }
+
+        /* ================================================
+           CHANGE 7: DOLLAR-IMPACT HERO STAT
+           ================================================ */
+        function updateDollarImpactStat() {
+            var labelEl = document.getElementById('dollarImpactLabel');
+            var valueEl = document.getElementById('dollarImpactValue');
+            var subEl = document.getElementById('dollarImpactSub');
+            var ctaEl = document.getElementById('dollarImpactCta');
+            var statEl = document.getElementById('dollarImpactStat');
+
+            var autoAmt = getAutoSaveAmount();
+            if (autoAmt > 0) {
+                statEl.className = 'hero-stat gold';
+                labelEl.textContent = 'Money Automated';
+                valueEl.textContent = '$' + autoAmt + '/mo';
+                subEl.textContent = 'Running on autopilot';
+                ctaEl.style.display = 'none';
+                statEl.onclick = function() { window.location.href = CONFIG.AUTOPILOT_URL; };
+                return;
+            }
+
+            if (completedSystems.indexOf('autopilot') !== -1) {
+                statEl.className = 'hero-stat gold';
+                labelEl.textContent = 'Autopilot';
+                valueEl.textContent = 'Active';
+                subEl.textContent = 'System is running';
+                ctaEl.style.display = 'none';
+                return;
+            }
+
+            statEl.className = 'hero-stat gold clickable';
+            labelEl.textContent = 'Money Automated';
+            valueEl.textContent = '$0/mo';
+            subEl.textContent = 'Nothing running yet';
+            ctaEl.textContent = 'Automate yours \u2192';
+            ctaEl.style.display = '';
+            statEl.onclick = function() { handleDollarImpactClick(); };
+        }
+
+        function handleDollarImpactClick() {
+            if (unlockedSystems.indexOf('autopilot') !== -1 && completedSystems.indexOf('autopilot') === -1) {
+                window.location.href = CONFIG.AUTOPILOT_URL;
+            }
         }
 
         function updateWelcomeBanner() {
             var banner = document.getElementById('welcomeBanner');
-            var titleEl = document.getElementById('welcomeBannerTitle');
-            var descEl = document.getElementById('welcomeBannerDesc');
-            var btnEl = document.getElementById('welcomeBannerBtn');
-            var btnTextEl = document.getElementById('welcomeBannerBtnText');
-
+            var titleEl = document.getElementById('welcomeBannerTitle'), descEl = document.getElementById('welcomeBannerDesc'), btnEl = document.getElementById('welcomeBannerBtn'), btnTextEl = document.getElementById('welcomeBannerBtnText');
             if (!isBridgeUser() && !isTempId(currentArchitectId)) { banner.classList.remove('show'); return; }
-
-            if (!localStorage.getItem('bridge_entry_tool_count')) {
-                localStorage.setItem('bridge_entry_tool_count', String(completedSystems.length));
-            }
+            if (!localStorage.getItem('bridge_entry_tool_count')) localStorage.setItem('bridge_entry_tool_count', String(completedSystems.length));
             var entryCount = parseInt(localStorage.getItem('bridge_entry_tool_count') || '0', 10);
             if (completedSystems.length > entryCount && completedSystems.length >= 2) { banner.classList.remove('show'); return; }
-
-            var nextSystem = SYSTEMS
-                .filter(function(s) { return completedSystems.indexOf(s.id) === -1 && unlockedSystems.indexOf(s.id) !== -1; })
-                .sort(function(a, b) { return a.priority - b.priority; })[0];
+            var nextSystem = SYSTEMS.filter(function(s) { return completedSystems.indexOf(s.id) === -1 && unlockedSystems.indexOf(s.id) !== -1; }).sort(function(a, b) { return a.priority - b.priority; })[0];
             if (!nextSystem) { banner.classList.remove('show'); return; }
-
+            titleEl.textContent = completedSystems.length + '/7 tools active';
             var count = completedSystems.length;
-            titleEl.textContent = count + '/7 tools active';
-
-            if (count === 0) {
-                descEl.innerHTML = 'You are inside the machine. Zero tools running. <strong>' + nextSystem.name + '</strong> is your ignition switch.';
-            } else if (count === 1) {
-                descEl.innerHTML = 'First system online. <strong>' + nextSystem.name + '</strong> is the next piece. Each one compounds the last.';
-            } else {
-                descEl.innerHTML = count + ' systems running. <strong>' + nextSystem.name + '</strong> is next. Do not stop building.';
-            }
-
-            btnTextEl.textContent = 'Open ' + nextSystem.name.split(' ')[0];
-            btnEl.href = nextSystem.url;
-            btnEl.onclick = null;
-            banner.classList.add('show');
+            if (count === 0) descEl.innerHTML = 'You are inside the machine. Zero tools running. <strong>' + nextSystem.name + '</strong> is your ignition switch.';
+            else if (count === 1) descEl.innerHTML = 'First tool online. <strong>' + nextSystem.name + '</strong> is the next piece. Each one compounds the last.';
+            else descEl.innerHTML = count + ' tools running. <strong>' + nextSystem.name + '</strong> is next. Do not stop building.';
+            btnTextEl.textContent = 'Open ' + nextSystem.name.split(' ')[0]; btnEl.href = nextSystem.url; btnEl.onclick = null; banner.classList.add('show');
         }
 
-        /* ================================================
-           CHANGE #4: SMART CONDITIONAL HERO STAT
-           Priority: Daily Leak (red) > Freedom Year (default) > "Building Blind"
-           ================================================ */
         function updateSmartStat() {
-            var statEl = document.getElementById('smartStat');
-            var labelEl = document.getElementById('smartStatLabel');
-            var valueEl = document.getElementById('smartStatValue');
-            var subEl = document.getElementById('smartStatSub');
-            var ctaEl = document.getElementById('smartStatCta');
-
-            /* Check for Cost of Waiting data (highest priority: Invisible Bleed Reveal) */
-            var waitingData = null;
-            try { waitingData = JSON.parse(localStorage.getItem('cost_of_waiting_data') || 'null'); } catch(e) {}
-
+            var statEl = document.getElementById('smartStat'), labelEl = document.getElementById('smartStatLabel'), valueEl = document.getElementById('smartStatValue'), subEl = document.getElementById('smartStatSub'), ctaEl = document.getElementById('smartStatCta');
+            var waitingData = null; try { waitingData = JSON.parse(localStorage.getItem('cost_of_waiting_data') || 'null'); } catch(e) {}
             var dailyLeak = waitingData && (waitingData.costPerDay || waitingData.dailyCost);
             if (dailyLeak) {
-                /* State: Daily Leak KNOWN (red, emotional, drives return visits) */
-                statEl.className = 'hero-stat danger clickable';
-                labelEl.textContent = 'Daily Leak';
-                valueEl.textContent = '$' + Math.round(dailyLeak);
-                subEl.textContent = 'Lost per day of waiting';
-                ctaEl.textContent = 'Every day counts';
-                ctaEl.style.display = '';
-                statEl.onclick = function() { window.location.href = CONFIG.COST_OF_WAITING_URL; };
-                return;
+                statEl.className = 'hero-stat danger clickable'; labelEl.textContent = 'Daily Leak'; valueEl.textContent = '$' + Math.round(dailyLeak); subEl.textContent = 'Lost per day of waiting'; ctaEl.textContent = 'Every day counts'; ctaEl.style.display = '';
+                statEl.onclick = function() { window.location.href = CONFIG.COST_OF_WAITING_URL; }; return;
             }
-
-            /* Check for Freedom Calculator data (second priority) */
-            var freedomData = null;
-            try { freedomData = JSON.parse(localStorage.getItem('freedom_calculator_result') || 'null'); } catch(e) {}
-
+            var freedomData = null; try { freedomData = JSON.parse(localStorage.getItem('freedom_calculator_result') || 'null'); } catch(e) {}
             if (freedomData && freedomData.freedomYears && freedomData.freedomYears < 100) {
-                /* State: Freedom Year KNOWN */
                 var freedomYear = new Date().getFullYear() + parseInt(freedomData.freedomYears);
-                statEl.className = 'hero-stat clickable';
-                labelEl.textContent = 'Freedom Year';
-                valueEl.textContent = freedomYear;
-                subEl.textContent = freedomData.freedomYears + ' years';
-                ctaEl.style.display = 'none';
-                statEl.onclick = function() { window.location.href = CONFIG.FREEDOM_CALCULATOR_URL; };
-                return;
+                statEl.className = 'hero-stat clickable'; labelEl.textContent = 'Freedom Year'; valueEl.textContent = freedomYear; subEl.textContent = freedomData.freedomYears + ' years'; ctaEl.style.display = 'none';
+                statEl.onclick = function() { window.location.href = CONFIG.FREEDOM_CALCULATOR_URL; }; return;
             }
-
-            /* State: NOTHING KNOWN (Uncertainty Anxiety trigger) */
-            statEl.className = 'hero-stat danger clickable';
-            labelEl.textContent = 'Daily Leak';
-            valueEl.textContent = '$??';
-            subEl.textContent = "You're building blind";
-            ctaEl.textContent = 'Calculate yours \u2192';
-            ctaEl.style.display = '';
+            statEl.className = 'hero-stat danger clickable'; labelEl.textContent = 'Daily Leak'; valueEl.textContent = '$??'; subEl.textContent = "You're building blind"; ctaEl.textContent = 'Calculate yours \u2192'; ctaEl.style.display = '';
             statEl.onclick = function() { handleSmartStatClick(); };
         }
 
         function handleSmartStatClick() {
-            /* Route to whichever calculator is unlocked and incomplete */
-            if (unlockedSystems.indexOf('waiting') !== -1 && completedSystems.indexOf('waiting') === -1) {
-                window.location.href = CONFIG.COST_OF_WAITING_URL;
-            } else if (unlockedSystems.indexOf('freedom') !== -1 && completedSystems.indexOf('freedom') === -1) {
-                window.location.href = CONFIG.FREEDOM_CALCULATOR_URL;
-            } else {
-                /* If nothing unlocked yet, show the Autopilot unlock explanation */
-                var waitingSystem = SYSTEMS.find(function(s) { return s.id === 'waiting'; });
-                showInfoModal(waitingSystem);
-            }
+            if (unlockedSystems.indexOf('waiting') !== -1 && completedSystems.indexOf('waiting') === -1) { window.location.href = CONFIG.COST_OF_WAITING_URL; }
+            else if (unlockedSystems.indexOf('freedom') !== -1 && completedSystems.indexOf('freedom') === -1) { window.location.href = CONFIG.FREEDOM_CALCULATOR_URL; }
+            else { var ws = SYSTEMS.find(function(s) { return s.id === 'waiting'; }); showInfoModal(ws); }
         }
 
-        /* ================================================
-           CHANGE #2: SOCIAL UNLOCKS RENDERING
-           Visible cards between Next Action and Systems Grid.
-           Hide cards that are already unlocked/completed.
-           ================================================ */
         function renderSocialUnlocks() {
-            var section = document.getElementById('socialUnlocksSection');
-            var dmCard = document.getElementById('socialDmCard');
-            var storyCard = document.getElementById('socialStoryCard');
-            var countEl = document.getElementById('socialUnlocksCount');
-
+            var section = document.getElementById('socialUnlocksSection'), dmCard = document.getElementById('socialDmCard'), storyCard = document.getElementById('socialStoryCard'), countEl = document.getElementById('socialUnlocksCount');
             var budgetUnlocked = localStorage.getItem('budget_unlocked') === 'true' || completedSystems.indexOf('budget') !== -1;
             var vaultUnlocked = localStorage.getItem('vault_unlocked') === 'true' || completedSystems.indexOf('prompt') !== -1;
-
-            /* If both are unlocked, hide entire section */
-            if (budgetUnlocked && vaultUnlocked) {
-                section.style.display = 'none';
-                return;
-            }
-
+            if (budgetUnlocked && vaultUnlocked) { section.style.display = 'none'; return; }
             section.style.display = 'block';
-
-            /* Mark completed cards */
-            if (budgetUnlocked) { dmCard.classList.add('unlocked'); } else { dmCard.classList.remove('unlocked'); }
-            if (vaultUnlocked) { storyCard.classList.add('unlocked'); } else { storyCard.classList.remove('unlocked'); }
-
-            var available = (budgetUnlocked ? 0 : 1) + (vaultUnlocked ? 0 : 1);
-            countEl.textContent = available + ' Available';
+            if (budgetUnlocked) dmCard.classList.add('unlocked'); else dmCard.classList.remove('unlocked');
+            if (vaultUnlocked) storyCard.classList.add('unlocked'); else storyCard.classList.remove('unlocked');
+            countEl.textContent = ((budgetUnlocked ? 0 : 1) + (vaultUnlocked ? 0 : 1)) + ' Available';
         }
 
         function handleSocialDmClick() {
-            var budgetUnlocked = localStorage.getItem('budget_unlocked') === 'true';
-            if (budgetUnlocked) return;
-
-            /* Copy keyword to clipboard, then open Instagram */
+            if (localStorage.getItem('budget_unlocked') === 'true') return;
             navigator.clipboard.writeText('INNERLOOP').then(function() {
                 trackSocialAction(currentArchitectId, 'dm_copy', 'INNERLOOP');
-                /* Brief visual feedback */
-                var actionEl = document.querySelector('#socialDmCard .social-unlock-action');
-                var original = actionEl.textContent;
+                var actionEl = document.querySelector('#socialDmCard .social-unlock-action'); var original = actionEl.textContent;
                 actionEl.textContent = '\u2705 "INNERLOOP" copied! Opening Instagram...';
-                setTimeout(function() {
-                    actionEl.textContent = original;
-                    window.open('https://ig.me/m/koutalksmoney', '_blank');
-                }, 1200);
-            }).catch(function() {
-                trackSocialAction(currentArchitectId, 'dm_copy', 'INNERLOOP');
-                window.open('https://ig.me/m/koutalksmoney', '_blank');
-            });
+                setTimeout(function() { actionEl.textContent = original; window.open('https://ig.me/m/koutalksmoney', '_blank'); }, 1200);
+            }).catch(function() { trackSocialAction(currentArchitectId, 'dm_copy', 'INNERLOOP'); window.open('https://ig.me/m/koutalksmoney', '_blank'); });
         }
 
         function handleSocialStoryClick() {
-            var vaultUnlocked = localStorage.getItem('vault_unlocked') === 'true';
-            if (vaultUnlocked) return;
-
-            trackSocialAction(currentArchitectId, 'story_click', 'certificate');
-            /* Open share modal with certificate instructions */
-            shareToInstagram();
+            if (localStorage.getItem('vault_unlocked') === 'true') return;
+            trackSocialAction(currentArchitectId, 'story_click', 'certificate'); shareToInstagram();
         }
 
         /* ================================================
@@ -1826,34 +1688,23 @@
            ================================================ */
         function renderDashboard() {
             document.getElementById('displayArchitectId').textContent = currentArchitectId;
-
-            var startDate = localStorage.getItem('architect_start_date');
-            if (startDate) {
-                var days = Math.max(1, Math.ceil((new Date() - new Date(startDate)) / (1000 * 60 * 60 * 24)));
-                document.getElementById('daysBuilding').textContent = days;
-            }
-
-            /* CHANGE #4: Update smart stat instead of static Freedom Year */
             updateSmartStat();
+            updateDollarImpactStat();
 
             var velocity = getVelocityScore();
             document.getElementById('velocityScore').textContent = velocity.score;
             document.getElementById('velocityDesc').textContent = velocity.desc;
-            try {
-                localStorage.setItem('cashvault_velocity', JSON.stringify({ score: velocity.score, label: velocity.label, systems: completedSystems.length }));
-            } catch(e) {}
+            try { localStorage.setItem('cashvault_velocity', JSON.stringify({ score: velocity.score, label: velocity.label, systems: completedSystems.length })); } catch(e) {}
 
             document.getElementById('systemsCompleted').textContent = completedSystems.length + '/7';
             document.getElementById('systemsCount').textContent = completedSystems.length + '/7';
 
-            renderSystemsGrid();
-            updateArchitectLevel();
-            updateNextAction();
-            updateWelcomeBanner();
-            renderSocialUnlocks();
-            writeEcosystemContext();
+            renderSystemsGrid(); updateArchitectLevel(); updateNextAction(); updateWelcomeBanner(); updateEmotionalHook(); updateReturnDashboard(); renderSocialUnlocks(); writeEcosystemContext();
         }
 
+        /* ================================================
+           CHANGE 4 + 5: SYSTEMS GRID WITH TIME BADGES + UNLOCK HINTS
+           ================================================ */
         function renderSystemsGrid() {
             var grid = document.getElementById('systemsGrid');
             grid.innerHTML = '';
@@ -1861,17 +1712,18 @@
                 var isCompleted = completedSystems.indexOf(system.id) !== -1;
                 var isUnlocked = unlockedSystems.indexOf(system.id) !== -1;
                 var isSocialAction = system.socialAction && !isUnlocked && !isCompleted;
-
                 var card = document.createElement('div');
                 var classNames = ['system-card'];
                 if (isCompleted) classNames.push('completed');
                 if (!isUnlocked) classNames.push('locked');
-                if (isSocialAction) {
-                    classNames.push('social-action');
-                    if (system.socialAction === 'dm') classNames.push('dm-unlock');
-                    if (system.socialAction === 'story') classNames.push('story-unlock');
-                }
+                if (isSocialAction) { classNames.push('social-action'); if (system.socialAction === 'dm') classNames.push('dm-unlock'); if (system.socialAction === 'story') classNames.push('story-unlock'); }
                 card.className = classNames.join(' ');
+
+                /* CHANGE 4: Time badge */
+                var timeBadgeHtml = '';
+                if (system.timeBadge && isUnlocked && !isCompleted) {
+                    timeBadgeHtml = '<span class="time-badge">\u23F1 ' + system.timeBadge + '</span>';
+                }
 
                 var actionBadgeHtml = '';
                 if (isSocialAction) {
@@ -1881,19 +1733,39 @@
 
                 var descText = system.desc;
                 var descClass = 'system-desc';
+                if (isCompleted) { var context = getCompletionContext(system.id); if (context) { descText = context; descClass = 'system-desc completed-context'; } }
+
+                /* CHANGE 5: Contextual unlock hints instead of just padlock */
+                var statusHtml = '';
                 if (isCompleted) {
-                    var context = getCompletionContext(system.id);
-                    if (context) { descText = context; descClass = 'system-desc completed-context'; }
+                    statusHtml = '<div class="system-status">\u2705</div>';
+                } else if (isUnlocked) {
+                    statusHtml = '<div class="system-status">\u25CB</div>';
+                } else {
+                    /* Build contextual unlock hint */
+                    var hintText = '';
+                    if (system.unlockType === 'after-autopilot') {
+                        hintText = 'Complete Autopilot <span class="hint-free">(free)</span>';
+                    } else if (system.unlockType === 'level') {
+                        var needed = system.unlockLevel === 'silver' ? 3 : 5;
+                        var remaining = needed - completedSystems.length;
+                        hintText = remaining + ' more tool' + (remaining !== 1 ? 's' : '') + ' to unlock <span class="hint-free">(free)</span>';
+                    } else if (system.unlockType === 'code') {
+                        hintText = 'DM to unlock <span class="hint-free">(free)</span>';
+                    } else if (system.unlockType === 'dual') {
+                        var goldNeeded = 5 - completedSystems.length;
+                        hintText = goldNeeded > 0 ? goldNeeded + ' more tools or share to unlock <span class="hint-free">(free)</span>' : 'Share to unlock <span class="hint-free">(free)</span>';
+                    }
+                    statusHtml = '<div class="unlock-hint">' + hintText + '</div>';
                 }
 
                 card.innerHTML =
-                    actionBadgeHtml +
+                    timeBadgeHtml + actionBadgeHtml +
                     '<div class="system-icon">' + system.icon + '</div>' +
                     '<div class="system-info">' +
                         '<div class="system-name">' + system.name + '</div>' +
                         '<div class="' + descClass + '">' + descText + '</div>' +
-                    '</div>' +
-                    '<div class="system-status">' + (isCompleted ? '\u2705' : (isUnlocked ? '\u25CB' : '\uD83D\uDD12')) + '</div>';
+                    '</div>' + statusHtml;
 
                 if (isUnlocked) { card.onclick = function() { window.location.href = system.url; }; }
                 else { card.onclick = (function(s) { return function() { showInfoModal(s); }; })(system); }
@@ -1903,29 +1775,16 @@
 
         function showInfoModal(system) {
             currentModalSystem = system;
-            var modal = document.getElementById('infoModal');
-            var card = document.getElementById('infoModalCard');
-            var icon = document.getElementById('infoModalIcon');
-            var title = document.getElementById('infoModalTitle');
-            var subtitle = document.getElementById('infoModalSubtitle');
-            var content = document.getElementById('infoModalContent');
-            var primaryBtn = document.getElementById('infoModalPrimaryBtn');
+            var modal = document.getElementById('infoModal'), card = document.getElementById('infoModalCard'), icon = document.getElementById('infoModalIcon'), title = document.getElementById('infoModalTitle'), subtitle = document.getElementById('infoModalSubtitle'), content = document.getElementById('infoModalContent'), primaryBtn = document.getElementById('infoModalPrimaryBtn');
             var exp = system.unlockExplanation;
-
             card.className = 'info-modal-card';
             if (system.unlockType === 'code' || system.socialAction === 'dm') card.classList.add('pink');
             if (system.unlockType === 'dual' || system.socialAction === 'story') card.classList.add('gold');
-
-            icon.textContent = system.icon;
-            title.textContent = 'Unlock ' + system.name;
-            subtitle.textContent = exp.subtitle;
-
+            icon.textContent = system.icon; title.textContent = 'Unlock ' + system.name; subtitle.textContent = exp.subtitle;
             var contentHtml = '';
             if (exp.dualOptions) {
                 contentHtml += '<div class="dual-options">';
-                exp.dualOptions.forEach(function(opt, i) {
-                    contentHtml += '<div class="dual-option' + (i === 0 ? ' selected' : '') + '" onclick="selectDualOption(' + i + ')"><div class="dual-option-icon">' + opt.icon + '</div><div class="dual-option-title">' + opt.title + '</div><div class="dual-option-desc">' + opt.desc + '</div></div>';
-                });
+                exp.dualOptions.forEach(function(opt, i) { contentHtml += '<div class="dual-option' + (i === 0 ? ' selected' : '') + '" onclick="selectDualOption(' + i + ')"><div class="dual-option-icon">' + opt.icon + '</div><div class="dual-option-title">' + opt.title + '</div><div class="dual-option-desc">' + opt.desc + '</div></div>'; });
                 contentHtml += '</div>';
                 exp.dualOptions.forEach(function(opt, i) {
                     var stepColor = i === 0 ? 'gold' : 'pink';
@@ -1942,185 +1801,98 @@
                 contentHtml += '<div class="unlock-method"><div class="unlock-method-title pink">How to Unlock</div>';
                 exp.steps.forEach(function(step, i) { contentHtml += '<div class="unlock-step"><span class="unlock-step-num pink">' + (i + 1) + '</span><span class="unlock-step-text">' + step + '</span></div>'; });
                 contentHtml += '</div>';
-                primaryBtn.textContent = '\uD83D\uDD11 I Have My Code';
-                primaryBtn.className = 'info-modal-btn primary pink';
-                primaryBtn.style.display = 'flex';
+                primaryBtn.textContent = '\uD83D\uDD11 I Have My Code'; primaryBtn.className = 'info-modal-btn primary pink'; primaryBtn.style.display = 'flex';
             } else {
                 var stepColor = system.unlockType === 'level' ? 'gold' : '';
                 contentHtml += '<div class="unlock-method"><div class="unlock-method-title ' + stepColor + '">' + exp.title + '</div>';
                 exp.steps.forEach(function(step, i) { contentHtml += '<div class="unlock-step"><span class="unlock-step-num ' + stepColor + '">' + (i + 1) + '</span><span class="unlock-step-text">' + step + '</span></div>'; });
                 contentHtml += '</div>';
-                if (exp.showProgress) {
-                    var needed = system.unlockLevel === 'silver' ? 3 : 5;
-                    contentHtml += '<p style="text-align:center;color:var(--accent-gold);font-weight:700;">Your progress: ' + completedSystems.length + '/' + needed + ' tools</p>';
-                }
-                /* CHANGE #3: For after-autopilot tools, point to Autopilot */
-                if (system.unlockType === 'after-autopilot') {
-                    primaryBtn.textContent = 'Open Autopilot System \u2192';
-                    primaryBtn.className = 'info-modal-btn primary';
-                    primaryBtn.style.display = 'flex';
-                } else if (system.unlockType === 'level') {
-                    primaryBtn.textContent = 'Keep Building \u2192';
-                    primaryBtn.className = 'info-modal-btn primary gold';
-                    primaryBtn.style.display = 'flex';
-                } else { primaryBtn.style.display = 'none'; }
+                if (exp.showProgress) { var needed = system.unlockLevel === 'silver' ? 3 : 5; contentHtml += '<p style="text-align:center;color:var(--accent-gold);font-weight:700;">Your progress: ' + completedSystems.length + '/' + needed + ' tools</p>'; }
+                if (system.unlockType === 'after-autopilot') { primaryBtn.textContent = 'Open Autopilot System \u2192'; primaryBtn.className = 'info-modal-btn primary'; primaryBtn.style.display = 'flex'; }
+                else if (system.unlockType === 'level') { primaryBtn.textContent = 'Keep Building \u2192'; primaryBtn.className = 'info-modal-btn primary gold'; primaryBtn.style.display = 'flex'; }
+                else { primaryBtn.style.display = 'none'; }
             }
-            content.innerHTML = contentHtml;
-            modal.classList.add('show');
+            content.innerHTML = contentHtml; modal.classList.add('show');
         }
 
         function closeInfoModal() { document.getElementById('infoModal').classList.remove('show'); currentModalSystem = null; }
-
-        function handleInfoModalAction() {
-            if (!currentModalSystem) return;
-            if (currentModalSystem.unlockType === 'code') { closeInfoModal(); showBudgetCodeModal(); }
-            else if (currentModalSystem.unlockType === 'after-autopilot') {
-                window.location.href = CONFIG.AUTOPILOT_URL;
-            } else { closeInfoModal(); }
-        }
-
-        function selectDualOption(index) {
-            document.querySelectorAll('.dual-option').forEach(function(el, i) { el.classList.toggle('selected', i === index); });
-            document.querySelectorAll('.dual-section').forEach(function(el, i) { el.classList.toggle('show', i === index); });
-        }
+        function handleInfoModalAction() { if (!currentModalSystem) return; if (currentModalSystem.unlockType === 'code') { closeInfoModal(); showBudgetCodeModal(); } else if (currentModalSystem.unlockType === 'after-autopilot') { window.location.href = CONFIG.AUTOPILOT_URL; } else { closeInfoModal(); } }
+        function selectDualOption(index) { document.querySelectorAll('.dual-option').forEach(function(el, i) { el.classList.toggle('selected', i === index); }); document.querySelectorAll('.dual-section').forEach(function(el, i) { el.classList.toggle('show', i === index); }); }
 
         function showBudgetCodeModal() { document.getElementById('budgetCodeInput').value = ''; document.getElementById('budgetCodeError').style.display = 'none'; document.getElementById('budgetCodeModal').classList.add('show'); }
         function closeBudgetCodeModal() { document.getElementById('budgetCodeModal').classList.remove('show'); }
-
         function verifyBudgetCode() {
-            var input = document.getElementById('budgetCodeInput');
-            var error = document.getElementById('budgetCodeError');
-            var code = input.value.trim().toUpperCase();
-            if (simpleHash(code) === BUDGET_HASH) {
-                localStorage.setItem('budget_unlocked', 'true');
-                closeBudgetCodeModal();
-                loadUnlockStatus();
-                renderDashboard();
-                showSuccessModal('Budget Calculator Unlocked!', 'Cash flow control activated.');
-                trackSocialAction(currentArchitectId, 'budget_code_success', code);
+            var input = document.getElementById('budgetCodeInput'), error = document.getElementById('budgetCodeError');
+            if (simpleHash(input.value.trim().toUpperCase()) === BUDGET_HASH) {
+                localStorage.setItem('budget_unlocked', 'true'); closeBudgetCodeModal(); loadUnlockStatus(); renderDashboard(); showSuccessModal('Budget Calculator Unlocked!', 'Cash flow control activated.'); trackSocialAction(currentArchitectId, 'budget_code_success', input.value.trim().toUpperCase());
             } else { error.style.display = 'block'; input.style.borderColor = 'var(--danger)'; }
         }
-
         function showVaultCodeModal() { closeInfoModal(); document.getElementById('vaultCodeInput').value = ''; document.getElementById('vaultCodeError').style.display = 'none'; document.getElementById('vaultCodeModal').classList.add('show'); }
         function closeVaultCodeModal() { document.getElementById('vaultCodeModal').classList.remove('show'); }
-
         function verifyVaultCode() {
-            var input = document.getElementById('vaultCodeInput');
-            var error = document.getElementById('vaultCodeError');
-            var code = input.value.trim().toUpperCase();
-            if (simpleHash(code) === VAULT_HASH) {
-                localStorage.setItem('vault_unlocked', 'true');
-                closeVaultCodeModal();
-                loadUnlockStatus();
-                renderDashboard();
-                showSuccessModal('Prompt Vault Unlocked!', 'AI arsenal activated.');
-                trackSocialAction(currentArchitectId, 'vault_code_success', code);
+            var input = document.getElementById('vaultCodeInput'), error = document.getElementById('vaultCodeError');
+            if (simpleHash(input.value.trim().toUpperCase()) === VAULT_HASH) {
+                localStorage.setItem('vault_unlocked', 'true'); closeVaultCodeModal(); loadUnlockStatus(); renderDashboard(); showSuccessModal('Prompt Vault Unlocked!', 'AI arsenal activated.'); trackSocialAction(currentArchitectId, 'vault_code_success', input.value.trim().toUpperCase());
             } else { error.style.display = 'block'; input.style.borderColor = 'var(--danger)'; }
         }
 
         function showSuccessModal(titleText, descText) {
-            var modal = document.getElementById('infoModal');
-            var card = document.getElementById('infoModalCard');
-            card.className = 'info-modal-card';
-            document.getElementById('infoModalIcon').textContent = '\uD83C\uDF89';
-            document.getElementById('infoModalTitle').textContent = titleText;
-            document.getElementById('infoModalSubtitle').textContent = descText;
-            document.getElementById('infoModalContent').innerHTML = '';
-            document.getElementById('infoModalPrimaryBtn').style.display = 'none';
-            modal.classList.add('show');
-            triggerCelebration();
+            var modal = document.getElementById('infoModal'), card = document.getElementById('infoModalCard');
+            card.className = 'info-modal-card'; document.getElementById('infoModalIcon').textContent = '\uD83C\uDF89'; document.getElementById('infoModalTitle').textContent = titleText; document.getElementById('infoModalSubtitle').textContent = descText; document.getElementById('infoModalContent').innerHTML = ''; document.getElementById('infoModalPrimaryBtn').style.display = 'none'; modal.classList.add('show'); triggerCelebration();
             setTimeout(function() { modal.classList.remove('show'); }, 2000);
         }
 
+        /* ================================================
+           CHANGE 6 + 13: LEVEL SYSTEM (15% start + translations)
+           ================================================ */
         function updateArchitectLevel() {
             var count = completedSystems.length;
-            var badge = document.getElementById('levelBadge');
-            var name = document.getElementById('levelName');
-            var bar = document.getElementById('levelProgressBar');
-            var current = document.getElementById('levelCurrentXp');
-            var next = document.getElementById('levelNextReward');
-            var level, progress, nextReward;
+            var badge = document.getElementById('levelBadge'), name = document.getElementById('levelName'), bar = document.getElementById('levelProgressBar'), current = document.getElementById('levelCurrentXp'), next = document.getElementById('levelNextReward');
+            var level, progress, nextReward, levelTranslation;
 
-            if (count >= 7) { level = 'elite'; progress = 100; nextReward = 'Max level \uD83D\uDC51'; document.getElementById('nextAction').style.display = 'none'; document.getElementById('allComplete').style.display = 'block'; }
-            else if (count >= 5) { level = 'gold'; progress = 70 + ((count - 5) / 2) * 30; nextReward = (7 - count) + ' more \u2192 Elite'; }
-            else if (count >= 3) { level = 'silver'; progress = 40 + ((count - 3) / 2) * 30; nextReward = (5 - count) + ' more \u2192 Gold'; }
-            else { level = 'bronze'; progress = count === 0 ? 0 : 5 + (count / 3) * 35; nextReward = (3 - count) + ' more \u2192 Silver'; }
+            if (count >= 7) { level = 'elite'; progress = 100; nextReward = 'Max level \uD83D\uDC51'; levelTranslation = 'Full Automation'; document.getElementById('nextAction').style.display = 'none'; document.getElementById('allComplete').style.display = 'block'; }
+            else if (count >= 5) { level = 'gold'; progress = 70 + ((count - 5) / 2) * 30; nextReward = (7 - count) + ' more \u2192 Elite'; levelTranslation = 'Machine Running'; }
+            else if (count >= 3) { level = 'silver'; progress = 40 + ((count - 3) / 2) * 30; nextReward = (5 - count) + ' more \u2192 Gold'; levelTranslation = 'System Active'; }
+            /* CHANGE 6: 15% start for Bronze */
+            else { level = 'bronze'; progress = count === 0 ? 15 : 15 + (count / 3) * 25; nextReward = (3 - count) + ' more \u2192 Silver'; levelTranslation = 'First Steps'; }
 
             badge.className = 'level-badge ' + level;
-            name.textContent = level.charAt(0).toUpperCase() + level.slice(1);
+            /* CHANGE 13: Append financial translation */
+            name.textContent = level.charAt(0).toUpperCase() + level.slice(1) + ': ' + levelTranslation;
             bar.className = 'level-progress-bar ' + level;
             bar.style.width = progress + '%';
-            current.textContent = count + ' / 7 tools';
+            /* CHANGE 6: Show "You showed up" for 0 completions */
+            current.textContent = count === 0 ? 'You showed up' : count + ' / 7 tools';
             next.textContent = nextReward;
         }
 
-        /* ================================================
-           CHANGE #1: REWRITTEN NEXT ACTION COPY
-           Specific dollar amounts + specific time + specific outcome
-           ================================================ */
         function updateNextAction() {
-            var title = document.getElementById('nextActionTitle');
-            var desc = document.getElementById('nextActionDesc');
-            var btn = document.getElementById('nextActionBtn');
-            var btnText = document.getElementById('nextActionBtnText');
-            var actionSection = document.getElementById('nextAction');
-
-            var nextSystem = SYSTEMS
-                .filter(function(s) { return completedSystems.indexOf(s.id) === -1 && unlockedSystems.indexOf(s.id) !== -1; })
-                .sort(function(a, b) { return a.priority - b.priority; })[0];
+            var title = document.getElementById('nextActionTitle'), desc = document.getElementById('nextActionDesc'), btn = document.getElementById('nextActionBtn'), btnText = document.getElementById('nextActionBtnText'), actionSection = document.getElementById('nextAction');
+            var nextSystem = SYSTEMS.filter(function(s) { return completedSystems.indexOf(s.id) === -1 && unlockedSystems.indexOf(s.id) !== -1; }).sort(function(a, b) { return a.priority - b.priority; })[0];
 
             if (nextSystem) {
                 actionSection.className = 'next-action';
-                /* CHANGE #1: Math-driven copy, not motivational copy */
                 var messages = {
-                    autopilot: {
-                        title: 'Install Autopilot System',
-                        desc: 'Your paycheck hits your account. Within 24 hours, half is gone and you can\'t explain where. This system auto-routes every dollar before you can touch it. 10-minute setup. Runs forever.'
-                    },
-                    freedom: {
-                        title: 'Calculate Your Freedom Number',
-                        desc: "You don't know your Freedom Number. That's the exact monthly income where you never need a paycheck again. One calculation. 10 seconds. You'll either feel relieved or terrified. Either way, you'll know."
-                    },
-                    waiting: {
-                        title: 'See What Waiting Costs You',
-                        desc: 'At your income, every year you wait to invest costs you $17,000 by age 40. The calculator shows YOUR exact number. Not a guess. Math.'
-                    },
-                    investment: {
-                        title: 'Pick Your First Fund',
-                        desc: "You've seen the math. Now pick the one fund that does the work. $25/week. One ETF. Set it and walk away."
-                    },
-                    '800club': {
-                        title: 'Stop Overpaying on Everything',
-                        desc: "A 650 credit score costs you $3,000 more on your first car loan than an 800. That's 200+ hours of work at your wage. The checklist takes 10 minutes."
-                    },
-                    budget: {
-                        title: 'Find Your Hidden Spending',
-                        desc: 'Most people your age lose $50-$200/mo to subscriptions they forgot about. That\'s 50+ hours of work per year. This calculator finds every dollar.'
-                    },
-                    prompt: {
-                        title: 'Copy My AI Shortcuts',
-                        desc: 'One AI prompt saves me 3 hours/week managing money. You can copy it in 30 seconds. No learning curve.'
-                    }
+                    autopilot: { title: 'Install Autopilot System', desc: 'Your paycheck hits your account. Within 24 hours, half is gone and you can\'t explain where. This system auto-routes every dollar before you can touch it. 10-minute setup. Runs forever.' },
+                    freedom: { title: 'Calculate Your Freedom Number', desc: "You don't know your Freedom Number. That's the exact monthly income where you never need a paycheck again. One calculation. 10 seconds. You'll either feel relieved or terrified. Either way, you'll know." },
+                    waiting: { title: 'See What Waiting Costs You', desc: 'At your income, every year you wait to invest costs you $17,000 by age 40. The calculator shows YOUR exact number. Not a guess. Math.' },
+                    investment: { title: 'Pick Your First Fund', desc: "You've seen the math. Now pick the one fund that does the work. $25/week. One ETF. Set it and walk away." },
+                    '800club': { title: 'Stop Overpaying on Everything', desc: "A 650 credit score costs you $3,000 more on your first car loan than an 800. That's 200+ hours of work at your wage. The checklist takes 10 minutes." },
+                    budget: { title: 'Find Your Hidden Spending', desc: 'Most people your age lose $50-$200/mo to subscriptions they forgot about. That\'s 50+ hours of work per year. This calculator finds every dollar.' },
+                    prompt: { title: 'Copy My AI Shortcuts', desc: 'One AI prompt saves me 3 hours/week managing money. You can copy it in 30 seconds. No learning curve.' }
                 };
-                var msg = messages[nextSystem.id];
-                title.textContent = msg.title;
-                desc.textContent = msg.desc;
-                btn.href = nextSystem.url;
-                btn.onclick = null;
-                btnText.textContent = 'Open ' + nextSystem.name.split(' ')[0];
+                var msg = messages[nextSystem.id]; title.textContent = msg.title; desc.textContent = msg.desc;
+                btn.href = nextSystem.url; btn.onclick = null; btnText.textContent = 'Open ' + nextSystem.name.split(' ')[0];
             } else {
                 var nextLocked = SYSTEMS.find(function(s) { return completedSystems.indexOf(s.id) === -1 && unlockedSystems.indexOf(s.id) === -1; });
                 if (nextLocked) {
-                    actionSection.className = 'next-action level-up';
-                    title.textContent = 'Level Up to Unlock ' + nextLocked.name;
+                    actionSection.className = 'next-action level-up'; title.textContent = 'Level Up to Unlock ' + nextLocked.name;
                     var reqText = '';
                     if (nextLocked.unlockType === 'level') reqText = 'Reach ' + nextLocked.unlockLevel.charAt(0).toUpperCase() + nextLocked.unlockLevel.slice(1) + ' level';
                     else if (nextLocked.unlockType === 'code') reqText = 'DM @koutalksmoney to get the unlock code';
                     else if (nextLocked.unlockType === 'dual') reqText = 'Reach Gold level or post your certificate on your story';
                     desc.textContent = reqText + '. Your progress: ' + completedSystems.length + '/7 tools.';
-                    btn.href = '#';
-                    btn.onclick = function(e) { e.preventDefault(); showInfoModal(nextLocked); };
-                    btnText.textContent = 'See How to Unlock';
+                    btn.href = '#'; btn.onclick = function(e) { e.preventDefault(); showInfoModal(nextLocked); }; btnText.textContent = 'See How to Unlock';
                 }
             }
         }
@@ -2130,45 +1902,33 @@
             document.getElementById('shareCardId').textContent = currentArchitectId;
             document.getElementById('shareCardStats').textContent = completedSystems.length + '/7 Tools Active';
             document.getElementById('shareCardLevel').textContent = getArchitectLevel().charAt(0).toUpperCase() + getArchitectLevel().slice(1) + ' Architect';
-            modal.classList.add('show');
-            trackSocialAction(currentArchitectId, 'ig_open', 'share_modal');
+            modal.classList.add('show'); trackSocialAction(currentArchitectId, 'ig_open', 'share_modal');
         }
         function closeShareModal() { document.getElementById('shareModal').classList.remove('show'); }
 
         function shareToTwitter() {
             var text = encodeURIComponent(completedSystems.length + '/7 wealth tools active \u26A1\n\nArchitect ID: ' + currentArchitectId + '\n\n@koutalksmoney');
-            window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
-            trackSocialAction(currentArchitectId, 'share_twitter', currentArchitectId);
+            window.open('https://twitter.com/intent/tweet?text=' + text, '_blank'); trackSocialAction(currentArchitectId, 'share_twitter', currentArchitectId);
         }
 
         function copyShareText() {
-            var text = completedSystems.length + '/7 wealth tools active \u26A1\n\nArchitect ID: ' + currentArchitectId + '\n\nBuilding the machine.\n\n@koutalksmoney';
-            navigator.clipboard.writeText(text);
-            showSuccessModal('Copied!', 'Caption ready to paste.');
-            trackSocialAction(currentArchitectId, 'share_copy', currentArchitectId);
+            navigator.clipboard.writeText(completedSystems.length + '/7 wealth tools active \u26A1\n\nArchitect ID: ' + currentArchitectId + '\n\nBuilding the machine.\n\n@koutalksmoney');
+            showSuccessModal('Copied!', 'Caption ready to paste.'); trackSocialAction(currentArchitectId, 'share_copy', currentArchitectId);
         }
 
         function copyArchitectId() {
             navigator.clipboard.writeText(currentArchitectId);
-            var badge = document.querySelector('.architect-badge');
-            var original = badge.innerHTML;
-            badge.innerHTML = '<span>\u2713 Copied!</span>';
+            var badge = document.querySelector('.architect-badge'); var original = badge.innerHTML; badge.innerHTML = '<span>\u2713 Copied!</span>';
             setTimeout(function() { badge.innerHTML = original; }, 1500);
         }
 
         function writeEcosystemContext() {
             try {
-                var context = {
-                    architectId: currentArchitectId,
-                    isTempId: isTempId(currentArchitectId),
-                    isBridgeUser: isBridgeUser(),
-                    level: getArchitectLevel(),
-                    velocity: getVelocityScore().score,
-                    completedCount: completedSystems.length,
-                    completedSystems: completedSystems,
-                    lastVisit: new Date().toISOString()
-                };
-                localStorage.setItem('cashvault_ecosystem', JSON.stringify(context));
+                localStorage.setItem('cashvault_ecosystem', JSON.stringify({
+                    architectId: currentArchitectId, isTempId: isTempId(currentArchitectId), isBridgeUser: isBridgeUser(),
+                    level: getArchitectLevel(), velocity: getVelocityScore().score, completedCount: completedSystems.length,
+                    completedSystems: completedSystems, lastVisit: new Date().toISOString()
+                }));
             } catch(e) {}
         }
     </script>
