@@ -1275,10 +1275,10 @@
                 switch(systemId) {
                     case 'autopilot': var archId = localStorage.getItem('cashvault_architect_id'); return archId ? 'ID: ' + archId : null;
                     case 'freedom': var fData = JSON.parse(localStorage.getItem('freedom_calculator_result') || 'null'); if (fData && fData.exitAge) return 'Freedom Age: ' + fData.exitAge; if (fData && fData.freedomYears) return 'Freedom: ' + fData.freedomYears + ' yrs'; return null;
-                    case 'waiting': var wData = JSON.parse(localStorage.getItem('cost_of_waiting_data') || 'null'); if (wData && wData.costPerDay) return 'Leak: $' + Math.round(wData.costPerDay) + '/day'; return null;
-                    case 'investment': var iData = JSON.parse(localStorage.getItem('investmentSimplifier_portfolio') || 'null'); if (iData && iData.etf) return 'Portfolio: ' + iData.etf; return null;
+                    case 'waiting': var wData = JSON.parse(localStorage.getItem('cost_of_waiting_data') || 'null'); var cpd = wData && (wData.costPerDay || wData.dailyCost); if (cpd) return 'Leak: $' + Math.round(cpd) + '/day'; return null;
+                    case 'investment': var iData = JSON.parse(localStorage.getItem('investmentSimplifier_portfolio') || 'null'); if (iData && iData.etfs && iData.etfs.length > 0) { var iCore = iData.etfs.find(function(e) { return e.type === 'core'; }) || iData.etfs[0]; return 'Portfolio: ' + iCore.ticker; } return null;
                     case '800club': var score = localStorage.getItem('credit_protocol_score'); if (score) return 'Score: ' + score + '%'; return null;
-                    case 'budget': var bData = JSON.parse(localStorage.getItem('budget_calculator_result') || 'null'); if (bData && bData.selectedSystem) return 'System: ' + bData.selectedSystem; return null;
+                    case 'budget': var bSystem = localStorage.getItem('budget_selected_system'); if (bSystem) return bSystem; return null;
                     case 'prompt': var cats = JSON.parse(localStorage.getItem('prompt_vault_categories_used') || '[]'); if (cats.length > 0) return cats.length + ' categories used'; return null;
                 }
             } catch(e) {}
@@ -1709,11 +1709,12 @@
             var waitingData = null;
             try { waitingData = JSON.parse(localStorage.getItem('cost_of_waiting_data') || 'null'); } catch(e) {}
 
-            if (waitingData && waitingData.costPerDay) {
+            var dailyLeak = waitingData && (waitingData.costPerDay || waitingData.dailyCost);
+            if (dailyLeak) {
                 /* State: Daily Leak KNOWN (red, emotional, drives return visits) */
                 statEl.className = 'hero-stat danger clickable';
                 labelEl.textContent = 'Daily Leak';
-                valueEl.textContent = '$' + Math.round(waitingData.costPerDay);
+                valueEl.textContent = '$' + Math.round(dailyLeak);
                 subEl.textContent = 'Lost per day of waiting';
                 ctaEl.textContent = 'Every day counts';
                 ctaEl.style.display = '';
@@ -1725,7 +1726,7 @@
             var freedomData = null;
             try { freedomData = JSON.parse(localStorage.getItem('freedom_calculator_result') || 'null'); } catch(e) {}
 
-            if (freedomData && freedomData.freedomYears) {
+            if (freedomData && freedomData.freedomYears && freedomData.freedomYears < 100) {
                 /* State: Freedom Year KNOWN */
                 var freedomYear = new Date().getFullYear() + parseInt(freedomData.freedomYears);
                 statEl.className = 'hero-stat clickable';
