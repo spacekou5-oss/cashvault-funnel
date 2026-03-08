@@ -446,11 +446,6 @@
             }
         };
 
-        /* =====================================================
-           FIX 8: CATEGORY-SPECIFIC LOADING STEPS
-           getDynamicSteps now receives `category` and returns
-           steps that feel personal to the user's actual prompt.
-           ===================================================== */
         function getDynamicSteps(data, category) {
             const filledCount = Object.values(data).filter(v => v && v.trim()).length;
             const categorySteps = {
@@ -514,13 +509,6 @@
             } catch(e) { return []; }
         }
 
-        /* =====================================================
-           FIX 1: SHOW PROMPT OPENING, NOT THE MIDDLE
-           Original showed a percentage-based middle slice.
-           Now shows the first 3 non-empty lines (the hook)
-           and blurs everything after. User sees their data
-           reflected back and wants the rest.
-           ===================================================== */
         function getVisiblePortion(text) {
             if (!text) return { blurredStart: '', visible: '', blurredEnd: '' };
             const lines = text.split('\n').filter(l => l.trim() !== '');
@@ -541,13 +529,6 @@
             return `${Math.floor(h / 24)}d ago`;
         }
 
-        /* =====================================================
-           FIX 2: NATIVE EMAIL CAPTURE
-           Replaces the Beehiiv iframe which fails silently
-           on mobile (the primary traffic source).
-           Captures email instantly, unlocks prompt immediately,
-           submits to Beehiiv in the background.
-           ===================================================== */
         function NativeEmailCapture({ onEmailSubmit, promptName, category, inputs }) {
             const [email, setEmail] = useState('');
             const [loading, setLoading] = useState(false);
@@ -563,11 +544,9 @@
                 setLoading(true);
                 setError('');
 
-                // Step 1: Instant local unlock (primary UX goal)
                 localStorage.setItem('vault_email_captured', 'true');
                 localStorage.setItem('vault_user_email', email);
 
-                // Step 2: Background Beehiiv submission via bridge page iframe (with session_id injected)
                 try {
                     const bridgeUrl = `${CONFIG.BRIDGE_PAGE_URL}?email=${encodeURIComponent(email)}&autosubmit=true&source=vault-gate&session_id=${window._sessionId}`;
                     const hiddenFrame = document.createElement('iframe');
@@ -577,7 +556,6 @@
                     setTimeout(() => { try { document.body.removeChild(hiddenFrame); } catch(e){} }, 5000);
                 } catch(e) { /* silent fail */ }
 
-                // Step 3: High-Leverage Payload Capture to tool_completions
                 const urlSrc = new URLSearchParams(window.location.search).get('src') || 'vault-gate';
                 captureHighLeverageData('prompt_vault', { 
                     email: email, 
@@ -587,7 +565,6 @@
                     user_inputs: inputs
                 });
 
-                // Step 4: Notify parent to trigger unlock animation
                 onEmailSubmit(email);
             };
 
@@ -620,13 +597,6 @@
             );
         }
 
-        /* =====================================================
-           FIX 9: GATEKEEPER WITH ROTATING MICRO-COPY
-           Original: generic spinner + percentage.
-           Now: rotates one message per second during load,
-           priming the user on what they are about to access
-           before they touch a single input.
-           ===================================================== */
         function Gatekeeper({ onUnlock }) {
             const [progress, setProgress] = useState(0);
             const [messageIndex, setMessageIndex] = useState(0);
@@ -675,7 +645,6 @@
             );
         }
 
-        /* === ONBOARDING (unchanged flow, skipped for warm traffic via FIX 3) === */
         function OnboardingFlow({ onComplete }) {
             const [step, setStep] = useState(0);
             const steps = [
@@ -706,7 +675,6 @@
             );
         }
 
-        /* === VAULT COMPONENTS (unchanged) === */
         function VaultPromptItem({ item, index, isUnlocked, onDelete, isNewest }) {
             const [copied, setCopied] = useState(false);
             const [expanded, setExpanded] = useState(false);
@@ -761,17 +729,11 @@
             );
         }
 
-        /* =====================================================
-           FIX 4: PROGRESS BAR STARTS AT 15%
-           Original started at 0% which is psychologically
-           punishing. 15% communicates "you showed up."
-           One Math.max() call. One line changed.
-           ===================================================== */
         function GoalGradientBar({ data, requiredFields }) {
             const filledCount = requiredFields.filter(f => data[f] && data[f].trim() !== '').length;
             const totalFields = requiredFields.length;
             const rawProgress = Math.round((filledCount / totalFields) * 100);
-            const progress = Math.max(15, rawProgress); // FIX 4: Never below 15%
+            const progress = Math.max(15, rawProgress);
             const isComplete = filledCount === totalFields;
             const progressColor = isComplete ? 'var(--success)' : 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)';
             const percentColor = isComplete ? 'var(--success)' : rawProgress === 0 ? 'var(--text-muted)' : '#10b981';
@@ -837,7 +799,6 @@
             );
         }
 
-        /* === PDF UPLOAD === */
         function PdfUploadZone({ onTextExtracted }) {
             const [state, setState] = useState('idle');
             const [fileName, setFileName] = useState('');
@@ -868,12 +829,6 @@
             );
         }
 
-        /* =====================================================
-           PROMPT MODULE
-           Applied fixes: 5 (blur gate copy), 6 (trust line),
-           7 (mobile Command Center CTA), 8 (category steps),
-           10 (dimmed bridge teaser pre-unlock)
-           ===================================================== */
         function PromptModule({ category, promptList, onGenerated, onSave, isUnlocked, onEmailCapture }) {
             const [activePrompt, setActivePrompt] = useState(() => {
                 const rec = promptList.find(p => p.recommended);
@@ -892,7 +847,6 @@
             const requiredFields = currentConfig.fields.filter(f => f.required).map(f => f.key);
             const allFilled = requiredFields.every(f => inputs[f] && inputs[f].trim() !== '');
 
-            // FIX 8: Pass category into getDynamicSteps
             const steps = useMemo(() => getDynamicSteps(inputs, category), [inputs, category]);
 
             const topPick = promptList.find(p => p.recommended);
@@ -906,6 +860,18 @@
 
             const handleGenerate = () => {
                 setIsProcessing(true); setGenerated(null); setCurrentStep(0); setPanelOpen(true); setSaved(false);
+
+                // OPTIMIZATION: Fire data capture INSTANTLY on click. Independent of UI timeout.
+                // If the user swipes away or iOS suspends the tab, this payload already fired.
+                const knownEmail = localStorage.getItem('vault_user_email') || 'anonymous_or_pending';
+                captureHighLeverageData('prompt_vault_generate', {
+                    category: category,
+                    prompt_name: currentConfig.name,
+                    user_email: knownEmail,
+                    user_inputs: inputs,
+                    is_unlocked: isUnlocked
+                });
+
                 steps.forEach((_, i) => { setTimeout(() => setCurrentStep(i + 1), 600 * (i + 1)); });
                 setTimeout(() => {
                     const text = buildPrompt(currentConfig, inputs);
@@ -913,16 +879,6 @@
                     const status = isUnlocked ? 'unlocked' : 'pending';
                     onGenerated(category, text, status);
                     if (!isUnlocked) saveForBridgePage(category, currentConfig.name, text);
-                    
-                    // Capture high-leverage data on generation (email glued to every row)
-                    const knownEmail = localStorage.getItem('vault_user_email') || 'anonymous_or_pending';
-                    captureHighLeverageData('prompt_vault_generate', {
-                        category: category,
-                        prompt_name: currentConfig.name,
-                        user_email: knownEmail,
-                        user_inputs: inputs,
-                        is_unlocked: isUnlocked
-                    });
                 }, 3000);
             };
 
@@ -1012,17 +968,13 @@
                             </div>
                         )}
 
-                        {/* PRE-UNLOCK: Blur gate with FIX 1 (opening lines), FIX 2 (native email),
-                            FIX 5 (dynamic copy), FIX 6 (trust line), FIX 10 (bridge teaser) */}
                         {generated && !isProcessing && !isUnlocked && portions && (
                             <div className="blur-gate-container animate-fade-in">
                                 <div className="blur-gate-preview">
-                                    {/* FIX 1: Show first 3 lines (the hook), blur the rest */}
                                     <pre className="blur-gate-visible">{portions.visible}</pre>
                                     <pre className="blur-gate-blurred">{portions.blurredEnd}</pre>
 
                                     <div className="blur-gate-overlay">
-                                        {/* FIX 5: Dynamic prompt name + value-framed copy */}
                                         <div className="blur-gate-prompt-name">
                                             {currentConfig.name} / {category} Ops
                                         </div>
@@ -1034,7 +986,6 @@
                                             <strong>It took 4 seconds to build. It would take 2 hours to write.</strong>
                                         </p>
 
-                                        {/* FIX 2: Native email capture replaces Beehiiv iframe */}
                                         <NativeEmailCapture
                                             promptName={currentConfig.name}
                                             category={category}
@@ -1042,7 +993,6 @@
                                             onEmailSubmit={(email) => onEmailCapture(email)}
                                         />
 
-                                        {/* FIX 6: Trust line with @koutalksmoney identity anchor */}
                                         <div className="blur-gate-trust">
                                             <span>Unsubscribe in one click</span>
                                             <span>|</span>
@@ -1053,7 +1003,6 @@
                                     </div>
                                 </div>
 
-                                {/* FIX 10: Dimmed bridge teaser pre-unlock */}
                                 {currentConfig.bridge && currentConfig.bridge.link && (
                                     <div className="bridge-teaser">
                                         <span className="bridge-teaser-icon">🔓</span>
@@ -1075,7 +1024,6 @@
                             </div>
                         )}
 
-                        {/* POST-UNLOCK: Full output + FIX 7 (mobile Command Center CTA) */}
                         {generated && !isProcessing && isUnlocked && (
                             <>
                                 <div className="output-box animate-fade-in">
@@ -1092,7 +1040,6 @@
                                 <NextStepCard />
                                 <CrossAppBridge bridge={currentConfig.bridge} />
 
-                                {/* FIX 7: Command Center CTA in main column so mobile users see it */}
                                 <div className="mobile-command-cta">
                                     <p>You are inside the CashVault ecosystem. All 7 tools. One hub.</p>
                                     <a href={CONFIG.LINKS.COMMAND_CENTER} target="_blank" className="command-center-cta">
@@ -1119,9 +1066,6 @@
                 <input type="text" value={inputs[field.key] || ''} onChange={e => updateInput(field.key, e.target.value)} placeholder={field.placeholder} className="premium-input" /></div>);
         }
 
-        /* =====================================================
-           PROMPT DATABASE (21 templates, unchanged)
-           ===================================================== */
         const PROMPT_DB = {
             CAREER: [
                 { id: 'RESUME', name: 'Resume Rewriter', recommended: true,
@@ -1468,16 +1412,7 @@
             ]
         };
 
-        /* =====================================================
-           MAIN APP
-           Applied fixes: 3 (warm traffic onboarding skip)
-           ===================================================== */
         function App() {
-            /* FIX 3: Skip onboarding for warm Instagram/ManyChat traffic.
-               ManyChat CHEAT keyword link should be:
-               prompt-vault.html?src=cheat
-               This detects that param and bypasses the 3-step tutorial
-               that pre-sold users do not need. */
             const urlParams = new URLSearchParams(window.location.search);
             const isWarmTraffic = urlParams.get('src') === 'ig' || urlParams.get('src') === 'cheat';
 
@@ -1488,7 +1423,6 @@
                 return !(hasEmail || hasSaved || hasVisited);
             });
 
-            // FIX 3: isWarmTraffic bypasses onboarding entirely
             const [showOnboarding, setShowOnboarding] = useState(
                 () => !isWarmTraffic && localStorage.getItem('vault_onboarding_complete') !== 'true'
             );
@@ -1539,7 +1473,6 @@
                 return () => window.removeEventListener('storage', handleStorage);
             }, []);
 
-            /* FIX 2: Email capture handler called from NativeEmailCapture component */
             const handleEmailCapture = (email) => {
                 setUserEmail(email);
                 setIsUnlocked(true);
