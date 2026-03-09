@@ -26,608 +26,164 @@
   --red: #ef4444;
   --purple: #a855f7;
   --purple-dim: #3b1764;
+  --cyan: #22d3ee;
+  --cyan-dim: #0e4a54;
+  --cyan-glow: rgba(34,211,238,0.12);
+  --pmv-orange: #f97316;
 }
-
 * { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'JetBrains Mono', monospace; background: var(--void); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
 
-body {
-  font-family: 'JetBrains Mono', monospace;
-  background: var(--void);
-  color: var(--text-primary);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+.header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,10,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid var(--void-border); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.header-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.header-brand h1 { font-family: 'Bebas Neue', cursive; font-size: 22px; letter-spacing: 3px; color: var(--tape-blue); line-height: 1; }
+.header-brand .sub { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
+.header-clock { font-family: 'Bebas Neue', cursive; font-size: 14px; color: var(--burn-orange); letter-spacing: 2px; background: var(--burn-orange-glow); border: 1px solid var(--burn-orange-dim); padding: 4px 12px; border-radius: 4px; white-space: nowrap; }
+.header-pmv { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--pmv-orange); letter-spacing: 1px; background: rgba(249,115,22,0.1); border: 1px solid var(--burn-orange-dim); padding: 3px 10px; border-radius: 4px; white-space: nowrap; }
+.search-bar { flex: 1; max-width: 400px; position: relative; }
+.search-bar input { width: 100%; background: var(--void-light); border: 1px solid var(--void-border); color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 8px 12px 8px 36px; border-radius: 6px; outline: none; transition: border-color 0.2s; }
+.search-bar input:focus { border-color: var(--tape-blue); }
+.search-bar::before { content: "⌕"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 14px; }
+.stats-bar { display: flex; gap: 16px; flex-shrink: 0; }
+.stat-chip { font-size: 10px; color: var(--text-secondary); letter-spacing: 0.5px; }
+.stat-chip span { color: var(--tape-blue); font-weight: 600; }
 
-/* HEADER */
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  background: rgba(10,10,10,0.92);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--void-border);
-  padding: 12px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.header-brand h1 {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 22px;
-  letter-spacing: 3px;
-  color: var(--tape-blue);
-  line-height: 1;
-}
-
-.header-brand .sub {
-  font-size: 10px;
-  color: var(--text-dim);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.header-clock {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 14px;
-  color: var(--burn-orange);
-  letter-spacing: 2px;
-  background: var(--burn-orange-glow);
-  border: 1px solid var(--burn-orange-dim);
-  padding: 4px 12px;
-  border-radius: 4px;
-  white-space: nowrap;
-}
-
-.search-bar {
-  flex: 1;
-  max-width: 400px;
-  position: relative;
-}
-
-.search-bar input {
-  width: 100%;
-  background: var(--void-light);
-  border: 1px solid var(--void-border);
-  color: var(--text-primary);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  padding: 8px 12px 8px 36px;
-  border-radius: 6px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.search-bar input:focus {
-  border-color: var(--tape-blue);
-}
-
-.search-bar::before {
-  content: "⌕";
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-dim);
-  font-size: 14px;
-}
-
-.stats-bar {
-  display: flex;
-  gap: 16px;
-  flex-shrink: 0;
-}
-
-.stat-chip {
-  font-size: 10px;
-  color: var(--text-secondary);
-  letter-spacing: 0.5px;
-}
-
-.stat-chip span {
-  color: var(--tape-blue);
-  font-weight: 600;
-}
-
-/* NAV TABS */
-.nav-tabs {
-  position: fixed;
-  top: 56px;
-  left: 0;
-  right: 0;
-  z-index: 99;
-  background: rgba(10,10,10,0.95);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--void-border);
-  display: flex;
-  overflow-x: auto;
-  padding: 0 16px;
-  gap: 2px;
-  scrollbar-width: none;
-}
-
+.nav-tabs { position: fixed; top: 56px; left: 0; right: 0; z-index: 99; background: rgba(10,10,10,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--void-border); display: flex; overflow-x: auto; padding: 0 16px; gap: 2px; scrollbar-width: none; }
 .nav-tabs::-webkit-scrollbar { display: none; }
-
-.nav-tab {
-  flex-shrink: 0;
-  padding: 10px 16px;
-  font-family: 'Bebas Neue', cursive;
-  font-size: 13px;
-  letter-spacing: 1.5px;
-  color: var(--text-dim);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
-  white-space: nowrap;
-  user-select: none;
-}
-
+.nav-tab { flex-shrink: 0; padding: 10px 16px; font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 1.5px; color: var(--text-dim); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; user-select: none; }
 .nav-tab:hover { color: var(--text-secondary); }
+.nav-tab.active { color: var(--tape-blue); border-bottom-color: var(--tape-blue); }
+.nav-tab.active-cyan { color: var(--cyan); border-bottom-color: var(--cyan); }
+.nav-tab.active-pmv { color: var(--pmv-orange); border-bottom-color: var(--pmv-orange); }
+.nav-tab .kw { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--burn-orange); margin-left: 6px; opacity: 0.7; }
+.nav-tab .kw-cyan { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--cyan); margin-left: 6px; opacity: 0.7; }
+.nav-tab .kw-pmv { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--pmv-orange); margin-left: 6px; opacity: 0.7; }
+.nav-sep { flex-shrink: 0; width: 1px; background: var(--void-border); margin: 6px 4px; }
 
-.nav-tab.active {
-  color: var(--tape-blue);
-  border-bottom-color: var(--tape-blue);
-}
-
-.nav-tab .kw {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  color: var(--burn-orange);
-  margin-left: 6px;
-  opacity: 0.7;
-}
-
-/* MAIN */
-.main {
-  margin-top: 96px;
-  padding: 24px;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* PILLAR SECTION */
-.pillar-section {
-  display: none;
-  animation: fadeIn 0.3s ease;
-}
-
+.main { margin-top: 96px; padding: 24px; max-width: 1200px; margin-left: auto; margin-right: auto; }
+.pillar-section { display: none; animation: fadeIn 0.3s ease; }
 .pillar-section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+.pillar-header { margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--void-border); }
+.pillar-header h2 { font-family: 'Bebas Neue', cursive; font-size: 36px; letter-spacing: 4px; color: var(--text-primary); margin-bottom: 4px; }
+.pillar-header .keyword-badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--burn-orange); background: var(--burn-orange-glow); border: 1px solid var(--burn-orange-dim); padding: 3px 10px; border-radius: 4px; margin-right: 8px; }
+.pillar-header .keyword-badge-cyan { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--cyan); background: var(--cyan-glow); border: 1px solid var(--cyan-dim); padding: 3px 10px; border-radius: 4px; margin-right: 8px; }
+.pillar-header .keyword-badge-pmv { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--pmv-orange); background: rgba(249,115,22,0.1); border: 1px solid var(--burn-orange-dim); padding: 3px 10px; border-radius: 4px; margin-right: 8px; }
+.pillar-header .angle { font-size: 13px; color: var(--text-secondary); font-style: italic; margin-top: 8px; }
+.pillar-header .asset-link { font-size: 11px; color: var(--tape-blue); margin-top: 6px; word-break: break-all; opacity: 0.7; }
 
-.pillar-header {
-  margin-bottom: 32px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--void-border);
-}
+.flow-container { position: relative; padding-left: 40px; }
+.flow-container::before { content: ''; position: absolute; left: 18px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--tape-blue) 0%, var(--void-border) 100%); opacity: 0.4; }
+.flow-container.cyan-line::before { background: linear-gradient(180deg, var(--cyan) 0%, var(--void-border) 100%); }
 
-.pillar-header h2 {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 36px;
-  letter-spacing: 4px;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
+.flow-node { position: relative; margin-bottom: 24px; }
+.flow-node::before { content: ''; position: absolute; left: -26px; top: 16px; width: 10px; height: 10px; border-radius: 50%; background: var(--void-card); border: 2px solid var(--tape-blue); z-index: 1; }
+.flow-node.entry-node::before { background: var(--burn-orange); border-color: var(--burn-orange); box-shadow: 0 0 12px var(--burn-orange-glow); }
+.flow-node.day7-node::before { background: var(--green); border-color: var(--green); box-shadow: 0 0 12px var(--green-glow); }
+.flow-node.cyan-node::before { border-color: var(--cyan); }
+.flow-node.pmv-node::before { background: var(--pmv-orange); border-color: var(--pmv-orange); box-shadow: 0 0 12px var(--burn-orange-glow); }
 
-.pillar-header .keyword-badge {
-  display: inline-block;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--burn-orange);
-  background: var(--burn-orange-glow);
-  border: 1px solid var(--burn-orange-dim);
-  padding: 3px 10px;
-  border-radius: 4px;
-  margin-right: 8px;
-}
-
-.pillar-header .angle {
-  font-size: 13px;
-  color: var(--text-secondary);
-  font-style: italic;
-  margin-top: 8px;
-}
-
-.pillar-header .asset-link {
-  font-size: 11px;
-  color: var(--tape-blue);
-  margin-top: 6px;
-  word-break: break-all;
-  opacity: 0.7;
-}
-
-/* FLOW CONTAINER */
-.flow-container {
-  position: relative;
-  padding-left: 40px;
-}
-
-.flow-container::before {
-  content: '';
-  position: absolute;
-  left: 18px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(180deg, var(--tape-blue) 0%, var(--void-border) 100%);
-  opacity: 0.4;
-}
-
-/* FLOW NODE */
-.flow-node {
-  position: relative;
-  margin-bottom: 24px;
-}
-
-.flow-node::before {
-  content: '';
-  position: absolute;
-  left: -26px;
-  top: 16px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--void-card);
-  border: 2px solid var(--tape-blue);
-  z-index: 1;
-}
-
-.flow-node.entry-node::before {
-  background: var(--burn-orange);
-  border-color: var(--burn-orange);
-  box-shadow: 0 0 12px var(--burn-orange-glow);
-}
-
-.flow-node.day7-node::before {
-  background: var(--green);
-  border-color: var(--green);
-  box-shadow: 0 0 12px var(--green-glow);
-}
-
-.node-card {
-  background: var(--void-card);
-  border: 1px solid var(--void-border);
-  border-radius: 8px;
-  overflow: hidden;
-  transition: border-color 0.2s;
-}
-
+.node-card { background: var(--void-card); border: 1px solid var(--void-border); border-radius: 8px; overflow: hidden; transition: border-color 0.2s; }
 .node-card:hover { border-color: var(--tape-blue-dim); }
 
-.node-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--void-border);
-  background: rgba(59,130,246,0.04);
-}
-
+.node-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--void-border); background: rgba(59,130,246,0.04); }
 .node-header.entry-header { background: rgba(249,115,22,0.06); }
 .node-header.day7-header { background: rgba(34,197,94,0.06); }
+.node-header.cyan-header { background: rgba(34,211,238,0.06); }
+.node-header.pmv-header { background: rgba(249,115,22,0.06); }
 
-.node-timing {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.timing-badge {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 13px;
-  letter-spacing: 1.5px;
-  padding: 2px 8px;
-  border-radius: 3px;
-  background: var(--tape-blue-dim);
-  color: var(--tape-blue);
-}
-
+.node-timing { display: flex; align-items: center; gap: 8px; }
+.timing-badge { font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 1.5px; padding: 2px 8px; border-radius: 3px; background: var(--tape-blue-dim); color: var(--tape-blue); }
 .timing-badge.entry { background: var(--burn-orange-dim); color: var(--burn-orange); }
 .timing-badge.day7 { background: var(--green-dim); color: var(--green); }
-
-.timing-delay {
-  font-size: 10px;
-  color: var(--text-dim);
-}
-
-.node-type {
-  font-size: 10px;
-  color: var(--text-dim);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
+.timing-badge.cyan { background: var(--cyan-dim); color: var(--cyan); }
+.timing-badge.pmv { background: var(--burn-orange-dim); color: var(--pmv-orange); }
+.timing-delay { font-size: 10px; color: var(--text-dim); }
+.node-type { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
 
 .node-body { padding: 16px; }
+.message-copy { font-size: 12.5px; line-height: 1.7; color: var(--text-primary); white-space: pre-wrap; position: relative; }
+.message-copy .no-button-note { display: block; margin-top: 10px; font-size: 11px; color: var(--text-dim); font-style: italic; }
 
-.message-copy {
-  font-size: 12.5px;
-  line-height: 1.7;
-  color: var(--text-primary);
-  white-space: pre-wrap;
-  position: relative;
-}
+.button-block { margin-top: 12px; padding: 10px 14px; background: var(--tape-blue-glow); border: 1px solid var(--tape-blue-dim); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.button-block .btn-label { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; }
+.button-block .btn-text { font-size: 12px; font-weight: 600; color: var(--tape-blue); flex: 1; }
+.button-block .btn-url { font-size: 10px; color: var(--text-dim); word-break: break-all; max-width: 100%; flex-basis: 100%; margin-top: 4px; }
 
-.message-copy .no-button-note {
-  display: block;
-  margin-top: 10px;
-  font-size: 11px;
-  color: var(--text-dim);
-  font-style: italic;
-}
+/* Welcome flow buttons */
+.welcome-btn-grid { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.welcome-btn { background: var(--void-light); border: 1px solid var(--void-border); border-radius: 6px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.welcome-btn .wb-text { font-size: 12px; color: var(--text-primary); flex: 1; }
+.welcome-btn .wb-route { font-size: 10px; font-weight: 600; letter-spacing: 1px; }
 
-/* BUTTON BLOCK */
-.button-block {
-  margin-top: 12px;
-  padding: 10px 14px;
-  background: var(--tape-blue-glow);
-  border: 1px solid var(--tape-blue-dim);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
+/* PMV concept cards */
+.pmv-concept { background: var(--void-card); border: 1px solid var(--void-border); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+.pmv-concept h4 { font-family: 'Bebas Neue', cursive; font-size: 16px; letter-spacing: 2px; margin-bottom: 4px; }
+.pmv-concept p { font-size: 11px; color: var(--text-secondary); line-height: 1.6; }
+.pmv-concept .pmv-btn-text { font-size: 11px; color: var(--text-dim); margin-top: 8px; padding: 6px 10px; background: var(--void-light); border-radius: 4px; }
 
-.button-block .btn-label {
-  font-size: 10px;
-  color: var(--text-dim);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  flex-shrink: 0;
-}
+.comment-replies-group { margin-bottom: 16px; }
+.comment-replies-group .cr-label { font-family: 'Bebas Neue', cursive; font-size: 16px; letter-spacing: 2px; color: var(--burn-orange); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.cr-label .arrow { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: 0; }
 
-.button-block .btn-text {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--tape-blue);
-  flex: 1;
-}
+.reply-card { background: var(--void-card); border: 1px solid var(--burn-orange-dim); border-radius: 6px; padding: 12px 16px; margin-bottom: 8px; position: relative; cursor: pointer; transition: all 0.2s; }
+.reply-card:hover { border-color: var(--burn-orange); background: rgba(249,115,22,0.04); }
+.reply-card .reply-num { font-family: 'Bebas Neue', cursive; font-size: 11px; color: var(--burn-orange); letter-spacing: 1px; margin-bottom: 4px; }
+.reply-card .reply-text { font-size: 12px; line-height: 1.65; color: var(--text-primary); }
 
-.button-block .btn-url {
-  font-size: 10px;
-  color: var(--text-dim);
-  word-break: break-all;
-  max-width: 100%;
-  flex-basis: 100%;
-  margin-top: 4px;
-}
+.copy-btn { position: absolute; top: 8px; right: 8px; background: var(--void-light); border: 1px solid var(--void-border); color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 3px 8px; border-radius: 4px; cursor: pointer; transition: all 0.2s; z-index: 2; letter-spacing: 0.5px; }
+.copy-btn:hover { border-color: var(--tape-blue); color: var(--tape-blue); }
+.copy-btn.copied { border-color: var(--green); color: var(--green); }
 
-/* COMMENT REPLIES SECTION */
-.comment-replies-group {
-  margin-bottom: 16px;
-}
+.node-copy-btn { background: var(--void-light); border: 1px solid var(--void-border); color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 3px 8px; border-radius: 4px; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; }
+.node-copy-btn:hover { border-color: var(--tape-blue); color: var(--tape-blue); }
+.node-copy-btn.copied { border-color: var(--green); color: var(--green); }
 
-.comment-replies-group .cr-label {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 16px;
-  letter-spacing: 2px;
-  color: var(--burn-orange);
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.cr-label .arrow {
-  font-size: 11px;
-  color: var(--text-dim);
-  font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0;
-}
-
-.reply-card {
-  background: var(--void-card);
-  border: 1px solid var(--burn-orange-dim);
-  border-radius: 6px;
-  padding: 12px 16px;
-  margin-bottom: 8px;
-  position: relative;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.reply-card:hover {
-  border-color: var(--burn-orange);
-  background: rgba(249,115,22,0.04);
-}
-
-.reply-card .reply-num {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 11px;
-  color: var(--burn-orange);
-  letter-spacing: 1px;
-  margin-bottom: 4px;
-}
-
-.reply-card .reply-text {
-  font-size: 12px;
-  line-height: 1.65;
-  color: var(--text-primary);
-}
-
-/* COPY BUTTON */
-.copy-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: var(--void-light);
-  border: 1px solid var(--void-border);
-  color: var(--text-dim);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-  z-index: 2;
-  letter-spacing: 0.5px;
-}
-
-.copy-btn:hover {
-  border-color: var(--tape-blue);
-  color: var(--tape-blue);
-}
-
-.copy-btn.copied {
-  border-color: var(--green);
-  color: var(--green);
-}
-
-/* NODE COPY BTN */
-.node-copy-btn {
-  background: var(--void-light);
-  border: 1px solid var(--void-border);
-  color: var(--text-dim);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 0.5px;
-}
-
-.node-copy-btn:hover {
-  border-color: var(--tape-blue);
-  color: var(--tape-blue);
-}
-
-.node-copy-btn.copied {
-  border-color: var(--green);
-  color: var(--green);
-}
-
-/* URL COPY */
-.url-copy-btn {
-  background: none;
-  border: 1px solid var(--void-border);
-  color: var(--text-dim);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  padding: 2px 6px;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-
+.url-copy-btn { background: none; border: 1px solid var(--void-border); color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 6px; border-radius: 3px; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
 .url-copy-btn:hover { border-color: var(--tape-blue); color: var(--tape-blue); }
 .url-copy-btn.copied { border-color: var(--green); color: var(--green); }
 
-/* SECTION DIVIDER */
-.flow-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 28px 0 20px;
-  padding-left: 0;
-  position: relative;
-}
+.flow-divider { display: flex; align-items: center; gap: 12px; margin: 28px 0 20px; padding-left: 0; position: relative; }
+.flow-divider::before { content: ''; flex: 1; height: 1px; background: var(--void-border); }
+.flow-divider::after { content: ''; flex: 1; height: 1px; background: var(--void-border); }
+.flow-divider span { font-family: 'Bebas Neue', cursive; font-size: 12px; letter-spacing: 2px; color: var(--text-dim); white-space: nowrap; }
 
-.flow-divider::before {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--void-border);
-}
+.overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.overview-card { background: var(--void-card); border: 1px solid var(--void-border); border-radius: 8px; padding: 20px; cursor: pointer; transition: all 0.2s; }
+.overview-card:hover { border-color: var(--tape-blue-dim); transform: translateY(-2px); }
+.overview-card h3 { font-family: 'Bebas Neue', cursive; font-size: 20px; letter-spacing: 2px; margin-bottom: 4px; }
+.overview-card .oc-keyword { font-size: 11px; font-weight: 600; color: var(--burn-orange); margin-bottom: 8px; }
+.overview-card .oc-angle { font-size: 11px; color: var(--text-secondary); font-style: italic; margin-bottom: 12px; line-height: 1.5; }
+.overview-card .oc-stats { display: flex; gap: 16px; font-size: 10px; color: var(--text-dim); }
+.overview-card .oc-stats span { color: var(--tape-blue); }
+.overview-card.card-cyan:hover { border-color: var(--cyan-dim); }
+.overview-card.card-pmv:hover { border-color: var(--burn-orange-dim); }
 
-.flow-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--void-border);
-}
+.highlight { background: rgba(249,115,22,0.3); border-radius: 2px; padding: 0 2px; }
 
-.flow-divider span {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 12px;
-  letter-spacing: 2px;
-  color: var(--text-dim);
-  white-space: nowrap;
-}
+/* Info box */
+.info-box { background: var(--void-card); border: 1px solid var(--void-border); border-radius: 8px; padding: 16px; font-size: 12px; color: var(--text-secondary); line-height: 1.8; margin-top: 8px; }
+.info-box .label { font-weight: 600; min-width: 120px; display: inline-block; }
+.info-box .val-cyan { color: var(--cyan); font-weight: 600; }
+.info-box .val-orange { color: var(--burn-orange); font-weight: 600; }
+.info-box .val-green { color: var(--green); font-weight: 600; }
+.info-box .val-blue { color: var(--tape-blue); font-weight: 600; }
+.info-box .val-purple { color: var(--purple); font-weight: 600; }
 
-/* OVERVIEW TAB */
-.overview-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 16px;
-}
+/* Decision criteria */
+.decision-card { padding: 12px 16px; border-radius: 6px; margin-bottom: 8px; }
+.decision-card.green { background: rgba(34,197,94,0.06); border: 1px solid var(--green-dim); }
+.decision-card.yellow { background: rgba(249,115,22,0.06); border: 1px solid var(--burn-orange-dim); }
+.decision-card.red { background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2); }
+.decision-card h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
+.decision-card p { font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
 
-.overview-card {
-  background: var(--void-card);
-  border: 1px solid var(--void-border);
-  border-radius: 8px;
-  padding: 20px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.overview-card:hover {
-  border-color: var(--tape-blue-dim);
-  transform: translateY(-2px);
-}
-
-.overview-card h3 {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 20px;
-  letter-spacing: 2px;
-  margin-bottom: 4px;
-}
-
-.overview-card .oc-keyword {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--burn-orange);
-  margin-bottom: 8px;
-}
-
-.overview-card .oc-angle {
-  font-size: 11px;
-  color: var(--text-secondary);
-  font-style: italic;
-  margin-bottom: 12px;
-  line-height: 1.5;
-}
-
-.overview-card .oc-stats {
-  display: flex;
-  gap: 16px;
-  font-size: 10px;
-  color: var(--text-dim);
-}
-
-.overview-card .oc-stats span {
-  color: var(--tape-blue);
-}
-
-/* SEARCH HIGHLIGHT */
-.highlight {
-  background: rgba(249,115,22,0.3);
-  border-radius: 2px;
-  padding: 0 2px;
-}
-
-/* RESPONSIVE */
 @media (max-width: 768px) {
   .header { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
   .search-bar { max-width: 100%; order: 10; flex-basis: 100%; }
   .stats-bar { display: none; }
+  .header-pmv { display: none; }
   .main { padding: 16px; }
   .flow-container { padding-left: 28px; }
   .flow-container::before { left: 10px; }
@@ -636,43 +192,16 @@ body {
   .header-clock { font-size: 11px; padding: 3px 8px; }
 }
 
-/* NO-MATCH */
-.no-match {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-dim);
-  font-size: 13px;
-}
-
+.no-match { text-align: center; padding: 60px 20px; color: var(--text-dim); font-size: 13px; }
 .no-match .big { font-size: 40px; margin-bottom: 12px; }
 
-/* SCROLL TO TOP */
-.scroll-top {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 40px;
-  height: 40px;
-  background: var(--void-card);
-  border: 1px solid var(--void-border);
-  border-radius: 8px;
-  color: var(--text-dim);
-  font-size: 18px;
-  cursor: pointer;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-  transition: all 0.2s;
-}
-
+.scroll-top { position: fixed; bottom: 24px; right: 24px; width: 40px; height: 40px; background: var(--void-card); border: 1px solid var(--void-border); border-radius: 8px; color: var(--text-dim); font-size: 18px; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 50; transition: all 0.2s; }
 .scroll-top:hover { border-color: var(--tape-blue); color: var(--tape-blue); }
 .scroll-top.visible { display: flex; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div class="header-brand">
     <div>
@@ -680,19 +209,18 @@ body {
       <div class="sub">MANYCHAT AUTOMATION REFERENCE</div>
     </div>
   </div>
-  <div class="header-clock" id="clock">🕒 THE CLOCK: 1,731 DAYS</div>
+  <div class="header-clock" id="clock">🕒 THE CLOCK: 1,736 DAYS</div>
+  <div class="header-pmv">PMV RESEARCH ACTIVE</div>
   <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Search messages, keywords, URLs..." />
   </div>
   <div class="stats-bar">
-    <div class="stat-chip"><span>7</span> Pillars</div>
-    <div class="stat-chip"><span>35</span> Messages</div>
-    <div class="stat-chip"><span>21</span> Comment Replies</div>
-    <div class="stat-chip"><span>28</span> Buttons</div>
+    <div class="stat-chip"><span>8</span> Keyword Flows</div>
+    <div class="stat-chip"><span>1</span> Welcome Flow</div>
+    <div class="stat-chip"><span>1</span> PMV Tracker</div>
   </div>
 </div>
 
-<!-- NAV -->
 <div class="nav-tabs" id="navTabs">
   <div class="nav-tab active" data-tab="overview">OVERVIEW</div>
   <div class="nav-tab" data-tab="p1">P1: THE MACHINE <span class="kw">AUTOPILOT</span></div>
@@ -702,381 +230,283 @@ body {
   <div class="nav-tab" data-tab="p5">P5: THE TECH <span class="kw">CHEAT</span></div>
   <div class="nav-tab" data-tab="p6">P6: INVESTMENT <span class="kw">BUILD50</span></div>
   <div class="nav-tab" data-tab="p7">P7: BUDGET <span class="kw">PAYDAY</span></div>
+  <div class="nav-tab" data-tab="p8">P8: MVO <span class="kw">SETUP</span></div>
+  <div class="nav-sep"></div>
+  <div class="nav-tab" data-tab="welcome">WELCOME <span class="kw-cyan">NEW FOLLOWER</span></div>
+  <div class="nav-tab" data-tab="pmv">PMV TRACKER <span class="kw-pmv">RESEARCH</span></div>
 </div>
 
-<!-- MAIN -->
 <div class="main" id="mainContent"></div>
-
-<!-- SCROLL TOP -->
 <button class="scroll-top" id="scrollTop">↑</button>
 
 <script>
-// ─── DATA ───────────────────────────────────────────────
 const PILLARS = [
   {
-    id: "p1",
-    name: "THE MACHINE",
-    keyword: "AUTOPILOT",
+    id: "p1", name: "THE MACHINE", keyword: "AUTOPILOT",
     angle: '"Willpower is for losers. Build a machine."',
     asset: "The Autopilot Architecture Map",
     url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html",
     commentReplies: [
-      `sent it 📬 3 accounts, 10-minute setup, your paycheck routes itself. 92% of people who save manually fail within 90 days. you just picked the other path. check your DMs ⚙`,
-      `check your DMs 📬 the Autopilot Map is in there. most people let 30 micro-leaks drain every paycheck without noticing. you're about to seal all of them in one sitting 🔧`,
-      `it's in your DMs 📬 fair warning: once you set up the split deposit, you'll wonder why nobody told you about this 3 years ago. 10 minutes and your money stops disappearing. go check ⚙`
+      "sent it \u{1F4EC} 3 accounts, 10-minute setup, your paycheck routes itself. 92% of people who save manually fail within 90 days. you just picked the other path. check your DMs \u2699",
+      "check your DMs \u{1F4EC} the Autopilot Map is in there. most people let 30 micro-leaks drain every paycheck without noticing. you're about to seal all of them in one sitting \u{1F527}",
+      "it's in your DMs \u{1F4EC} fair warning: once you set up the split deposit, you'll wonder why nobody told you about this 3 years ago. 10 minutes and your money stops disappearing. go check \u2699"
     ],
     messages: [
-      {
-        timing: "INSTANT REPLY",
-        delay: "Immediate",
-        type: "PRIMARY DELIVERY",
-        isEntry: true,
-        copy: `yo, you dropped AUTOPILOT. respect 🎯\n\nhere's the Autopilot Map. 3 accounts, 10-minute setup, your paycheck routes itself before you can spend it.\n\ngo through the full map tonight. set up the split deposit FIRST. that one move does 80% of the work.`,
-        button: { text: "⚙ Open the Autopilot Map", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" }
-      },
-      {
-        timing: "DAY 1",
-        delay: "24hr Smart Delay",
-        type: "RE-ENGAGEMENT",
-        copy: `quick question. did you get the split deposit set up?\n\nif yes, you just did something 92% of people never do. manual saving fails almost every time. you just removed yourself from that stat permanently.\n\nif you haven't yet, here's the move: open your banking app, find "split deposit" or "direct deposit," and route even $50/paycheck to a separate savings account. takes 4 minutes. that's the foundation everything else builds on.`,
-        button: { text: "🔧 Re-Open the Autopilot Map", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" }
-      },
-      {
-        timing: "DAY 3",
-        delay: "72hr Smart Delay",
-        type: "DEEPENING (TEXT ONLY)",
-        copy: `one number that might hit different now that you have the system running.\n\nthe average person at $18/hr leaks $2,088/year through micro-charges they can't even name. Starbucks, DoorDash, iCloud, subscriptions they forgot. none of those feel like a problem individually. combined, that's 116 hours of your labor gone without a trace.\n\nyour Autopilot Map intercepted the money BEFORE those leaks could reach it. that's not saving. that's plumbing.`,
-        noButton: true
-      },
-      {
-        timing: "DAY 5",
-        delay: "120hr Smart Delay",
-        type: "CROSS-SELL",
-        copy: `now that your paycheck has a route, there's one more thing worth 2 minutes 🔍\n\nmost people automate their savings but never actually audit where the other money was going. the Budget Calculator shows you every dollar of your paycheck converted to hours of labor at your wage. one screen. 2 minutes. you'll probably cancel at least one subscription.\n\nthink of it as the x-ray that shows you exactly what your automation is protecting you from.`,
-        button: { text: "🔍 Audit My Paycheck", url: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html" }
-      },
-      {
-        timing: "DAY 7",
-        delay: "168hr Smart Delay",
-        type: "EMAIL CAPTURE",
-        isDay7: true,
-        copy: `real talk. you set up automation, you've seen the audit. you've done more in a week than most people do in a year with their money 💰\n\nI'm building a system that connects all of these tools into one financial operating system. the people on my email list get everything first: free tools, new calculators, and the exact playbook I'm using to hit $1M by November 2030 from $18/hr.\n\ndrop your email on the calculator page. that's it. welcome to the build.`,
-        button: { text: "📬 Get the Full System", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
-      }
+      { timing: "INSTANT REPLY", delay: "Immediate", type: "PRIMARY DELIVERY", isEntry: true,
+        copy: "yo, you dropped AUTOPILOT. respect \u{1F3AF}\n\nhere's the Autopilot Map. 3 accounts, 10-minute setup, your paycheck routes itself before you can spend it.\n\ngo through the full map tonight. set up the split deposit FIRST. that one move does 80% of the work.",
+        button: { text: "\u2699 Open the Autopilot Map", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" } },
+      { timing: "DAY 1", delay: "24hr Smart Delay", type: "RE-ENGAGEMENT",
+        copy: "quick question. did you get the split deposit set up?\n\nif yes, you just did something 92% of people never do. manual saving fails almost every time. you just removed yourself from that stat permanently.\n\nif you haven't yet, here's the move: open your banking app, find \"split deposit\" or \"direct deposit,\" and route even $50/paycheck to a separate savings account. takes 4 minutes. that's the foundation everything else builds on.",
+        button: { text: "\u{1F527} Re-Open the Autopilot Map", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" } },
+      { timing: "DAY 3", delay: "72hr Smart Delay", type: "DEEPENING (TEXT ONLY)",
+        copy: "one number that might hit different now that you have the system running.\n\nthe average person at $18/hr leaks $2,088/year through micro-charges they can't even name. Starbucks, DoorDash, iCloud, subscriptions they forgot. none of those feel like a problem individually. combined, that's 116 hours of your labor gone without a trace.\n\nyour Autopilot Map intercepted the money BEFORE those leaks could reach it. that's not saving. that's plumbing.",
+        noButton: true },
+      { timing: "DAY 5", delay: "120hr Smart Delay", type: "CROSS-SELL",
+        copy: "now that your paycheck has a route, there's one more thing worth 2 minutes \u{1F50D}\n\nmost people automate their savings but never actually audit where the other money was going. the Budget Calculator shows you every dollar of your paycheck converted to hours of labor at your wage. one screen. 2 minutes. you'll probably cancel at least one subscription.\n\nthink of it as the x-ray that shows you exactly what your automation is protecting you from.",
+        button: { text: "\u{1F50D} Audit My Paycheck", url: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html" } },
+      { timing: "DAY 7", delay: "168hr Smart Delay", type: "EMAIL CAPTURE", isDay7: true,
+        copy: "real talk. you set up automation, you've seen the audit. you've done more in a week than most people do in a year with their money \u{1F4B0}\n\nI'm building a system that connects all of these tools into one financial operating system. the people on my email list get everything first: free tools, new calculators, and the exact playbook I'm using to hit $1M by November 2030 from $18/hr.\n\ndrop your email on the calculator page. that's it. welcome to the build.",
+        button: { text: "\u{1F4EC} Get the Full System", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" } }
     ]
   },
   {
-    id: "p2",
-    name: "THE FUEL",
-    keyword: "LEAK",
+    id: "p2", name: "THE FUEL", keyword: "LEAK",
     angle: '"Urgency. Every day you wait costs you real money."',
     asset: "The Cost of Waiting Calculator",
     url: "https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html",
     commentReplies: [
-      `check your DMs 📬 the calculator is in there. plug in your age and watch the number. most people at $18/hr have never seen what one year of delay actually costs in dollars. you're about to ⏳`,
-      `sent 📬 the Cost of Waiting Calculator is in your DMs. takes 10 seconds, shows one number, and that number does not get better with time. go run yours 💰`,
-      `it's in your DMs 📬 $25/week at 19 turns into $48,726 by 40. but every year you wait shaves off $17,000+. the calculator shows your exact cost of delay. go look before another day passes ⏳`
+      "check your DMs \u{1F4EC} the calculator is in there. plug in your age and watch the number. most people at $18/hr have never seen what one year of delay actually costs in dollars. you're about to \u23F3",
+      "sent \u{1F4EC} the Cost of Waiting Calculator is in your DMs. takes 10 seconds, shows one number, and that number does not get better with time. go run yours \u{1F4B0}",
+      "it's in your DMs \u{1F4EC} $25/week at 19 turns into $48,726 by 40. but every year you wait shaves off $17,000+. the calculator shows your exact cost of delay. go look before another day passes \u23F3"
     ],
     messages: [
-      {
-        timing: "INSTANT REPLY",
-        delay: "Immediate",
-        type: "PRIMARY DELIVERY",
-        isEntry: true,
-        copy: `you commented LEAK. good ⏳\n\nhere's the Cost of Waiting Calculator. plug in your age and it shows the exact dollar amount every day of delay costs you at your income.\n\ntakes 10 seconds. fair warning: most people don't like their number.`,
-        button: { text: "⏳ See My Cost of Delay", url: "https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html" }
-      },
-      {
-        timing: "DAY 1",
-        delay: "24hr Smart Delay",
-        type: "RE-ENGAGEMENT",
-        copy: `did you run your number?\n\nif you did, that feeling in your stomach is the correct response. that's not fear. that's math. and now you can't un-see it.\n\nhere's the thing nobody tells you: knowing the number is the hard part. the actual investing setup at $25/week takes 8 minutes. the emotional hurdle was always bigger than the technical one. you just cleared the emotional hurdle.`,
-        button: { text: "⏳ Run My Number Again", url: "https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html" }
-      },
-      {
-        timing: "DAY 3",
-        delay: "72hr Smart Delay",
-        type: "DEEPENING (TEXT ONLY)",
-        copy: `here's a number most people at $25/week never see.\n\nyou deposit $26,000 over 20 years. the market adds $22,726 on top. for free. you don't manage it. you don't monitor it. you don't time it. you just let the automation run and the math does the rest.\n\n$22,726 of growth you didn't earn through labor. you earned it by starting.`,
-        noButton: true
-      },
-      {
-        timing: "DAY 5",
-        delay: "120hr Smart Delay",
-        type: "CROSS-SELL",
-        copy: `you've seen what delay costs. here's the part where you actually start 📈\n\nthe Investment Simplifier walks you through the exact setup. one account, one fund, $25/week on automatic. 4 steps, 8 minutes, and you go from "I know I should" to "I already do."\n\nthis is the bridge between knowing the math and owning the result.`,
-        button: { text: "📈 Start the $25/Week Setup", url: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" }
-      },
-      {
-        timing: "DAY 7",
-        delay: "168hr Smart Delay",
-        type: "EMAIL CAPTURE",
-        isDay7: true,
-        copy: `you ran your cost-of-delay number. you've seen the compound math. you've got the setup guide 💰\n\nyou're already further than 90% of people your age who are still saying "I'll invest when I make more." you're not saying it. you're doing the math.\n\nI send new tools, calculators, and the full playbook for building wealth from a part-time paycheck to my email list. everything free.`,
-        button: { text: "📬 Get the Full Playbook", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
-      }
+      { timing: "INSTANT REPLY", delay: "Immediate", type: "PRIMARY DELIVERY", isEntry: true,
+        copy: "you commented LEAK. good \u23F3\n\nhere's the Cost of Waiting Calculator. plug in your age and it shows the exact dollar amount every day of delay costs you at your income.\n\ntakes 10 seconds. fair warning: most people don't like their number.",
+        button: { text: "\u23F3 See My Cost of Delay", url: "https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html" } },
+      { timing: "DAY 1", delay: "24hr Smart Delay", type: "RE-ENGAGEMENT",
+        copy: "did you run your number?\n\nif you did, that feeling in your stomach is the correct response. that's not fear. that's math. and now you can't un-see it.\n\nhere's the thing nobody tells you: knowing the number is the hard part. the actual investing setup at $25/week takes 8 minutes. the emotional hurdle was always bigger than the technical one. you just cleared the emotional hurdle.",
+        button: { text: "\u23F3 Run My Number Again", url: "https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html" } },
+      { timing: "DAY 3", delay: "72hr Smart Delay", type: "DEEPENING (TEXT ONLY)",
+        copy: "here's a number most people at $25/week never see.\n\nyou deposit $26,000 over 20 years. the market adds $22,726 on top. for free. you don't manage it. you don't monitor it. you don't time it. you just let the automation run and the math does the rest.\n\n$22,726 of growth you didn't earn through labor. you earned it by starting.",
+        noButton: true },
+      { timing: "DAY 5", delay: "120hr Smart Delay", type: "CROSS-SELL",
+        copy: "you've seen what delay costs. here's the part where you actually start \u{1F4C8}\n\nthe Investment Simplifier walks you through the exact setup. one account, one fund, $25/week on automatic. 4 steps, 8 minutes, and you go from \"I know I should\" to \"I already do.\"\n\nthis is the bridge between knowing the math and owning the result.",
+        button: { text: "\u{1F4C8} Start the $25/Week Setup", url: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" } },
+      { timing: "DAY 7", delay: "168hr Smart Delay", type: "EMAIL CAPTURE", isDay7: true,
+        copy: "you ran your cost-of-delay number. you've seen the compound math. you've got the setup guide \u{1F4B0}\n\nyou're already further than 90% of people your age who are still saying \"I'll invest when I make more.\" you're not saying it. you're doing the math.\n\nI send new tools, calculators, and the full playbook for building wealth from a part-time paycheck to my email list. everything free.",
+        button: { text: "\u{1F4EC} Get the Full Playbook", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" } }
     ]
   },
   {
-    id: "p3",
-    name: "THE LEVERAGE",
-    keyword: "ELITE800",
+    id: "p3", name: "THE LEVERAGE", keyword: "ELITE800",
     angle: '"Stop guessing. Hit 800."',
     asset: "The 800-Club Interactive Checklist",
     url: "https://spacekou5-oss.github.io/cashvault-funnel/800-club.html",
     commentReplies: [
-      `check your DMs 📬 the full 800-Club Checklist is in there. 5 steps, each under 10 minutes. a 650 score costs you $3,000 more on your first car loan than an 800. this fixes that 🛡`,
-      `sent it 📬 the checklist is in your DMs. most people have no idea their utilization ratio is tanking their score every billing cycle. you're about to find out yours and fix it this week ✅`,
-      `it's in your DMs 📬 5 numbered steps. no guessing. nobody explains statement dates, utilization timing, or limit increase calls at our income level. the checklist does. go check your messages 🛡`
+      "check your DMs \u{1F4EC} the full 800-Club Checklist is in there. 5 steps, each under 10 minutes. a 650 score costs you $3,000 more on your first car loan than an 800. this fixes that \u{1F6E1}",
+      "sent it \u{1F4EC} the checklist is in your DMs. most people have no idea their utilization ratio is tanking their score every billing cycle. you're about to find out yours and fix it this week \u2705",
+      "it's in your DMs \u{1F4EC} 5 numbered steps. no guessing. nobody explains statement dates, utilization timing, or limit increase calls at our income level. the checklist does. go check your messages \u{1F6E1}"
     ],
     messages: [
-      {
-        timing: "INSTANT REPLY",
-        delay: "Immediate",
-        type: "PRIMARY DELIVERY",
-        isEntry: true,
-        copy: `you dropped ELITE800. smart move 🛡\n\nhere's the 800-Club Checklist. 5 steps, each under 10 minutes. this is the exact sequence that takes your credit score from "I think it's okay?" to a specific number you control.\n\nstart with step 1 tonight. don't skip ahead. the order matters.`,
-        button: { text: "🛡 Open the 800-Club Checklist", url: "https://spacekou5-oss.github.io/cashvault-funnel/800-club.html" }
-      },
-      {
-        timing: "DAY 1",
-        delay: "24hr Smart Delay",
-        type: "RE-ENGAGEMENT",
-        copy: `did you check your utilization ratio yet?\n\nthat's step 1 on the checklist. most people have never looked at it. here's the fast version: if your credit limit is $500 and you're using $400, your utilization is 80%. that alone tanks your score every single billing cycle, even if you pay it off.\n\nthe target is under 10%. under 30% at minimum. check yours right now. that one number tells you more about your score than anything else.`,
-        button: { text: "✅ Re-Open the Checklist", url: "https://spacekou5-oss.github.io/cashvault-funnel/800-club.html" }
-      },
-      {
-        timing: "DAY 3",
-        delay: "72hr Smart Delay",
-        type: "DEEPENING (WITH BUTTON)",
-        copy: `one stat that reframes everything about credit.\n\na 650 credit score on a $20,000 car loan costs you roughly $3,000 more in interest than an 800 score on the same loan. same car. same person. same income. different score, different price tag.\n\nthat $3,000 is 167 hours of work at $18/hr. the 5 steps on your checklist prevent that. each step takes under 10 minutes. 50 minutes of effort to save 167 hours of labor. the math is absurd.`,
-        button: { text: "🛡 Finish the 5 Steps", url: "https://spacekou5-oss.github.io/cashvault-funnel/800-club.html" }
-      },
-      {
-        timing: "DAY 5",
-        delay: "120hr Smart Delay",
-        type: "CROSS-SELL",
-        copy: `your credit score is a weapon. but a weapon without a target is just a number on a screen 🎯\n\nthe Freedom Calculator shows you the exact dollar amount you're building toward. one number. 10 seconds. it turns your credit score from "I think it's good?" into "this score saves me $X on my path to $Y."\n\nyour score is the armor. your Freedom Number is the destination.`,
-        button: { text: "🎯 Calculate My Freedom Number", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
-      },
-      {
-        timing: "DAY 7",
-        delay: "168hr Smart Delay",
-        type: "EMAIL CAPTURE",
-        isDay7: true,
-        copy: `you've got the checklist. you know the utilization game. you've seen what a high score saves you in real dollars 💰\n\nmost people your age don't know what a statement date is. you're running a 5-step protocol. that gap gets wider every month.\n\nI send new tools and the full financial playbook to my email list. everything's built for our income level, no $100K salary assumptions, no guru nonsense. want in:`,
-        button: { text: "📬 Join the Build", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
-      }
+      { timing: "INSTANT REPLY", delay: "Immediate", type: "PRIMARY DELIVERY", isEntry: true,
+        copy: "you dropped ELITE800. smart move \u{1F6E1}\n\nhere's the 800-Club Checklist. 5 steps, each under 10 minutes. this is the exact sequence that takes your credit score from \"I think it's okay?\" to a specific number you control.\n\nstart with step 1 tonight. don't skip ahead. the order matters.",
+        button: { text: "\u{1F6E1} Open the 800-Club Checklist", url: "https://spacekou5-oss.github.io/cashvault-funnel/800-club.html" } },
+      { timing: "DAY 1", delay: "24hr Smart Delay", type: "RE-ENGAGEMENT",
+        copy: "did you check your utilization ratio yet?\n\nthat's step 1 on the checklist. most people have never looked at it. here's the fast version: if your credit limit is $500 and you're using $400, your utilization is 80%. that alone tanks your score every single billing cycle, even if you pay it off.\n\nthe target is under 10%. under 30% at minimum. check yours right now. that one number tells you more about your score than anything else.",
+        button: { text: "\u2705 Re-Open the Checklist", url: "https://spacekou5-oss.github.io/cashvault-funnel/800-club.html" } },
+      { timing: "DAY 3", delay: "72hr Smart Delay", type: "DEEPENING (WITH BUTTON)",
+        copy: "one stat that reframes everything about credit.\n\na 650 credit score on a $20,000 car loan costs you roughly $3,000 more in interest than an 800 score on the same loan. same car. same person. same income. different score, different price tag.\n\nthat $3,000 is 167 hours of work at $18/hr. the 5 steps on your checklist prevent that. each step takes under 10 minutes. 50 minutes of effort to save 167 hours of labor. the math is absurd.",
+        button: { text: "\u{1F6E1} Finish the 5 Steps", url: "https://spacekou5-oss.github.io/cashvault-funnel/800-club.html" } },
+      { timing: "DAY 5", delay: "120hr Smart Delay", type: "CROSS-SELL",
+        copy: "your credit score is a weapon. but a weapon without a target is just a number on a screen \u{1F3AF}\n\nthe Freedom Calculator shows you the exact dollar amount you're building toward. one number. 10 seconds. it turns your credit score from \"I think it's good?\" into \"this score saves me $X on my path to $Y.\"\n\nyour score is the armor. your Freedom Number is the destination.",
+        button: { text: "\u{1F3AF} Calculate My Freedom Number", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" } },
+      { timing: "DAY 7", delay: "168hr Smart Delay", type: "EMAIL CAPTURE", isDay7: true,
+        copy: "you've got the checklist. you know the utilization game. you've seen what a high score saves you in real dollars \u{1F4B0}\n\nmost people your age don't know what a statement date is. you're running a 5-step protocol. that gap gets wider every month.\n\nI send new tools and the full financial playbook to my email list. everything's built for our income level, no $100K salary assumptions, no guru nonsense. want in:",
+        button: { text: "\u{1F4EC} Join the Build", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" } }
     ]
   },
   {
-    id: "p4",
-    name: "THE MIND",
-    keyword: "MYNUMBER",
+    id: "p4", name: "THE MIND", keyword: "MYNUMBER",
     angle: '"Financial Freedom is just a math problem."',
     asset: "The Freedom Number Calculator",
     url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html",
     commentReplies: [
-      `check your DMs 📬 the Freedom Calculator is in there. 10 seconds, one number, and you replace "I feel behind" with an exact percentage. you can't un-see it once you run it 🎯`,
-      `sent 📬 the calculator is in your DMs. your Freedom Number is the exact dollar amount where your paycheck becomes optional. most people never calculate it. you're about to 🔒`,
-      `it's in your DMs 📬 one number that turns every vague financial worry into a measurable distance. takes 10 seconds. most people at our income level are surprised how reachable the number actually is. go look 🎯`
+      "check your DMs \u{1F4EC} the Freedom Calculator is in there. 10 seconds, one number, and you replace \"I feel behind\" with an exact percentage. you can't un-see it once you run it \u{1F3AF}",
+      "sent \u{1F4EC} the calculator is in your DMs. your Freedom Number is the exact dollar amount where your paycheck becomes optional. most people never calculate it. you're about to \u{1F512}",
+      "it's in your DMs \u{1F4EC} one number that turns every vague financial worry into a measurable distance. takes 10 seconds. most people at our income level are surprised how reachable the number actually is. go look \u{1F3AF}"
     ],
     messages: [
-      {
-        timing: "INSTANT REPLY",
-        delay: "Immediate",
-        type: "PRIMARY DELIVERY",
-        isEntry: true,
-        copy: `you commented MYNUMBER. here it is 🎯\n\nthe Freedom Calculator. plug in your numbers, 10 seconds, and it gives you the exact dollar amount where your paycheck becomes optional.\n\none number. that number replaces every vague financial worry with a measurable distance.`,
-        button: { text: "🎯 Calculate My Freedom Number", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
-      },
-      {
-        timing: "DAY 1",
-        delay: "24hr Smart Delay",
-        type: "RE-ENGAGEMENT",
-        copy: `did you get your number?\n\nhere's what just happened. you went from "I feel behind" to "I am X% of the way there." that shift is permanent. you can never go back to not knowing.\n\nthe comparison spiral breaks the moment you have your own math. you're not measuring against Instagram anymore. you're measuring against YOUR number. that's the whole game.`,
-        button: { text: "🔒 See My Number Again", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
-      },
-      {
-        timing: "DAY 3",
-        delay: "72hr Smart Delay",
-        type: "DEEPENING (TEXT ONLY)",
-        copy: `here's something most people don't realize about their Freedom Number.\n\nthe gap between where you are and where that number is looks massive on day one. but the first 10% is the hardest and you close it the fastest once a system is running. from $0 to 10% feels impossible. from 10% to 25% happens almost without noticing because the automation and compound math start stacking.\n\nyou're in the hardest stretch right now. it does not stay this hard.`,
-        noButton: true
-      },
-      {
-        timing: "DAY 5",
-        delay: "120hr Smart Delay",
-        type: "CROSS-SELL",
-        copy: `you know your number. the next question is: what system gets you there? ⚙\n\nthe Autopilot Map sets up the infrastructure. 3 accounts, 10-minute setup, your paycheck routes itself toward your Freedom Number on autopilot. no willpower. no monthly "I'll save this time" ritual. the system does the moving.\n\nyour number is the destination. this is the engine.`,
-        button: { text: "⚙ Build the Autopilot System", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" }
-      },
-      {
-        timing: "DAY 7",
-        delay: "168hr Smart Delay",
-        type: "EMAIL CAPTURE",
-        isDay7: true,
-        copy: `you calculated your Freedom Number. you've seen the system that moves you toward it 💰\n\nyou're thinking about money differently than you were 7 days ago. that's not motivation. that's math replacing guesswork. the feeling doesn't fade because the number doesn't change.\n\nI build new tools for this exact income level and send them to my email list first. free calculators, frameworks, and the full documented playbook of a 19-year-old building to $1M by 2030.`,
-        button: { text: "📬 Get Every New Tool First", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
-      }
+      { timing: "INSTANT REPLY", delay: "Immediate", type: "PRIMARY DELIVERY", isEntry: true,
+        copy: "you commented MYNUMBER. here it is \u{1F3AF}\n\nthe Freedom Calculator. plug in your numbers, 10 seconds, and it gives you the exact dollar amount where your paycheck becomes optional.\n\none number. that number replaces every vague financial worry with a measurable distance.",
+        button: { text: "\u{1F3AF} Calculate My Freedom Number", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" } },
+      { timing: "DAY 1", delay: "24hr Smart Delay", type: "RE-ENGAGEMENT",
+        copy: "did you get your number?\n\nhere's what just happened. you went from \"I feel behind\" to \"I am X% of the way there.\" that shift is permanent. you can never go back to not knowing.\n\nthe comparison spiral breaks the moment you have your own math. you're not measuring against Instagram anymore. you're measuring against YOUR number. that's the whole game.",
+        button: { text: "\u{1F512} See My Number Again", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" } },
+      { timing: "DAY 3", delay: "72hr Smart Delay", type: "DEEPENING (TEXT ONLY)",
+        copy: "here's something most people don't realize about their Freedom Number.\n\nthe gap between where you are and where that number is looks massive on day one. but the first 10% is the hardest and you close it the fastest once a system is running. from $0 to 10% feels impossible. from 10% to 25% happens almost without noticing because the automation and compound math start stacking.\n\nyou're in the hardest stretch right now. it does not stay this hard.",
+        noButton: true },
+      { timing: "DAY 5", delay: "120hr Smart Delay", type: "CROSS-SELL",
+        copy: "you know your number. the next question is: what system gets you there? \u2699\n\nthe Autopilot Map sets up the infrastructure. 3 accounts, 10-minute setup, your paycheck routes itself toward your Freedom Number on autopilot. no willpower. no monthly \"I'll save this time\" ritual. the system does the moving.\n\nyour number is the destination. this is the engine.",
+        button: { text: "\u2699 Build the Autopilot System", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" } },
+      { timing: "DAY 7", delay: "168hr Smart Delay", type: "EMAIL CAPTURE", isDay7: true,
+        copy: "you calculated your Freedom Number. you've seen the system that moves you toward it \u{1F4B0}\n\nyou're thinking about money differently than you were 7 days ago. that's not motivation. that's math replacing guesswork. the feeling doesn't fade because the number doesn't change.\n\nI build new tools for this exact income level and send them to my email list first. free calculators, frameworks, and the full documented playbook of a 19-year-old building to $1M by 2030.",
+        button: { text: "\u{1F4EC} Get Every New Tool First", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" } }
     ]
   },
   {
-    id: "p5",
-    name: "THE TECH",
-    keyword: "CHEAT",
+    id: "p5", name: "THE TECH", keyword: "CHEAT",
     angle: '"Don\'t work hard. Copy my homework."',
     asset: "The Hustler's Prompt Vault",
     url: "https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html",
     commentReplies: [
-      `check your DMs 📬 the full Prompt Vault is in there. copy, paste, 90 seconds, your entire spending audit runs itself. one prompt found $840/year in subscriptions I forgot existed. see what yours finds 🤖`,
-      `sent it 📬 the prompts are in your DMs. 4 hours of manual budget tracking or 90 seconds with one AI paste. same output. zero maintenance. go grab them ⚡`,
-      `it's in your DMs 📬 every AI prompt I use to manage my money at $18/hr. copy-paste ready. start with the spending audit prompt and a screenshot of your bank statement. 90 seconds, full clarity 🤖`
+      "check your DMs \u{1F4EC} the full Prompt Vault is in there. copy, paste, 90 seconds, your entire spending audit runs itself. one prompt found $840/year in subscriptions I forgot existed. see what yours finds \u{1F916}",
+      "sent it \u{1F4EC} the prompts are in your DMs. 4 hours of manual budget tracking or 90 seconds with one AI paste. same output. zero maintenance. go grab them \u26A1",
+      "it's in your DMs \u{1F4EC} every AI prompt I use to manage my money at $18/hr. copy-paste ready. start with the spending audit prompt and a screenshot of your bank statement. 90 seconds, full clarity \u{1F916}"
     ],
     messages: [
-      {
-        timing: "INSTANT REPLY",
-        delay: "Immediate",
-        type: "PRIMARY DELIVERY",
-        isEntry: true,
-        copy: `you commented CHEAT. here's the vault 🤖\n\nevery AI prompt I use to run my finances in 90 seconds per week. copy them. paste them. get the same output I get without the 4 hours of manual tracking.\n\nstart with the spending audit prompt. screenshot your bank statement, paste it with the prompt, read the output. 90 seconds. that's it.`,
-        button: { text: "🤖 Open the Prompt Vault", url: "https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" }
-      },
-      {
-        timing: "DAY 1",
-        delay: "24hr Smart Delay",
-        type: "RE-ENGAGEMENT",
-        copy: `did you run the spending audit prompt yet?\n\nif you did, you probably found at least one subscription you forgot about. the average person at our income level has $70/month in charges they can't name without looking. that's $840/year. 60 hours of labor at $14/hr. funding apps you don't open.\n\none prompt. 90 seconds. found money you were already earning but handing to companies you forgot existed.`,
-        button: { text: "⚡ Re-Open the Vault", url: "https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" }
-      },
-      {
-        timing: "DAY 3",
-        delay: "72hr Smart Delay",
-        type: "DEEPENING (TEXT ONLY)",
-        copy: `here's why AI changes the math on managing money.\n\nthe old way: download a budgeting app, manually categorize every transaction, check it daily, abandon it in 60 days. 73% of people delete the app within 2 months.\n\nthe new way: one prompt, one screenshot, one 90-second audit per month. no app. no daily habit. no willpower. the prompt does the categorization, the analysis, and the recommendations in one pass.\n\nsame output. zero maintenance. that's the difference between a tool and a system.`,
-        noButton: true
-      },
-      {
-        timing: "DAY 5",
-        delay: "120hr Smart Delay",
-        type: "CROSS-SELL",
-        copy: `the prompts work best when they have real data to chew on 🔍\n\nthe Budget Calculator lets you enter your actual paycheck and see every dollar mapped out, with each expense converted to hours of labor at your wage. once you see that breakdown, paste it into the audit prompt from the vault. the AI will flag the 3 biggest leaks instantly.\n\nprompts + real numbers = a financial audit that would cost $200/hr from an advisor. yours costs 90 seconds.`,
-        button: { text: "🔍 Run My Paycheck Audit", url: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html" }
-      },
-      {
-        timing: "DAY 7",
-        delay: "168hr Smart Delay",
-        type: "EMAIL CAPTURE",
-        isDay7: true,
-        copy: `you've got the prompts. you've run the audit. you've seen what 90 seconds of AI replaces 💰\n\nmost people your age are still tracking expenses in a Notes app or not tracking at all. you have a system that runs itself monthly in less time than it takes to order food.\n\nI build new prompts, tools, and financial systems every week and send them to my email list before they go anywhere else. same philosophy: built at $18/hr, copy-paste ready, zero fluff.`,
-        button: { text: "📬 Get New Prompts First", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
-      }
+      { timing: "INSTANT REPLY", delay: "Immediate", type: "PRIMARY DELIVERY", isEntry: true,
+        copy: "you commented CHEAT. here's the vault \u{1F916}\n\nevery AI prompt I use to run my finances in 90 seconds per week. copy them. paste them. get the same output I get without the 4 hours of manual tracking.\n\nstart with the spending audit prompt. screenshot your bank statement, paste it with the prompt, read the output. 90 seconds. that's it.",
+        button: { text: "\u{1F916} Open the Prompt Vault", url: "https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" } },
+      { timing: "DAY 1", delay: "24hr Smart Delay", type: "RE-ENGAGEMENT",
+        copy: "did you run the spending audit prompt yet?\n\nif you did, you probably found at least one subscription you forgot about. the average person at our income level has $70/month in charges they can't name without looking. that's $840/year. 60 hours of labor at $14/hr. funding apps you don't open.\n\none prompt. 90 seconds. found money you were already earning but handing to companies you forgot existed.",
+        button: { text: "\u26A1 Re-Open the Vault", url: "https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html" } },
+      { timing: "DAY 3", delay: "72hr Smart Delay", type: "DEEPENING (TEXT ONLY)",
+        copy: "here's why AI changes the math on managing money.\n\nthe old way: download a budgeting app, manually categorize every transaction, check it daily, abandon it in 60 days. 73% of people delete the app within 2 months.\n\nthe new way: one prompt, one screenshot, one 90-second audit per month. no app. no daily habit. no willpower. the prompt does the categorization, the analysis, and the recommendations in one pass.\n\nsame output. zero maintenance. that's the difference between a tool and a system.",
+        noButton: true },
+      { timing: "DAY 5", delay: "120hr Smart Delay", type: "CROSS-SELL",
+        copy: "the prompts work best when they have real data to chew on \u{1F50D}\n\nthe Budget Calculator lets you enter your actual paycheck and see every dollar mapped out, with each expense converted to hours of labor at your wage. once you see that breakdown, paste it into the audit prompt from the vault. the AI will flag the 3 biggest leaks instantly.\n\nprompts + real numbers = a financial audit that would cost $200/hr from an advisor. yours costs 90 seconds.",
+        button: { text: "\u{1F50D} Run My Paycheck Audit", url: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html" } },
+      { timing: "DAY 7", delay: "168hr Smart Delay", type: "EMAIL CAPTURE", isDay7: true,
+        copy: "you've got the prompts. you've run the audit. you've seen what 90 seconds of AI replaces \u{1F4B0}\n\nmost people your age are still tracking expenses in a Notes app or not tracking at all. you have a system that runs itself monthly in less time than it takes to order food.\n\nI build new prompts, tools, and financial systems every week and send them to my email list before they go anywhere else. same philosophy: built at $18/hr, copy-paste ready, zero fluff.",
+        button: { text: "\u{1F4EC} Get New Prompts First", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" } }
     ]
   },
   {
-    id: "p6",
-    name: "INVESTMENT SIMPLIFIER",
-    keyword: "BUILD50",
+    id: "p6", name: "INVESTMENT SIMPLIFIER", keyword: "BUILD50",
     angle: '"From "I know I should" to "I already do" in 8 minutes."',
     asset: "Investment Simplifier",
     url: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html",
     commentReplies: [
-      `check your DMs 📬 the setup guide is in there. 4 steps, 8 minutes, $25/week on autopilot. you go from "I know I should invest" to "I invest" in one sitting. the hardest part was commenting. you already did that 📈`,
-      `sent 📬 the Investment Simplifier is in your DMs. one account, one fund, one automatic transfer. no jargon, no $500/month examples. built for your actual paycheck. go set it up tonight 💰`,
-      `it's in your DMs 📬 90% of people who say "I'll invest soon" still have $0 invested 12 months later. the guide takes 8 minutes and removes every friction point between knowing and doing. go check 📈`
+      "check your DMs \u{1F4EC} the setup guide is in there. 4 steps, 8 minutes, $25/week on autopilot. you go from \"I know I should invest\" to \"I invest\" in one sitting. the hardest part was commenting. you already did that \u{1F4C8}",
+      "sent \u{1F4EC} the Investment Simplifier is in your DMs. one account, one fund, one automatic transfer. no jargon, no $500/month examples. built for your actual paycheck. go set it up tonight \u{1F4B0}",
+      "it's in your DMs \u{1F4EC} 90% of people who say \"I'll invest soon\" still have $0 invested 12 months later. the guide takes 8 minutes and removes every friction point between knowing and doing. go check \u{1F4C8}"
     ],
     messages: [
-      {
-        timing: "INSTANT REPLY",
-        delay: "Immediate",
-        type: "PRIMARY DELIVERY",
-        isEntry: true,
-        copy: `you dropped BUILD50. let's go 📈\n\nhere's the Investment Simplifier. 4 steps, 8 minutes, takes you from "I know I should invest" to "$25/week automated." no jargon. no $500/month examples. built for your paycheck.\n\ngo through all 4 steps in one sitting. don't split it across days. momentum matters more than perfection on this one.`,
-        button: { text: "📈 Start the 4-Step Setup", url: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" }
-      },
-      {
-        timing: "DAY 1",
-        delay: "24hr Smart Delay",
-        type: "RE-ENGAGEMENT",
-        copy: `did you get through the 4 steps?\n\nif you set up the automatic $25/week transfer, something just happened that you probably didn't feel yet. you crossed the line from "someone who thinks about investing" to "someone who invests." those are two completely different categories of people.\n\n92% of people your age are still in category one. you're not. that gap gets wider every single week your automation runs.`,
-        button: { text: "📈 Finish the Setup", url: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" }
-      },
-      {
-        timing: "DAY 3",
-        delay: "72hr Smart Delay",
-        type: "DEEPENING (TEXT ONLY)",
-        copy: `here's the math that makes the first month feel different.\n\nafter month 1, your account shows ~$100. that looks tiny. but here's what $100 invested at 19 becomes by 40 with compound growth at 8% average: roughly $466. your hundred dollars is already worth more than $100. you just can't see it yet because the compounding is invisible for the first few years.\n\nthe people who quit are the ones who judge year 1 results on a year 20 timeline. you're not quitting. you're running the math.`,
-        noButton: true
-      },
-      {
-        timing: "DAY 5",
-        delay: "120hr Smart Delay",
-        type: "CROSS-SELL",
-        copy: `your $25/week is running. now make sure the rest of your paycheck has a route too ⚙\n\nthe Autopilot Map sets up the full infrastructure. your investment is one pipe. the map adds the emergency vault, the bills account, and the spending allowance. 3 accounts total. 10-minute setup. your entire paycheck runs on rails.\n\nyou already have the investing pipe. this completes the plumbing.`,
-        button: { text: "⚙ Complete the Full System", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" }
-      },
-      {
-        timing: "DAY 7",
-        delay: "168hr Smart Delay",
-        type: "EMAIL CAPTURE",
-        isDay7: true,
-        copy: `$25/week. automated. compounding. you set up a machine most people spend years "planning" to build 💰\n\nthe difference between you and the person who watched the same video but didn't comment BUILD50 is not intelligence or income. it's action. they know the math. you run the math.\n\nI send new tools, compound growth updates, and the full system I'm building at $18/hr to my email list. everything free. everything built at our scale.`,
-        button: { text: "📬 Stay Plugged In", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
-      }
+      { timing: "INSTANT REPLY", delay: "Immediate", type: "PRIMARY DELIVERY", isEntry: true,
+        copy: "you dropped BUILD50. let's go \u{1F4C8}\n\nhere's the Investment Simplifier. 4 steps, 8 minutes, takes you from \"I know I should invest\" to \"$25/week automated.\" no jargon. no $500/month examples. built for your paycheck.\n\ngo through all 4 steps in one sitting. don't split it across days. momentum matters more than perfection on this one.",
+        button: { text: "\u{1F4C8} Start the 4-Step Setup", url: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" } },
+      { timing: "DAY 1", delay: "24hr Smart Delay", type: "RE-ENGAGEMENT",
+        copy: "did you get through the 4 steps?\n\nif you set up the automatic $25/week transfer, something just happened that you probably didn't feel yet. you crossed the line from \"someone who thinks about investing\" to \"someone who invests.\" those are two completely different categories of people.\n\n92% of people your age are still in category one. you're not. that gap gets wider every single week your automation runs.",
+        button: { text: "\u{1F4C8} Finish the Setup", url: "https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html" } },
+      { timing: "DAY 3", delay: "72hr Smart Delay", type: "DEEPENING (TEXT ONLY)",
+        copy: "here's the math that makes the first month feel different.\n\nafter month 1, your account shows ~$100. that looks tiny. but here's what $100 invested at 19 becomes by 40 with compound growth at 8% average: roughly $466. your hundred dollars is already worth more than $100. you just can't see it yet because the compounding is invisible for the first few years.\n\nthe people who quit are the ones who judge year 1 results on a year 20 timeline. you're not quitting. you're running the math.",
+        noButton: true },
+      { timing: "DAY 5", delay: "120hr Smart Delay", type: "CROSS-SELL",
+        copy: "your $25/week is running. now make sure the rest of your paycheck has a route too \u2699\n\nthe Autopilot Map sets up the full infrastructure. your investment is one pipe. the map adds the emergency vault, the bills account, and the spending allowance. 3 accounts total. 10-minute setup. your entire paycheck runs on rails.\n\nyou already have the investing pipe. this completes the plumbing.",
+        button: { text: "\u2699 Complete the Full System", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" } },
+      { timing: "DAY 7", delay: "168hr Smart Delay", type: "EMAIL CAPTURE", isDay7: true,
+        copy: "$25/week. automated. compounding. you set up a machine most people spend years \"planning\" to build \u{1F4B0}\n\nthe difference between you and the person who watched the same video but didn't comment BUILD50 is not intelligence or income. it's action. they know the math. you run the math.\n\nI send new tools, compound growth updates, and the full system I'm building at $18/hr to my email list. everything free. everything built at our scale.",
+        button: { text: "\u{1F4EC} Stay Plugged In", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" } }
     ]
   },
   {
-    id: "p7",
-    name: "BUDGET CALCULATOR",
-    keyword: "PAYDAY",
+    id: "p7", name: "BUDGET CALCULATOR", keyword: "PAYDAY",
     angle: '"See where your paycheck actually goes. In hours, not dollars."',
     asset: "Kou's Budget Calculator",
     url: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html",
     commentReplies: [
-      `check your DMs 📬 the Budget Calculator is in there. enter your paycheck, see every dollar mapped, watch your spending get converted to hours of labor at your wage. fair warning: the output hits different 🔍`,
-      `sent it 📬 the calculator is in your DMs. $70/month in forgotten subscriptions = 60 hours of your life per year at $14/hr. you're about to see where your paycheck actually goes. most people cancel something within 10 minutes 💸`,
-      `it's in your DMs 📬 one screen, 2 minutes, your entire paycheck audited. every expense converted to hours worked. you'll never say "I don't know where it went" again after running this. go look 🔍`
+      "check your DMs \u{1F4EC} the Budget Calculator is in there. enter your paycheck, see every dollar mapped, watch your spending get converted to hours of labor at your wage. fair warning: the output hits different \u{1F50D}",
+      "sent it \u{1F4EC} the calculator is in your DMs. $70/month in forgotten subscriptions = 60 hours of your life per year at $14/hr. you're about to see where your paycheck actually goes. most people cancel something within 10 minutes \u{1F4B8}",
+      "it's in your DMs \u{1F4EC} one screen, 2 minutes, your entire paycheck audited. every expense converted to hours worked. you'll never say \"I don't know where it went\" again after running this. go look \u{1F50D}"
     ],
     messages: [
-      {
-        timing: "INSTANT REPLY",
-        delay: "Immediate",
-        type: "PRIMARY DELIVERY",
-        isEntry: true,
-        copy: `you dropped PAYDAY. good 🔍\n\nhere's the Budget Calculator. enter your actual paycheck and it shows you exactly where every dollar goes, converted to hours of your life at your wage.\n\nbe honest with the numbers. the tool only works if the data is real. most people's "oh my god" moment happens within 60 seconds.`,
-        button: { text: "🔍 Audit My Paycheck", url: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html" }
-      },
-      {
-        timing: "DAY 1",
-        delay: "24hr Smart Delay",
-        type: "RE-ENGAGEMENT",
-        copy: `did you run the audit?\n\nif you did, you probably saw at least one category that made you pause. that's the invisible bleed. those charges never felt like a problem one at a time. stacked into an annual total and converted to hours of labor, they hit different.\n\nthe median person at $18/hr has $70/month in spending they can't explain. that's 47 hours of work per year. almost 6 full shifts funding things they don't think about.\n\nhere's the move: pick the ONE biggest surprise from your audit. cancel it, reduce it, or redirect it today. one action. that's all.`,
-        button: { text: "🔍 Re-Run My Audit", url: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html" }
-      },
-      {
-        timing: "DAY 3",
-        delay: "72hr Smart Delay",
-        type: "DEEPENING (TEXT ONLY)",
-        copy: `here's something your audit revealed that most people miss.\n\nthe problem was never one big purchase. nobody at $680/paycheck blows it on a single item. the problem is 30 charges between $5 and $20 that each feel responsible in isolation. $7.49 Starbucks. $9.99 streaming. $14.22 Uber. $6.99 iCloud. individually harmless. collectively catastrophic.\n\nyour audit is the first time those 30 charges stood in a line together. that visibility is permanent now. you can't un-see the total.`,
-        noButton: true
-      },
-      {
-        timing: "DAY 5",
-        delay: "120hr Smart Delay",
-        type: "CROSS-SELL",
-        copy: `you found the leaks. now seal them ⚙\n\nthe Autopilot Map sets up a paycheck routing system that moves your savings, emergency fund, and investment money OUT of your checking account on payday, before any of those 30 micro-charges can touch it. 3 accounts. 10-minute setup. the money you're keeping never hits the account where the leaks live.\n\nthe Budget Calculator diagnosed the problem. the Autopilot Map is the surgery.`,
-        button: { text: "⚙ Seal the Leaks", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" }
-      },
-      {
-        timing: "DAY 7",
-        delay: "168hr Smart Delay",
-        type: "EMAIL CAPTURE",
-        isDay7: true,
-        copy: `you audited your paycheck. you found the leaks. you've got the system that seals them 💰\n\nmost people your age have never converted a single expense to hours of labor. you've mapped your entire paycheck. that's not a small thing. that's the foundation every other financial decision gets built on.\n\nI'm building the full system: new tools, calculators, and the exact playbook I use at $18/hr. sending it to my email list first. free. no fluff. built at our income level.`,
-        button: { text: "📬 Get the Full System", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" }
-      }
+      { timing: "INSTANT REPLY", delay: "Immediate", type: "PRIMARY DELIVERY", isEntry: true,
+        copy: "you dropped PAYDAY. good \u{1F50D}\n\nhere's the Budget Calculator. enter your actual paycheck and it shows you exactly where every dollar goes, converted to hours of your life at your wage.\n\nbe honest with the numbers. the tool only works if the data is real. most people's \"oh my god\" moment happens within 60 seconds.",
+        button: { text: "\u{1F50D} Audit My Paycheck", url: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html" } },
+      { timing: "DAY 1", delay: "24hr Smart Delay", type: "RE-ENGAGEMENT",
+        copy: "did you run the audit?\n\nif you did, you probably saw at least one category that made you pause. that's the invisible bleed. those charges never felt like a problem one at a time. stacked into an annual total and converted to hours of labor, they hit different.\n\nthe median person at $18/hr has $70/month in spending they can't explain. that's 47 hours of work per year. almost 6 full shifts funding things they don't think about.\n\nhere's the move: pick the ONE biggest surprise from your audit. cancel it, reduce it, or redirect it today. one action. that's all.",
+        button: { text: "\u{1F50D} Re-Run My Audit", url: "https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html" } },
+      { timing: "DAY 3", delay: "72hr Smart Delay", type: "DEEPENING (TEXT ONLY)",
+        copy: "here's something your audit revealed that most people miss.\n\nthe problem was never one big purchase. nobody at $680/paycheck blows it on a single item. the problem is 30 charges between $5 and $20 that each feel responsible in isolation. $7.49 Starbucks. $9.99 streaming. $14.22 Uber. $6.99 iCloud. individually harmless. collectively catastrophic.\n\nyour audit is the first time those 30 charges stood in a line together. that visibility is permanent now. you can't un-see the total.",
+        noButton: true },
+      { timing: "DAY 5", delay: "120hr Smart Delay", type: "CROSS-SELL",
+        copy: "you found the leaks. now seal them \u2699\n\nthe Autopilot Map sets up a paycheck routing system that moves your savings, emergency fund, and investment money OUT of your checking account on payday, before any of those 30 micro-charges can touch it. 3 accounts. 10-minute setup. the money you're keeping never hits the account where the leaks live.\n\nthe Budget Calculator diagnosed the problem. the Autopilot Map is the surgery.",
+        button: { text: "\u2699 Seal the Leaks", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" } },
+      { timing: "DAY 7", delay: "168hr Smart Delay", type: "EMAIL CAPTURE", isDay7: true,
+        copy: "you audited your paycheck. you found the leaks. you've got the system that seals them \u{1F4B0}\n\nmost people your age have never converted a single expense to hours of labor. you've mapped your entire paycheck. that's not a small thing. that's the foundation every other financial decision gets built on.\n\nI'm building the full system: new tools, calculators, and the exact playbook I use at $18/hr. sending it to my email list first. free. no fluff. built at our income level.",
+        button: { text: "\u{1F4EC} Get the Full System", url: "https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html" } }
+    ]
+  },
+  // ═══════════════════════════════════════════════
+  // P8: SETUP (MVO PRE-SALE) - SHORTER 3-MESSAGE SEQUENCE
+  // ═══════════════════════════════════════════════
+  {
+    id: "p8", name: "AUTOPILOT SETUP (MVO)", keyword: "SETUP",
+    angle: '"Your paycheck has no system. I\'ll build one on your real bank account in 30 minutes."',
+    asset: "Autopilot Setup Pre-Sale Page",
+    url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-setup.html",
+    isMVO: true,
+    commentReplies: [
+      "check your DMs \u{1F4EC} I built a guided setup that configures automatic savings on your real bank account. 30 minutes. runs forever. founding user price before it goes up \u{1F527}",
+      "sent it \u{1F4EC} this isn't a course or a PDF. I walk you through setting up automation on YOUR bank with YOUR numbers. 20 founding spots. check your DMs \u2699",
+      "it's in your DMs \u{1F4EC} 92% of manual saving fails within 90 days. this setup removes willpower from the equation permanently. 30 minutes, one time. go check \u{1F527}"
+    ],
+    messages: [
+      { timing: "INSTANT REPLY", delay: "Immediate", type: "MVO PRE-SALE", isEntry: true,
+        copy: "you said SETUP. here's what this is \u{1F527}\n\nI built a guided Autopilot Setup where I walk you through configuring automatic savings, emergency fund, and investing on YOUR real bank account with YOUR real numbers. 30 minutes. runs every paycheck forever.\n\n$29 founding user price (goes to $49). 20 spots. full refund if it doesn't work as described.\n\ncheck it out and see if it's for you:",
+        button: { text: "\u{1F527} See the Autopilot Setup", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-setup.html" } },
+      { timing: "DAY 1", delay: "24hr Smart Delay", type: "VALUE REINFORCEMENT",
+        copy: "quick thought on the Autopilot Setup.\n\nI asked 13 people our age one question: what frustrates you most about managing money? 8 out of 13 said the same thing in different words: \"I know I should save but the money disappears before I do.\"\n\nthat's not a discipline problem. that's an engineering problem. the setup fixes the engineering. your savings move on payday before you see the balance. no willpower. no daily decisions. one setup, runs forever.\n\nif you're one of those 8 out of 13, this was built for you:",
+        button: { text: "\u2699 Check Out the Setup", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-setup.html" } },
+      { timing: "DAY 3", delay: "72hr Smart Delay", type: "SCARCITY + FREE REDIRECT",
+        copy: "last mention on the Autopilot Setup.\n\nif it's not for you right now, no pressure. seriously. but if you want to see the system for free first, the Autopilot Architecture Map shows you the full blueprint. no cost. no gate. just the diagram of how automatic paycheck routing works.\n\nthe free map shows WHAT to automate. the paid setup does it WITH you on your real accounts. start wherever makes sense:",
+        button: { text: "\u{1F4CB} Free: See the Blueprint", url: "https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html" } }
     ]
   }
+];
+
+// ═══════════════════════════════════════════════
+// WELCOME FLOW DATA (v2.3 with Research Probe)
+// ═══════════════════════════════════════════════
+const WELCOME_FLOW = {
+  trigger: "New Instagram follow (2-minute delay)",
+  opener: "I build free money tools for people our age. No courses. No guru stuff. Just systems that work at $14-18/hr. Quick question so I send you the right one:",
+  question: "What's your biggest problem with money right now?",
+  buttons: [
+    { label: "My paycheck vanishes before Wednesday", routes: "AUTOPILOT", color: "#22c55e" },
+    { label: "I don't know where my money goes", routes: "PAYDAY", color: "#ec4899" },
+    { label: "I should be investing but haven't started", routes: "LEAK", color: "#f59e0b" },
+    { label: "Credit makes zero sense to me", routes: "ELITE800", color: "#a855f7" },
+    { label: "I just feel behind with money", routes: "MYNUMBER", color: "#3b82f6" }
+  ],
+  researchProbe: {
+    delay: "4 hours after tool link clicked",
+    message: "Glad you checked it out. Building more tools and I want to make the next one stupid useful. One quick question:",
+    question: "After seeing your numbers, what would actually help you most right now?",
+    buttons: [
+      { label: "Walk me through actually doing it step by step", concept: "A", color: "#22c55e" },
+      { label: "A way to track if my money is getting better each month", concept: "B", color: "#3b82f6" },
+      { label: "A personalized plan based on MY exact situation", concept: "C", color: "#a855f7" }
+    ],
+    responses: {
+      A: "That keeps coming up. The \"I know what to do but haven't done it\" gap. I'm building something for exactly this. Want me to message you when it's ready?",
+      B: "You're not the first person to say that. Knowing your number once is step 1. Tracking it monthly is where the real shift happens. Working on something for this. Want first access?",
+      C: "Makes sense. Generic advice is useless at our income level. A plan that accounts for YOUR rent, YOUR paycheck, YOUR debt hits different. Building this now. Want me to hit you when it drops?"
+    }
+  },
+  noResponse: {
+    delay: "24 hours",
+    msg: "No pressure on the question above. If you ever want a free money tool, just DM me one of these words: AUTOPILOT, LEAK, ELITE800, MYNUMBER, PAYDAY, CHEAT, or BUILD50. Each one sends you a different tool instantly."
+  }
+};
+
+// ═══════════════════════════════════════════════
+// PMV CONCEPTS
+// ═══════════════════════════════════════════════
+const PMV_CONCEPTS = [
+  { key: "A", name: "IMPLEMENTATION BRIDGE", color: "#22c55e", icon: "\u{1F6A7}", desc: "Help them DO it. Step-by-step hand-holding from numbers to action." },
+  { key: "B", name: "TRACKING SYSTEM", color: "#3b82f6", icon: "\u{1F4C8}", desc: "Help them MEASURE it. Dashboard that shows if numbers are improving." },
+  { key: "C", name: "PERSONALIZED PLAYBOOK", color: "#a855f7", icon: "\u{1F3AF}", desc: "Tell them EXACTLY what to do. 90-day action plan from their data." }
 ];
 
 // ─── RENDER ─────────────────────────────────────────────
@@ -1084,77 +514,73 @@ const mainEl = document.getElementById('mainContent');
 const searchInput = document.getElementById('searchInput');
 let activeTab = 'overview';
 
+function escapeHtml(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function escapeForAttr(str) { return str.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n'); }
+
 function renderOverview() {
   return `
     <div class="pillar-section active" data-section="overview">
       <div class="pillar-header">
         <h2>SYSTEM OVERVIEW</h2>
-        <div class="angle">7 Pillars. 35 DM Messages. 21 Comment Replies. 28 Buttons. All converging to email capture.</div>
+        <div class="angle">8 Keyword Flows + Welcome Flow + PMV Tracker. All converging to email capture and revenue validation.</div>
       </div>
       <div class="overview-grid">
         ${PILLARS.map((p, i) => `
-          <div class="overview-card" onclick="switchTab('${p.id}')">
-            <h3>P${i+1}: ${p.name}</h3>
-            <div class="oc-keyword">${p.keyword}</div>
+          <div class="overview-card ${p.isMVO ? 'card-pmv' : ''}" onclick="switchTab('${p.id}')">
+            <h3>${p.isMVO ? '\u{1F4B0} ' : 'P'+(i+1)+': '}${p.name}</h3>
+            <div class="oc-keyword">${p.keyword} ${p.isMVO ? '(PRE-SALE $29)' : ''}</div>
             <div class="oc-angle">${p.angle}</div>
             <div class="oc-stats">
-              <div><span>5</span> DM msgs</div>
+              <div><span>${p.messages.length}</span> DM msgs</div>
               <div><span>3</span> comment replies</div>
               <div><span>${p.messages.filter(m => m.button).length}</span> buttons</div>
             </div>
           </div>
         `).join('')}
+        <div class="overview-card card-cyan" onclick="switchTab('welcome')">
+          <h3 style="color:var(--cyan)">\u{1F44B} WELCOME FLOW</h3>
+          <div class="oc-keyword" style="color:var(--cyan)">NEW FOLLOWER (v2.3 + RESEARCH PROBE)</div>
+          <div class="oc-angle">Routes new followers to their highest-leverage tool. Research probe extracts PMV data 4hrs after tool delivery.</div>
+          <div class="oc-stats"><div><span>5</span> pain buttons</div><div><span>3</span> concept probes</div><div><span>1</span> email capture</div></div>
+        </div>
+        <div class="overview-card card-pmv" onclick="switchTab('pmv')">
+          <h3 style="color:var(--pmv-orange)">\u{1F4CA} PMV TRACKER</h3>
+          <div class="oc-keyword" style="color:var(--pmv-orange)">PRODUCT-MARKET VALIDATION</div>
+          <div class="oc-angle">Every Welcome Flow reply feeds this intelligence system. The concept with the most "yes" responses wins.</div>
+          <div class="oc-stats"><div><span>3</span> concepts tested</div><div><span>20+</span> min responses</div></div>
+        </div>
       </div>
-
       <div class="flow-divider" style="margin-top:40px"><span>DAY 7 CONVERGENCE MAP</span></div>
-      <div style="background:var(--void-card);border:1px solid var(--void-border);border-radius:8px;padding:20px;margin-top:8px;">
-        <div style="font-size:12px;color:var(--text-secondary);line-height:2;">
-          ${PILLARS.map((p, i) => {
-            const d7 = p.messages[4];
-            return `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-              <span style="color:var(--burn-orange);font-weight:600;min-width:90px;">P${i+1} ${p.keyword}</span>
-              <span style="color:var(--text-dim);">Day 7 →</span>
-              <span style="color:var(--green);font-weight:600;">${d7.button.text}</span>
-              <span style="color:var(--text-dim);font-size:10px;">→ ${d7.button.url}</span>
-            </div>`;
-          }).join('')}
-        </div>
-        <div style="margin-top:16px;font-size:11px;color:var(--green);font-weight:600;">ALL DAY 7 BUTTONS → FREEDOM CALCULATOR (EMAIL CAPTURE) ✓</div>
+      <div class="info-box">
+        ${PILLARS.filter(p => !p.isMVO).map((p, i) => {
+          const d7 = p.messages[p.messages.length - 1];
+          return `<div><span class="label val-orange">P${i+1} ${p.keyword}</span> Day 7 \u2192 <span class="val-green">${d7.button ? d7.button.text : 'N/A'}</span></div>`;
+        }).join('')}
+        <div style="margin-top:12px;font-size:11px;color:var(--green);font-weight:600;">ALL DAY 7 BUTTONS \u2192 FREEDOM CALCULATOR (EMAIL CAPTURE) \u2713</div>
       </div>
-
-      <div class="flow-divider"><span>CROSS-SELL MAP (DAY 5)</span></div>
-      <div style="background:var(--void-card);border:1px solid var(--void-border);border-radius:8px;padding:20px;margin-top:8px;">
-        <div style="font-size:12px;color:var(--text-secondary);line-height:2;">
-          ${PILLARS.map((p, i) => {
-            const d5 = p.messages[3];
-            return `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-              <span style="color:var(--burn-orange);font-weight:600;min-width:90px;">P${i+1} ${p.keyword}</span>
-              <span style="color:var(--text-dim);">Day 5 →</span>
-              <span style="color:var(--tape-blue);font-weight:600;">${d5.button.text}</span>
-            </div>`;
-          }).join('')}
-        </div>
+      <div class="flow-divider"><span>SETUP FLOW (MVO REVENUE)</span></div>
+      <div class="info-box">
+        <div><span class="label val-orange">P8 SETUP</span> Instant \u2192 <span class="val-blue">MVO Pre-Sale Page ($29)</span></div>
+        <div><span class="label val-orange">P8 SETUP</span> Day 1 \u2192 <span class="val-blue">Value Reinforcement + MVO Link</span></div>
+        <div><span class="label val-orange">P8 SETUP</span> Day 3 \u2192 <span class="val-green">Free Redirect to Autopilot Map (soft exit)</span></div>
+        <div style="margin-top:12px;font-size:11px;color:var(--burn-orange);font-weight:600;">SETUP FLOW IS REVENUE VALIDATION. ALL OTHER FLOWS ARE EMAIL CAPTURE.</div>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
 function renderPillar(pillar, index) {
+  const isMVO = pillar.isMVO;
   return `
     <div class="pillar-section" data-section="${pillar.id}">
       <div class="pillar-header">
-        <h2>P${index+1}: ${pillar.name}</h2>
+        <h2>${isMVO ? '\u{1F4B0} ' : 'P'+(index+1)+': '}${pillar.name}</h2>
         <span class="keyword-badge">${pillar.keyword}</span>
+        ${isMVO ? '<span class="keyword-badge-pmv">PRE-SALE $29</span>' : ''}
         <div class="angle">${pillar.angle}</div>
-        <div class="asset-link">ASSET: ${pillar.asset} → ${pillar.url}</div>
+        <div class="asset-link">ASSET: ${pillar.asset} \u2192 ${pillar.url}</div>
       </div>
-
-      <!-- COMMENT REPLIES ENTRY -->
       <div class="comment-replies-group">
-        <div class="cr-label">
-          PUBLIC COMMENT REPLIES (ENTRY POINT)
-          <span class="arrow">→ Rotate 1/2/3 per comment section</span>
-        </div>
+        <div class="cr-label">PUBLIC COMMENT REPLIES (ENTRY POINT) <span class="arrow">\u2192 Rotate 1/2/3 per comment section</span></div>
         ${pillar.commentReplies.map((reply, ri) => `
           <div class="reply-card" onclick="copyText(this, '${escapeForAttr(reply)}')">
             <button class="copy-btn" onclick="event.stopPropagation(); copyText(this.parentElement, '${escapeForAttr(reply)}')">COPY</button>
@@ -1163,13 +589,10 @@ function renderPillar(pillar, index) {
           </div>
         `).join('')}
       </div>
-
-      <div class="flow-divider"><span>DM SEQUENCE FLOW → INSTANT THROUGH DAY 7</span></div>
-
-      <!-- DM FLOW -->
+      <div class="flow-divider"><span>DM SEQUENCE FLOW ${isMVO ? '(3-MESSAGE SHORTER SEQUENCE)' : '\u2192 INSTANT THROUGH DAY 7'}</span></div>
       <div class="flow-container">
         ${pillar.messages.map((msg, mi) => `
-          <div class="flow-node ${msg.isEntry ? 'entry-node' : ''} ${msg.isDay7 ? 'day7-node' : ''}" data-search="${escapeForAttr(msg.copy + ' ' + (msg.button ? msg.button.text + ' ' + msg.button.url : ''))}">
+          <div class="flow-node ${msg.isEntry ? 'entry-node' : ''} ${msg.isDay7 ? 'day7-node' : ''}">
             <div class="node-card">
               <div class="node-header ${msg.isEntry ? 'entry-header' : ''} ${msg.isDay7 ? 'day7-header' : ''}">
                 <div class="node-timing">
@@ -1182,46 +605,215 @@ function renderPillar(pillar, index) {
                 </div>
               </div>
               <div class="node-body">
-                <div class="message-copy">${escapeHtml(msg.copy)}${msg.noButton ? '<span class="no-button-note">(No button. Text-only deepening. Let the stat do the work.)</span>' : ''}</div>
-                ${msg.button ? `
-                  <div class="button-block">
-                    <span class="btn-label">BUTTON</span>
-                    <span class="btn-text">${escapeHtml(msg.button.text)}</span>
-                    <button class="url-copy-btn" onclick="copyUrl(this, '${escapeForAttr(msg.button.url)}')">COPY URL</button>
-                    <span class="btn-url">${escapeHtml(msg.button.url)}</span>
-                  </div>
-                ` : ''}
+                <div class="message-copy">${escapeHtml(msg.copy)}${msg.noButton ? '<span class="no-button-note">(No button. Text-only deepening.)</span>' : ''}</div>
+                ${msg.button ? `<div class="button-block"><span class="btn-label">BUTTON</span><span class="btn-text">${escapeHtml(msg.button.text)}</span><button class="url-copy-btn" onclick="copyUrl(this, '${escapeForAttr(msg.button.url)}')">COPY URL</button><span class="btn-url">${escapeHtml(msg.button.url)}</span></div>` : ''}
               </div>
             </div>
           </div>
         `).join('')}
       </div>
-
-      <!-- MANYCHAT SETUP NOTES -->
       <div class="flow-divider"><span>MANYCHAT SETUP CHECKLIST</span></div>
-      <div style="background:var(--void-card);border:1px solid var(--void-border);border-radius:8px;padding:16px;font-size:12px;color:var(--text-secondary);line-height:1.8;">
-        <div>1. Create keyword trigger: comment = <span style="color:var(--burn-orange);font-weight:600;">${pillar.keyword}</span></div>
+      <div class="info-box">
+        <div>1. Create keyword trigger: comment = <span class="val-orange">${pillar.keyword}</span></div>
         <div>2. Set Instant Reply as immediate auto-response</div>
-        <div>3. Add Day 1, 3, 5, 7 as Smart Delay nodes (24hr, 72hr, 120hr, 168hr)</div>
-        <div>4. Add each button as "Open Website" type below the text block</div>
-        <div>5. Tag subscriber with <span style="color:var(--burn-orange);">${pillar.keyword}</span> on Instant Reply node</div>
-        <div>6. Optional: Add "Reply STOP to unsubscribe" on Day 7 for compliance</div>
+        ${isMVO ?
+          '<div>3. Add Day 1, Day 3 as Smart Delay nodes (24hr, 72hr)</div><div>4. Day 3 redirects non-buyers to FREE Autopilot Map (soft exit, not hard sell)</div>' :
+          '<div>3. Add Day 1, 3, 5, 7 as Smart Delay nodes (24hr, 72hr, 120hr, 168hr)</div>'}
+        <div>${isMVO ? '5' : '4'}. Add each button as "Open Website" type below the text block</div>
+        <div>${isMVO ? '6' : '5'}. Tag subscriber with <span class="val-orange">${pillar.keyword}</span> on Instant Reply node</div>
+        ${isMVO ? '<div>7. Track clicks to autopilot-setup.html as MVO page visits</div>' : ''}
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
-function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+function renderWelcome() {
+  const w = WELCOME_FLOW;
+  return `
+    <div class="pillar-section" data-section="welcome">
+      <div class="pillar-header">
+        <h2 style="color:var(--cyan)">\u{1F44B} NEW FOLLOWER WELCOME FLOW</h2>
+        <span class="keyword-badge-cyan">v2.3 + PMV RESEARCH PROBE</span>
+        <div class="angle">Every new follower gets routed to their highest-leverage tool in under 60 seconds. Every reply feeds PMV intelligence.</div>
+        <div class="asset-link">TRIGGER: ${w.trigger}</div>
+      </div>
+
+      <div class="flow-divider"><span>STAGE 1: WELCOME MESSAGE (2-MIN DELAY)</span></div>
+      <div class="flow-container cyan-line">
+        <div class="flow-node entry-node">
+          <div class="node-card">
+            <div class="node-header cyan-header">
+              <div class="node-timing"><span class="timing-badge cyan">WELCOME</span><span class="timing-delay">2-minute delay after follow</span></div>
+              <span class="node-type">ROUTING MESSAGE</span>
+            </div>
+            <div class="node-body">
+              <div class="message-copy">${escapeHtml(w.opener)}<br><br><strong>${escapeHtml(w.question)}</strong></div>
+              <div class="welcome-btn-grid">
+                ${w.buttons.map(b => `
+                  <div class="welcome-btn" style="border-color:${b.color}25">
+                    <span class="wb-text">${b.label}</span>
+                    <span class="wb-route" style="color:${b.color}">\u2192 ${b.routes}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-divider"><span>STAGE 2: BRIDGE + TOOL DELIVERY (PER BUTTON)</span></div>
+      <div class="info-box">
+        ${w.buttons.map(b => `<div><span style="color:${b.color};font-weight:600;min-width:100px;display:inline-block;">${b.routes}</span> "${b.label}" \u2192 Routes to ${b.routes} pillar's Instant Reply DM sequence</div>`).join('')}
+        <div style="margin-top:10px;font-size:11px;color:var(--text-dim);font-style:italic;">Each button triggers the matching keyword pillar's existing DM flow. No new messages needed. The Welcome Flow is a router, not a standalone sequence.</div>
+      </div>
+
+      <div class="flow-divider"><span>STAGE 3: RESEARCH PROBE (4 HRS AFTER TOOL CLICK) \u{1F4CA}</span></div>
+      <div class="flow-container cyan-line">
+        <div class="flow-node pmv-node">
+          <div class="node-card" style="border-color:var(--burn-orange-dim)">
+            <div class="node-header pmv-header">
+              <div class="node-timing"><span class="timing-badge pmv">RESEARCH PROBE</span><span class="timing-delay">4hr after tool link clicked (ManyChat click tracking)</span></div>
+              <span class="node-type">PMV DATA COLLECTION</span>
+            </div>
+            <div class="node-body">
+              <div class="message-copy">${escapeHtml(w.researchProbe.message)}<br><br><strong>${escapeHtml(w.researchProbe.question)}</strong></div>
+              <div class="welcome-btn-grid" style="margin-top:12px">
+                ${w.researchProbe.buttons.map(b => `
+                  <div class="welcome-btn" style="border-color:${b.color}25">
+                    <span class="wb-text">${b.label}</span>
+                    <span class="wb-route" style="color:${b.color}">CONCEPT ${b.concept}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flow-node cyan-node">
+          <div class="node-card">
+            <div class="node-header cyan-header">
+              <div class="node-timing"><span class="timing-badge cyan">RESPONSE</span><span class="timing-delay">Per concept selected</span></div>
+              <span class="node-type">ACKNOWLEDGE + CAPTURE</span>
+            </div>
+            <div class="node-body">
+              ${Object.entries(w.researchProbe.responses).map(([key, msg]) => {
+                const c = PMV_CONCEPTS.find(p => p.key === key);
+                return `<div style="margin-bottom:12px;padding:10px 14px;background:${c.color}08;border:1px solid ${c.color}20;border-radius:6px;">
+                  <div style="font-size:10px;font-weight:700;color:${c.color};letter-spacing:1px;margin-bottom:4px;">CONCEPT ${key}: ${c.name}</div>
+                  <div style="font-size:12px;color:var(--text-primary);line-height:1.6;">${msg}</div>
+                  <div style="margin-top:8px;display:flex;gap:8px;">
+                    <span style="font-size:10px;padding:3px 10px;background:${c.color}15;border:1px solid ${c.color}30;border-radius:4px;color:${c.color};">Capture: "Yeah, let me know"</span>
+                    <span style="font-size:10px;padding:3px 10px;background:var(--void-light);border:1px solid var(--void-border);border-radius:4px;color:var(--text-dim);">Decline: "I'm good for now"</span>
+                  </div>
+                </div>`;
+              }).join('')}
+              <div style="margin-top:12px;font-size:11px;color:var(--green);font-weight:600;">IF POSITIVE \u2192 Email capture with tags: pmv-early-access + pmv-concept-{A/B/C}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-divider"><span>STAGE 4: NO-RESPONSE FALLBACK (24HR)</span></div>
+      <div class="flow-container cyan-line">
+        <div class="flow-node cyan-node">
+          <div class="node-card">
+            <div class="node-header cyan-header">
+              <div class="node-timing"><span class="timing-badge">FALLBACK</span><span class="timing-delay">24hr if no pain button tapped</span></div>
+              <span class="node-type">KEYWORD LIST</span>
+            </div>
+            <div class="node-body">
+              <div class="message-copy">${escapeHtml(w.noResponse.msg)}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-divider"><span>MANYCHAT SETUP CHECKLIST</span></div>
+      <div class="info-box">
+        <div>1. Trigger: <span class="val-cyan">New follower</span> (NOT keyword-based)</div>
+        <div>2. Set 2-minute delay before first message (avoid bot flag)</div>
+        <div>3. Add 5 Quick Reply buttons with pain statements</div>
+        <div>4. Each button triggers the matching keyword pillar flow via ManyChat Action</div>
+        <div>5. Research Probe: 4hr Smart Delay, condition = tool link clicked</div>
+        <div>6. 3 Quick Reply concept buttons on probe message</div>
+        <div>7. Tag each concept response: <span class="val-orange">pmv-concept-A/B/C</span></div>
+        <div>8. Capture email on positive response, tag: <span class="val-green">pmv-early-access</span></div>
+        <div>9. No-response fallback: 24hr delay, keyword list message</div>
+      </div>
+    </div>`;
 }
 
-function escapeForAttr(str) {
-  return str.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n');
+function renderPMV() {
+  return `
+    <div class="pillar-section" data-section="pmv">
+      <div class="pillar-header">
+        <h2 style="color:var(--pmv-orange)">\u{1F4CA} PMV TRACKER</h2>
+        <span class="keyword-badge-pmv">PRODUCT-MARKET VALIDATION</span>
+        <div class="angle">Every Welcome Flow reply feeds this intelligence system. The concept with the most "yes" responses wins.</div>
+      </div>
+
+      <div class="flow-divider"><span>THE 3 CONCEPTS BEING TESTED</span></div>
+      ${PMV_CONCEPTS.map(c => `
+        <div class="pmv-concept" style="border-color:${c.color}20">
+          <h4 style="color:${c.color}">${c.icon} CONCEPT ${c.key}: ${c.name}</h4>
+          <p>${c.desc}</p>
+          <div class="pmv-btn-text">Button text: "${WELCOME_FLOW.researchProbe.buttons.find(b => b.concept === c.key)?.label}"</div>
+        </div>
+      `).join('')}
+
+      <div class="flow-divider"><span>HOW DATA FLOWS</span></div>
+      <div class="info-box">
+        <div><span class="val-cyan">1.</span> New follower triggers Welcome Flow</div>
+        <div><span class="val-cyan">2.</span> Brandon picks a pain button, receives tool</div>
+        <div><span class="val-orange">3.</span> 4 hours later: Research Probe fires (3 concept buttons)</div>
+        <div><span class="val-orange">4.</span> Brandon picks a concept. Response logs to tracker.</div>
+        <div><span class="val-green">5.</span> If interested: email captured with concept tag in Beehiiv</div>
+      </div>
+
+      <div class="flow-divider"><span>DECISION CRITERIA</span></div>
+      <div class="decision-card green">
+        <h4 style="color:var(--green)">GREEN LIGHT: BUILD IT</h4>
+        <p>One concept captures 50%+ of responses AND 5%+ of those people tap "let me know" AND provide email. That's demand + willingness to act.</p>
+      </div>
+      <div class="decision-card yellow">
+        <h4 style="color:var(--burn-orange)">YELLOW: REFINE AND RETEST</h4>
+        <p>No clear winner (all concepts within 10% of each other). Rewrite the button text to sharpen differentiation. Or: clear winner on concept but low email capture (offer framing is weak, not the concept).</p>
+      </div>
+      <div class="decision-card red">
+        <h4 style="color:var(--red)">RED: PIVOT</h4>
+        <p>Under 10% response rate on the research probe after 50+ tool deliveries. The audience is not engaged enough to provide data. Fix the Welcome Flow engagement first, then retest.</p>
+      </div>
+
+      <div class="flow-divider"><span>BEEHIIV TAG STRUCTURE</span></div>
+      <div class="info-box">
+        <div><span class="val-orange" style="font-family:'JetBrains Mono',monospace;">pmv-early-access</span> \u2014 All research probe email captures (master list)</div>
+        <div><span class="val-green" style="font-family:'JetBrains Mono',monospace;">pmv-concept-A</span> \u2014 Chose Implementation Bridge</div>
+        <div><span class="val-blue" style="font-family:'JetBrains Mono',monospace;">pmv-concept-B</span> \u2014 Chose Tracking System</div>
+        <div><span class="val-purple" style="font-family:'JetBrains Mono',monospace;">pmv-concept-C</span> \u2014 Chose Personalized Playbook</div>
+        <div><span style="color:var(--text-dim);font-family:'JetBrains Mono',monospace;">pmv-pain-{keyword}</span> \u2014 Original pain button (AUTOPILOT, PAYDAY, etc.)</div>
+      </div>
+
+      <div class="flow-divider"><span>TRACKING SHEET COLUMNS</span></div>
+      <div class="info-box">
+        <div><span class="val-cyan">Date</span> | <span class="val-orange">Source</span> | <span class="val-orange">Their Pain (exact words)</span> | <span class="val-purple">Concept (A/B/C/X)</span> | <span class="val-green">Would Act (Y/N)</span> | <span style="color:var(--text-dim)">Notes</span></div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text-dim);">Minimum 20 rows before MVO decision. Target 50+ for high confidence. Use the PMV-DM-Tracker.xlsx spreadsheet.</div>
+      </div>
+
+      <div class="flow-divider"><span>MVO CONNECTION</span></div>
+      <div class="info-box">
+        <div>Winning concept from PMV data \u2192 <span class="val-orange">SETUP keyword flow</span> \u2192 <span class="val-blue">autopilot-setup.html</span></div>
+        <div style="margin-top:8px">MVO page placements:</div>
+        <div>\u2022 <span class="val-green">Command Center 7/7 completion</span> (highest intent)</div>
+        <div>\u2022 <span class="val-cyan">Welcome Flow research probe positive response</span> (warm intent)</div>
+        <div>\u2022 <span class="val-orange">SETUP keyword in ManyChat</span> (direct traffic)</div>
+        <div>\u2022 <span class="val-blue">Link-in-bio / Story links</span> (cold traffic)</div>
+      </div>
+    </div>`;
 }
 
 function buildAll() {
   let html = renderOverview();
   PILLARS.forEach((p, i) => { html += renderPillar(p, i); });
+  html += renderWelcome();
+  html += renderPMV();
   mainEl.innerHTML = html;
   showSection(activeTab);
 }
@@ -1234,109 +826,83 @@ function showSection(id) {
 
 function switchTab(id) {
   activeTab = id;
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    t.classList.remove('active','active-cyan','active-pmv');
+  });
   const tab = document.querySelector(`.nav-tab[data-tab="${id}"]`);
-  if (tab) tab.classList.add('active');
+  if (tab) {
+    if (id === 'welcome') tab.classList.add('active-cyan');
+    else if (id === 'pmv') tab.classList.add('active-pmv');
+    else tab.classList.add('active');
+  }
   showSection(id);
   window.scrollTo({ top: 96, behavior: 'smooth' });
 }
 
-// NAV CLICKS
 document.querySelectorAll('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => switchTab(tab.dataset.tab));
 });
 
-// COPY FUNCTIONS
 function copyText(el, text) {
   const decoded = text.replace(/\\n/g, '\n').replace(/\\'/g, "'").replace(/\\\\/g, '\\');
   navigator.clipboard.writeText(decoded).then(() => {
     const btn = el.querySelector('.copy-btn');
-    if (btn) {
-      btn.textContent = 'COPIED';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1500);
-    }
+    if (btn) { btn.textContent = 'COPIED'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1500); }
   });
 }
 
 function copyNodeText(btn, pillarIdx, msgIdx) {
   const msg = PILLARS[pillarIdx].messages[msgIdx];
   let fullText = msg.copy;
-  if (msg.button) {
-    fullText += '\n\n[BUTTON] "' + msg.button.text + '" → ' + msg.button.url;
-  }
+  if (msg.button) fullText += '\n\n[BUTTON] "' + msg.button.text + '" \u2192 ' + msg.button.url;
   navigator.clipboard.writeText(fullText).then(() => {
-    btn.textContent = 'COPIED';
-    btn.classList.add('copied');
+    btn.textContent = 'COPIED'; btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'COPY ALL'; btn.classList.remove('copied'); }, 1500);
   });
 }
 
 function copyUrl(btn, url) {
   navigator.clipboard.writeText(url).then(() => {
-    btn.textContent = 'COPIED';
-    btn.classList.add('copied');
+    btn.textContent = 'COPIED'; btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'COPY URL'; btn.classList.remove('copied'); }, 1500);
   });
 }
 
-// SEARCH
 searchInput.addEventListener('input', (e) => {
   const query = e.target.value.toLowerCase().trim();
   if (!query) {
-    // Reset: show active section normally
     document.querySelectorAll('.flow-node, .reply-card').forEach(el => { el.style.display = ''; });
-    document.querySelectorAll('.highlight').forEach(h => {
-      h.outerHTML = h.textContent;
-    });
+    showSection(activeTab);
     return;
   }
-
-  // Show all pillar sections for searching, hide overview
   document.querySelectorAll('.pillar-section').forEach(s => {
-    if (s.dataset.section === 'overview') {
-      s.classList.remove('active');
-    } else {
-      s.classList.add('active');
-    }
+    if (s.dataset.section === 'overview') s.classList.remove('active');
+    else s.classList.add('active');
   });
-
-  // Filter nodes
   document.querySelectorAll('.flow-node').forEach(node => {
-    const text = (node.dataset.search || node.textContent).toLowerCase();
+    const text = node.textContent.toLowerCase();
     node.style.display = text.includes(query) ? '' : 'none';
   });
-
   document.querySelectorAll('.reply-card').forEach(card => {
     const text = card.textContent.toLowerCase();
     card.style.display = text.includes(query) ? '' : 'none';
   });
-
-  // Update nav
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active','active-cyan','active-pmv'));
 });
 
-// SCROLL TOP
 const scrollTopBtn = document.getElementById('scrollTop');
-window.addEventListener('scroll', () => {
-  scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
-});
-scrollTopBtn.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
+window.addEventListener('scroll', () => { scrollTopBtn.classList.toggle('visible', window.scrollY > 400); });
+scrollTopBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
-// CLOCK UPDATE
 function updateClock() {
   const target = new Date('2030-11-30T23:59:59');
   const now = new Date();
   const days = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
-  document.getElementById('clock').textContent = `🕒 THE CLOCK: ${days.toLocaleString()} DAYS`;
+  document.getElementById('clock').textContent = '\u{1F552} THE CLOCK: ' + days.toLocaleString() + ' DAYS';
 }
 updateClock();
 
-// INIT
 buildAll();
 </script>
-
 </body>
 </html>
