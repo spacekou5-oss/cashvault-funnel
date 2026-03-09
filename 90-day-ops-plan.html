@@ -265,6 +265,86 @@
   .node-result { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.15); }
   .node-money { background: rgba(245,158,11,0.1); color: var(--amber); border: 1px solid rgba(245,158,11,0.15); }
 
+  /* ========================= */
+  /* PROMPT TOGGLE SYSTEM      */
+  /* ========================= */
+  .prompt-toggle {
+    margin-top: 12px; border-radius: 8px; overflow: hidden;
+    border: 1px solid rgba(192,132,252,0.2);
+    background: rgba(192,132,252,0.02);
+  }
+  .prompt-toggle-header {
+    padding: 12px 16px; cursor: pointer; display: flex;
+    align-items: center; gap: 10px; user-select: none;
+    transition: background 0.2s;
+  }
+  .prompt-toggle-header:hover { background: rgba(192,132,252,0.06); }
+  .prompt-toggle-icon {
+    font-family: var(--mono); font-size: 9px; font-weight: 700;
+    width: 22px; height: 22px; border-radius: 4px; display: flex;
+    align-items: center; justify-content: center; flex-shrink: 0;
+    background: rgba(192,132,252,0.15); color: var(--purple);
+    border: 1px solid rgba(192,132,252,0.25);
+    transition: all 0.3s;
+  }
+  .prompt-toggle.open .prompt-toggle-icon {
+    background: rgba(34,211,238,0.15); color: var(--cyan);
+    border-color: rgba(34,211,238,0.25);
+  }
+  .prompt-toggle-title {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+    color: var(--purple); font-weight: 700; flex: 1;
+  }
+  .prompt-toggle.open .prompt-toggle-title { color: var(--cyan); }
+  .prompt-toggle-arrow {
+    font-family: var(--mono); font-size: 12px; color: var(--text3);
+    transition: transform 0.3s;
+  }
+  .prompt-toggle.open .prompt-toggle-arrow { transform: rotate(90deg); color: var(--cyan); }
+  .prompt-toggle-body {
+    max-height: 0; overflow: hidden; transition: max-height 0.5s ease;
+  }
+  .prompt-toggle.open .prompt-toggle-body { max-height: 8000px; }
+  .prompt-toggle-inner { padding: 0 16px 16px; }
+  .prompt-context {
+    font-size: 11px; color: var(--text2); line-height: 1.6; margin-bottom: 12px;
+    padding: 10px 14px; border-radius: 6px;
+    background: rgba(192,132,252,0.04); border: 1px solid rgba(192,132,252,0.1);
+  }
+  .prompt-context strong { color: var(--text); }
+  .prompt-code-wrap {
+    position: relative; border-radius: 6px; overflow: hidden;
+    border: 1px solid rgba(34,211,238,0.15);
+  }
+  .prompt-code {
+    background: rgba(0,0,0,0.35); padding: 16px 18px; padding-top: 38px;
+    font-family: var(--mono); font-size: 10.5px; color: #a8e8f0;
+    line-height: 1.75; white-space: pre-wrap; word-break: break-word;
+    max-height: 450px; overflow-y: auto;
+  }
+  .prompt-code::-webkit-scrollbar { width: 4px; }
+  .prompt-code::-webkit-scrollbar-track { background: transparent; }
+  .prompt-code::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .prompt-code .ph { color: var(--amber); font-weight: 700; }
+  .copy-btn {
+    position: absolute; top: 8px; right: 8px; z-index: 2;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+    padding: 5px 14px; border-radius: 4px; cursor: pointer;
+    background: rgba(34,211,238,0.12); color: var(--cyan);
+    border: 1px solid rgba(34,211,238,0.25); transition: all 0.2s;
+  }
+  .copy-btn:hover { background: rgba(34,211,238,0.25); }
+  .copy-btn.copied { background: rgba(16,185,129,0.2); color: var(--green); border-color: rgba(16,185,129,0.3); }
+  .prompt-expected {
+    margin-top: 8px; padding: 10px 14px; border-radius: 6px;
+    background: rgba(16,185,129,0.04); border: 1px solid rgba(16,185,129,0.12);
+  }
+  .prompt-expected .exp-label {
+    font-family: var(--mono); font-size: 8px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--green); margin-bottom: 4px;
+  }
+  .prompt-expected p { font-size: 10.5px; color: var(--text3); line-height: 1.5; }
+
   @media (max-width: 640px) {
     .signal-grid { grid-template-columns: 1fr; }
     .week-row { grid-template-columns: 55px 1fr 60px; }
@@ -274,6 +354,7 @@
     .tool-tag { grid-column: 1 / -1; justify-self: start; }
     .flow-line { font-size: 9px; gap: 5px; }
     .flow-node { font-size: 9px; padding: 3px 7px; }
+    .prompt-code { font-size: 9.5px; }
   }
 </style>
 </head>
@@ -293,7 +374,7 @@
   <div class="role-header">
     <div class="role-badge">COO Strategic Plan // Phase 0 Completion + Phase 1 Sprint</div>
     <h1>90-DAY HIGH-LEVERAGE EXECUTION PLAN</h1>
-    <div class="sub">65-104 total hours. 13 weeks. One objective: close Phase 0, build the capture machine, start driving traffic, and get the first stranger to pay you money. Everything else is noise.</div>
+    <div class="sub">65-104 total hours. 13 weeks. One objective: close Phase 0, build the capture machine, start driving traffic, and get the first stranger to pay you money. Everything else is noise. <strong style="color:var(--purple);position:relative;">Now with embedded prompt arsenal: toggles inside every step.</strong></div>
   </div>
 
   <!-- GROUND TRUTH -->
@@ -322,9 +403,7 @@
     <p style="margin-top:8px;">The plan divides into three arcs: <strong class="danger">ARC 1: Seal the Foundation</strong> (Weeks 1-3, finish Phase 0 + wire Phase 1 infrastructure), <strong class="warn">ARC 2: Content Ignition</strong> (Weeks 4-9, build the content library and grow the audience), and <strong class="hl">ARC 3: PMF Strike</strong> (Weeks 10-13, test whether someone will pay).</p>
   </div>
 
-  <!-- ==================== -->
-  <!-- HOUR BUDGET OVERVIEW -->
-  <!-- ==================== -->
+  <!-- HOUR BUDGET -->
   <div class="block">
     <div class="block-label">90-Day Hour Budget // Total: 78 hrs (6 hrs/week avg)</div>
     <div class="hour-bar">
@@ -361,8 +440,6 @@
   <div class="block">
     <div class="block-label" style="color:var(--green);">Active Stack // Live Now or Build in Arc 1</div>
     <div class="tool-stack">
-
-      <!-- TOOL 1: iPhone Camera -->
       <div class="tool-card">
         <div class="tool-icon" style="background:rgba(59,130,246,0.12);color:var(--blue);">01</div>
         <div class="tool-info">
@@ -373,8 +450,6 @@
         </div>
         <div class="tool-tag tag-free">FREE</div>
       </div>
-
-      <!-- TOOL 2: CapCut -->
       <div class="tool-card" style="border-color:rgba(16,185,129,0.25);">
         <div class="tool-icon" style="background:rgba(16,185,129,0.12);color:var(--green);">02</div>
         <div class="tool-info">
@@ -385,8 +460,6 @@
         </div>
         <div class="tool-tag tag-free">FREE</div>
       </div>
-
-      <!-- TOOL 3: Instagram -->
       <div class="tool-card">
         <div class="tool-icon" style="background:rgba(249,115,22,0.12);color:var(--orange);">03</div>
         <div class="tool-info">
@@ -397,8 +470,6 @@
         </div>
         <div class="tool-tag tag-free">FREE</div>
       </div>
-
-      <!-- TOOL 4: YouTube -->
       <div class="tool-card">
         <div class="tool-icon" style="background:rgba(239,68,68,0.12);color:var(--red);">04</div>
         <div class="tool-info">
@@ -409,8 +480,6 @@
         </div>
         <div class="tool-tag tag-free">FREE</div>
       </div>
-
-      <!-- TOOL 5: ManyChat -->
       <div class="tool-card" style="border-color:rgba(192,132,252,0.25);">
         <div class="tool-icon" style="background:rgba(192,132,252,0.12);color:var(--purple);">05</div>
         <div class="tool-info">
@@ -421,8 +490,6 @@
         </div>
         <div class="tool-tag tag-paid">PAID (EXISTING)</div>
       </div>
-
-      <!-- TOOL 6: Custom Link Hub -->
       <div class="tool-card" style="border-color:rgba(34,211,238,0.25);">
         <div class="tool-icon" style="background:rgba(34,211,238,0.12);color:var(--cyan);">06</div>
         <div class="tool-info">
@@ -433,8 +500,6 @@
         </div>
         <div class="tool-tag tag-free">FREE (BUILD)</div>
       </div>
-
-      <!-- TOOL 7: GitHub Pages -->
       <div class="tool-card">
         <div class="tool-icon" style="background:rgba(85,85,106,0.3);color:var(--text2);">07</div>
         <div class="tool-info">
@@ -445,8 +510,6 @@
         </div>
         <div class="tool-tag tag-free">FREE</div>
       </div>
-
-      <!-- TOOL 8: Beehiiv -->
       <div class="tool-card" style="border-color:rgba(245,158,11,0.25);">
         <div class="tool-icon" style="background:rgba(245,158,11,0.12);color:var(--amber);">08</div>
         <div class="tool-info">
@@ -457,8 +520,6 @@
         </div>
         <div class="tool-tag tag-paid">PAID (EXISTING)</div>
       </div>
-
-      <!-- TOOL 9: Claude -->
       <div class="tool-card" style="border-color:rgba(96,165,250,0.25);">
         <div class="tool-icon" style="background:rgba(96,165,250,0.12);color:var(--electric);">09</div>
         <div class="tool-info">
@@ -469,8 +530,6 @@
         </div>
         <div class="tool-tag tag-paid">PAID (EXISTING)</div>
       </div>
-
-      <!-- TOOL 10: Google Sheets -->
       <div class="tool-card">
         <div class="tool-icon" style="background:rgba(16,185,129,0.12);color:var(--green);">10</div>
         <div class="tool-info">
@@ -481,7 +540,6 @@
         </div>
         <div class="tool-tag tag-free">FREE</div>
       </div>
-
     </div>
   </div>
 
@@ -489,7 +547,6 @@
   <div class="block">
     <div class="block-label" style="color:var(--text3);">Deferred Stack // Arc 3 Only (Do NOT Set Up Before Week 10)</div>
     <div class="tool-stack">
-
       <div class="tool-card" style="border-color:rgba(85,85,106,0.2);opacity:0.75;">
         <div class="tool-icon" style="background:rgba(245,158,11,0.08);color:var(--amber);">11</div>
         <div class="tool-info">
@@ -500,7 +557,6 @@
         </div>
         <div class="tool-tag tag-defer">WEEK 10+</div>
       </div>
-
     </div>
   </div>
 
@@ -510,10 +566,8 @@
     <div class="stack-flow">
       <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;">Path A // ManyChat Keyword Route</div>
       <div class="flow-line"><span class="flow-node node-action">Viewer watches Reel</span> <span class="flow-arrow">&gt;</span> <span style="color:var(--text3);">DMs keyword</span> <span class="flow-arrow">&gt;</span> <span class="flow-node node-tool">ManyChat auto-reply</span> <span class="flow-arrow">&gt;</span> <span style="color:var(--text3);">clicks link</span> <span class="flow-arrow">&gt;</span> <span class="flow-node node-tool">Tool (GitHub Pages)</span> <span class="flow-arrow">&gt;</span> <span style="color:var(--text3);">uses tool</span> <span class="flow-arrow">&gt;</span> <span class="flow-node node-result">Email popup &gt; Beehiiv</span></div>
-
       <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin:16px 0 12px;">Path B // Link-in-Bio Route</div>
       <div class="flow-line"><span class="flow-node node-action">Viewer watches Reel</span> <span class="flow-arrow">&gt;</span> <span style="color:var(--text3);">taps bio</span> <span class="flow-arrow">&gt;</span> <span class="flow-node node-tool">Link Hub (GitHub Pages)</span> <span class="flow-arrow">&gt;</span> <span style="color:var(--text3);">selects tool</span> <span class="flow-arrow">&gt;</span> <span class="flow-node node-tool">Tool</span> <span class="flow-arrow">&gt;</span> <span style="color:var(--text3);">uses tool</span> <span class="flow-arrow">&gt;</span> <span class="flow-node node-result">Email popup &gt; Beehiiv</span></div>
-
       <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin:16px 0 12px;">Path C // Revenue Route (Arc 3, Week 10+)</div>
       <div class="flow-line"><span class="flow-node node-action">Email subscriber</span> <span class="flow-arrow">&gt;</span> <span style="color:var(--text3);">MVO email</span> <span class="flow-arrow">&gt;</span> <span class="flow-node node-tool">MVO Landing Page</span> <span class="flow-arrow">&gt;</span> <span style="color:var(--text3);">clicks Buy Now</span> <span class="flow-arrow">&gt;</span> <span class="flow-node node-money">Lemon Squeezy checkout</span> <span class="flow-arrow">&gt;</span> <span class="flow-node node-result">$19 captured</span></div>
     </div>
@@ -561,26 +615,11 @@
   <div class="block" style="border: 1px solid rgba(239,68,68,0.2);">
     <div class="block-label" style="color:var(--red);">Rejected Tools // Evaluated and Killed</div>
     <div style="display:flex;flex-direction:column;gap:8px;">
-      <div style="padding:10px 14px;border-radius:6px;background:rgba(239,68,68,0.03);border:1px solid rgba(239,68,68,0.1);">
-        <div style="font-size:12px;color:var(--text);"><strong style="text-decoration:line-through;opacity:0.6;">Linktree / Stan Store / Beacons</strong></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px;">$5-15/mo for a link page you can build in 45 minutes on GitHub Pages. You lose design control, add a dependency, and pay for something you already have the infrastructure to own. Math crime.</div>
-      </div>
-      <div style="padding:10px 14px;border-radius:6px;background:rgba(239,68,68,0.03);border:1px solid rgba(239,68,68,0.1);">
-        <div style="font-size:12px;color:var(--text);"><strong style="text-decoration:line-through;opacity:0.6;">Later / Buffer (Scheduling Tool)</strong></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px;">At 4 posts/week, manual posting takes ~10 min total. A scheduler saves 5 min and adds another login. The leverage ratio is garbage. Revisit at 7+ posts/week.</div>
-      </div>
-      <div style="padding:10px 14px;border-radius:6px;background:rgba(239,68,68,0.03);border:1px solid rgba(239,68,68,0.1);">
-        <div style="font-size:12px;color:var(--text);"><strong style="text-decoration:line-through;opacity:0.6;">Notion / Airtable (Project Management)</strong></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px;">You are one person. You do not need a project management tool. You need a Google Sheet with one row per week and the 90-Day Plan open in a browser tab. Adding Notion is adding complexity to feel organized without being productive.</div>
-      </div>
-      <div style="padding:10px 14px;border-radius:6px;background:rgba(239,68,68,0.03);border:1px solid rgba(239,68,68,0.1);">
-        <div style="font-size:12px;color:var(--text);"><strong style="text-decoration:line-through;opacity:0.6;">Zapier / Make (Complex Automation)</strong></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px;">You have 67 followers. You do not need middleware connecting 8 APIs. ManyChat handles the keyword pipe. Beehiiv handles email automation. The connections are already direct. Zapier is a solution looking for a problem you don't have yet.</div>
-      </div>
-      <div style="padding:10px 14px;border-radius:6px;background:rgba(239,68,68,0.03);border:1px solid rgba(239,68,68,0.1);">
-        <div style="font-size:12px;color:var(--text);"><strong style="text-decoration:line-through;opacity:0.6;">Gumroad</strong></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px;">10% transaction fee vs Lemon Squeezy's 5% + 50c. On a $19 product, Gumroad takes $1.90, Lemon Squeezy takes $1.45. Lemon Squeezy also handles tax compliance and has a cleaner checkout. Gumroad loses on every metric.</div>
-      </div>
+      <div style="padding:10px 14px;border-radius:6px;background:rgba(239,68,68,0.03);border:1px solid rgba(239,68,68,0.1);"><div style="font-size:12px;color:var(--text);"><strong style="text-decoration:line-through;opacity:0.6;">Linktree / Stan Store / Beacons</strong></div><div style="font-size:11px;color:var(--text3);margin-top:2px;">$5-15/mo for a link page you can build in 45 minutes on GitHub Pages. You lose design control, add a dependency, and pay for something you already have the infrastructure to own. Math crime.</div></div>
+      <div style="padding:10px 14px;border-radius:6px;background:rgba(239,68,68,0.03);border:1px solid rgba(239,68,68,0.1);"><div style="font-size:12px;color:var(--text);"><strong style="text-decoration:line-through;opacity:0.6;">Later / Buffer (Scheduling Tool)</strong></div><div style="font-size:11px;color:var(--text3);margin-top:2px;">At 4 posts/week, manual posting takes ~10 min total. A scheduler saves 5 min and adds another login. The leverage ratio is garbage. Revisit at 7+ posts/week.</div></div>
+      <div style="padding:10px 14px;border-radius:6px;background:rgba(239,68,68,0.03);border:1px solid rgba(239,68,68,0.1);"><div style="font-size:12px;color:var(--text);"><strong style="text-decoration:line-through;opacity:0.6;">Notion / Airtable (Project Management)</strong></div><div style="font-size:11px;color:var(--text3);margin-top:2px;">You are one person. You do not need a project management tool. You need a Google Sheet with one row per week and the 90-Day Plan open in a browser tab. Adding Notion is adding complexity to feel organized without being productive.</div></div>
+      <div style="padding:10px 14px;border-radius:6px;background:rgba(239,68,68,0.03);border:1px solid rgba(239,68,68,0.1);"><div style="font-size:12px;color:var(--text);"><strong style="text-decoration:line-through;opacity:0.6;">Zapier / Make (Complex Automation)</strong></div><div style="font-size:11px;color:var(--text3);margin-top:2px;">You have 67 followers. You do not need middleware connecting 8 APIs. ManyChat handles the keyword pipe. Beehiiv handles email automation. The connections are already direct. Zapier is a solution looking for a problem you don't have yet.</div></div>
+      <div style="padding:10px 14px;border-radius:6px;background:rgba(239,68,68,0.03);border:1px solid rgba(239,68,68,0.1);"><div style="font-size:12px;color:var(--text);"><strong style="text-decoration:line-through;opacity:0.6;">Gumroad</strong></div><div style="font-size:11px;color:var(--text3);margin-top:2px;">10% transaction fee vs Lemon Squeezy's 5% + 50c. On a $19 product, Gumroad takes $1.90, Lemon Squeezy takes $1.45. Lemon Squeezy also handles tax compliance and has a cleaner checkout. Gumroad loses on every metric.</div></div>
     </div>
   </div>
 
@@ -620,7 +659,50 @@
           <p><span class="v-fail">Failure Signal:</span> Any tool crashes, shows a blank screen, displays broken layout on mobile, or the popup never fires. Any popup "Submit" that pushes to Beehiiv shows no new subscriber.</p>
           <p><span class="v-check">Checkpoint:</span> Can you show someone all 7 Beehiiv test subscribers (one per tool) in your dashboard right now? Yes/No.</p>
         </div>
+
+        <!-- PROMPT TOGGLE: QA AUDIT -->
+        <div class="prompt-toggle" onclick="this.classList.toggle('open')">
+          <div class="prompt-toggle-header">
+            <div class="prompt-toggle-icon">P</div>
+            <div class="prompt-toggle-title">PROMPT: QA Audit Report Generator</div>
+            <div class="prompt-toggle-arrow">&#9654;</div>
+          </div>
+          <div class="prompt-toggle-body">
+            <div class="prompt-toggle-inner">
+              <div class="prompt-context"><strong>When:</strong> After you've walked through all 7 tools on your phone and taken raw notes on what worked and what broke. <strong>Why:</strong> Turns messy testing notes into a prioritized, categorized bug report with estimated fix times. Saves 1-2 hours of manual triage.</div>
+              <div class="prompt-code-wrap">
+                <button class="copy-btn" onclick="event.stopPropagation();copyPrompt(this)">COPY</button>
+                <div class="prompt-code">You are a QA engineer auditing mobile web apps for a Gen Z personal finance brand. I tested 7 financial tools on my iPhone. Turn my raw notes into a structured bug report.
+
+For each tool, I tested: load time, input functionality, result display, fake loading screen (must fire BEFORE result to build perceived value), progress bar (must start at 15%, not 0%), email popup timing (must fire AFTER the user sees their result), popup button text (must be specific like "Send My Full Report", never generic "Submit"), and Beehiiv email capture success.
+
+Tools and URLs:
+1. Autopilot Architecture Map: https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html
+2. Cost of Waiting Calculator: https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html
+3. 800-Club Checklist: https://spacekou5-oss.github.io/cashvault-funnel/800-club.html
+4. Freedom Calculator: https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html
+5. Prompt Vault: https://spacekou5-oss.github.io/cashvault-funnel/prompt-vault.html
+6. Investment Simplifier: https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html
+7. Budget Calculator: https://spacekou5-oss.github.io/cashvault-funnel/Kou's-Budget-Calculator.html
+
+My raw testing notes:
+<span class="ph">[PASTE YOUR RAW NOTES HERE]</span>
+
+Generate:
+1. Per-tool summary table: Tool Name | Load OK? | Inputs OK? | Result OK? | Loading Screen? | Progress Bar at 15%? | Popup Fires After Result? | Button Text Specific? | Email Captured? | VERDICT (PASS/FAIL)
+2. Bug list categorized as CRITICAL (blocks revenue), MAJOR (degrades trust), MINOR (cosmetic, ignore until Phase 2)
+3. Fix priority order (Critical bugs numbered 1, 2, 3...)
+4. Estimated fix time per bug (in minutes)
+5. Total estimated fix hours
+
+Be ruthless. If something "kind of works," it is a bug.</div>
+              </div>
+              <div class="prompt-expected"><div class="exp-label">Expected Output</div><p>Structured PASS/FAIL table per tool. Numbered bug list sorted by severity. Total fix time estimate. Hand this to yourself on Monday and know exactly what to fix first.</p></div>
+            </div>
+          </div>
+        </div>
       </li>
+
       <li data-step="2">
         <div class="step-title">ManyChat Connection + First Keyword (2-3 hrs)</div>
         <div class="step-detail">
@@ -642,7 +724,47 @@
           <p><span class="v-fail">Failure Signal:</span> No auto-reply fires. ManyChat shows "not connected" or "waiting for approval." Instagram still on Personal mode.</p>
           <p><span class="v-check">Checkpoint:</span> Did someone OTHER than you successfully trigger the keyword and receive the reply? Yes/No.</p>
         </div>
+
+        <!-- PROMPT TOGGLE: MANYCHAT KEYWORD -->
+        <div class="prompt-toggle" onclick="this.classList.toggle('open')">
+          <div class="prompt-toggle-header">
+            <div class="prompt-toggle-icon">P</div>
+            <div class="prompt-toggle-title">PROMPT: ManyChat Keyword Flow Blueprint (Run 1x per keyword)</div>
+            <div class="prompt-toggle-arrow">&#9654;</div>
+          </div>
+          <div class="prompt-toggle-body">
+            <div class="prompt-toggle-inner">
+              <div class="prompt-context"><strong>When:</strong> Building each ManyChat keyword flow. Run this once per keyword (5 times total across Weeks 1-2). <strong>Why:</strong> Generates exact message copy for each keyword's 2-message sequence in your brand voice, plus ManyChat config settings and test protocol.</div>
+              <div class="prompt-code-wrap">
+                <button class="copy-btn" onclick="event.stopPropagation();copyPrompt(this)">COPY</button>
+                <div class="prompt-code">You are a ManyChat automation architect for "Kou Talks Money" (@koutalksmoney on Instagram), a Gen Z personal finance brand. Brand voice: radioactive, math-obsessed, anti-guru, systems over willpower.
+
+Build a complete ManyChat keyword flow:
+
+KEYWORD: <span class="ph">[AUTOPILOT / LEAK / ELITE800 / MYNUMBER / CHEAT]</span>
+TOOL NAME: <span class="ph">[e.g., Autopilot Architecture Map]</span>
+TOOL LINK: <span class="ph">[e.g., https://spacekou5-oss.github.io/cashvault-funnel/autopilot-system.html]</span>
+PILLAR ANGLE: <span class="ph">[e.g., "Willpower is for losers. Build a machine."]</span>
+
+The flow has exactly 2 messages:
+
+MESSAGE 1 (Instant Reply): Punchy hook about what the tool reveals. Delivers the tool link. Under 300 characters. Feels like a text from a smart friend, not a brand.
+
+MESSAGE 2 (30-second delay): Reframes the value from a different angle. Bridges to email capture: "Drop your email inside the tool for the full breakdown." Includes one specific stat. Under 250 characters.
+
+Also provide:
+1. ManyChat trigger settings: keyword match type, case sensitivity
+2. Test script: what to DM from a second account, what to verify
+3. Failure check list: 3 common ManyChat keyword trigger failures
+
+Rules: Never say "unlock," "journey," "potential," "game-changer," or "level up." Include at least one specific number in Message 1 or 2.</div>
+              </div>
+              <div class="prompt-expected"><div class="exp-label">Expected Output</div><p>Two copy-paste messages per keyword. ManyChat config specs. Test script. Run 5 times (once per keyword) and your entire ManyChat command center is wired.</p></div>
+            </div>
+          </div>
+        </div>
       </li>
+
       <li data-step="3">
         <div class="step-title">Fix All Critical Bugs from QA (1-2 hrs)</div>
         <div class="step-detail">
@@ -656,11 +778,55 @@
           <p><span class="v-fail">Failure Signal:</span> The bug persists after your fix. You cannot reproduce the complete user path on mobile.</p>
           <p><span class="v-check">Checkpoint:</span> Is the Critical bug count at zero? Yes/No.</p>
         </div>
+
+        <!-- PROMPT TOGGLE: BUG FIX -->
+        <div class="prompt-toggle" onclick="this.classList.toggle('open')">
+          <div class="prompt-toggle-header">
+            <div class="prompt-toggle-icon">P</div>
+            <div class="prompt-toggle-title">PROMPT: Critical Bug Triage + Code Fix Generator</div>
+            <div class="prompt-toggle-arrow">&#9654;</div>
+          </div>
+          <div class="prompt-toggle-body">
+            <div class="prompt-toggle-inner">
+              <div class="prompt-context"><strong>When:</strong> You have the QA report and need actual code fixes. <strong>Why:</strong> Turns bug descriptions into deployable code patches with root cause diagnosis, exact fix, and mobile test procedure. Cuts fix time 50-70%.</div>
+              <div class="prompt-code-wrap">
+                <button class="copy-btn" onclick="event.stopPropagation();copyPrompt(this)">COPY</button>
+                <div class="prompt-code">You are a front-end developer and QA lead working on 7 HTML/CSS/JS financial tools hosted on GitHub Pages (static site, no backend server).
+
+Technical context:
+- Vanilla HTML/CSS/JS, no frameworks
+- Beehiiv iframe embed with postMessage listener for email capture
+- Supabase for analytics (INSERT-only RLS, project: wokoxddotlyuasmwylpx.supabase.co)
+- Universal Head Script exposes window._sb, window._sessionId, trackVisit()
+- Only tool_completions INSERT fires on confirmed Beehiiv subscription
+- All trackEvent() calls deleted (Zero Noise architecture)
+- Popup MUST fire AFTER user sees result (Peak-End Rule)
+- Progress bars MUST start at 15% (Goal Gradient)
+- Fake loading screens MUST fire before results (Idleness Aversion)
+
+My bug list from QA testing:
+<span class="ph">[PASTE BUG LIST FROM QA AUDIT PROMPT OUTPUT]</span>
+
+For each CRITICAL bug:
+1. Root cause diagnosis (CSS viewport? JS error? Event listener timing? Popup trigger? Beehiiv iframe/postMessage failure?)
+2. Exact code fix: file name + before/after code
+3. Mobile test procedure to verify
+
+For each MAJOR bug:
+1. Root cause diagnosis
+2. Estimated fix time
+3. Fix now (if under 15 min) or defer to Week 2
+
+Do NOT suggest redesigns or features. Fix what is broken. Nothing else.</div>
+              </div>
+              <div class="prompt-expected"><div class="exp-label">Expected Output</div><p>Per-bug: root cause, exact code patch (copy-paste into files), test procedure. Commit fixes, test on phone, move on.</p></div>
+            </div>
+          </div>
+        </div>
       </li>
     </ul>
   </div>
 
-  <!-- WEEK 1 GATE -->
   <div class="checkpoint gate">
     <div class="cp-label">Week 1 Gate Check</div>
     <p><strong>All 7 tools pass mobile QA with zero Critical bugs.</strong> ManyChat connected and AUTOPILOT keyword tested. At least 1 popup-to-Beehiiv pipe verified end-to-end. If any of these fail, Week 2 starts with fixes, not new work.</p>
@@ -680,17 +846,19 @@
           <br><strong>MYNUMBER</strong> > Freedom Calculator link
           <br><strong>CHEAT</strong> > Prompt Vault link
           <br><br>
-          Each flow: keyword detected > send tool link message > 30 second delay > follow-up message ("Want the full breakdown? Drop your email at [tool URL]"). Two messages per keyword.
+          Each flow: keyword detected > send tool link message > 30 second delay > follow-up message. Two messages per keyword.
           <br><br>
           Test EVERY keyword from a separate account. All 5 must fire correctly.
         </div>
         <div class="verify">
           <div class="v-label">Self-Verification</div>
-          <p><span class="v-success">Success Signal:</span> All 5 keywords (AUTOPILOT, LEAK, ELITE800, MYNUMBER, CHEAT) trigger auto-replies with correct links when DMed from a separate account.</p>
+          <p><span class="v-success">Success Signal:</span> All 5 keywords trigger auto-replies with correct links when DMed from a separate account.</p>
           <p><span class="v-fail">Failure Signal:</span> Any keyword does not trigger, sends the wrong link, or the follow-up message does not fire after the delay.</p>
           <p><span class="v-check">Checkpoint:</span> Can you DM all 5 keywords in sequence and get 5 correct auto-replies? Yes/No.</p>
         </div>
+        <div style="margin-top:8px;padding:8px 14px;border-radius:6px;background:rgba(192,132,252,0.04);border:1px solid rgba(192,132,252,0.1);font-family:var(--mono);font-size:9px;color:var(--purple);letter-spacing:0.5px;">USE PROMPT FROM WEEK 1 STEP 2 ABOVE. Run it 4 more times: once for LEAK, ELITE800, MYNUMBER, CHEAT.</div>
       </li>
+
       <li data-step="2">
         <div class="step-title">Build the 3-Email Welcome Sequence in Beehiiv (2-3 hrs)</div>
         <div class="step-detail">
@@ -707,30 +875,103 @@
         <div class="verify">
           <div class="v-label">Self-Verification</div>
           <p><span class="v-success">Success Signal:</span> You subscribe with a test email. Email 1 arrives within 5 minutes. Email 2 arrives on Day 2. Email 3 arrives on Day 5. All render correctly on your phone.</p>
-          <p><span class="v-fail">Failure Signal:</span> No email arrives. Emails land in spam. Formatting broken on mobile. Automation does not trigger the next email in the sequence.</p>
+          <p><span class="v-fail">Failure Signal:</span> No email arrives. Emails land in spam. Formatting broken on mobile. Automation does not trigger next email.</p>
           <p><span class="v-check">Checkpoint:</span> Have you received all 3 emails in your inbox (not spam) from a fresh test subscription? Yes/No.</p>
         </div>
+
+        <!-- PROMPT TOGGLE: EMAIL SEQUENCE -->
+        <div class="prompt-toggle" onclick="this.classList.toggle('open')">
+          <div class="prompt-toggle-header">
+            <div class="prompt-toggle-icon">P</div>
+            <div class="prompt-toggle-title">PROMPT: Beehiiv 3-Email Welcome Sequence Writer</div>
+            <div class="prompt-toggle-arrow">&#9654;</div>
+          </div>
+          <div class="prompt-toggle-body">
+            <div class="prompt-toggle-inner">
+              <div class="prompt-context"><strong>When:</strong> ManyChat keywords are live. Now build the email sequence that fires on subscribe. <strong>Why:</strong> Generates all 3 emails in brand voice with subjects, word counts, CTA structures, and Beehiiv automation config.</div>
+              <div class="prompt-code-wrap">
+                <button class="copy-btn" onclick="event.stopPropagation();copyPrompt(this)">COPY</button>
+                <div class="prompt-code">You are a direct-response email copywriter for "Kou Talks Money," targeting Gen Z (18-24, part-time, $14-22/hr). Brand voice: radioactive, math-obsessed, anti-guru. Audience persona "Brandon": financially anxious, responds to specific numbers, checks bank app 5x/day.
+
+Write a 3-email automated welcome sequence for Beehiiv.
+
+TOOL SUBSCRIBER CAME FROM: <span class="ph">[e.g., Freedom Calculator]</span>
+WHAT THE TOOL CALCULATES: <span class="ph">[e.g., Their exact Freedom Number]</span>
+BRIDGE TOOL (for Email 2): <span class="ph">[e.g., Cost of Waiting Calculator]</span>
+BRIDGE TOOL LINK: <span class="ph">[e.g., https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html]</span>
+
+EMAIL 1 (Immediate): Subject under 40 chars with tool name. 150-200 words. Deliver what was promised. One unexpected insight. Zero selling. Sign off as "Kou."
+
+EMAIL 2 (Day 2): Subject creates curiosity, under 40 chars. 150-200 words. One mathematical insight. Bridge to one other tool with link. Still no selling.
+
+EMAIL 3 (Day 5): Subject uses social proof, under 40 chars. 200-250 words. What "people like them" are doing. Tease paid product. Single CTA button.
+
+Rules: Never say "unlock," "journey," "potential." Every email has at least one specific number. Write like texting. Short paragraphs. Each readable on phone in under 30 seconds. Include Beehiiv automation notes: trigger, delay, tag conditions.</div>
+              </div>
+              <div class="prompt-expected"><div class="exp-label">Expected Output</div><p>3 complete emails with subject, body, CTA, plus Beehiiv automation config. Copy into Beehiiv's automation builder. Test with a fresh email.</p></div>
+            </div>
+          </div>
+        </div>
       </li>
+
       <li data-step="3">
         <div class="step-title">Competitive Intelligence Scan (1.5-2 hrs)</div>
         <div class="step-detail">
-          Spend 90 minutes auditing 8-10 Gen Z finance creators. For each: what they sell (free/paid), what format (PDF, course, app), what price, what CTA structure (bio link > landing page > what?), what pain they claim to solve.
+          Spend 90 minutes auditing 8-10 Gen Z finance creators. For each: what they sell (free/paid), what format (PDF, course, app), what price, what CTA structure, what pain they claim to solve.
           <br><br>
           <strong>The deliverable is ONE sentence:</strong> "Every competitor does X. Nobody does Y. Y is our gap." Store notes in a Google Sheet or your phone notes app. This sentence feeds your MVO concept in Weeks 10-11.
           <br><br>
-          Do NOT spend more than 2 hours on this. Competitive intel has rapidly diminishing returns after the first scan. You are not writing a research paper. You are identifying an angle.
+          Do NOT spend more than 2 hours on this.
         </div>
         <div class="verify">
           <div class="v-label">Self-Verification</div>
-          <p><span class="v-success">Success Signal:</span> You can fill in this sentence: "Every competitor does ___. Nobody does ___. Our attack vector is ___."</p>
-          <p><span class="v-fail">Failure Signal:</span> You spent 3+ hours scrolling competitors and still don't have a clear gap identified.</p>
+          <p><span class="v-success">Success Signal:</span> You can fill in: "Every competitor does ___. Nobody does ___. Our attack vector is ___."</p>
+          <p><span class="v-fail">Failure Signal:</span> You spent 3+ hours scrolling competitors and still don't have a clear gap.</p>
           <p><span class="v-check">Checkpoint:</span> Can you state the gap in one sentence from memory? Yes/No.</p>
+        </div>
+
+        <!-- PROMPT TOGGLE: COMPETITIVE INTEL -->
+        <div class="prompt-toggle" onclick="this.classList.toggle('open')">
+          <div class="prompt-toggle-header">
+            <div class="prompt-toggle-icon">P</div>
+            <div class="prompt-toggle-title">PROMPT: Competitive Intelligence Gap Finder</div>
+            <div class="prompt-toggle-arrow">&#9654;</div>
+          </div>
+          <div class="prompt-toggle-body">
+            <div class="prompt-toggle-inner">
+              <div class="prompt-context"><strong>When:</strong> After your 90-min creator audit with raw notes. <strong>Why:</strong> Transforms scattered notes into a pattern map, gap analysis, the ONE SENTENCE attack vector, and 3 MVO product concepts for Arc 3.</div>
+              <div class="prompt-code-wrap">
+                <button class="copy-btn" onclick="event.stopPropagation();copyPrompt(this)">COPY</button>
+                <div class="prompt-code">You are a competitive intelligence analyst for "Kou Talks Money," a Gen Z personal finance brand. Differentiation: free interactive web tools (not PDFs), ManyChat automation, math-first content, "systems over willpower."
+
+I audited 8-10 Gen Z finance creators. Raw notes:
+<span class="ph">[PASTE NOTES: per creator include handle, platform, followers, free offers, paid products, format, price, CTA structure, primary pain claim, content quality gut reaction]</span>
+
+Analyze and produce:
+
+1. PATTERN MAP: What does EVERY competitor do? (formats, prices, CTAs, pain claims, styles)
+
+2. GAP ANALYSIS: What does NOBODY do? Check for:
+   - Format gaps (interactive tools vs static PDFs?)
+   - Price gaps ($0 or $97+ with nothing at $9-29?)
+   - Pain gaps: which of these 7 are underserved? (savings paralysis, investing myth, credit mystery, comparison spiral, emergency void, automation ignorance, AI illiteracy)
+   - Audience gaps (part-time workers? specific income bands?)
+   - Delivery gaps (anyone using ManyChat, email automation?)
+
+3. THE ONE SENTENCE: "Every competitor does ___. Nobody does ___. Our attack vector is ___."
+
+4. MVO CONCEPT SEEDS: 3 potential $19 products. Each: name, format, one-line pitch, why it fills the gap.
+
+Be specific. Use numbers. If no clear gap exists, say so.</div>
+              </div>
+              <div class="prompt-expected"><div class="exp-label">Expected Output</div><p>Pattern map, gap analysis, one-sentence attack vector, 3 MVO concepts for Week 10. Compresses 2-3 hours of analysis into structured output.</p></div>
+            </div>
+          </div>
         </div>
       </li>
     </ul>
   </div>
 
-  <!-- WEEK 2 GATE -->
   <div class="checkpoint gate">
     <div class="cp-label">Week 2 Gate Check</div>
     <p><strong>All 5 ManyChat keywords live and tested. Welcome sequence live in Beehiiv with all 3 emails firing. Competitive gap identified.</strong> If welcome sequence is not triggering, do NOT move to content creation. A viewer who enters the funnel and gets nothing is worse than no viewer at all.</p>
@@ -757,20 +998,58 @@
           <p><span class="v-fail">Failure Signal:</span> Any link is broken, popup does not fire, email does not arrive, or subscriber does not appear in Beehiiv.</p>
           <p><span class="v-check">Checkpoint:</span> Can you screen-record the ENTIRE journey (both paths) without hitting a single error? Yes/No.</p>
         </div>
+
+        <!-- PROMPT TOGGLE: FUNNEL AUDIT -->
+        <div class="prompt-toggle" onclick="this.classList.toggle('open')">
+          <div class="prompt-toggle-header">
+            <div class="prompt-toggle-icon">P</div>
+            <div class="prompt-toggle-title">PROMPT: Full Funnel Audit + Friction Eliminator</div>
+            <div class="prompt-toggle-arrow">&#9654;</div>
+          </div>
+          <div class="prompt-toggle-body">
+            <div class="prompt-toggle-inner">
+              <div class="prompt-context"><strong>When:</strong> Everything is wired. Both paths walked. Describe what happened. <strong>Why:</strong> Phase 0 sign-off audit. Identifies friction, ranks drop-off risks, gives specific fixes. If this passes, you never touch infrastructure for 7 weeks.</div>
+              <div class="prompt-code-wrap">
+                <button class="copy-btn" onclick="event.stopPropagation();copyPrompt(this)">COPY</button>
+                <div class="prompt-code">You are a conversion rate optimization specialist auditing a mobile-first funnel for "Kou Talks Money." I walked both funnel paths on my iPhone.
+
+PATH A (ManyChat Keyword Route):
+<span class="ph">[Describe step by step: opened IG, DMed keyword, what happened, reply timing, link load, tool behavior, popup timing (before or after result?), button text, email capture, Beehiiv verification. Include EVERYTHING.]</span>
+
+PATH B (Link-in-Bio Route):
+<span class="ph">[Same detail: tapped bio, what loaded, tool picked, tool behavior, popup timing, email capture, Beehiiv check.]</span>
+
+Standards:
+- Every click-to-load under 3 seconds
+- Every action requires 1 tap max
+- Emotional arc: Curiosity > Engagement > Dopamine (animated result) > Capture (popup AFTER peak)
+- Popup button uses specific language
+- Subscriber appears in Beehiiv with correct tag within 60 seconds
+
+Produce:
+1. FRICTION MAP: Every slow/confusing/broken point. Numbered, severity rated.
+2. FIX LIST: Specific code or config change per friction point.
+3. DROP-OFF RISK RANKING: Top 3 abandonment points with WHY and HOW to prevent.
+4. PHASE 0 SIGN-OFF VERDICT: PASS or FAIL. If FAIL, list exactly what must be fixed.</div>
+              </div>
+              <div class="prompt-expected"><div class="exp-label">Expected Output</div><p>Friction map. Fix list. Drop-off ranking. PASS/FAIL verdict. The final gate check before content mode.</p></div>
+            </div>
+          </div>
+        </div>
       </li>
+
       <li data-step="2">
         <div class="step-title">Build Metrics Tracking Sheet (1 hr)</div>
         <div class="step-detail">
           Create a simple Google Sheet with one row per week. Columns: Week # | IG Followers | New Email Subs | Total Email List | Avg Views/Video | ManyChat Triggers | Best Performing Hook | Notes.
           <br><br>
-          This takes 30 minutes to set up. You update it every Sunday in 10 minutes. Without this, you are flying blind. With it, you see exactly which content drives captures and which is noise.
+          This takes 30 minutes to set up. You update it every Sunday in 10 minutes.
         </div>
       </li>
+
       <li data-step="3">
         <div class="step-title">Batch Record First 4 Videos (3-4 hrs)</div>
         <div class="step-detail">
-          This is the transition from infrastructure to content. The foundation is sealed. Now you start filling the pipe.
-          <br><br>
           Record 4 videos in one sitting. 60-90 seconds each. Each video maps to ONE pillar and ends with ONE keyword CTA:
           <br><br>
           <strong>Video 1 (THE MACHINE):</strong> "I automated my savings at 19. Here's the system." CTA: "DM me AUTOPILOT for the blueprint."
@@ -782,8 +1061,8 @@
         </div>
         <div class="verify">
           <div class="v-label">Self-Verification</div>
-          <p><span class="v-success">Success Signal:</span> 4 videos recorded, each under 90 seconds, each with a clear hook and keyword CTA. Audio is understandable on phone speakers.</p>
-          <p><span class="v-fail">Failure Signal:</span> You spent 4 hours perfecting one video. You recorded zero because the "setup wasn't ready." You wrote scripts but didn't record.</p>
+          <p><span class="v-success">Success Signal:</span> 4 videos recorded, each under 90 seconds, each with a clear hook and keyword CTA.</p>
+          <p><span class="v-fail">Failure Signal:</span> You spent 4 hours perfecting one video. You recorded zero because the "setup wasn't ready."</p>
           <p><span class="v-check">Checkpoint:</span> Are 4 videos saved on your phone ready to edit? Yes/No.</p>
         </div>
       </li>
@@ -819,7 +1098,7 @@
 
   <div class="block">
     <div class="block-label">Arc 2 Thesis</div>
-    <p>The infrastructure is sealed. ManyChat fires. Popups capture. Emails send. Now the ONLY thing that matters is putting eyeballs on the content. <strong class="warn">This is the content treadmill, and you cannot skip it.</strong> The first 20-30 videos are the price of admission. Some will flop. Some will land. The data from this arc determines everything in Arc 3. You are not creating content to "go viral." You are creating content to find which hooks, which topics, and which CTAs convert attention into email subscribers.</p>
+    <p>The infrastructure is sealed. ManyChat fires. Popups capture. Emails send. Now the ONLY thing that matters is putting eyeballs on the content. <strong class="warn">This is the content treadmill, and you cannot skip it.</strong> The first 20-30 videos are the price of admission. Some will flop. Some will land. The data from this arc determines everything in Arc 3.</p>
     <p style="margin-top:8px;">The weekly rhythm is simple: <strong>Record 4 videos on Saturday. Edit + schedule Monday/Thursday. Engage 15 min/day. Review metrics Sunday. Repeat.</strong></p>
   </div>
 
@@ -827,68 +1106,113 @@
   <div class="block">
     <div class="block-label">Arc 2 Weekly Operating Rhythm // 6 hrs/week</div>
     <div class="week-grid">
-      <div class="week-row">
-        <div class="week-num">SAT</div>
-        <div class="week-focus"><strong>Batch Record 4 Videos</strong> (2.5-3 hrs). Each video = 1 pillar + 1 keyword CTA. Script outline (5 min) > record (10 min) > basic edit + captions (15-20 min). Batch everything. Do not record one, edit one. Record all 4, then edit all 4.</div>
-        <div class="week-hrs">3 hrs</div>
-      </div>
-      <div class="week-row">
-        <div class="week-num">MON</div>
-        <div class="week-focus"><strong>Post Video 1 + Video 2.</strong> Schedule via Later/Buffer or post directly. Cross-post to YouTube Shorts. Engage 15 min: comment on 5 target accounts, reply to any DMs.</div>
-        <div class="week-hrs">45 min</div>
-      </div>
-      <div class="week-row">
-        <div class="week-num">TUE-FRI</div>
-        <div class="week-focus"><strong>Engage 15 min/day.</strong> Comment on target accounts. Reply to DMs and comments. This is the audience seeding work. 4 days x 15 min = 1 hour total. Non-negotiable.</div>
-        <div class="week-hrs">1 hr</div>
-      </div>
-      <div class="week-row">
-        <div class="week-num">THU</div>
-        <div class="week-focus"><strong>Post Video 3 + Video 4.</strong> Same as Monday. Cross-post. Engage.</div>
-        <div class="week-hrs">30 min</div>
-      </div>
+      <div class="week-row"><div class="week-num">SAT</div><div class="week-focus"><strong>Batch Record 4 Videos</strong> (2.5-3 hrs). Each video = 1 pillar + 1 keyword CTA. Script outline (5 min) > record (10 min) > basic edit + captions (15-20 min).</div><div class="week-hrs">3 hrs</div></div>
+      <div class="week-row"><div class="week-num">MON</div><div class="week-focus"><strong>Post Video 1 + Video 2.</strong> Cross-post to YouTube Shorts. Engage 15 min: comment on 5 target accounts, reply to DMs.</div><div class="week-hrs">45 min</div></div>
+      <div class="week-row"><div class="week-num">TUE-FRI</div><div class="week-focus"><strong>Engage 15 min/day.</strong> Comment on target accounts. Reply to DMs and comments. 4 days x 15 min = 1 hour total. Non-negotiable.</div><div class="week-hrs">1 hr</div></div>
+      <div class="week-row"><div class="week-num">THU</div><div class="week-focus"><strong>Post Video 3 + Video 4.</strong> Same as Monday. Cross-post. Engage.</div><div class="week-hrs">30 min</div></div>
       <div class="week-row">
         <div class="week-num">SUN</div>
-        <div class="week-focus"><strong>Metrics Review (15 min).</strong> Update tracking sheet: followers, new subs, views, best hook. Identify: which video drove the most profile visits? Which keyword got the most DMs? Double down on what works next week.</div>
+        <div class="week-focus"><strong>Metrics Review (15 min).</strong> Update tracking sheet: followers, new subs, views, best hook. Identify what drove the most profile visits and DMs.</div>
         <div class="week-hrs">15 min</div>
       </div>
     </div>
     <p style="margin-top:12px;font-size:11px;color:var(--text3);">Total: ~5.5-6 hrs/week. Leaves 0-2 hrs buffer for fixes, experiments, or extra recording.</p>
+
+    <!-- PROMPT TOGGLE: SUNDAY METRICS -->
+    <div class="prompt-toggle" onclick="this.classList.toggle('open')" style="margin-top:14px;">
+      <div class="prompt-toggle-header">
+        <div class="prompt-toggle-icon">P</div>
+        <div class="prompt-toggle-title">PROMPT: Weekly Metrics Review Analyst (Every Sunday, Weeks 4-13)</div>
+        <div class="prompt-toggle-arrow">&#9654;</div>
+      </div>
+      <div class="prompt-toggle-body">
+        <div class="prompt-toggle-inner">
+          <div class="prompt-context"><strong>When:</strong> Every Sunday. Pull numbers from Instagram Insights, Beehiiv, ManyChat. <strong>Why:</strong> Diagnoses growth velocity, conversion health, content patterns, and trajectory. Outputs ONE action for next week. 15 minutes. Non-negotiable.</div>
+          <div class="prompt-code-wrap">
+            <button class="copy-btn" onclick="event.stopPropagation();copyPrompt(this)">COPY</button>
+            <div class="prompt-code">You are a growth data analyst for "Kou Talks Money," a Gen Z finance brand in its first 90 days.
+
+THIS WEEK'S DATA:
+- Week #: <span class="ph">[NUMBER]</span>
+- IG Followers: <span class="ph">[CURRENT]</span> (last week: <span class="ph">[LAST]</span>)
+- New Email Subs: <span class="ph">[THIS WEEK]</span> (last week: <span class="ph">[LAST]</span>)
+- Total Email List: <span class="ph">[TOTAL]</span>
+- Avg Views/Video: <span class="ph">[AVG]</span> (last week: <span class="ph">[LAST]</span>)
+- ManyChat Triggers: <span class="ph">[THIS WEEK]</span> (last week: <span class="ph">[LAST]</span>)
+- Videos Posted: <span class="ph">[NUMBER]</span>
+- Best Hook: "<span class="ph">[DESCRIBE]</span>"
+- Worst Video: "<span class="ph">[DESCRIBE]</span>"
+- Notable comments/DMs: <span class="ph">[PATTERNS]</span>
+
+90-DAY TARGETS:
+Followers: 400-600 | Subs: 50-150 | Videos: 36-48 | ManyChat: 100+ | Open Rate: 40%+
+
+Analyze:
+1. GROWTH VELOCITY: Week-over-week rates with trend arrows (up/flat/down)
+2. CONVERSION HEALTH: What % of followers became subs? Where is the funnel leaking?
+3. CONTENT SIGNAL: What made the best hook work? Why did the worst fail?
+4. MANYCHAT EFFICIENCY: Triggers per video posted. Is the CTA bridging working?
+5. TRAJECTORY CHECK: At current rate, will I hit 90-day targets? If not, what must change?
+6. ONE ACTION: Single highest-leverage change for next week. ONE. Explain why.
+
+If ANY metric dropped 2 consecutive weeks, flag as RED ALERT with diagnosis. Be brutally honest.</div>
+          </div>
+          <div class="prompt-expected"><div class="exp-label">Expected Output</div><p>Growth velocity, conversion rate, content patterns, trajectory projection, ONE action item. Red alerts if declining. Run every Sunday.</p></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- WEEK BY WEEK -->
   <div class="block">
     <div class="block-label">Arc 2 Week-by-Week Execution</div>
     <div class="week-grid">
-      <div class="week-row">
-        <div class="week-num" style="color:var(--amber);">WK 4</div>
-        <div class="week-focus"><strong>Launch Week.</strong> Post first 4 videos (recorded in Week 3). Focus on hooks that create curiosity. Track: which video gets the most saves and shares (algorithm signal). First keyword DMs should start trickling in. Goal: 5+ ManyChat triggers this week.</div>
-        <div class="week-hrs">6 hrs</div>
+      <div class="week-row"><div class="week-num" style="color:var(--amber);">WK 4</div><div class="week-focus"><strong>Launch Week.</strong> Post first 4 videos. Focus on hooks that create curiosity. Track which video gets the most saves and shares. Goal: 5+ ManyChat triggers this week.</div><div class="week-hrs">6 hrs</div></div>
+      <div class="week-row"><div class="week-num" style="color:var(--amber);">WK 5</div><div class="week-focus"><strong>Iterate Hooks.</strong> Record 4 new videos. Look at Week 4 data: which hook stopped the scroll? Double down on the pattern. Goal: 10+ email subs cumulative.</div><div class="week-hrs">6 hrs</div></div>
+      <div class="week-row"><div class="week-num" style="color:var(--amber);">WK 6</div><div class="week-focus"><strong>Engagement Push.</strong> Record 4 videos + increase engagement to 20 min/day. Target 10 new accounts. DM 5 creators. Goal: 150+ followers, 15+ email subs.</div><div class="week-hrs">6-7 hrs</div></div>
+      <div class="week-row"><div class="week-num" style="color:var(--amber);">WK 7</div><div class="week-focus"><strong>Content Experiment.</strong> Try one video in a different format: screen recording of Calculator in action, or "watch me calculate live." Track if different format drives more captures.</div><div class="week-hrs">6 hrs</div></div>
+      <div class="week-row"><div class="week-num" style="color:var(--amber);">WK 8</div><div class="week-focus"><strong>Double Down.</strong> 20+ videos of data. Identify top 3 by views AND captures. Record 4 that replicate the winning formula. Stop creating formats that don't convert.</div><div class="week-hrs">6 hrs</div></div>
+      <div class="week-row"><div class="week-num" style="color:var(--amber);">WK 9</div><div class="week-focus"><strong>Pre-PMF Positioning.</strong> Make 1-2 videos about the PAIN your paid product will solve. Validate the topic resonates. Goal: 300+ followers, 50+ subs.</div><div class="week-hrs">6 hrs</div></div>
+    </div>
+
+    <!-- PROMPT TOGGLE: CTA DIAGNOSIS -->
+    <div class="prompt-toggle" onclick="this.classList.toggle('open')" style="margin-top:14px;">
+      <div class="prompt-toggle-header">
+        <div class="prompt-toggle-icon">P</div>
+        <div class="prompt-toggle-title">PROMPT: CTA Conversion Bottleneck Diagnosis (Emergency: when captures drop below 3%)</div>
+        <div class="prompt-toggle-arrow">&#9654;</div>
       </div>
-      <div class="week-row">
-        <div class="week-num" style="color:var(--amber);">WK 5</div>
-        <div class="week-focus"><strong>Iterate Hooks.</strong> Record 4 new videos. Look at Week 4 data: which hook stopped the scroll? Which CTA drove DMs? Double down on the pattern. If LEAK outperformed AUTOPILOT, make 2 LEAK-adjacent videos this week. Test different opening lines. Goal: 10+ email subs cumulative.</div>
-        <div class="week-hrs">6 hrs</div>
-      </div>
-      <div class="week-row">
-        <div class="week-num" style="color:var(--amber);">WK 6</div>
-        <div class="week-focus"><strong>Engagement Push.</strong> Record 4 videos + increase engagement to 20 min/day. Target 10 new accounts to comment on. DM 5 creators in your tier with genuine collaboration interest. Goal: 150+ followers, 15+ email subs.</div>
-        <div class="week-hrs">6-7 hrs</div>
-      </div>
-      <div class="week-row">
-        <div class="week-num" style="color:var(--amber);">WK 7</div>
-        <div class="week-focus"><strong>Content Experiment.</strong> Try one video in a different format: a screen recording of the Calculator in action, or a "watch me calculate my freedom number live" video. Unexpected formats break pattern blindness. Track if the different format drives more or fewer captures.</div>
-        <div class="week-hrs">6 hrs</div>
-      </div>
-      <div class="week-row">
-        <div class="week-num" style="color:var(--amber);">WK 8</div>
-        <div class="week-focus"><strong>Double Down.</strong> By now you have 20+ videos of data. Identify the top 3 performers by views AND captures (not just views). Record 4 videos that replicate the winning formula: same hook structure, same CTA, different topic/angle. Stop creating formats that don't convert.</div>
-        <div class="week-hrs">6 hrs</div>
-      </div>
-      <div class="week-row">
-        <div class="week-num" style="color:var(--amber);">WK 9</div>
-        <div class="week-focus"><strong>Pre-PMF Positioning.</strong> Record 4 videos but make 1-2 of them specifically about the PAIN your paid product will solve (informed by the competitive gap from Week 2). Do not sell yet. Just validate that the topic resonates: does this video get higher saves/comments than average? Goal: 300+ followers, 50+ email subs.</div>
-        <div class="week-hrs">6 hrs</div>
+      <div class="prompt-toggle-body">
+        <div class="prompt-toggle-inner">
+          <div class="prompt-context"><strong>When:</strong> Content gets views but nobody DMs or clicks bio. Captures below 3% of followers. <strong>Why:</strong> Diagnoses the exact bottleneck (broken pipe, unclear CTA, weak value bridge, wrong audience) in priority order with A/B test designs.</div>
+          <div class="prompt-code-wrap">
+            <button class="copy-btn" onclick="event.stopPropagation();copyPrompt(this)">COPY</button>
+            <div class="prompt-code">You are a conversion specialist diagnosing why a Gen Z finance brand's IG content gets views but fails to convert to email captures.
+
+DATA:
+- Followers: <span class="ph">[NUMBER]</span> | Avg views/video: <span class="ph">[NUMBER]</span>
+- Email captures this period: <span class="ph">[NUMBER]</span>
+- Conversion rate (captures/followers): <span class="ph">[%]</span>
+- ManyChat triggers: <span class="ph">[NUMBER]</span>
+- Per-keyword triggers: <span class="ph">[e.g., AUTOPILOT: 3, LEAK: 7, ELITE800: 1, MYNUMBER: 2, CHEAT: 0]</span>
+
+LAST 4 VIDEOS:
+1. Hook: "<span class="ph">[HOOK]</span>" | Pillar: <span class="ph">[X]</span> | CTA: "<span class="ph">[EXACT CTA SPOKEN]</span>" | Views: <span class="ph">[X]</span> | Captures: <span class="ph">[X]</span>
+2. Hook: "<span class="ph">[HOOK]</span>" | Pillar: <span class="ph">[X]</span> | CTA: "<span class="ph">[CTA]</span>" | Views: <span class="ph">[X]</span> | Captures: <span class="ph">[X]</span>
+3. Hook: "<span class="ph">[HOOK]</span>" | Pillar: <span class="ph">[X]</span> | CTA: "<span class="ph">[CTA]</span>" | Views: <span class="ph">[X]</span> | Captures: <span class="ph">[X]</span>
+4. Hook: "<span class="ph">[HOOK]</span>" | Pillar: <span class="ph">[X]</span> | CTA: "<span class="ph">[CTA]</span>" | Views: <span class="ph">[X]</span> | Captures: <span class="ph">[X]</span>
+
+Diagnose in priority order:
+1. PIPE CHECK: Is ManyChat/bio path working? 5-step test protocol.
+2. CTA CLARITY AUDIT: Rate each CTA 1-10. Rewrite any below 7.
+3. VALUE BRIDGE: Does content make the tool sound worth DMing? Rate 1-10.
+4. AUDIENCE FIT: Are viewers even the target (Brandon: 18-24, part-time)?
+
+For each issue: specific fix + A/B test for next 2 videos + expected impact.
+If captures near zero: recommend "live demo" pivot (use tool on camera).</div>
+          </div>
+          <div class="prompt-expected"><div class="exp-label">Expected Output</div><p>Prioritized diagnosis, rewritten CTAs, A/B test designs, specific action plan. Use when the funnel leaks and you need to know WHERE.</p></div>
+        </div>
       </div>
     </div>
   </div>
@@ -901,9 +1225,60 @@
       <strong>1. Which pillar drives the most email captures?</strong> (This is your lead product territory.)
       <br><strong>2. Which hook structure consistently outperforms?</strong> (This is your content formula.)
       <br><strong>3. What is your follower-to-subscriber conversion rate?</strong> (Healthy: 5-15% of followers become subs.)
-      <br><strong>4. Are you at 250+ followers and 30+ email subs?</strong> (Minimum threshold to run a meaningful PMF test.)
+      <br><strong>4. Are you at 250+ followers and 30+ email subs?</strong> (Minimum threshold for meaningful PMF test.)
     </p>
-    <p style="margin-top:8px;"><strong style="color:var(--amber);">If followers below 200 or subs below 20:</strong> Extend Arc 2 by 2-3 weeks. Double engagement time. Your content hooks need work, or your CTA bridging is weak. Do NOT move to Arc 3 without enough traffic to generate data.</p>
+    <p style="margin-top:8px;"><strong style="color:var(--amber);">If followers below 200 or subs below 20:</strong> Extend Arc 2 by 2-3 weeks. Double engagement time.</p>
+
+    <!-- PROMPT TOGGLE: WEEK 9 DECISION -->
+    <div class="prompt-toggle" onclick="this.classList.toggle('open')" style="margin-top:14px;">
+      <div class="prompt-toggle-header">
+        <div class="prompt-toggle-icon">P</div>
+        <div class="prompt-toggle-title">PROMPT: Week 9 Decision Checkpoint Analyzer (Go/No-Go for Arc 3)</div>
+        <div class="prompt-toggle-arrow">&#9654;</div>
+      </div>
+      <div class="prompt-toggle-body">
+        <div class="prompt-toggle-inner">
+          <div class="prompt-context"><strong>When:</strong> End of Week 9 with 6 weeks of data. <strong>Why:</strong> The most important strategic decision in the plan. Forces data-driven GREEN/YELLOW/RED verdict on whether to enter Arc 3 or extend Arc 2.</div>
+          <div class="prompt-code-wrap">
+            <button class="copy-btn" onclick="event.stopPropagation();copyPrompt(this)">COPY</button>
+            <div class="prompt-code">You are a strategic advisor analyzing 6 weeks of data to determine if "Kou Talks Money" is ready for its PMF test (Arc 3).
+
+6-WEEK DATA (Weeks 4-9):
+- Starting followers (Wk 4): <span class="ph">[X]</span> | Current (Wk 9): <span class="ph">[X]</span>
+- Starting subs (Wk 4): <span class="ph">[X]</span> | Current (Wk 9): <span class="ph">[X]</span>
+- Total videos published: <span class="ph">[X]</span>
+- Total ManyChat triggers: <span class="ph">[X]</span>
+- Email open rate: <span class="ph">[%]</span>
+
+PER-PILLAR BREAKDOWN:
+THE MACHINE (AUTOPILOT): Videos: <span class="ph">[X]</span> | Captures: <span class="ph">[X]</span> | Avg views: <span class="ph">[X]</span>
+THE FUEL (LEAK): Videos: <span class="ph">[X]</span> | Captures: <span class="ph">[X]</span> | Avg views: <span class="ph">[X]</span>
+THE LEVERAGE (ELITE800): Videos: <span class="ph">[X]</span> | Captures: <span class="ph">[X]</span> | Avg views: <span class="ph">[X]</span>
+THE MIND (MYNUMBER): Videos: <span class="ph">[X]</span> | Captures: <span class="ph">[X]</span> | Avg views: <span class="ph">[X]</span>
+THE TECH (CHEAT): Videos: <span class="ph">[X]</span> | Captures: <span class="ph">[X]</span> | Avg views: <span class="ph">[X]</span>
+
+TOP 3 BY CAPTURES (not just views):
+1. "<span class="ph">[HOOK]</span>" | <span class="ph">[PILLAR]</span> | Views: <span class="ph">[X]</span> | Captures: <span class="ph">[X]</span>
+2. "<span class="ph">[HOOK]</span>" | <span class="ph">[PILLAR]</span> | Views: <span class="ph">[X]</span> | Captures: <span class="ph">[X]</span>
+3. "<span class="ph">[HOOK]</span>" | <span class="ph">[PILLAR]</span> | Views: <span class="ph">[X]</span> | Captures: <span class="ph">[X]</span>
+
+Answer with DATA:
+1. WINNING PILLAR: Highest capture rate (captures/videos)?
+2. HOOK PATTERN: What structural pattern do top 3 share?
+3. CONVERSION RATE: Follower-to-sub rate. Healthy = 5-15%.
+4. CRITICAL MASS: 250+ followers AND 30+ subs?
+
+VERDICT:
+- GREEN: Thresholds met. Which pillar for MVO? 2-sentence product direction.
+- YELLOW: Below but trending up. What to fix, how many weeks, next check trigger.
+- RED: Below and flat/down. Root cause. Intervention.
+
+Brutally honest. Optimism at this gate costs real time.</div>
+          </div>
+          <div class="prompt-expected"><div class="exp-label">Expected Output</div><p>Pillar ranking by capture rate. Hook patterns. Conversion health. GREEN/YELLOW/RED verdict with next steps. The most consequential prompt in the arsenal.</p></div>
+        </div>
+      </div>
+    </div>
   </div>
 
 
@@ -919,10 +1294,10 @@
   <div class="block">
     <div class="block-label">Arc 3 Thesis</div>
     <p>You now have 24-36 videos live, 300+ followers, and 50+ email subscribers. You know which pillar resonates hardest. You have a competitive gap identified. <strong class="hl">It is time to answer the only question that matters: will a stranger give you $19?</strong></p>
-    <p style="margin-top:8px;">This is not a launch. This is a test. You are building ONE landing page for ONE product concept, driving traffic to it, and measuring whether anyone cares enough to join a waitlist or buy. If the answer is yes, you have product-market fit signal. If the answer is no, you pivot the concept and test again. Either outcome is valuable. Only silence is failure.</p>
+    <p style="margin-top:8px;">This is not a launch. This is a test. You are building ONE landing page for ONE product concept, driving traffic to it, and measuring whether anyone cares enough to pay. If yes, product-market fit signal. If no, pivot the concept and test again. Either outcome is valuable. Only silence is failure.</p>
   </div>
 
-  <!-- WEEK 10-13 -->
+  <!-- WEEK 10-11 -->
   <div class="block" style="border-left:3px solid var(--cyan); border-radius:0 10px 10px 0;">
     <div class="block-label" style="color:var(--cyan);">Weeks 10-11 (May Week 1-2) // "Build the Test"</div>
     <ul class="step-list">
@@ -931,11 +1306,50 @@
         <div class="step-detail">
           Based on Arc 2 data: which pillar drove the most captures? What competitive gap did you identify? Combine them into ONE product concept.
           <br><br>
-          <strong>Example:</strong> If THE FUEL (investing) drove the most captures, and your gap analysis showed no competitor offers a "complete starter kit for investing with under $50," then your MVO is: <em>"The $50 Investor Starter Kit: the exact system I used to start investing at 19 with almost nothing."</em> Price: $19.
+          <strong>Example:</strong> If THE FUEL drove the most captures, and your gap showed no competitor offers a "complete starter kit for investing with under $50," then your MVO is: <em>"The $50 Investor Starter Kit."</em> Price: $19.
           <br><br>
-          The product does NOT need to be built yet. You are testing the CONCEPT, not the delivery. The landing page says what it is, what it includes, and what it costs. That's it.
+          The product does NOT need to be built yet. You are testing the CONCEPT, not the delivery.
+        </div>
+
+        <!-- PROMPT TOGGLE: MVO CONCEPT -->
+        <div class="prompt-toggle" onclick="this.classList.toggle('open')">
+          <div class="prompt-toggle-header">
+            <div class="prompt-toggle-icon">P</div>
+            <div class="prompt-toggle-title">PROMPT: MVO Product Concept Generator</div>
+            <div class="prompt-toggle-arrow">&#9654;</div>
+          </div>
+          <div class="prompt-toggle-body">
+            <div class="prompt-toggle-inner">
+              <div class="prompt-context"><strong>When:</strong> Arc 3 begins. You have your winning pillar and competitive gap. <strong>Why:</strong> Combines audience data, competitive intel, and tool ecosystem into a single $19 product concept with everything needed for the landing page.</div>
+              <div class="prompt-code-wrap">
+                <button class="copy-btn" onclick="event.stopPropagation();copyPrompt(this)">COPY</button>
+                <div class="prompt-code">You are a product strategist for "Kou Talks Money," a Gen Z finance brand with 7 free tools, an email list, and 6 weeks of content data. Define ONE MVO at $19.
+
+INPUTS:
+- Winning pillar (highest capture rate): <span class="ph">[PILLAR + DATA]</span>
+- Gap sentence: "Every competitor does <span class="ph">[X]</span>. Nobody does <span class="ph">[Y]</span>. Attack vector: <span class="ph">[Z]</span>."
+- Top pain from audience (their words): "<span class="ph">[PAIN]</span>"
+- Audience: Gen Z, 18-24, $14-22/hr, persona "Brandon"
+- Top tools by usage: <span class="ph">[LIST 2-3]</span>
+- Content that drove most saves/shares: <span class="ph">[DESCRIBE]</span>
+
+Generate:
+1. PRODUCT NAME: Specific, benefit-driven, sounds worth $19
+2. FORMAT: Lowest production cost, highest perceived value. Justify choice.
+3. ONE-LINE PITCH: "The exact ___ I used to ___ at 19, packaged so you can do it in ___."
+4. WHAT'S INCLUDED: 3-5 concrete deliverables, each solving a sub-problem
+5. PRICE JUSTIFICATION: Hours at $18/hr to earn $19. Dollar value saved. Comparison to what Brandon wastes $19 on.
+6. DIFFERENTIATION: vs free tools AND vs competitors
+7. PRODUCTION ESTIMATE: Under 8 hours to build
+
+Also generate: 3 email subject lines, landing page headline (pain-forward), 5 landing page bullets (each with a number).</div>
+              </div>
+              <div class="prompt-expected"><div class="exp-label">Expected Output</div><p>Complete MVO brief: name, format, pitch, deliverables, pricing math, differentiation, timeline. Plus launch copy. Everything to build the landing page.</p></div>
+            </div>
+          </div>
         </div>
       </li>
+
       <li data-step="2">
         <div class="step-title">Build MVO Landing Page on GitHub Pages (2-3 hrs)</div>
         <div class="step-detail">
@@ -943,30 +1357,64 @@
           <br><br>
           Structure: Headline (pain statement) > 3-5 bullets (what's included) > Price ($19) > "Join the Waitlist" or "Buy Now" button.
           <br><br>
-          If using a waitlist approach: button connects to Beehiiv with a tag ("mvo-waitlist"). Track signups.
-          <br><br>
-          If going straight to sale: set up Lemon Squeezy. Fastest payment integration for digital products. You can build the product AFTER people pay (standard practice for MVOs). Deliver within 7 days of purchase.
-          <br><br>
           Host under /cashvault-funnel/ repo. Example: /mvo-investor-kit.html
         </div>
         <div class="verify">
           <div class="v-label">Self-Verification</div>
-          <p><span class="v-success">Success Signal:</span> The landing page loads on mobile. The CTA button works. Clicking it either adds a tagged subscriber to Beehiiv (waitlist) or opens a Lemon Squeezy checkout (direct sale).</p>
-          <p><span class="v-fail">Failure Signal:</span> Page doesn't load. Button is broken. Lemon Squeezy checkout fails. Beehiiv tag doesn't apply.</p>
-          <p><span class="v-check">Checkpoint:</span> Can you walk through the full path on your phone from landing page to waitlist confirmation or checkout? Yes/No.</p>
+          <p><span class="v-success">Success Signal:</span> Landing page loads on mobile. CTA button works. Clicking it adds a tagged subscriber to Beehiiv or opens Lemon Squeezy checkout.</p>
+          <p><span class="v-fail">Failure Signal:</span> Page doesn't load. Button broken. Checkout fails.</p>
+          <p><span class="v-check">Checkpoint:</span> Can you walk the full path on your phone from landing page to confirmation? Yes/No.</p>
+        </div>
+
+        <!-- PROMPT TOGGLE: LANDING PAGE COPY -->
+        <div class="prompt-toggle" onclick="this.classList.toggle('open')">
+          <div class="prompt-toggle-header">
+            <div class="prompt-toggle-icon">P</div>
+            <div class="prompt-toggle-title">PROMPT: MVO Landing Page Copy Generator</div>
+            <div class="prompt-toggle-arrow">&#9654;</div>
+          </div>
+          <div class="prompt-toggle-body">
+            <div class="prompt-toggle-inner">
+              <div class="prompt-context"><strong>When:</strong> MVO concept defined. Need the sales page copy. <strong>Why:</strong> Generates 400-600 words of conversion-optimized copy in brand voice. Drop into HTML and deploy.</div>
+              <div class="prompt-code-wrap">
+                <button class="copy-btn" onclick="event.stopPropagation();copyPrompt(this)">COPY</button>
+                <div class="prompt-code">You are a direct-response landing page copywriter for "Kou Talks Money," selling a $19 product to Gen Z (18-24, $14-22/hr). Voice: radioactive, math-obsessed, anti-guru.
+
+PRODUCT: <span class="ph">[MVO NAME]</span>
+FORMAT: <span class="ph">[FORMAT]</span>
+INCLUDES: <span class="ph">[DELIVERABLES]</span>
+PITCH: <span class="ph">[ONE-LINE PITCH]</span>
+BUYER PAIN (their words): "<span class="ph">[EXACT WORDS FROM DMS]</span>"
+DIFFERENTIATION: <span class="ph">[VS FREE TOOLS AND COMPETITORS]</span>
+
+Write the complete landing page. Single scroll. 400-600 words.
+
+STRUCTURE:
+1. HEADLINE: Pain statement, not product name
+2. SUB-HEADLINE: Specific outcome + timeframe with numbers
+3. THE PROBLEM (3-4 sentences): Brandon's reality in THEIR language
+4. THE SOLUTION (2-3 sentences): What it is, why different, the result
+5. WHAT'S INSIDE (3-5 bullets): Deliverable + specific outcome per bullet, each with a number
+6. PRICE ANCHOR: $19 vs something Brandon wastes money on
+7. CTA BUTTON: Specific action, not "Buy Now"
+8. FAQ (2-3 items): "Is this worth $19?" "Can't I find this free?"
+
+Rules: Every sentence passes "would I screenshot this?" test. Use buyer's own language. Never say "unlock/transform/journey." 8th grade reading level. Written by a 19-year-old, not a marketing agency. No fake scarcity.</div>
+              </div>
+              <div class="prompt-expected"><div class="exp-label">Expected Output</div><p>400-600 words of landing page copy in exact page order. Copy into HTML, add basic styling, deploy. Ship simple.</p></div>
+            </div>
+          </div>
         </div>
       </li>
+
       <li data-step="3">
         <div class="step-title">Create 4 PMF-Specific Videos (2-3 hrs)</div>
         <div class="step-detail">
-          These videos directly address the pain your MVO solves. They do NOT sell the product. They amplify the problem.
+          4 videos that address the pain your MVO solves. Do NOT sell. Amplify the problem.
           <br><br>
-          Video A: "The math on starting to invest late is brutal. I ran the numbers."
-          <br>Video B: "Here's what happened in my first 30 days of investing."
-          <br>Video C: "The 3 things I wish someone told me before I started."
-          <br>Video D: "I built a system so I'd never have to think about this again."
+          Video A: "The math on starting late is brutal." | Video B: "My first 30 days." | Video C: "3 things I wish someone told me." | Video D: "I built a system so I'd never think about this again."
           <br><br>
-          CTA on Videos A-C: keyword to the relevant free tool. CTA on Video D: "Link in bio" to the MVO landing page. You are warming the audience before asking for money.
+          CTA on A-C: keyword to free tool. CTA on D: "Link in bio" to MVO page.
         </div>
       </li>
     </ul>
@@ -978,35 +1426,119 @@
       <li data-step="1">
         <div class="step-title">Drive Traffic to MVO + Continue Content Cadence (4 videos/week)</div>
         <div class="step-detail">
-          Continue the normal 4 video/week cadence. 2 of the 4 videos each week should bridge to the MVO landing page (either directly via "link in bio" or indirectly by amplifying the pain the product solves).
-          <br><br>
-          Send ONE email to your full list: "I'm building something. Here's what it solves. If this is your problem, check it out [link]." One email. Not a 5-email launch sequence. You don't have the list size to justify that yet.
+          Continue 4 videos/week. 2 of 4 should bridge to MVO page. Send ONE email to full list: "I'm building something. Here's what it solves. If this is your problem, check it out [link]."
         </div>
       </li>
+
       <li data-step="2">
         <div class="step-title">Conduct 10-15 DM Conversations (1-2 hrs total)</div>
         <div class="step-detail">
-          DM people who engaged with your PMF-specific videos (liked, saved, commented). Ask: "Hey, I noticed you engaged with my video about [topic]. Curious, what's the #1 thing holding you back from [investing/saving/building credit]?"
+          DM people who engaged with PMF videos. Ask: "Hey, I noticed you engaged with my video about [topic]. What's the #1 thing holding you back from [investing/saving/credit]?"
           <br><br>
-          Listen. Take notes. Do NOT pitch. These conversations tell you: (1) Is the pain real? (2) Would they pay to solve it? (3) What language do they use to describe the problem (use THEIR words on your sales page).
+          Listen. Take notes. Do NOT pitch.
           <br><br>
-          <strong>Deliverable:</strong> Notes from 10+ DM conversations with patterns identified.
+          <strong>Deliverable:</strong> Notes from 10+ conversations with patterns identified.
+        </div>
+
+        <!-- PROMPT TOGGLE: DM INTELLIGENCE -->
+        <div class="prompt-toggle" onclick="this.classList.toggle('open')">
+          <div class="prompt-toggle-header">
+            <div class="prompt-toggle-icon">P</div>
+            <div class="prompt-toggle-title">PROMPT: DM Conversation Intelligence Framework</div>
+            <div class="prompt-toggle-arrow">&#9654;</div>
+          </div>
+          <div class="prompt-toggle-body">
+            <div class="prompt-toggle-inner">
+              <div class="prompt-context"><strong>When:</strong> PMF videos are live, people engaging. <strong>Why:</strong> Gives copy-paste openers, question sequence, response templates, and data log format. 10-15 convos = pain validation, buyer language for sales page, and Y/N on willingness to pay.</div>
+              <div class="prompt-code-wrap">
+                <button class="copy-btn" onclick="event.stopPropagation();copyPrompt(this)">COPY</button>
+                <div class="prompt-code">You are a customer discovery strategist for "Kou Talks Money." I need to run 10-15 DM conversations with people who engaged with my videos about <span class="ph">[TOPIC/PILLAR]</span>. Goal: extract PMF data for a $19 product called <span class="ph">[MVO NAME]</span> without feeling like a sales pitch.
+
+MVO SOLVES: <span class="ph">[SPECIFIC PROBLEM]</span>
+
+Generate:
+
+OPENER TEMPLATES (3, copy-paste):
+- For someone who LIKED the video
+- For someone who SAVED the video
+- For someone who COMMENTED
+Each: references their specific action, feels genuine, opens a conversation, under 40 words.
+
+DISCOVERY QUESTIONS (5, deployed naturally):
+1. Pain validation: confirm they experience the problem
+2. Current solution: what have they tried?
+3. Frustration: what specifically doesn't work?
+4. Value: if solvable in one afternoon, what's that worth?
+5. Language capture: "If you could wave a magic wand and fix this, what would the result look like?"
+
+RESPONSE TEMPLATES:
+- They confirm pain is real: [keep going, don't pitch]
+- "I've tried everything": [empathize, ask what failed]
+- "Are you selling something?": [honest answer, maintain trust]
+- They seem uninterested: [graceful exit]
+- "I'd pay for that": [handle WITHOUT closing in DMs]
+
+POST-CONVERSATION LOG:
+Person: @handle | Pain confirmed? Y/N | Language they used: "[quote]" | Current solution: | Would pay? Y/N/Maybe | Objections: | Follow-up: Hot/Warm/Cold | Usable quote for sales page? Y/N
+
+Rules: 80% them talking, 20% you. Never send product link. Never say "survey" or "research." If someone expresses financial distress, empathize first.</div>
+              </div>
+              <div class="prompt-expected"><div class="exp-label">Expected Output</div><p>3 openers, 5 questions, 5 response templates, data log format. After 10-15 convos: pain validation, buyer language, objection patterns, and Y/N on willingness to pay.</p></div>
+            </div>
+          </div>
         </div>
       </li>
+
       <li data-step="3">
         <div class="step-title">Pull PMF Data + Make the Decision (1 hr)</div>
         <div class="step-detail">
-          At end of Week 13, pull all data:
+          End of Week 13, pull all data. Landing page visits, waitlist/purchases, conversion rate, DM patterns.
           <br><br>
-          Landing page visits (if trackable via Beehiiv or simple analytics).
-          <br>Waitlist signups OR purchases.
-          <br>Conversion rate: signups (or purchases) / page visits.
-          <br>DM conversation patterns: did people describe the pain? Did anyone ask how to buy?
-          <br><br>
-          <strong>Decision framework:</strong>
-          <br>5+ waitlist signups AND positive DM signal = Product-market fit confirmed. Build and deliver the product in Phase 1 Weeks 5-8 (per the COO Manual).
-          <br>1+ actual sales = Strong signal. Accelerate.
-          <br>0 signups, 0 interest = The concept missed. Pivot the angle, not the strategy. Test a different product concept in the next cycle.
+          <strong>Decision:</strong> 5+ waitlist AND positive DMs = PMF confirmed. 1+ sales = strong signal. 0 interest = pivot concept, not strategy.
+        </div>
+
+        <!-- PROMPT TOGGLE: FINAL VERDICT -->
+        <div class="prompt-toggle" onclick="this.classList.toggle('open')">
+          <div class="prompt-toggle-header">
+            <div class="prompt-toggle-icon">P</div>
+            <div class="prompt-toggle-title">PROMPT: Week 13 PMF Verdict + 90-Day Retrospective</div>
+            <div class="prompt-toggle-arrow">&#9654;</div>
+          </div>
+          <div class="prompt-toggle-body">
+            <div class="prompt-toggle-inner">
+              <div class="prompt-context"><strong>When:</strong> Week 13 done. All data in. <strong>Why:</strong> Synthesizes quant + qual data into PMF signal score and specific next move. Also runs full 90-day retro. Closes the loop on the entire plan.</div>
+              <div class="prompt-code-wrap">
+                <button class="copy-btn" onclick="event.stopPropagation();copyPrompt(this)">COPY</button>
+                <div class="prompt-code">You are a startup advisor rendering the final PMF verdict for "Kou Talks Money" after 90 days.
+
+QUANTITATIVE:
+- Landing page visits: <span class="ph">[X]</span> | Signups/purchases: <span class="ph">[X]</span> | Conversion: <span class="ph">[%]</span>
+- Launch email: sent <span class="ph">[X]</span>, opens <span class="ph">[X]</span> (<span class="ph">[%]</span>), clicks <span class="ph">[X]</span> (<span class="ph">[%]</span>)
+- Total email list: <span class="ph">[X]</span> | Total followers: <span class="ph">[X]</span>
+
+QUALITATIVE (DMs):
+- Conversations: <span class="ph">[X]</span> of <span class="ph">[ATTEMPTED]</span>
+- Pain confirmed: <span class="ph">[X/Y]</span> | Would pay: <span class="ph">[X/Y]</span>
+- Top 3 quotes: 1. "<span class="ph">[Q]</span>" 2. "<span class="ph">[Q]</span>" 3. "<span class="ph">[Q]</span>"
+- Common objection: "<span class="ph">[OBJ]</span>"
+
+CONTENT: Videos published: <span class="ph">[X]</span> | PMF video avg views: <span class="ph">[X]</span> | Saves: <span class="ph">[X]</span> | "How do I get this?" comments: <span class="ph">[X]</span>
+
+90-DAY TARGETS vs ACTUAL:
+Followers: 400-600 | Actual: <span class="ph">[X]</span> | Subs: 50-150 | Actual: <span class="ph">[X]</span> | Videos: 36-48 | Actual: <span class="ph">[X]</span> | ManyChat: 100+ | Actual: <span class="ph">[X]</span> | Revenue: $0-100 | Actual: <span class="ph">[$X]</span>
+
+RENDER:
+1. PMF SIGNAL (0-100): 70+ = confirmed, build and ship. 40-69 = warm, adjust and retest. Below 40 = miss, pivot.
+2. REALITY CHECK: What is the data ACTUALLY saying vs what we want it to say? Name the single most important data point.
+3. NEXT MOVE: Based on signal, the ONE next action.
+4. 90-DAY RETRO: Execution score (0-100). What worked? What failed? Biggest lesson? What changes if restarting?
+5. PHASE 2 READINESS: What assets compound regardless of PMF? Infrastructure, audience, content formula, data.
+
+Not a participation trophy. A verdict. Optimism kills. Data saves.</div>
+              </div>
+              <div class="prompt-expected"><div class="exp-label">Expected Output</div><p>PMF score. Reality check. ONE next action. Full 90-day retro with execution score. Phase 2 readiness. The final prompt. The most important one you'll run.</p></div>
+            </div>
+          </div>
         </div>
       </li>
     </ul>
@@ -1025,58 +1557,23 @@
   <div class="block">
     <div class="block-label">Metrics Targets at Day 90</div>
     <div class="signal-grid">
-      <div class="signal good">
-        <div class="signal-label">On Track (Green)</div>
-        <p>
-          <strong>Followers:</strong> 400-600+
-          <br><strong>Email Subscribers:</strong> 50-150
-          <br><strong>Videos Published:</strong> 36-48
-          <br><strong>ManyChat Triggers:</strong> 100+ total
-          <br><strong>Email Open Rate:</strong> 40%+
-          <br><strong>MVO Waitlist/Sales:</strong> 5+ signups or 1+ sales
-          <br><strong>Revenue:</strong> $0-$100 (the number matters less than the signal)
-          <br><strong>All infrastructure:</strong> Zero Critical bugs, full funnel operational
-        </p>
-      </div>
-      <div class="signal bad">
-        <div class="signal-label">Off Track (Red)</div>
-        <p>
-          <strong>Followers:</strong> Below 200
-          <br><strong>Email Subscribers:</strong> Below 20
-          <br><strong>Videos Published:</strong> Below 20
-          <br><strong>ManyChat Triggers:</strong> Below 30 total
-          <br><strong>Email Open Rate:</strong> Below 30%
-          <br><strong>MVO Response:</strong> Zero interest from anyone
-          <br><strong>Infrastructure:</strong> Still has Critical bugs or broken paths
-          <br><strong>Content cadence:</strong> Missed 3+ weeks of posting
-        </p>
-      </div>
+      <div class="signal good"><div class="signal-label">On Track (Green)</div><p><strong>Followers:</strong> 400-600+<br><strong>Email Subscribers:</strong> 50-150<br><strong>Videos Published:</strong> 36-48<br><strong>ManyChat Triggers:</strong> 100+ total<br><strong>Email Open Rate:</strong> 40%+<br><strong>MVO Waitlist/Sales:</strong> 5+ signups or 1+ sales<br><strong>Revenue:</strong> $0-$100<br><strong>Infrastructure:</strong> Zero Critical bugs</p></div>
+      <div class="signal bad"><div class="signal-label">Off Track (Red)</div><p><strong>Followers:</strong> Below 200<br><strong>Email Subscribers:</strong> Below 20<br><strong>Videos Published:</strong> Below 20<br><strong>ManyChat Triggers:</strong> Below 30 total<br><strong>Email Open Rate:</strong> Below 30%<br><strong>MVO Response:</strong> Zero interest<br><strong>Infrastructure:</strong> Still has Critical bugs<br><strong>Content cadence:</strong> Missed 3+ weeks</p></div>
     </div>
   </div>
 
   <div class="block">
     <div class="block-label">Confidence Assessment</div>
-    <p><strong>Follower target (400-600):</strong> Confidence 65/100. Highly dependent on hook quality and consistency. At 4 videos/week with engagement, 400 is achievable. 600 requires at least 1-2 videos to break out of your current follower circle. Labeled as speculative above 500.</p>
-    <div class="confidence">
-      <div class="conf-bar"><div class="conf-fill" style="width:65%;background:var(--amber);"></div></div>
-      <div class="conf-label">65/100</div>
-    </div>
-    <p style="margin-top:12px;"><strong>Email subscriber target (50-150):</strong> Confidence 70/100. If the tools work and CTAs are clear, 5-15% of followers should convert. At 400 followers, that's 20-60. With ManyChat driving additional captures, 50-100 is realistic. 150 requires above-average content performance.</p>
-    <div class="confidence">
-      <div class="conf-bar"><div class="conf-fill" style="width:70%;background:var(--amber);"></div></div>
-      <div class="conf-label">70/100</div>
-    </div>
-    <p style="margin-top:12px;"><strong>PMF signal (5+ waitlist or 1+ sale):</strong> Confidence 55/100. This depends on traffic volume to the landing page. With 50-100 email subs, a 5-10% conversion to waitlist is possible but not guaranteed. Labeled as speculative.</p>
-    <div class="confidence">
-      <div class="conf-bar"><div class="conf-fill" style="width:55%;background:var(--red);"></div></div>
-      <div class="conf-label">55/100</div>
-    </div>
-    <p style="margin-top:12px;"><strong>Infrastructure stability:</strong> Confidence 90/100. The tools exist and partially work. Wiring ManyChat and testing end-to-end is procedural, not creative. High confidence this is locked by Week 3.</p>
-    <div class="confidence">
-      <div class="conf-bar"><div class="conf-fill" style="width:90%;background:var(--green);"></div></div>
-      <div class="conf-label">90/100</div>
-    </div>
+    <p><strong>Follower target (400-600):</strong> Confidence 65/100. Dependent on hook quality and consistency.</p>
+    <div class="confidence"><div class="conf-bar"><div class="conf-fill" style="width:65%;background:var(--amber);"></div></div><div class="conf-label">65/100</div></div>
+    <p style="margin-top:12px;"><strong>Email subscriber target (50-150):</strong> Confidence 70/100. 5-15% of followers should convert with working tools and CTAs.</p>
+    <div class="confidence"><div class="conf-bar"><div class="conf-fill" style="width:70%;background:var(--amber);"></div></div><div class="conf-label">70/100</div></div>
+    <p style="margin-top:12px;"><strong>PMF signal (5+ waitlist or 1+ sale):</strong> Confidence 55/100. Depends on traffic volume. Speculative.</p>
+    <div class="confidence"><div class="conf-bar"><div class="conf-fill" style="width:55%;background:var(--red);"></div></div><div class="conf-label">55/100</div></div>
+    <p style="margin-top:12px;"><strong>Infrastructure stability:</strong> Confidence 90/100. Procedural, not creative.</p>
+    <div class="confidence"><div class="conf-bar"><div class="conf-fill" style="width:90%;background:var(--green);"></div></div><div class="conf-label">90/100</div></div>
   </div>
+
 
   <!-- ==================== -->
   <!-- RISK ANALYSIS -->
@@ -1089,63 +1586,39 @@
 
   <div class="block">
     <div class="block-label">Risk 1: The Time Budget Is Too Tight</div>
-    <p><strong class="danger">Threat Level: HIGH.</strong> 5-8 hrs/week is razor thin. One bad week (exams, extra shifts, life chaos) and the content cadence breaks. Two missed weeks in a row kills momentum entirely. The algorithm punishes inconsistency.</p>
-    <p style="margin-top:8px;"><strong>Mitigation:</strong> The batch recording model is the insurance policy. If you record 4 videos on Saturday, you have 2 weeks of buffer even if the following Saturday is lost. Build a 2-week content buffer by Week 5 and NEVER let it drop below 1 week. If you have a surplus week (8 hrs instead of 5), record 6-8 videos instead of 4.</p>
-    <p style="margin-top:8px;"><strong>Worst case protocol:</strong> If you miss 2+ consecutive weeks, pause everything except engagement (15 min/day). Resume recording as soon as possible. Do NOT restart infrastructure work. The pipes are sealed.</p>
+    <p><strong class="danger">Threat Level: HIGH.</strong> 5-8 hrs/week is razor thin. One bad week and the content cadence breaks. Two missed weeks kills momentum. The algorithm punishes inconsistency.</p>
+    <p style="margin-top:8px;"><strong>Mitigation:</strong> Batch recording is the insurance. Build a 2-week content buffer by Week 5. Never let it drop below 1 week.</p>
+    <p style="margin-top:8px;"><strong>Worst case:</strong> If 2+ consecutive weeks missed, pause everything except engagement (15 min/day). Resume recording ASAP. Do NOT restart infrastructure.</p>
   </div>
-
   <div class="block">
     <div class="block-label">Risk 2: Content Doesn't Convert to Email Captures</div>
-    <p><strong class="warn">Threat Level: MEDIUM.</strong> Views without captures means one of three things: (1) the CTA is unclear, (2) the tool/keyword path is broken, (3) the audience doesn't want what you're offering.</p>
-    <p style="margin-top:8px;"><strong>Mitigation:</strong> Track capture rate from Week 4. If below 3% by Week 6 (captures/followers), diagnose in order: First, test the ManyChat path yourself (is it broken?). Second, watch your own video and ask: "Did I actually say the keyword clearly and explain what they get?" Third, try a different CTA format: "Comment [KEYWORD] and I'll send it" vs "DM me [KEYWORD]."</p>
-    <p style="margin-top:8px;"><strong>Worst case protocol:</strong> If captures are near-zero by Week 8, the problem is likely the CTA bridge (your videos don't make the tool sound valuable enough). Shift 2 of your 4 weekly videos to "live demo" format where you USE the tool on camera, showing the result. Proof beats promises.</p>
+    <p><strong class="warn">Threat Level: MEDIUM.</strong> Views without captures = broken CTA, broken path, or wrong audience.</p>
+    <p style="margin-top:8px;"><strong>Mitigation:</strong> Track capture rate from Week 4. If below 3% by Week 6, diagnose: test ManyChat path, audit CTA clarity, try different CTA format.</p>
+    <p style="margin-top:8px;"><strong>Worst case:</strong> Shift 2 of 4 weekly videos to "live demo" format. Proof beats promises.</p>
   </div>
-
   <div class="block">
     <div class="block-label">Risk 3: Follower Growth Stalls Below Critical Mass</div>
-    <p><strong class="warn">Threat Level: MEDIUM.</strong> Without 250+ followers by Week 9, the PMF test in Arc 3 won't generate enough data to be meaningful. You'll be testing with a sample size of 10 people, which proves nothing.</p>
-    <p style="margin-top:8px;"><strong>Mitigation:</strong> Engagement is the growth lever at this stage, not content quality. The algorithm rewards accounts that participate in their community. If growth stalls below 150 by Week 6, increase engagement time to 25-30 min/day and target commenting on LARGER accounts in your niche (10k-50k followers) where your comment is seen by their audience.</p>
-    <p style="margin-top:8px;"><strong>Worst case protocol:</strong> If below 200 followers by Week 9, extend Arc 2 by 3 weeks and delay the PMF test. The data will be garbage if the audience is too small. Better to delay and test with real numbers than rush and learn nothing.</p>
+    <p><strong class="warn">Threat Level: MEDIUM.</strong> Without 250+ by Week 9, PMF test is garbage data.</p>
+    <p style="margin-top:8px;"><strong>Mitigation:</strong> If below 150 by Week 6, increase engagement to 25-30 min/day on larger accounts (10k-50k).</p>
+    <p style="margin-top:8px;"><strong>Worst case:</strong> Below 200 by Week 9 = extend Arc 2 by 3 weeks. Delay PMF test.</p>
   </div>
 
 
-  <!-- ==================== -->
-  <!-- WHAT NOT TO DO -->
-  <!-- ==================== -->
+  <!-- DELETED LIST -->
   <div class="block" style="border: 1px solid rgba(239,68,68,0.3);">
     <div class="block-label" style="color:var(--red);">The "Deleted" List // Tasks That Feel Productive But Aren't</div>
     <ul class="step-list">
-      <li data-step="X" style="opacity:0.7;">
-        <div class="step-title" style="text-decoration:line-through;">Redesigning tool aesthetics</div>
-        <div class="step-detail">The tools work. They're ugly? Fine. Ugly tools that capture emails beat beautiful tools that don't. Cosmetic work is Phase 2. Kill this impulse.</div>
-      </li>
-      <li data-step="X" style="opacity:0.7;">
-        <div class="step-title" style="text-decoration:line-through;">Building new tools or features</div>
-        <div class="step-detail">You have 7 tools. You have 67 followers. The bottleneck is traffic, not product. Building tool #8 is avoidance behavior disguised as productivity.</div>
-      </li>
-      <li data-step="X" style="opacity:0.7;">
-        <div class="step-title" style="text-decoration:line-through;">Perfecting the email welcome sequence</div>
-        <div class="step-detail">Write it once in Week 2. Ship it. Optimize ONLY after you have 100+ subscribers and real open rate data. Perfecting emails for 20 subscribers is a math crime.</div>
-      </li>
-      <li data-step="X" style="opacity:0.7;">
-        <div class="step-title" style="text-decoration:line-through;">Browsing analytics daily</div>
-        <div class="step-detail">Sunday. Once a week. 15 minutes. That's it. Checking stats 3x/day is procrastination wearing a data costume.</div>
-      </li>
-      <li data-step="X" style="opacity:0.7;">
-        <div class="step-title" style="text-decoration:line-through;">Setting up complex automations (Zapier, advanced ManyChat logic)</div>
-        <div class="step-detail">You have 67 followers. You don't need a Rube Goldberg machine. You need a pipe with no holes. Keep ManyChat flows simple: keyword > link. That's it until Phase 2.</div>
-      </li>
-      <li data-step="X" style="opacity:0.7;">
-        <div class="step-title" style="text-decoration:line-through;">Researching competitors for more than 2 hours total</div>
-        <div class="step-detail">90 minutes. One gap sentence. Done. Competitor research is the #1 procrastination trap for builders. You learn more from posting 4 videos than from studying 40 competitors.</div>
-      </li>
+      <li data-step="X" style="opacity:0.7;"><div class="step-title" style="text-decoration:line-through;">Redesigning tool aesthetics</div><div class="step-detail">The tools work. Ugly tools that capture emails beat beautiful tools that don't.</div></li>
+      <li data-step="X" style="opacity:0.7;"><div class="step-title" style="text-decoration:line-through;">Building new tools or features</div><div class="step-detail">7 tools. 67 followers. The bottleneck is traffic, not product.</div></li>
+      <li data-step="X" style="opacity:0.7;"><div class="step-title" style="text-decoration:line-through;">Perfecting the email welcome sequence</div><div class="step-detail">Write once in Week 2. Ship it. Optimize after 100+ subscribers.</div></li>
+      <li data-step="X" style="opacity:0.7;"><div class="step-title" style="text-decoration:line-through;">Browsing analytics daily</div><div class="step-detail">Sunday. Once a week. 15 minutes. That's it.</div></li>
+      <li data-step="X" style="opacity:0.7;"><div class="step-title" style="text-decoration:line-through;">Setting up complex automations</div><div class="step-detail">67 followers. Keyword > link. That's it until Phase 2.</div></li>
+      <li data-step="X" style="opacity:0.7;"><div class="step-title" style="text-decoration:line-through;">Researching competitors for more than 2 hours</div><div class="step-detail">90 minutes. One sentence. Done.</div></li>
     </ul>
   </div>
 
 
-  <!-- ==================== -->
   <!-- FINAL OUTPUT -->
-  <!-- ==================== -->
   <div class="section-div" style="border-color:rgba(192,132,252,0.3);background:linear-gradient(135deg,rgba(192,132,252,0.08),transparent);">
     <div class="rank" style="color:var(--purple);">Final Output // Synthesis</div>
     <h2>THE 90-DAY VERDICT</h2>
@@ -1154,37 +1627,34 @@
 
   <div class="block">
     <div class="block-label">Clear Answer</div>
-    <p>The 90-day plan is a three-arc execution sequence calibrated to 5-8 hrs/week with zero employees. <strong>Arc 1 (Weeks 1-3):</strong> Finish Phase 0 by sealing infrastructure gaps (ManyChat, welcome sequence, end-to-end test, first content batch). <strong>Arc 2 (Weeks 4-9):</strong> Fill the pipe with 24-36 videos at 4/week cadence, grow to 300-500 followers and 50-100 email subs, identify which pillar converts best. <strong>Arc 3 (Weeks 10-13):</strong> Build one MVO landing page, drive traffic, collect PMF data, attempt the first $19 sale.</p>
-    <p style="margin-top:8px;">The plan prioritizes content creation over infrastructure after Week 3 (60-70% of hours). Infrastructure is a one-time cost. Content is the recurring engine. The plan includes 3 decision checkpoints (Week 3 gate, Week 9 decision, Week 13 PMF verdict) that force data-driven pivots instead of blind continuation.</p>
+    <p>The 90-day plan is a three-arc execution sequence calibrated to 5-8 hrs/week. <strong>Arc 1 (Weeks 1-3):</strong> Seal infrastructure. <strong>Arc 2 (Weeks 4-9):</strong> Fill the pipe with 24-36 videos, grow to 300-500 followers and 50-100 subs. <strong>Arc 3 (Weeks 10-13):</strong> Build one MVO landing page, drive traffic, collect PMF data, attempt first $19 sale.</p>
+    <p style="margin-top:8px;">Content creation dominates after Week 3 (60-70% of hours). 3 decision checkpoints force data-driven pivots. Now with 13 embedded prompts that multiply every hour you spend.</p>
   </div>
 
   <div class="block">
     <div class="block-label">Overall Confidence Level</div>
     <p style="font-size:14px;"><strong>Plan Viability: 78/100.</strong></p>
-    <div class="confidence">
-      <div class="conf-bar"><div class="conf-fill" style="width:78%;background:var(--green);"></div></div>
-      <div class="conf-label">78/100</div>
-    </div>
-    <p style="margin-top:8px;">Infrastructure lock (Weeks 1-3) is near-certain (90/100). Content cadence sustainability is the main risk (70/100, depends on time discipline). PMF outcome is speculative (55/100, depends on traffic volume). The plan is robust because the decision checkpoints catch failures early. Even if PMF doesn't land in 90 days, you exit with a working funnel, 30+ videos, and an email list, all compounding assets.</p>
+    <div class="confidence"><div class="conf-bar"><div class="conf-fill" style="width:78%;background:var(--green);"></div></div><div class="conf-label">78/100</div></div>
+    <p style="margin-top:8px;">Infrastructure (90/100). Content cadence (70/100). PMF outcome (55/100). Even if PMF doesn't land, you exit with a working funnel, 30+ videos, and an email list.</p>
   </div>
 
   <div class="block">
     <div class="block-label">Key Caveats</div>
     <p>
-      <strong style="color:var(--red);">1.</strong> If you cannot consistently hit 5 hrs/week, the plan breaks. Adjust cadence to 2 videos/week instead of 4 and extend Arc 2 by 3 weeks.
+      <strong style="color:var(--red);">1.</strong> Below 5 hrs/week breaks the plan. Adjust to 2 videos/week and extend Arc 2 by 3 weeks.
       <br><br>
-      <strong style="color:var(--amber);">2.</strong> Follower growth is the least controllable variable. The plan assumes adequate engagement effort (15+ min/day). If engagement drops, growth stalls, and Arc 3 is starved of traffic.
+      <strong style="color:var(--amber);">2.</strong> Follower growth is least controllable. Depends on 15+ min/day engagement.
       <br><br>
-      <strong style="color:var(--amber);">3.</strong> PMF confidence is 55/100. There is a real chance the first MVO concept does not convert. This is EXPECTED, not failure. The system is designed to iterate: test, learn, pivot, test again. The infrastructure survives every pivot.
+      <strong style="color:var(--amber);">3.</strong> PMF confidence is 55/100. First concept may miss. That is expected. The system iterates.
       <br><br>
-      <strong style="color:var(--text2);">4.</strong> Revenue target is deliberately conservative ($0-$100). The purpose of the 90 days is to build the machine and get signal, not to get rich. Phase 2 (months 4-9 per the COO Manual) is where revenue starts compounding.
+      <strong style="color:var(--text2);">4.</strong> Revenue target deliberately conservative ($0-$100). The 90 days buy certainty, not cash.
     </p>
   </div>
 
   <!-- BOTTOM -->
   <div class="bottom">
     <p>
-      90 DAYS. 78 HOURS. 3 ARCS. 3 GATE CHECKS.<br>
+      90 DAYS. 78 HOURS. 3 ARCS. 3 GATE CHECKS. 13 EMBEDDED PROMPTS.<br>
       Week 3: Infrastructure locked or don't post.<br>
       Week 9: Data says double down or pivot.<br>
       Week 13: Someone pays or the concept shifts.<br><br>
@@ -1195,10 +1665,32 @@
 </div>
 
 <script>
+  // Days countdown
   const target = new Date('2030-11-30T23:59:59');
   const now = new Date();
   const days = Math.ceil((target - now) / (1000*60*60*24));
   document.getElementById('days').innerHTML = days.toLocaleString() + '<span>DAYS</span>';
+
+  // Copy prompt text
+  function copyPrompt(btn) {
+    const code = btn.closest('.prompt-code-wrap').querySelector('.prompt-code');
+    const text = code.innerText;
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      btn.textContent = 'COPIED';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
+    }).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text.trim();
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      btn.textContent = 'COPIED';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
 </script>
 </body>
 </html>
