@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Vault | AI Command Console</title>
+    <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -154,7 +155,7 @@
 
         /* === BLUR GATE === */
         .blur-gate-container { position: relative; margin-top: 20px; }
-        .blur-gate-preview { background: #0f1221; border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; min-height: 350px; }
+        .blur-gate-preview { background: #0f1221; border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; min-height: 350px; max-height: 400px; }
         .blur-gate-visible { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #e2e8f0; white-space: pre-wrap; line-height: 1.6; word-break: break-word; margin-bottom: 4px; }
         .blur-gate-blurred { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #e2e8f0; white-space: pre-wrap; line-height: 1.6; word-break: break-word; filter: blur(8px); user-select: none; pointer-events: none; }
         .blur-gate-overlay {
@@ -529,74 +530,40 @@
             return `${Math.floor(h / 24)}d ago`;
         }
 
-        function NativeEmailCapture({ onEmailSubmit, promptName, category, inputs }) {
-            const [email, setEmail] = useState('');
-            const [loading, setLoading] = useState(false);
-            const [error, setError] = useState('');
+       function BeehiivEmbed({ onSubscribe, promptName, category, inputs }) {
+            useEffect(() => {
+                const handleMessage = (e) => {
+                    if (e.data && (e.data.type === 'beehiiv:subscribe:success' || (typeof e.data === 'string' && e.data.includes('subscribed')))) {
+                        const urlSrc = new URLSearchParams(window.location.search).get('src') || 'vault-gate';
+                        captureHighLeverageData('prompt_vault_conversion', {
+                            status: 'unlocked_via_beehiiv',
+                            source: urlSrc,
+                            category: category,
+                            prompt_name: promptName,
+                            user_inputs: inputs
+                        });
+                        localStorage.setItem('vault_email_captured', 'true');
+                        onSubscribe('beehiiv_subscriber');
+                    }
+                };
+                window.addEventListener('message', handleMessage);
+                return () => window.removeEventListener('message', handleMessage);
+            }, [onSubscribe, category, promptName, inputs]);
 
-            const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
-
-            const handleSubmit = async () => {
-                if (!isValidEmail(email)) {
-                    setError('Real email only. This is where your prompt goes.');
-                    return;
-                }
-                setLoading(true);
-                setError('');
-
-                localStorage.setItem('vault_email_captured', 'true');
-                localStorage.setItem('vault_user_email', email);
-
-                try {
-                    const bridgeUrl = `${CONFIG.BRIDGE_PAGE_URL}?email=${encodeURIComponent(email)}&autosubmit=true&source=vault-gate&session_id=${window._sessionId}`;
-                    const hiddenFrame = document.createElement('iframe');
-                    hiddenFrame.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;';
-                    hiddenFrame.src = bridgeUrl;
-                    document.body.appendChild(hiddenFrame);
-                    setTimeout(() => { try { document.body.removeChild(hiddenFrame); } catch(e){} }, 5000);
-                } catch(e) { /* silent fail */ }
-
-                const urlSrc = new URLSearchParams(window.location.search).get('src') || 'vault-gate';
-                captureHighLeverageData('prompt_vault', { 
-                    email: email, 
-                    source: urlSrc,
-                    category: category,
-                    prompt_name: promptName,
-                    user_inputs: inputs
-                });
-
-                onEmailSubmit(email);
-            };
-
-            const handleKeyDown = (e) => { if (e.key === 'Enter') handleSubmit(); };
+            const iframeUrl = `https://subscribe-forms.beehiiv.com/0eaa449a-fbba-4cff-96e5-88b3f0b82849?session_id=${window._sessionId || ''}`;
 
             return (
-                <div className="native-email-wrap">
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={e => { setEmail(e.target.value); setError(''); }}
-                        onKeyDown={handleKeyDown}
-                        placeholder="your@email.com"
-                        className="native-email-input"
-                        autoFocus
-                        autoComplete="email"
-                    />
-                    {error && <p className="native-email-error">{error}</p>}
-                    <button
-                        onClick={handleSubmit}
-                        className="native-email-btn"
-                        disabled={loading}
-                    >
-                        {loading
-                            ? <span className="native-email-submitting"><span className="email-mini-spinner"></span>Unlocking...</span>
-                            : 'Send My Full Prompt'
-                        }
-                    </button>
+                <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto', minHeight: '120px' }}>
+                    <iframe
+                        src={iframeUrl}
+                        data-test-id="beehiiv-embed"
+                        frameBorder="0"
+                        scrolling="no"
+                        style={{ width: '100%', height: '100%', minHeight: '120px', borderRadius: '12px', backgroundColor: 'transparent', maxWidth: '100%' }}
+                    ></iframe>
                 </div>
             );
         }
-
         function Gatekeeper({ onUnlock }) {
             const [progress, setProgress] = useState(0);
             const [messageIndex, setMessageIndex] = useState(0);
@@ -986,11 +953,11 @@
                                             <strong>It took 4 seconds to build. It would take 2 hours to write.</strong>
                                         </p>
 
-                                        <NativeEmailCapture
+                                        <BeehiivEmbed
                                             promptName={currentConfig.name}
                                             category={category}
                                             inputs={inputs}
-                                            onEmailSubmit={(email) => onEmailCapture(email)}
+                                            onSubscribe={(email) => onEmailCapture(email)}
                                         />
 
                                         <div className="blur-gate-trust">
