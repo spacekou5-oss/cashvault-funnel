@@ -835,7 +835,7 @@
                 </div>
             </div>
             <div class="rr-options">
-                <a href="https://spacekou5-oss.github.io/cashvault-funnel/command-center.html" class="rr-option opt-command">
+                <a href="https://kou.money/command-center" class="rr-option opt-command">
                     <div class="rr-option-icon">&#x1F3AF;</div>
                     <div class="rr-option-text">
                         <div class="rr-option-title">Command Center</div>
@@ -1234,7 +1234,7 @@
         <div class="bridge-cta" id="bridgeCta" style="display: none;">
             <h3 id="bridgeCtaTitle">&#x2705; Your Portfolio is Designed</h3>
             <p id="bridgeCtaDesc">Now track everything from one place.</p>
-            <a href="https://spacekou5-oss.github.io/cashvault-funnel/command-center.html" id="bridgeCtaBtn" class="bridge-cta-btn">
+            <a href="https://kou.money/command-center" id="bridgeCtaBtn" class="bridge-cta-btn">
                 <span>&#x1F3AF;</span> <span id="bridgeCtaBtnText">Open Command Center</span> &rarr;
             </a>
         </div>
@@ -1268,12 +1268,12 @@
         // CONFIG & DATA
         // ============================================================
         const CONFIG = {
-            COMMAND_CENTER_URL: "https://spacekou5-oss.github.io/cashvault-funnel/command-center.html",
-            BRIDGE_URL: "https://spacekou5-oss.github.io/cashvault-funnel/bridge-investment.html",
-            SOCIAL: { INSTAGRAM: "@koutalksmoney", TWITTER: "@koutalksmoney" },
-            SAVE_KEY: 'is_form_state',
-            PORTFOLIO_SAVE_KEY: 'investmentSimplifier_portfolio'
-        };
+    COMMAND_CENTER_URL: "https://kou.money/command-center",
+    BRIDGE_URL: "https://kou.money/bridge-investment",
+    SOCIAL: { INSTAGRAM: "@koutalksmoney", TWITTER: "@koutalksmoney" },
+    SAVE_KEY: 'is_form_state',
+    PORTFOLIO_SAVE_KEY: 'investmentSimplifier_portfolio'
+};
 
         const etfData = {
             vti: { ticker: "VTI", name: "Vanguard Total Stock Market", description: "Owns every public company in America. The gold standard.", type: "U.S. Total Market", expense: "0.03%" },
@@ -1761,8 +1761,14 @@
                 }
             });
             
-            window.addEventListener('message', (e) => {
-                if (e.data && (e.data.type === 'beehiiv:subscribe:success' || (typeof e.data === 'string' && e.data.includes('subscribed')))) {
+           window.addEventListener('message', (e) => {
+    // Dynamically adjust iframe height for mobile responsiveness
+    if (e.data && (e.data.type === 'beehiiv:resize' || e.data.event === 'resize')) {
+        const frame = document.getElementById('beehiivFrame');
+        if (frame && e.data.height) frame.style.height = e.data.height + 'px';
+    }
+
+    if (e.data && (e.data.type === 'beehiiv:subscribe:success' || (typeof e.data === 'string' && e.data.includes('subscribed')))) {
                     localStorage.setItem('investmentSimplifier_bridge_email', 'true');
                     unlockPortfolio();
                     
