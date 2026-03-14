@@ -818,6 +818,13 @@
             color: var(--accent-primary);
         }
     </style>
+    
+    <script type="module">
+        import { inject } from "@vercel/analytics"
+        inject()
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    
 </head>
 <body>
     <div class="returning-router hidden" id="returningRouter">
@@ -1114,7 +1121,7 @@
                     <div class="beehiiv-embed-container w-full" style="min-height: 120px;"
                          onclick="setTimeout(() => this.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)"
                          ontouchstart="setTimeout(() => this.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)">
-                        <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+                        <script async src="https://subscribe-forms.beehiiv.com/"></script>
                         <iframe id="beehiivFrame"
                             data-test-id="beehiiv-embed" 
                             frameborder="0" scrolling="no"
@@ -2008,8 +2015,31 @@
             if (total !== 100) alloc[0].pct += (100 - total);
             alloc = alloc.filter(a => a.pct > 0);
 
-            window.lastAllocation = alloc;
+           window.lastAllocation = alloc;
             currentPortfolioData = { stockPct, bondPct, alloc };
+            
+            // --- START HIGH-LEVERAGE DATA THROW ---
+            fetch(_sbUrl + '/rest/v1/funnel_events', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'apikey': _sbKey, 
+                    'Authorization': 'Bearer ' + _sbKey,
+                    'Prefer': 'return=minimal' 
+                },
+                body: JSON.stringify({
+                    app: 'investment_simplifier',
+                    event: 'calculated_portfolio',
+                    data: { 
+                        age: parseInt(document.getElementById('userAge').value) || null,
+                        riskStyle: document.getElementById('riskStyle').value || 'unknown',
+                        monthlyInvestment: parseInt(document.getElementById('monthlyInvestment').value) || 100,
+                        stockPct: stockPct,
+                        bondPct: bondPct
+                    }
+                })
+            }).catch(err => console.error('Throw failed:', err));
+            // --- END HIGH-LEVERAGE DATA THROW ---
             
             displayPortfolio(stockPct, bondPct, alloc);
             updateProjectionHero();
