@@ -23,25 +23,30 @@
          _sessionId links this visit to the eventual
          tool_completions insert for cross-table attribution.
          ========================================= -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const _sbUrl = 'https://wokoxddotlyuasmwylpx.supabase.co';
-        const _sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
-        window._sb = null;
-        try { window._sb = window.supabase.createClient(_sbUrl, _sbKey); } catch(e) {}
-
+   <script>
+        var SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
+        var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+        
         window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
         function trackVisit() {
-            if (!window._sb) return;
             try {
                 const p = new URLSearchParams(window.location.search);
-                window._sb.from('visits').insert({
-                    architect_id: window._sessionId,
-                    page: window.location.pathname.split('/').pop() || 'unknown',
-                    entry_point: p.get('from') || document.referrer || 'direct',
-                    user_agent: navigator.userAgent
-                }).then(() => {}).catch(() => {});
+                fetch(SUPABASE_URL + '/rest/v1/visits', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        architect_id: window._sessionId,
+                        page: window.location.pathname.split('/').pop() || 'unknown',
+                        entry_point: p.get('from') || document.referrer || 'direct',
+                        user_agent: navigator.userAgent
+                    })
+                }).catch(() => {});
             } catch(e) {}
         }
         trackVisit();
@@ -507,6 +512,10 @@
     // Only _trafficSource is kept here as a standalone attribution var.
     // =========================================
 
+   // Supabase Connection (The Pipe)
+    var SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+
     // OPTIMIZATION 11: Standalone traffic source var preserved for context_data attribution.
     var _trafficSource = (new URLSearchParams(window.location.search)).get('src') || 'direct';
 
@@ -529,7 +538,6 @@
     // the architect_id column or the upsert falls back to insert behavior.
     // =========================================
     async function trackCompletion() {
-        if (!window._sb) return;
         try {
             var sys = SYSTEMS[state.selectedSystem];
             var contextData = {
@@ -543,14 +551,22 @@
                 from_800_club: isFrom800Club(),
                 traffic_source: _trafficSource
             };
-            // Changed from .insert to .upsert to handle re-fires from
-            // dashboard CTAs (downloadCard, crossSellBtn) without duplicate rows.
-            await window._sb.from('tool_completions').upsert({
-                architect_id: window._sessionId,
-                tool_id: 'budget-calculator',
-                context_data: contextData,
-                completed_at: new Date().toISOString()
-            }, { onConflict: 'architect_id' });
+            
+            await fetch(SUPABASE_URL + '/rest/v1/tool_completions', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'apikey': SUPABASE_ANON_KEY, 
+                    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                    'Prefer': 'return=minimal' // CRITICAL: Strict append-only insert
+                },
+                body: JSON.stringify({
+                    architect_id: window._sessionId,
+                    tool_id: 'budget-calculator',
+                    context_data: contextData,
+                    completed_at: new Date().toISOString()
+                })
+            });
         } catch(e) { console.error('Data capture failed silently', e); }
     }
 
