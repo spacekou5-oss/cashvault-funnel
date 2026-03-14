@@ -11,16 +11,19 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="/_vercel/insights/script.js"></script>
 
     <!-- ================================================ -->
     <!-- Universal Tracking Infrastructure (Pure Signal)  -->
     <!-- ================================================ -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const _sbUrl = 'https://wokoxddotlyuasmwylpx.supabase.co';
-        const _sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+        const SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+        const _sbUrl = SUPABASE_URL;
+        const _sbKey = SUPABASE_ANON_KEY;
         window._sb = null;
         try { window._sb = window.supabase.createClient(_sbUrl, _sbKey); } catch(e) {}
 
@@ -279,11 +282,11 @@
                         </div>
                         <div class="space-y-2 pt-2">
                             <!-- RANK #1: Brandon-language router copy -->
-                            <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=freedom"
+                           <a href="https://kou.money/investment-simplifier?from=freedom"
                                class="router-card gold block font-black uppercase text-sm">
                                 Show Me What To Buy &#x279C;
                             </a>
-                            <a href="https://spacekou5-oss.github.io/cashvault-funnel/command-center.html"
+                            <a href="https://kou.money/command-center"
                                class="router-card blue block">
                                 <p class="text-sm font-black text-cyber-blue uppercase">Command Center</p>
                                 <p class="text-[10px] text-gray-400 mt-1">See your full financial dashboard</p>
@@ -575,8 +578,8 @@
                 <p class="text-xs text-gray-400 mb-5 leading-relaxed">
                     Your investment plan is ready. See the exact funds for your <span class="text-cyber-gold font-bold" x-text="formatMoney(monthlyInvest)"></span>/mo.
                 </p>
-                <div class="space-y-3">
-                    <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=freedom"
+               <div class="space-y-3">
+                    <a href="https://kou.money/investment-simplifier?from=freedom"
                        class="block w-full py-3 rounded-lg font-bold uppercase tracking-widest text-sm text-black bg-cyber-green hover:bg-green-400 transition-all cursor-pointer text-center shadow-[0_0_20px_rgba(0,255,65,0.3)]">
                         Open Investment Simplifier &#x279C;
                     </a>
@@ -688,9 +691,9 @@
                         Drop your email. Your <span x-text="formatMoney(monthlyInvest)"></span>/mo investment plan loads in 10 seconds.
                     </p>
                 </div>
-                <div x-show="showFallbackLink" x-cloak class="text-center mt-2">
+               <div x-show="showFallbackLink" x-cloak class="text-center mt-2">
                     <p class="text-[10px] text-gray-400 mb-2">Already submitted your email?</p>
-                    <a href="https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=freedom" 
+                    <a href="https://kou.money/investment-simplifier?from=freedom" 
                        class="inline-block text-[11px] font-bold text-cyber-gold hover:text-white transition-colors uppercase tracking-widest">
                         Show Me What To Buy &rarr;
                     </a>
@@ -934,13 +937,13 @@
                     return Math.max(0, fvNow - fvLater);
                 },
 
-                goToCostOfWaiting() {
+               goToCostOfWaiting() {
                     const params = new URLSearchParams({
                         from: 'freedom',
                         age: this.age || 20,
                         contribution: this.monthlyInvest || 100
                     });
-                    window.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/cost-of-waiting.html?' + params.toString();
+                    window.location.href = 'https://kou.money/cost-of-waiting?' + params.toString();
                 },
 
                 // ===========================
@@ -1164,12 +1167,20 @@
                         } else { 
                             this.showModal = true; 
                             
-                            // SUPABASE HIGH-LEVERAGE DATA CAPTURE
-                            if (window._sb) {
-                                window._sb.from('tool_completions').insert({
-                                    architect_id: window._sessionId,
-                                    tool_id: 'freedom_calculator',
-                                    context_data: {
+                           // SUPABASE HIGH-LEVERAGE DATA CAPTURE
+                            fetch(SUPABASE_URL + '/rest/v1/funnel_events', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'apikey': SUPABASE_ANON_KEY,
+                                    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                                    'Prefer': 'return=minimal'
+                                },
+                                body: JSON.stringify({
+                                    app: 'freedom_calculator',
+                                    event: 'calculated_freedom_number',
+                                    data: {
+                                        architect_id: window._sessionId,
                                         age: this.age,
                                         current_wealth: this.currentWealth,
                                         desired_income: this.desiredIncome,
@@ -1178,8 +1189,8 @@
                                         exit_age: this.yearsToGoal >= 100 ? 'NEVER' : this.exitAge,
                                         cost_of_waiting_per_year: this.costOfWaitingPerYear
                                     }
-                                }).then(() => {}).catch(() => {});
-                            }
+                                })
+                            }).then(() => {}).catch(() => {});
                         }
                     } catch(e) { 
                         this.showModal = true; 
@@ -1193,14 +1204,14 @@
                 // ===========================
                 // BEEHIIV REDIRECT
                 // ===========================
-                doBeehiivRedirect() {
+               doBeehiivRedirect() {
                     if (this._hasRedirected) return;
                     this._hasRedirected = true;
                     try {
                         localStorage.setItem('freedom_completed', 'true');
                         localStorage.setItem('freedom_calculator_email', 'true');
                     } catch(e) {}
-                    window.top.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=freedom';
+                    window.top.location.href = 'https://kou.money/investment-simplifier?from=freedom';
                 },
 
                 activateRedirectHandler() {
