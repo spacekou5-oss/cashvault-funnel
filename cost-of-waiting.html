@@ -27,9 +27,11 @@
          Replaces the old fragmented _supabase / trackEvent()
          block that lived at the bottom of the <script> tag.
          ========================================= -->
-    <script>
-        const _sbUrl = 'https://wokoxddotlyuasmwylpx.supabase.co';
-        const _sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+   <script>
+        const SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+        const _sbUrl = SUPABASE_URL;
+        const _sbKey = SUPABASE_ANON_KEY;
         window._sb = null;
         try { window._sb = window.supabase.createClient(_sbUrl, _sbKey); } catch(e) {}
 
@@ -481,7 +483,7 @@
 
                     <div class="space-y-2 pt-2">
                         <!-- STEP 4: <a> converted to <button> with handleCrossSell interceptor -->
-                        <button @click="handleCrossSell($event, 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=costofwaiting')"
+                       <button @click="handleCrossSell($event, 'https://kou.money/investment-simplifier?from=costofwaiting')"
                                 class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-cyber-green hover:shadow-[0_0_20px_rgba(0,255,65,0.4)] transition-all cursor-pointer shadow-[0_0_15px_rgba(0,255,65,0.3)] border-none">
                             SHOW ME WHAT TO BUY &#x279C;
                         </button>
@@ -648,9 +650,9 @@
                     <p class="text-xs font-bold text-cyber-red uppercase tracking-widest mb-1" x-text="'Wealth You Burn by Age ' + freedomAge"></p>
                     <div class="text-4xl sm:text-5xl font-black font-mono text-cyber-red tracking-tight" 
                          x-text="'-' + formatMoney(displayFreedomLoss)"></div>
-                    <p class="text-[10px] text-cyber-gray mt-1" x-show="hasFreedomData">Based on your Freedom Calculator exit age</p>
+                   <p class="text-[10px] text-cyber-gray mt-1" x-show="hasFreedomData">Based on your Freedom Calculator exit age</p>
                     <a x-show="!hasFreedomData" 
-                       href="https://spacekou5-oss.github.io/cashvault-funnel/freedom-calculator.html?from=costofwaiting"
+                       href="https://kou.money/freedom-calculator?from=costofwaiting"
                        class="text-[10px] text-cyber-blue hover:text-white transition-colors mt-1 inline-block">
                         Don't know your Freedom Age? Calculate it &#x2192;
                     </a>
@@ -749,9 +751,8 @@
                         Your investment plan is ready. Pick up where you left off, or keep running numbers here.
                     </p>
 
-                    <div class="space-y-3">
-                        <!-- STEP 4: <a> converted to <button> with handleCrossSell interceptor -->
-                        <button @click="handleCrossSell($event, 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=costofwaiting')"
+                   <div class="space-y-3">
+                        <button @click="handleCrossSell($event, 'https://kou.money/investment-simplifier?from=costofwaiting')"
                                 class="block w-full py-3 rounded-lg font-bold uppercase tracking-widest text-sm text-black bg-cyber-green hover:bg-green-400 transition-all cursor-pointer text-center shadow-[0_0_20px_rgba(0,255,65,0.3)] border-none">
                             Open Investment Simplifier &#x279C;
                         </button>
@@ -1061,22 +1062,30 @@
                 // update the SAME row. Zero duplicate rows. Zero data loss.
                 // Requires UNIQUE constraint on architect_id in tool_completions.
                 // =========================================
-                async trackCompletion() {
-                    if (!window._sb) return;
+               async trackCompletion() {
                     try {
-                        await window._sb.from('tool_completions').upsert({
-                            architect_id: window._sessionId,
-                            tool_id: 'cost_of_waiting',
-                            context_data: {
-                                age: this.age,
-                                monthly_contribution: this.contribution,
-                                current_wealth: this.currentWealth,
-                                years_waited: this.waitYears,
-                                total_damage_calculated: this.freedomLoss || this.loss,
-                                daily_cost_to_fix: this.dailyCost
+                        await fetch(SUPABASE_URL + '/rest/v1/funnel_events', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'apikey': SUPABASE_ANON_KEY,
+                                'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                                'Prefer': 'return=minimal'
                             },
-                            completed_at: new Date().toISOString()
-                        }, { onConflict: 'architect_id' });
+                            body: JSON.stringify({
+                                app: 'cost_of_waiting',
+                                event: 'calculated_cost_of_waiting',
+                                data: {
+                                    architect_id: window._sessionId,
+                                    age: this.age,
+                                    monthly_contribution: this.contribution,
+                                    current_wealth: this.currentWealth,
+                                    years_waited: this.waitYears,
+                                    total_damage_calculated: this.freedomLoss || this.loss,
+                                    daily_cost_to_fix: this.dailyCost
+                                }
+                            })
+                        });
                     } catch(e) { console.error('Data capture failed silently'); }
                 },
 
@@ -1184,11 +1193,11 @@
                         localStorage.setItem('waiting_completed', 'true');
                         localStorage.setItem('cost_of_waiting_email', 'true');
                     } catch(e) {}
-
-                    // Double-lock: final upsert before routing to Investment Simplifier
+                 
+                   // Double-lock: final upsert before routing to Investment Simplifier
                     await this.trackCompletion();
 
-                    window.top.location.href = 'https://spacekou5-oss.github.io/cashvault-funnel/Investment-Simplifier.html?from=costofwaiting';
+                    window.top.location.href = 'https://kou.money/investment-simplifier?from=costofwaiting';
                 },
 
                 // =========================================
