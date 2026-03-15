@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PAID ADS COMMAND CENTER // Kou Talks Money</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0f;--bg2:#111119;--bg3:#18182a;--border:#1e1e2e;--border2:#2a2a3e;
+  --blue:#3b82f6;--electric:#60a5fa;--cyan:#22d3ee;--green:#10b981;
+  --amber:#f59e0b;--red:#ef4444;--purple:#c084fc;--orange:#f97316;
+  --text:#f0f0f5;--text2:#8888a0;--text3:#55556a;
+  --mono:'Space Mono',monospace;--display:'Outfit',sans-serif;
+  --fire:#ff4d00;--fireGlow:rgba(255,77,0,0.15);--fireBorder:rgba(255,77,0,0.35);
+  --tapeBlue:#00d4ff;--tapeBluGlow:rgba(0,212,255,0.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--display);min-height:100vh;}
+.page{max-width:960px;margin:0 auto;padding:24px 20px 100px;}
+
+/* Blue Tape */
+.tape{background:linear-gradient(135deg,#1e3a6e,#2d5bb9,#3b82f6);border-radius:2px;padding:14px 20px;margin-bottom:24px;transform:rotate(-0.3deg);box-shadow:0 4px 24px rgba(59,130,246,0.2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.tape-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.5);}
+.tape-num{font-family:var(--mono);font-size:26px;font-weight:700;color:#fff;}
+.tape-num span{font-size:11px;opacity:0.6;margin-left:5px;}
+
+/* Header */
+.header{text-align:center;margin-bottom:24px;padding:28px 20px;background:var(--bg2);border:1px solid var(--fireBorder);border-radius:14px;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,var(--fireGlow),transparent 70%);pointer-events:none;}
+.header .badge{font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--fire);margin-bottom:8px;position:relative;}
+.header h1{font-size:24px;font-weight:900;position:relative;margin-bottom:6px;}
+.header .sub{font-size:12px;color:var(--text2);font-weight:300;position:relative;line-height:1.6;max-width:640px;margin:0 auto;}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px;}
+.stat{padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center;}
+.stat-num{font-family:var(--mono);font-size:20px;font-weight:700;}
+.stat-label{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-top:4px;}
+
+/* Gate Nav */
+.gate-nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;position:sticky;top:0;z-index:100;background:var(--bg);padding:12px 0;border-bottom:1px solid var(--border);}
+.gate-btn{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:8px 14px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.gate-btn:hover{border-color:var(--border2);color:var(--text);}
+.gate-btn.active{border-color:var(--fire);color:var(--fire);background:rgba(255,77,0,0.08);}
+
+/* Search */
+.search-wrap{margin-bottom:20px;}
+.search-input{width:100%;padding:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--display);font-size:13px;outline:none;transition:border-color 0.2s;}
+.search-input:focus{border-color:var(--fire);}
+.search-input::placeholder{color:var(--text3);}
+
+/* Core Doctrine */
+.doctrine{background:var(--bg2);border:1px solid var(--fireBorder);border-radius:14px;padding:20px 24px;margin-bottom:28px;position:relative;overflow:hidden;}
+.doctrine::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--fire),transparent);}
+.doctrine-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--fire);margin-bottom:12px;}
+.doctrine h3{font-size:15px;font-weight:800;margin-bottom:8px;}
+.doctrine p{font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:8px;}
+.doctrine p strong{color:var(--text);font-weight:600;}
+.doctrine-rule{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;}
+.doctrine-rule-num{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--fire);flex-shrink:0;width:18px;}
+.doctrine-rule-text{font-size:11px;color:var(--text2);line-height:1.6;}
+.doctrine-rule-text strong{color:var(--text);font-weight:600;}
+
+/* Budget Ladder */
+.budget-ladder{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:28px;overflow-x:auto;}
+.budget-ladder-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--amber);margin-bottom:14px;}
+.budget-table{width:100%;border-collapse:collapse;font-size:11px;}
+.budget-table th{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border2);}
+.budget-table td{padding:10px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;}
+.budget-table tr:last-child td{border-bottom:none;}
+.budget-table .budget-rev{color:var(--green);font-family:var(--mono);font-weight:700;}
+.budget-table .budget-spend{color:var(--amber);font-family:var(--mono);font-weight:700;}
+.budget-table .budget-hrs{color:var(--text3);font-family:var(--mono);}
+.budget-table .budget-gate{font-family:var(--mono);font-size:10px;color:var(--fire);}
+.budget-table .budget-plat{font-size:10px;}
+
+/* System Cards */
+.sys-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;transition:border-color 0.2s;}
+.sys-card:hover{border-color:var(--border2);}
+.sys-card.gate-card{border-left:3px solid var(--fire);}
+.sys-header{padding:16px 20px;cursor:pointer;display:flex;align-items:flex-start;gap:12px;user-select:none;}
+.sys-num{font-family:var(--mono);font-size:12px;font-weight:700;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:7px;color:#fff;flex-shrink:0;}
+.sys-info{flex:1;}
+.sys-title{font-size:14px;font-weight:700;margin-bottom:2px;}
+.sys-sub{font-size:11px;color:var(--text2);line-height:1.4;}
+.sys-toggle{font-family:var(--mono);font-size:18px;color:var(--text3);transition:transform 0.2s;flex-shrink:0;margin-top:4px;}
+.sys-card.open .sys-toggle{transform:rotate(45deg);}
+.sys-body{display:none;padding:0 20px 20px;border-top:1px solid var(--border);margin-top:0;}
+.sys-card.open .sys-body{display:block;}
+
+/* Gate Badge */
+.gate-badge{display:inline-block;font-family:var(--mono);font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:rgba(255,77,0,0.15);color:var(--fire);border:1px solid rgba(255,77,0,0.3);margin-left:6px;vertical-align:middle;}
+.paid-badge{display:inline-block;font-family:var(--mono);font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:rgba(239,68,68,0.12);color:var(--red);border:1px solid rgba(239,68,68,0.25);margin-left:6px;vertical-align:middle;}
+
+/* Kill Switch Block */
+.kill-switch{margin-top:16px;padding:14px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:8px;border-left:3px solid var(--red);}
+.kill-switch-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.kill-switch-label::after{content:'';flex:1;height:1px;background:rgba(239,68,68,0.2);}
+.kill-switch-text{font-size:11px;color:var(--text2);line-height:1.7;}
+.kill-switch-text strong{color:var(--red);font-weight:600;}
+
+/* Gate Trigger Block */
+.gate-trigger{margin-bottom:16px;padding:14px;background:rgba(255,77,0,0.05);border:1px solid rgba(255,77,0,0.2);border-radius:8px;}
+.gate-trigger-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--fire);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.gate-trigger-label::after{content:'';flex:1;height:1px;background:rgba(255,77,0,0.15);}
+.trigger-condition{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;padding:6px 10px;background:var(--bg);border-radius:6px;}
+.trigger-check{font-family:var(--mono);font-size:10px;color:var(--fire);flex-shrink:0;width:16px;text-align:center;}
+.trigger-text{font-size:11px;color:var(--text2);line-height:1.5;}
+.trigger-text strong{color:var(--text);font-weight:600;}
+
+/* Dependency Map */
+.dep-map{margin-bottom:16px;padding:14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;}
+.dep-map-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.dep-map-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.dep-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;}
+.dep-row-label{font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);width:100%;margin-bottom:2px;}
+.dep-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:4px;font-family:var(--mono);font-size:9px;letter-spacing:0.5px;border:1px solid;}
+.dep-upstream{background:rgba(34,211,238,0.08);border-color:rgba(34,211,238,0.2);color:var(--cyan);}
+.dep-downstream{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.2);color:var(--green);}
+.dep-amplified{background:rgba(255,77,0,0.08);border-color:rgba(255,77,0,0.2);color:var(--fire);}
+
+/* Prompt Section */
+.prompt-section{margin-top:16px;}
+.prompt-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.prompt-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.label-primary{color:var(--cyan);}
+.label-output{color:var(--green);}
+.label-verify{color:var(--amber);}
+.label-escalation{color:var(--red);}
+.label-kill{color:var(--red);}
+
+.prompt-box{position:relative;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:11px;color:var(--text2);line-height:1.7;white-space:pre-wrap;word-break:break-word;max-height:400px;overflow-y:auto;}
+.prompt-box::-webkit-scrollbar{width:4px;}
+.prompt-box::-webkit-scrollbar-track{background:transparent;}
+.prompt-box::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+.copy-btn{position:absolute;top:8px;right:8px;font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:4px;border:1px solid var(--border2);background:var(--bg2);color:var(--text3);cursor:pointer;transition:all 0.2s;z-index:2;}
+.copy-btn:hover{border-color:var(--fire);color:var(--fire);}
+.copy-btn.copied{border-color:var(--green);color:var(--green);background:rgba(16,185,129,0.1);}
+
+.verify-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.verify-list li{padding:8px 12px;background:var(--bg);border-radius:6px;font-size:11px;color:var(--text2);line-height:1.5;border-left:2px solid var(--border2);}
+.verify-list li strong{color:var(--text);font-weight:600;}
+.verify-list li.check-pass{border-left-color:var(--green);}
+.verify-list li.check-fail{border-left-color:var(--red);}
+
+/* Tool Stack */
+.tool-stack{margin-bottom:16px;padding:14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;}
+.tool-stack-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.tool-stack-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.tool-row{display:flex;flex-wrap:wrap;gap:6px;}
+.tool-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:5px;font-family:var(--mono);font-size:9px;letter-spacing:0.5px;border:1px solid;cursor:default;transition:all 0.2s;}
+.tool-chip:hover{filter:brightness(1.2);}
+.chip-core{background:rgba(59,130,246,0.08);border-color:rgba(59,130,246,0.2);color:var(--electric);}
+.chip-auto{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.2);color:var(--green);}
+.chip-paid{background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.2);color:var(--amber);}
+.chip-free{background:rgba(192,132,252,0.08);border-color:rgba(192,132,252,0.2);color:var(--purple);}
+.chip-util{background:rgba(136,136,160,0.08);border-color:rgba(136,136,160,0.15);color:var(--text2);}
+.chip-fire{background:rgba(255,77,0,0.08);border-color:rgba(255,77,0,0.2);color:var(--fire);}
+.tool-chip .chip-cost{font-size:7px;letter-spacing:1px;opacity:0.7;text-transform:uppercase;}
+
+/* Context Map */
+.sys-context{margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ctx-block{padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;border-left:3px solid;}
+.ctx-block.ctx-what{border-left-color:var(--cyan);}
+.ctx-block.ctx-why{border-left-color:var(--orange);}
+.ctx-block.ctx-how{border-left-color:var(--green);}
+.ctx-block.ctx-budget{border-left-color:var(--amber);}
+.ctx-label{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.ctx-what .ctx-label{color:var(--cyan);}
+.ctx-why .ctx-label{color:var(--orange);}
+.ctx-how .ctx-label{color:var(--green);}
+.ctx-budget .ctx-label{color:var(--amber);}
+.ctx-text{font-size:11px;color:var(--text2);line-height:1.6;}
+.ctx-text strong{color:var(--text);font-weight:600;}
+
+/* Phase Dividers */
+.phase-div{margin:28px 0 16px;padding:16px 20px;border-radius:10px;border:1px solid;}
+.phase-tag{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.phase-div h2{font-size:17px;font-weight:800;margin-bottom:3px;}
+.phase-meta{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;}
+
+/* Compound Flow Visual */
+.compound-flow{margin-bottom:24px;padding:20px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow-x:auto;}
+.compound-flow-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--fire);margin-bottom:16px;}
+.flow-chain{display:flex;align-items:center;gap:0;flex-wrap:nowrap;min-width:max-content;padding-bottom:8px;}
+.flow-node{padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:10px;color:var(--text2);text-align:center;white-space:nowrap;min-width:80px;}
+.flow-node strong{display:block;font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+.flow-node.flow-ad{border-color:var(--fireBorder);background:rgba(255,77,0,0.06);}
+.flow-node.flow-ad strong{color:var(--fire);}
+.flow-node.flow-sys strong{color:var(--cyan);}
+.flow-node.flow-rev strong{color:var(--green);}
+.flow-arrow{font-family:var(--mono);font-size:14px;color:var(--text3);padding:0 4px;flex-shrink:0;}
+
+/* Bottom */
+.bottom{margin-top:36px;padding:24px;background:var(--bg2);border:1px solid rgba(255,77,0,0.2);border-radius:14px;text-align:center;}
+.bottom p{font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:1px;line-height:1.8;}
+.bottom .final{color:var(--fire);font-weight:700;}
+
+/* Platform Reference */
+.plat-ref{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:24px;}
+.plat-ref-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin-bottom:14px;}
+.plat-ref-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.plat-card{padding:14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;transition:border-color 0.2s;}
+.plat-card:hover{border-color:var(--border2);}
+.plat-card-rank{font-family:var(--mono);font-size:18px;font-weight:700;margin-bottom:4px;}
+.plat-card-name{font-size:13px;font-weight:700;margin-bottom:2px;}
+.plat-card-type{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;}
+.plat-card-desc{font-size:10px;color:var(--text2);line-height:1.5;}
+.plat-card-gates{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:8px;}
+
+@media(max-width:640px){
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .sys-context{grid-template-columns:1fr;}
+  .plat-ref-grid{grid-template-columns:1fr;}
+  .flow-chain{overflow-x:auto;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- BLUE TAPE -->
+<div class="tape">
+  <div>
+    <div class="tape-label">Blue Tape // Days to $1M</div>
+    <div class="tape-num" id="days">---<span>DAYS</span></div>
+  </div>
+  <div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.5);text-align:right;letter-spacing:1px;">PAID ADS COMMAND CENTER<br>v1.0 // 4 GATES + KILL SWITCHES</div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="badge">4 Gates // 4 Prompts // 4 Kill Switches // Phase-Locked // Revenue-Gated</div>
+  <h1>PAID ADS COMMAND CENTER</h1>
+  <div class="sub">Gasoline for the machine. Every ad dollar mapped to specific systems it amplifies, exact trigger conditions before spend begins, kill switches when data says stop. Ad budget NEVER comes from your paycheck after Gate 2. The machine pays for its own fuel.</div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><div class="stat-num" style="color:var(--fire);">4</div><div class="stat-label">Ad Gates</div></div>
+  <div class="stat"><div class="stat-num" style="color:var(--green);">10+</div><div class="stat-label">Systems Amplified</div></div>
+  <div class="stat"><div class="stat-num" style="color:var(--amber);">$170</div><div class="stat-label">Max Pre-Revenue Spend</div></div>
+  <div class="stat"><div class="stat-num" style="color:var(--cyan);">3</div><div class="stat-label">Platforms</div></div>
+</div>
+
+<!-- CORE DOCTRINE -->
+<div class="doctrine">
+  <div class="doctrine-label">Core Doctrine // Non-Negotiable Ad Rules</div>
+  <h3>Ads Are Gasoline. Not Spark Plugs.</h3>
+  <p>Your 30-system blueprint is an engine. Paid ads are fuel. Pouring gasoline on a disassembled engine does one thing: <strong>starts a fire.</strong> Every ad dollar spent before downstream systems are sealed is a donation to Meta's shareholders at $18/hr of your labor.</p>
+  <div class="doctrine-rule"><div class="doctrine-rule-num">01</div><div class="doctrine-rule-text"><strong>Gate conditions are binary.</strong> If ANY trigger condition is unmet, the gate stays locked. No "I feel ready." Data decides.</div></div>
+  <div class="doctrine-rule"><div class="doctrine-rule-num">02</div><div class="doctrine-rule-text"><strong>Ad budget never comes from your paycheck after Gate 2.</strong> Gates 3 and 4 are funded by revenue. Revenue dips below threshold = ads pause automatically.</div></div>
+  <div class="doctrine-rule"><div class="doctrine-rule-num">03</div><div class="doctrine-rule-text"><strong>Kill switches are immediate.</strong> When a kill condition fires, you pause in the next 60 minutes. Not "let me run it one more day." The data already spoke.</div></div>
+  <div class="doctrine-rule"><div class="doctrine-rule-num">04</div><div class="doctrine-rule-text"><strong>Every ad type must activate 3+ downstream systems.</strong> If it doesn't compound, it's not leverage. It's vanity.</div></div>
+  <div class="doctrine-rule"><div class="doctrine-rule-num">05</div><div class="doctrine-rule-text"><strong>Beehiiv source tags are your attribution layer.</strong> Add <strong>source-paid-meta</strong> and <strong>source-paid-google</strong> tags before spending a single dollar. Without attribution, you're flying blind.</div></div>
+</div>
+
+<!-- COMPOUND FLOW: CLICK-TO-DM -->
+<div class="compound-flow">
+  <div class="compound-flow-label">The Meta Click-to-DM Chain // One Click, Ten Systems</div>
+  <div class="flow-chain">
+    <div class="flow-node flow-ad"><strong>Ad</strong>Meta DM Ad</div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-node flow-sys"><strong>Sys 06</strong>ManyChat</div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-node flow-sys"><strong>Sys 03</strong>Tool</div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-node flow-sys"><strong>Sys 29</strong>Lead Magnet</div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-node flow-sys"><strong>Sys 28</strong>Welcome</div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-node flow-sys"><strong>Sys 15</strong>Evergreen</div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-node flow-sys"><strong>Sys 13</strong>Purchase</div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-node flow-sys"><strong>Sys 17</strong>Upsell</div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-node flow-rev"><strong>Revenue</strong>$29-$78</div>
+  </div>
+</div>
+
+<!-- PLATFORM RANKING -->
+<div class="plat-ref">
+  <div class="plat-ref-label">Platform Ranking // Ecosystem-Optimized</div>
+  <div class="plat-ref-grid">
+    <div class="plat-card">
+      <div class="plat-card-rank" style="color:var(--fire);">#1</div>
+      <div class="plat-card-name">Meta Ads</div>
+      <div class="plat-card-type">Click-to-Instagram DM</div>
+      <div class="plat-card-desc">One ad format activates your ENTIRE downstream chain. User taps "Send Message," DMs keyword, ManyChat fires, tool delivered, email captured, automations cascade. No other ad type touches this leverage ratio.</div>
+      <div class="plat-card-gates">Gates: 1, 2, 3, 4</div>
+    </div>
+    <div class="plat-card">
+      <div class="plat-card-rank" style="color:var(--amber);">#2</div>
+      <div class="plat-card-name">Google Search</div>
+      <div class="plat-card-type">Intent Capture</div>
+      <div class="plat-card-desc">Brandon is already searching for what you built. "How to start investing with $25" is a person who needs the Cost of Waiting Calculator RIGHT NOW. Intent > interruption at your price point.</div>
+      <div class="plat-card-gates">Gates: 3, 4</div>
+    </div>
+    <div class="plat-card">
+      <div class="plat-card-rank" style="color:var(--text3);">#3</div>
+      <div class="plat-card-name">YouTube Ads</div>
+      <div class="plat-card-type">Trust + Scale</div>
+      <div class="plat-card-desc">Pre-roll on competitor finance channels. Powerful at scale but requires proven video creative and higher CPV ($0.05-0.15 finance). Reserved for Phase 5+ when you have 10+ proven scripts.</div>
+      <div class="plat-card-gates">Gates: 4 only</div>
+    </div>
+  </div>
+</div>
+
+<!-- BUDGET LADDER -->
+<div class="budget-ladder">
+  <div class="budget-ladder-label">Budget Ladder // Every Dollar Justified at $18/hr</div>
+  <table class="budget-table">
+    <thead>
+      <tr><th>Revenue</th><th>Ad Budget</th><th>Hours Equiv.</th><th>Gate</th><th>Platform</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="budget-rev">$0/mo</td>
+        <td class="budget-spend">$70 one-time</td>
+        <td class="budget-hrs">3.9 hrs</td>
+        <td class="budget-gate">Gate 1</td>
+        <td class="budget-plat">Meta DM only</td>
+      </tr>
+      <tr>
+        <td class="budget-rev">Pre-sale</td>
+        <td class="budget-spend">$100 one-time</td>
+        <td class="budget-hrs">5.6 hrs</td>
+        <td class="budget-gate">Gate 2</td>
+        <td class="budget-plat">Meta DM + Traffic</td>
+      </tr>
+      <tr>
+        <td class="budget-rev">$500/mo</td>
+        <td class="budget-spend">$100/mo (20%)</td>
+        <td class="budget-hrs">5.6 hrs/mo</td>
+        <td class="budget-gate">Gate 3</td>
+        <td class="budget-plat">Meta DM + Google Search</td>
+      </tr>
+      <tr>
+        <td class="budget-rev">$2,000/mo</td>
+        <td class="budget-spend">$400/mo (20%)</td>
+        <td class="budget-hrs">22.2 hrs/mo</td>
+        <td class="budget-gate">Gate 3</td>
+        <td class="budget-plat">Meta DM + Google Search</td>
+      </tr>
+      <tr>
+        <td class="budget-rev">$5,000+/mo</td>
+        <td class="budget-spend">$1,250-1,500/mo (25-30%)</td>
+        <td class="budget-hrs">69-83 hrs/mo</td>
+        <td class="budget-gate">Gate 4</td>
+        <td class="budget-plat">All three platforms</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SEARCH -->
+<div class="search-wrap">
+  <input type="text" class="search-input" placeholder="Search gates, prompts, platforms..." id="searchInput">
+</div>
+
+<!-- GATE NAV -->
+<div class="gate-nav" id="gateNav">
+  <button class="gate-btn active" data-gate="all">All Gates</button>
+  <button class="gate-btn" data-gate="1">Gate 1: Signal</button>
+  <button class="gate-btn" data-gate="2">Gate 2: Pre-Sale</button>
+  <button class="gate-btn" data-gate="3">Gate 3: Evergreen</button>
+  <button class="gate-btn" data-gate="4">Gate 4: Scale</button>
+</div>
+
+<!-- SYSTEMS CONTAINER -->
+<div id="systemsContainer"></div>
+
+<!-- BOTTOM -->
+<div class="bottom">
+  <p>4 GATES. 4 KILL SWITCHES. 3 PLATFORMS. 10+ SYSTEMS AMPLIFIED.<br>GATE CONDITIONS ARE BINARY. KILL SWITCHES ARE IMMEDIATE.<br>THE MACHINE PAYS FOR ITS OWN FUEL.<br><span class="final">Ads don't build the machine. Ads feed the machine that's already running.</span></p>
+</div>
+
+</div>
+
+<script>
+// COUNTDOWN
+const target=new Date('2030-11-30T23:59:59');
+const now=new Date();
+const days=Math.ceil((target-now)/(1000*60*60*24));
+document.getElementById('days').innerHTML=days.toLocaleString()+'<span>DAYS</span>';
+
+const GATES = [
+// =============================================
+// GATE 1: SIGNAL ACCELERATOR
+// =============================================
+{
+  id:31, gate:1, gateColor:'#f97316',
+  title:'Signal Accelerator',
+  subtitle:'Meta Click-to-DM ads compress 14-day signal collection to 3-5 days',
+  phase:'Phase 2',
+  phaseSystem:'Runs during System 22 (Demand Signal Activation)',
+  budget:'$3-5/day for 14 days. Hard cap: $70.',
+  platform:'Meta Ads: Click-to-Instagram DM only',
+
+  triggers:[
+    'All 7 CashVault tools live with verified email capture (System 03 QA passed)',
+    'ManyChat 7 keywords live and tested from second account (System 06)',
+    'Beehiiv welcome automation deployed and test-verified (System 28)',
+    'Lead magnet double-value automation live (System 29)',
+    'Beehiiv tags source-paid-meta created and mapped',
+    'Meta Business Suite connected to @koutalksmoney with payment method added'
+  ],
+
+  upstream:['03','06','22','28','29'],
+  downstream:['22','23','24','09'],
+  amplified:['Supabase completions','ManyChat triggers','DM demand replies','Pillar lock speed'],
+
+  context:{
+    what:'Runs 2-3 Meta Click-to-DM ad creatives, each with a different keyword CTA (MYNUMBER, LEAK, ELITE800). Feeds strangers into ManyChat flows to generate Supabase completions and demand signals at 5-10x organic velocity.',
+    why:'<strong>You are buying data velocity, not customers.</strong> System 22 needs 50+ completions per tool and 10+ DM demand replies. Organic alone takes 14+ days. $70 compresses this to 3-5 days. 7 days saved = 7 days closer to first revenue.',
+    how:'Create Meta Business account. Set up 3 ad sets targeting 18-24 finance interests in US. Click-to-DM objective. Each ad ends with "DM me [KEYWORD]." ManyChat handles everything downstream.',
+    budget:'<strong>$70 total = 3.9 hours at $18/hr.</strong> One-time data purchase. Not an ongoing campaign. Turn off the moment signals hit threshold.'
+  },
+
+  prompt:`You are a Meta Ads architect specializing in Click-to-Instagram DM campaigns for Gen Z audiences. I run "Kou Talks Money" (@koutalksmoney). I need to run a 14-day signal acceleration campaign using Click-to-DM ads to compress my demand signal collection (System 22) timeline.
+
+TASK: Build complete Meta Click-to-DM ad campaign for signal collection.
+
+CONTEXT:
+- Objective: Data velocity, NOT sales. I'm collecting Supabase tool completion data and DM demand replies.
+- Budget: $3-5/day, 14 days max, hard cap $70
+- Platform: Meta Ads Manager, Click-to-Instagram DM objective
+- IG Account: @koutalksmoney (Business/Creator type)
+- ManyChat: 7 keyword flows live (AUTOPILOT, LEAK, ELITE800, MYNUMBER, CHEAT, BUILD50, PAYDAY)
+- Target: 18-24 year olds, US, interests in personal finance, budgeting, investing, side hustles
+
+AD CREATIVES (3 ad sets, testing 3 keywords):
+Ad Set A: Keyword MYNUMBER
+  Hook: "Your Freedom Number is one calculation. 10 seconds."
+  CTA: DM me MYNUMBER and I'll send it.
+  Tool: Freedom Calculator (https://kou.money/freedom-calculator)
+
+Ad Set B: Keyword LEAK
+  Hook: "Every year you wait to invest $25/week costs you $17,000 by 40."
+  CTA: DM me LEAK and I'll prove it.
+  Tool: Cost of Waiting Calculator (https://kou.money/cost-of-waiting)
+
+Ad Set C: Keyword ELITE800
+  Hook: "A 650 credit score costs you $3,000 more on a car loan than an 800."
+  CTA: DM me ELITE800 and I'll show you how.
+  Tool: 800-Club Protocol (https://kou.money/800-club)
+
+DELIVERABLES:
+1. Meta Ads Manager setup: step-by-step account creation, pixel installation, payment
+2. Campaign structure: 1 campaign, 3 ad sets, audience targeting per set
+3. Ad creative specs: primary text (under 125 characters), headline, CTA button config
+4. Click-to-DM configuration: how to connect IG DM as destination
+5. Budget allocation: how to split $3-5/day across 3 ad sets
+6. ManyChat verification: ensure keyword triggers fire from ad-initiated DMs
+7. Tracking setup: UTM parameters, Beehiiv source-paid-meta tag configuration
+8. Daily monitoring checklist: 3 metrics to check, 5 min/day max
+9. Day 3, Day 7, Day 10 optimization triggers: when to kill underperforming ad set and reallocate
+
+FORMAT: Sequential numbered steps. One action per step. Include exact Meta Ads Manager menu paths. Ad copy as paste-ready text blocks.`,
+
+  outputSpec:`EXPECTED OUTPUT:
+- Account setup: 8-12 steps with Meta Ads Manager paths
+- Campaign structure table: Campaign | Ad Set | Audience | Daily Budget | Keyword
+- 3 ad creatives: Primary Text + Headline + CTA (under 125 chars primary)
+- Click-to-DM config: 5-7 steps
+- Budget split rationale (equal vs weighted)
+- ManyChat verification: 3-5 steps
+- Tracking: UTM format + Beehiiv tag setup (4-6 steps)
+- Monitoring checklist: 3 daily metrics
+- Optimization triggers: Day 3/7/10 decision matrix
+- Total: 1,200-1,600 words. Zero guesswork. Every step = one click in Ads Manager.`,
+
+  verification:[
+    {type:'pass',text:'Click-to-DM ad sends user to IG DM with pre-filled keyword'},
+    {type:'pass',text:'ManyChat fires instantly on ad-initiated DM (test from second account via ad preview)'},
+    {type:'pass',text:'Correct tool link delivered in ManyChat instant reply'},
+    {type:'pass',text:'Supabase logs completion with source attribution within 24 hours'},
+    {type:'pass',text:'Beehiiv subscriber tagged source-paid-meta on email capture'},
+    {type:'pass',text:'Daily spend stays within $3-5/day range'},
+    {type:'pass',text:'50+ total tool completions reached before $70 cap'},
+    {type:'fail',text:'DM not opening = Click-to-DM objective not selected in campaign setup'},
+    {type:'fail',text:'ManyChat not firing = keyword trigger set to "exact match" but ad pre-fills differently'},
+    {type:'fail',text:'No completions logged = Supabase trackVisit() not firing or RLS blocking'},
+    {type:'fail',text:'Spending too fast ($10+/day) = daily budget cap not set at ad set level'},
+    {type:'fail',text:'Ad rejected = finance category restrictions, rewrite without income claims'}
+  ],
+
+  killSwitch:`KILL SWITCH CONDITIONS (pause within 60 minutes if ANY fires):
+1. $70 spent = HARD STOP regardless of results. This is a data purchase, not an ongoing campaign.
+2. 50+ completions per tool reached = MISSION COMPLETE. Turn off immediately. Signal data sufficient for System 23.
+3. Cost per DM conversation exceeds $3.00 after Day 3 = targeting too broad or creative failing. Pause, diagnose, relaunch only if fixable.
+4. Zero ManyChat triggers after 20+ DM conversations = technical failure between ad and ManyChat. Pause and fix System 06 before spending another dollar.
+5. Meta ad account flagged/restricted = STOP. Do not create new account. Appeal through official channel. Use organic System 22 as fallback.
+
+POST-KILL PROTOCOL: Export all data before pausing. Supabase completions per tool. ManyChat triggers per keyword. DM demand replies. This data feeds System 23 regardless of whether ads continue.`,
+
+  escalation:`Gate 1 ads running [X] days. Performance data:
+SPEND: $[X] of $70 cap | CPC: $[X] | Cost per DM: $[X]
+AD SET A (MYNUMBER): Impressions [X] | Clicks [X] | DMs [X] | Completions [X]
+AD SET B (LEAK): Impressions [X] | Clicks [X] | DMs [X] | Completions [X]
+AD SET C (ELITE800): Impressions [X] | Clicks [X] | DMs [X] | Completions [X]
+MANYCHAT TRIGGERS: [X] total | SUPABASE COMPLETIONS: [X] total
+BEEHIIV NEW SUBS (source-paid-meta): [X]
+
+Questions:
+1. Is cost per DM healthy for Gen Z finance niche? Benchmark?
+2. Which ad set should I kill vs double down on at Day 7?
+3. Are my signals sufficient for System 23 pillar lock, or do I need the full 14 days?
+4. If completions-per-DM ratio is below 30%, where is the funnel leaking (ManyChat > Tool > Email)?
+
+Diagnose with data. One primary optimization. Show exact Ads Manager path to implement.`
+},
+
+// =============================================
+// GATE 2: PRE-SALE COLD WAVE
+// =============================================
+{
+  id:32, gate:2, gateColor:'#ef4444',
+  title:'Pre-Sale Cold Wave',
+  subtitle:'Paid cold traffic replaces manual outreach in System 24 Wave 2',
+  phase:'Phase 2',
+  phaseSystem:'Runs during System 24 (Pre-Sale Launch), Week 2 ONLY',
+  budget:'$5-10/day for 7-10 days. Hard cap: $100.',
+  platform:'Meta Ads: Click-to-DM (primary) + Traffic to MVO page (secondary)',
+
+  triggers:[
+    'Pillar locked from System 23 with 2-of-3 signal convergence',
+    'MVO pre-sale page live with working payment (System 24)',
+    'System 24 Wave 1 (organic warm) completed showing 3%+ conversion',
+    'Exit-capture survey functional on MVO page',
+    'UTM tracking verified: ?utm_source=paid_cold resolves correctly',
+    'Gate 1 data confirms cost-per-DM under $2.50 for your targeting'
+  ],
+
+  upstream:['23','24 (Wave 1)','12','13'],
+  downstream:['24 (Validation Matrix)','25','13','09'],
+  amplified:['Cold conversion data','Validation matrix speed','Exit-survey volume','Pre-sale buyer count'],
+
+  context:{
+    what:'Two ad formats running simultaneously during System 24 Week 2. Ad A: Click-to-DM with pre-sale keyword delivering MVO link via ManyChat. Ad B: Direct traffic to MVO page with ?utm_source=paid_cold UTM. Tests whether STRANGERS respond to your offer.',
+    why:'<strong>Replaces manual cold outreach with scalable, trackable paid traffic.</strong> System 24 Wave 2 requires cold traffic for validation matrix. Manual community outreach is slow, untrackable, and capped by your time. $100 buys 500-1,000 cold visitors in 7 days.',
+    how:'Duplicate Gate 1 campaign structure. Update creative for pre-sale messaging. Add traffic ad set pointing to MVO page. Split budget 60/40 (DM/traffic). Track UTM separation.',
+    budget:'<strong>$100 total = 5.6 hours at $18/hr.</strong> Break-even at ~4 pre-sale purchases ($29 x 4 = $116). If pre-sale converts, ads paid for themselves.'
+  },
+
+  prompt:`You are a Meta Ads conversion specialist for Gen Z digital product pre-sales. I run "Kou Talks Money" (@koutalksmoney). I validated warm demand (System 24 Wave 1) and now need paid cold traffic to complete my validation matrix.
+
+TASK: Build complete Wave 2 paid cold traffic campaign with dual ad format and UTM separation.
+
+CONTEXT:
+- Pillar locked: [PASTE YOUR LOCKED PILLAR from System 23 output]
+- Product: [PASTE YOUR PRODUCT CONCEPT STATEMENT from System 23]
+- Price: $29 | MVO page: [PASTE YOUR MVO PAGE URL from System 24]
+- Wave 1 results: [PASTE WARM CONVERSION: views, purchases, rate]
+- Gate 1 data: cost per DM was $[X], best-performing keyword was [X]
+- Budget: $5-10/day, 7-10 days, hard cap $100
+
+DUAL AD FORMAT:
+Ad Format A (60% budget): Click-to-DM
+  Keyword: SETUP (or your pre-sale keyword from System 24)
+  ManyChat delivers: pre-sale MVO page link with ?utm_source=paid_cold_dm
+  Why DM first: conversation creates micro-commitment before seeing price
+
+Ad Format B (40% budget): Direct Traffic
+  Destination: MVO page with ?utm_source=paid_cold_traffic
+  Why direct: tests raw page conversion without ManyChat warmth
+  This data point is critical: if DM converts but direct doesn't, your ManyChat copy is carrying the sale, not your page.
+
+AUDIENCE:
+- Primary: 18-24, US, finance interests (reuse Gate 1 targeting that performed best)
+- Exclusion: Custom audience of existing followers + email list (these are warm, not cold)
+- Lookalike: If email list > 500, create 1% lookalike. If not, skip.
+
+DELIVERABLES:
+1. Campaign structure: 1 campaign, 2 ad sets (DM + Traffic), budget split
+2. Ad creative for both formats (pain headline from MVO page, under 125 chars)
+3. Audience exclusion setup (follower + email list)
+4. UTM architecture: paid_cold_dm vs paid_cold_traffic separation
+5. ManyChat pre-sale flow: keyword trigger, MVO link delivery, follow-up nudge
+6. Daily monitoring: 3 metrics, 5 min/day
+7. Day 3 and Day 7 optimization decisions
+8. Validation matrix integration: how to feed data into System 24 quadrants
+
+FORMAT: Campaign setup first. Creative second. Monitoring and optimization third. Validation integration last.`,
+
+  outputSpec:`EXPECTED OUTPUT:
+- Campaign structure table: Ad Set | Format | Budget Split | Audience | UTM
+- 2 ad creatives: DM version + Traffic version (under 125 chars each)
+- Audience exclusion: 4-6 steps in Ads Manager
+- UTM architecture: parameter table with 4 tracked variants
+- ManyChat flow: 4-6 steps for pre-sale keyword
+- Monitoring: 3 metrics x 2 formats = 6 data points daily
+- Optimization: Day 3/7 decision tree (IF DM > traffic THEN... etc.)
+- Validation matrix feed: which numbers go in which quadrant
+- Total: 1,000-1,400 words. Every data point maps to a System 24 decision.`,
+
+  verification:[
+    {type:'pass',text:'DM ad generates conversations with pre-sale link delivered via ManyChat'},
+    {type:'pass',text:'Traffic ad sends to MVO page with correct UTM parameters'},
+    {type:'pass',text:'UTM data separates paid_cold_dm from paid_cold_traffic in analytics'},
+    {type:'pass',text:'Existing followers and email list excluded from targeting'},
+    {type:'pass',text:'100+ cold visitors within 7 days across both formats'},
+    {type:'pass',text:'Exit-capture survey receives responses from paid visitors'},
+    {type:'pass',text:'At least 1 pre-sale purchase from cold paid traffic'},
+    {type:'fail',text:'Warm audience seeing ads = exclusion list not uploaded or applied'},
+    {type:'fail',text:'UTM not tracking = parameters stripped by redirect or typo in URL'},
+    {type:'fail',text:'DM converts but traffic does not = page copy weak, ManyChat carrying'},
+    {type:'fail',text:'Neither converts = offer problem, not traffic. Check exit-survey.'},
+    {type:'fail',text:'Spending over $10/day = daily budget cap misconfigured'}
+  ],
+
+  killSwitch:`KILL SWITCH CONDITIONS (pause within 60 minutes if ANY fires):
+1. $100 spent = HARD STOP. Data collection complete regardless of results.
+2. MVO page conversion below 1% after 500+ paid visitors = page problem, not traffic. Pause ads. Diagnose with exit-survey data. Fix page FIRST.
+3. Cost per DM conversation exceeds $3.00 on Day 3 = creative fatigue or targeting issue. Pause, refresh creative with different pain angle.
+4. Zero purchases AND zero exit-survey responses after $50 spent = tracking broken or page not loading. Check immediately.
+5. Warm Wave 1 conversion drops during Week 2 = ad-driven traffic tanking overall metrics. Isolate UTMs immediately.
+
+POST-KILL PROTOCOL: Feed ALL data into System 24 validation matrix immediately:
+- Warm (organic): Views [X] | Purchases [Y] | Conversion [Z]%
+- Cold DM (paid): Views [X] | Purchases [Y] | Conversion [Z]%
+- Cold Traffic (paid): Views [X] | Purchases [Y] | Conversion [Z]%
+- Exit-survey by source: breakdown per variant
+Apply matrix. GREEN = build. YELLOW = rewrite page. RED = pivot concept.`,
+
+  escalation:`Gate 2 ads running [X] days during System 24 Wave 2:
+TOTAL SPEND: $[X] of $100 cap
+AD SET A (DM): Impressions [X] | DMs [X] | Cost/DM $[X] | MVO visits [X] | Purchases [X]
+AD SET B (Traffic): Impressions [X] | Clicks [X] | CPC $[X] | MVO visits [X] | Purchases [X]
+EXIT-SURVEY (paid visitors): Too expensive [X] | Not what I need [X] | Not sure what I get [X]
+
+VALIDATION MATRIX INPUT:
+Warm (System 24 Wave 1): [X]% conversion
+Cold DM (paid): [X]% conversion
+Cold Traffic (paid): [X]% conversion
+
+1. Which quadrant am I in? (GREEN / YELLOW / RED)
+2. If DM converts but traffic doesn't: is ManyChat copy the sole conversion driver? Implications for evergreen scaling?
+3. Cost per acquisition: $[X]. At $29 product, is this sustainable at Gate 3 scale?
+4. Exit-survey diagnosis: which response is highest for paid visitors vs organic?
+
+Apply matrix. Give me ONE decision with reasoning. Build, rewrite, or pivot.`
+},
+
+// =============================================
+// GATE 3: EVERGREEN FUEL
+// =============================================
+{
+  id:33, gate:3, gateColor:'#f59e0b',
+  title:'Evergreen Fuel',
+  subtitle:'Revenue-funded always-on ads feeding automated sales pipeline',
+  phase:'Phase 4',
+  phaseSystem:'Activates after Systems 15 + 17 live for 30+ days',
+  budget:'20% of monthly revenue. Minimum $100/mo. Scales with revenue.',
+  platform:'Meta Click-to-DM (80% budget) + Google Search (20% budget)',
+
+  triggers:[
+    'Evergreen funnel (System 15) has processed 50+ subscribers with tracked conversion data',
+    'Upsell automation (System 17) has processed 10+ Bronze buyers with upsell rate data',
+    'Customer Lifetime Value (CLV) calculated from real data and exceeds $10',
+    'Monthly revenue exceeds $500 consistently for 2+ months',
+    'Email list exceeds 500 (minimum for Meta lookalike audience)',
+    'Beehiiv source-paid-meta AND source-paid-google tags created and tested',
+    'Google Ads account created with payment method and conversion tracking installed'
+  ],
+
+  upstream:['15','17','13','16','27 (if PMF tested)'],
+  downstream:['06','09','15','16','17','22','27','28','29','30'],
+  amplified:['Evergreen pipeline volume 3-10x','Upsell opportunities','CLV data precision','PMF survey sample size','Segmentation richness'],
+
+  context:{
+    what:'Always-on ad engine funded by revenue. Meta Click-to-DM ads (80%) feed ManyChat keyword flows at scale. Google Search ads (20%) capture Brandon searching for what you already built. Every new subscriber enters the fully automated pipeline: tool completion, lead magnet, welcome sequence, evergreen sales, upsell.',
+    why:'<strong>This is where compound interest on infrastructure kicks in.</strong> Every system from Phase 0-3 is live and automated. Ads are now pouring fuel into a machine that converts WITHOUT you. Your only job: monitor ROAS weekly.',
+    how:'Scale Gate 1 Meta campaign to always-on with lookalike audiences. Add Google Search ads on 3-5 intent keywords matching your tools. Set weekly ROAS review on Sunday (extends System 11 CEO audit).',
+    budget:'<strong>20% of revenue. At $500/mo = $100/mo. At $2,000/mo = $400/mo.</strong> Revenue dips below threshold = ads pause automatically. The machine fuels itself or it stops.'
+  },
+
+  prompt:`You are a performance marketing architect specializing in automated evergreen funnels for solo creators. I run "Kou Talks Money" (@koutalksmoney, @FinanceWithKou). My product sales pipeline is fully automated (Phases 0-3 complete). I need an always-on paid acquisition engine that scales with revenue.
+
+TASK: Build dual-platform evergreen ad engine with ROAS tracking and auto-scaling rules.
+
+CONTEXT:
+- Monthly revenue: $[PASTE CURRENT MONTHLY REVENUE from System 09 dashboard]
+- Email list: [PASTE SUBSCRIBER COUNT from Beehiiv]
+- CLV: $[PASTE YOUR CALCULATED CLV -- total revenue / total unique buyers]
+- Evergreen conversion rate: [PASTE from System 15 data -- subscribers who entered evergreen / purchases]%
+- Upsell rate: [PASTE from System 17 data -- Bronze buyers / Silver upgrades]%
+- Best keyword from Gate 1: [PASTE -- which keyword CTA drove highest completions]
+- Product: [PASTE PRODUCT NAME and PRICE]
+- Ad budget: 20% of revenue = $[CALCULATE]
+
+PLATFORM A: META CLICK-TO-DM (80% of ad budget)
+Audience Strategy:
+- Lookalike 1%: Based on email subscriber list (500+ minimum)
+- Lookalike 1%: Based on buyer list (if 100+ buyers)
+- Interest-based: 18-24, US, personal finance/budgeting/investing
+- Retargeting: Website visitors who didn't subscribe (requires Meta Pixel on all 7 tools)
+- Exclusion: Current subscribers + buyers (they're already in the funnel)
+
+Creative Rotation:
+- 3-5 ad creatives rotating keywords based on Gate 1 performance data
+- Refresh creative every 14 days to prevent fatigue
+- Test: pain-first vs number-first vs question-first hooks
+
+PLATFORM B: GOOGLE SEARCH (20% of ad budget)
+Keywords (5 campaigns, 1 keyword group each):
+1. "how to start investing with $25" -> Cost of Waiting Calculator
+2. "how to build credit score fast" -> 800-Club Protocol
+3. "financial freedom calculator" -> Freedom Calculator
+4. "budget calculator for college students" -> Budget Calculator
+5. "automate savings paycheck" -> Autopilot System
+
+Landing Pages: Existing CashVault tools (already have email capture + Supabase tracking)
+Match Type: Phrase match (balance volume vs relevance)
+Negative Keywords: "app download", "free course", "Dave Ramsey" (filter irrelevant intent)
+
+DELIVERABLES:
+1. Meta campaign structure: audiences, budgets, creative rotation schedule
+2. Meta Pixel installation guide for all 7 CashVault tools
+3. Google Ads account setup: campaigns, ad groups, keywords, negatives, bid strategy
+4. Google ad copy: 3 responsive search ads (15 headlines, 4 descriptions per campaign)
+5. Weekly ROAS review protocol (extends System 11 Sunday audit, 10 min max)
+6. Auto-scaling rules: when to increase/decrease spend based on ROAS
+7. Creative refresh calendar: what to change every 14 days
+8. Monthly channel comparison: paid meta CLV vs paid google CLV vs organic CLV
+9. Budget reallocation triggers: when to shift 80/20 split
+
+NEW BEEHIIV TAGS REQUIRED:
+- source-paid-meta (existing from Gate 1)
+- source-paid-google (new)
+- source-paid-retarget (new, for retargeting pixel visitors)
+
+FORMAT: Meta setup first. Google setup second. Monitoring and scaling third. Channel comparison framework last.`,
+
+  outputSpec:`EXPECTED OUTPUT:
+- Meta structure: 4 audience types x budget allocation table
+- Pixel installation: 5-7 steps for CashVault tools
+- Google Ads: 5 campaigns with keywords, negatives, bid strategy
+- Google ad copy: 15 headlines + 4 descriptions per campaign (75 headlines, 20 descriptions total)
+- ROAS review: 8-10 metrics in checklist format (10 min Sunday)
+- Auto-scaling: IF ROAS > 2.5 THEN increase 20% / IF ROAS < 1.5 THEN decrease 30% (decision tree)
+- Creative refresh: 14-day calendar with what to change
+- Channel comparison: table template with CLV by source
+- Budget reallocation: 3 trigger conditions
+- Total: 1,800-2,400 words. Most complex gate. Every number is a lever.`,
+
+  verification:[
+    {type:'pass',text:'Meta ads generating DM conversations within 24 hours of launch'},
+    {type:'pass',text:'Google ads showing impressions on all 5 keyword campaigns'},
+    {type:'pass',text:'Meta Pixel firing on all 7 CashVault tools (verify in Events Manager)'},
+    {type:'pass',text:'New subscribers tagged source-paid-meta or source-paid-google correctly'},
+    {type:'pass',text:'Weekly ROAS above 1.5:1 blended across both platforms'},
+    {type:'pass',text:'Monthly CLV by channel shows paid subscribers within 80% of organic CLV'},
+    {type:'pass',text:'Evergreen funnel (System 15) processing 3-10x more subscribers than pre-ads'},
+    {type:'pass',text:'Budget stays at 20% of revenue (auto-adjusts monthly)'},
+    {type:'fail',text:'ROAS below 1.0 for 7+ days = creative fatigue or audience exhaustion. Refresh immediately.'},
+    {type:'fail',text:'Google CPC above $5 = keyword too competitive. Shift to long-tail variants.'},
+    {type:'fail',text:'Paid CLV significantly below organic CLV = paid traffic quality lower. Tighten targeting.'},
+    {type:'fail',text:'Pixel not firing = script blocked by browser or incorrect installation'},
+    {type:'fail',text:'Retargeting audience too small (<1,000) = insufficient traffic. Focus on prospecting first.'}
+  ],
+
+  killSwitch:`KILL SWITCH CONDITIONS:
+1. Blended ROAS below 1.5:1 for 14 consecutive days = PAUSE all ads. Diagnose: creative fatigue, audience saturation, or funnel degradation (check Systems 15/17 conversion rates).
+2. Monthly ad spend exceeds 25% of revenue for 2 consecutive months without proportional growth = over-investing in acquisition. Cut to 15% and focus on CLV improvement.
+3. Paid subscriber CLV drops below $8 (below break-even at $6-8 CPA) = traffic quality problem. Tighten all audiences, kill lowest-performing ad sets.
+4. Google CPC spikes above $5 sustained = pause Google, reallocate to Meta until costs normalize (seasonal finance keyword inflation, especially Q1 tax season and Q4).
+5. Email deliverability drops below 95% (check System 30) = list growing too fast without engagement. Pause ads until System 30 re-engagement cleans the list.
+
+RECOVERY PROTOCOL:
+After any kill switch fires:
+A. Export all campaign data (impressions, clicks, conversions, cost by ad set)
+B. Compare last 7 days vs previous 14 days for degradation pattern
+C. Identify single highest-impact variable (creative / audience / funnel / external)
+D. Fix the variable. Wait 7 days organic-only. Relaunch with fix applied.
+E. If same kill switch fires again within 14 days = structural problem. Revisit System 27 PMF data.`,
+
+  escalation:`Gate 3 evergreen ads running [X] weeks:
+MONTHLY OVERVIEW:
+Revenue: $[X] | Ad spend: $[X] ([X]% of revenue) | ROAS: [X]:1
+New subs (paid): [X] | New subs (organic): [X] | Blended CPA: $[X]
+
+META PERFORMANCE:
+Lookalike: CTR [X]% | CPC $[X] | DMs [X] | Cost/DM $[X]
+Interest: CTR [X]% | CPC $[X] | DMs [X] | Cost/DM $[X]
+Retarget: CTR [X]% | CPC $[X] | DMs [X] | Cost/DM $[X]
+Best creative: [DESCRIBE -- which hook/keyword performed best]
+
+GOOGLE PERFORMANCE:
+Campaign 1 (investing $25): Impressions [X] | Clicks [X] | CPC $[X] | Conversions [X]
+Campaign 2 (credit score): Impressions [X] | Clicks [X] | CPC $[X] | Conversions [X]
+Campaign 3 (freedom calc): Impressions [X] | Clicks [X] | CPC $[X] | Conversions [X]
+Campaign 4 (budget calc): Impressions [X] | Clicks [X] | CPC $[X] | Conversions [X]
+Campaign 5 (automate savings): Impressions [X] | Clicks [X] | CPC $[X] | Conversions [X]
+
+CLV BY CHANNEL:
+Organic: $[X] | Paid Meta: $[X] | Paid Google: $[X] | Retarget: $[X]
+
+1. Is my ROAS healthy for a solo creator at my revenue level? Benchmark?
+2. Which platform should get budget shift (current 80/20)?
+3. Which Google campaign should I kill vs scale?
+4. Creative refresh needed? What angle to test next based on data?
+5. Am I ready for Gate 4? Check all 5 conditions.
+
+Optimize with data. Maximum 3 changes this week. Prioritize by revenue impact.`
+},
+
+// =============================================
+// GATE 4: SCALE ENGINE
+// =============================================
+{
+  id:34, gate:4, gateColor:'#10b981',
+  title:'Scale Engine',
+  subtitle:'Full-funnel three-platform acquisition at $5K+/mo revenue',
+  phase:'Phase 5-6',
+  phaseSystem:'Activates after PMF confirmed (System 27) + Revenue > $5K/mo',
+  budget:'25-30% of monthly revenue ($1,250-3,000+/mo)',
+  platform:'Meta (50%) + Google Search (30%) + YouTube Pre-Roll (20%)',
+
+  triggers:[
+    'PMF confirmed: 40%+ "Very disappointed" on Sean Ellis test (System 27)',
+    'Monthly revenue exceeds $5,000 for 2+ consecutive months',
+    'Email list exceeds 2,000 subscribers',
+    'Gate 3 blended ROAS above 2:1 for 60+ consecutive days',
+    'At least 2 active revenue streams (product + upsell, product + community, or product + brand)',
+    '10+ proven organic video scripts with engagement data (for YouTube creative)',
+    'Retargeting pixel audience exceeds 5,000 unique visitors'
+  ],
+
+  upstream:['27 (PMF)','15','17','20 (if community)','19 (if brand deals)','18 (SOPs)'],
+  downstream:['All revenue systems','21 (Revenue Allocation)','09 (Dashboard)'],
+  amplified:['Total revenue velocity','Community growth (System 20)','Brand deal negotiation leverage (System 19)','Revenue allocation pipeline volume (System 21)'],
+
+  context:{
+    what:'Three-platform full-funnel acquisition. Meta for volume (DM + retargeting). Google Search for intent capture at scale. YouTube pre-roll for trust-building on competitor channels. Retargeting pixels close loops across all platforms. Buyer lookalike audiences maximize quality.',
+    why:'<strong>PMF is confirmed. The machine works. Now pour gasoline.</strong> Every system is automated. CLV is proven. The only constraint on revenue is the number of people entering the top of the funnel. Ads remove that constraint.',
+    how:'Scale Gate 3 Meta + Google campaigns. Add YouTube pre-roll targeting competitor finance channels. Build cross-platform retargeting. Weekly P&L review integrates with System 21 revenue allocation.',
+    budget:'<strong>25-30% of revenue. $5K/mo = $1,250-1,500/mo ads. $10K/mo = $2,500-3,000/mo.</strong> At this level, ads are a line item on your P&L (System 21), not an experiment.'
+  },
+
+  prompt:`You are a growth marketing director for a scaled solo creator business generating $5K+/month. I run "Kou Talks Money" (@koutalksmoney, @FinanceWithKou). PMF is confirmed. Evergreen pipeline is automated. I need a three-platform full-funnel acquisition engine.
+
+TASK: Build complete three-platform ad engine with cross-channel retargeting, budget allocation, and P&L integration.
+
+CONTEXT:
+- Monthly revenue: $[PASTE from System 09/21]
+- PMF score: [PASTE "Very disappointed" % from System 27] (must be 40%+)
+- Email list: [PASTE from Beehiiv] (must be 2,000+)
+- Gate 3 ROAS: [PASTE 60-day blended ROAS]
+- Active revenue streams: [LIST: product / upsell / community / brand deals]
+- CLV by channel: Organic $[X] | Paid Meta $[X] | Paid Google $[X]
+- Top 10 organic video hooks: [PASTE YOUR 10 BEST-PERFORMING VIDEO HOOKS from System 08 content -- ranked by views or engagement. These become YouTube ad scripts.]
+- Budget: 25-30% of revenue = $[CALCULATE]
+
+PLATFORM A: META ADS (50% of budget)
+Upgrade from Gate 3:
+- Scale lookalike audiences: 1% buyers, 1% subscribers, 2% tool visitors
+- Add dynamic retargeting: show specific tool ad to people who visited THAT tool but didn't convert
+- Creative library: 8-10 rotating creatives across all 7 pillars
+- Advantage+ Shopping campaigns for product (if available for digital)
+
+PLATFORM B: GOOGLE SEARCH (30% of budget)
+Upgrade from Gate 3:
+- Scale from 5 to 15-20 keyword campaigns
+- Add branded keywords ("Kou Talks Money", "CashVault", "Freedom Calculator")
+- Performance Max campaign for broader reach
+- Remarketing lists for search ads (RLSA): higher bids for returning visitors
+
+PLATFORM C: YOUTUBE ADS (20% of budget, NEW at Gate 4)
+Strategy:
+- In-stream skippable pre-roll on competitor finance channels
+- Creative: repurpose top 10 organic hooks as 15-30 second ads
+- Targeting: custom intent audiences (searched finance keywords) + channel placements
+- CTA: "DM me [KEYWORD] on Instagram" or direct to tool landing page
+- Companion banner linking to CashVault tool
+
+CROSS-PLATFORM RETARGETING:
+- Meta Pixel on all tools + MVO + sales pages
+- Google Remarketing tag on same pages
+- YouTube viewer retargeting: show Meta/Google ads to people who watched 50%+ of YT ad
+- Unified attribution window: 7-day click, 1-day view
+
+DELIVERABLES:
+1. Three-platform campaign architecture (visual structure)
+2. Budget allocation: Platform | Campaign Type | % | Monthly $ | Expected CPA
+3. YouTube ad setup: account, campaign, targeting, 3 script templates from organic hooks
+4. Cross-platform retargeting setup: pixels, audiences, exclusions
+5. Weekly optimization protocol: 15-minute Sunday review (extends System 11)
+6. Monthly P&L integration: ad line items mapping to System 21 categories
+7. Quarterly strategy review: when to shift platform allocation
+8. Scaling triggers: when to move from 25% to 30% of revenue
+9. Competitor monitoring: track CPM trends in finance vertical
+
+FORMAT: Architecture overview first. Platform-by-platform setup second. Cross-platform third. Monitoring and P&L last.`,
+
+  outputSpec:`EXPECTED OUTPUT:
+- Architecture diagram (text-based): 3 platforms x campaign types x audiences
+- Budget allocation table: 8-12 rows with platform, type, %, dollars, target CPA
+- YouTube setup: 12-15 steps with YouTube Ads Manager paths
+- 3 YouTube script templates (under 30 seconds each, adapted from organic hooks)
+- Cross-platform retargeting: pixel setup (8-10 steps) + audience creation (6-8 steps)
+- Weekly protocol: 10-12 metrics across 3 platforms (15 min max)
+- P&L mapping: ad spend categories matching System 21 Wave accounting
+- Quarterly review: 5-question strategy assessment
+- Scaling triggers: 3 conditions for budget increase
+- Total: 2,200-2,800 words. Most sophisticated gate. Full marketing operations.`,
+
+  verification:[
+    {type:'pass',text:'All three platforms running with correct budget allocation'},
+    {type:'pass',text:'YouTube ads generating views with 25%+ view-through rate'},
+    {type:'pass',text:'Cross-platform retargeting firing correctly (visitor on tool sees ad on different platform)'},
+    {type:'pass',text:'Blended ROAS above 2:1 across all platforms'},
+    {type:'pass',text:'Monthly P&L accurately reflects ad spend by platform'},
+    {type:'pass',text:'Sunday review takes under 15 minutes'},
+    {type:'pass',text:'Revenue growth rate exceeds ad spend growth rate (positive leverage)'},
+    {type:'pass',text:'CLV by channel within 20% of each other (traffic quality consistent)'},
+    {type:'fail',text:'YouTube CPA 3x higher than Meta = creative not resonating. Test different hooks.'},
+    {type:'fail',text:'Retargeting audiences too small = not enough top-of-funnel volume. Increase prospecting budget.'},
+    {type:'fail',text:'Blended ROAS below 1.5 = one platform dragging average. Isolate and pause.'},
+    {type:'fail',text:'Revenue growth flat despite ad increase = market saturation at current offer. New product needed (System 27 v2).'},
+    {type:'fail',text:'P&L shows ad spend exceeding 35% of revenue = over-investing. Cut to 20% immediately.'}
+  ],
+
+  killSwitch:`KILL SWITCH CONDITIONS:
+1. Blended ROAS below 1.5:1 for 21 consecutive days across all platforms = PAUSE lowest performer. Run remaining 2 platforms for 14 days. If still below 1.5, pause all and diagnose.
+2. Monthly ad spend exceeds 35% of revenue = IMMEDIATE budget cut to 20%. Over-acquisition without proportional revenue = structural problem.
+3. Any single platform ROAS below 1.0 for 14 days = KILL that platform's spend. Reallocate to remaining platforms.
+4. Customer acquisition cost (CAC) exceeds CLV on any channel = KILL that channel immediately. You are paying more to acquire customers than they are worth.
+5. YouTube view-through rate below 15% after creative refresh = audience targeting wrong. Pause YouTube, shift budget to Meta + Google.
+6. Revenue growth stalls for 3 consecutive months despite stable ad spend = market signal. Not an ad problem. Product or market problem. Return to System 27 for next iteration.
+
+NUCLEAR OPTION: If 3+ kill switches fire in the same month, PAUSE ALL paid ads. Return to Gate 3 levels ($100-400/mo). Run organic only for 30 days. Diagnose whether the issue is ads, funnel, product, or market. Only re-engage Gate 4 when root cause is fixed and Gate 3 metrics recover.`,
+
+  escalation:`Gate 4 full-funnel running [X] months:
+MONTHLY P&L:
+Revenue: $[X] | Total ad spend: $[X] ([X]% of revenue) | Net after ads: $[X]
+Blended ROAS: [X]:1 | Blended CPA: $[X] | CLV: $[X]
+
+META (50%): Spend $[X] | ROAS [X]:1 | CPA $[X]
+  Lookalike: [X] conversions | Retarget: [X] conversions | Interest: [X] conversions
+  Best creative: [DESCRIBE]
+
+GOOGLE (30%): Spend $[X] | ROAS [X]:1 | CPA $[X]
+  Top keyword: [X] | Worst keyword: [X]
+  Branded search volume: [X]/mo (growth indicator)
+
+YOUTUBE (20%): Spend $[X] | ROAS [X]:1 | CPA $[X]
+  View-through rate: [X]% | Top placement: [X]
+  DM triggers from YT viewers: [X]
+
+CROSS-PLATFORM:
+Retargeting ROAS: [X]:1 (should be highest)
+Multi-touch attribution: [X]% of buyers saw ads on 2+ platforms
+
+GROWTH:
+Revenue MoM growth: [X]%
+Subscriber MoM growth: [X]%
+Ad spend MoM growth: [X]%
+
+1. Is my platform allocation optimal? Should I shift the 50/30/20 split?
+2. Which platform has the most room for scale (highest ROAS with lowest saturation)?
+3. Is my branded search volume growing? (Leading indicator of brand strength)
+4. Revenue growth vs ad growth: positive or negative leverage?
+5. Am I approaching market saturation? Signs?
+6. Quarterly strategy: maintain, scale, or diversify?
+
+Full strategic review. Budget reallocation recommendation. 90-day plan.`
+}
+];
+
+// TOOL MAP
+const TOOL_MAP = {
+  31: [{name:'Meta Ads Manager',type:'fire',cost:'$70 cap'},{name:'ManyChat',type:'core',cost:'Sys 06'},{name:'Supabase',type:'core',cost:'Tracking'},{name:'Beehiiv',type:'core',cost:'Tags'},{name:'Claude',type:'util',cost:'Ad copy'}],
+  32: [{name:'Meta Ads Manager',type:'fire',cost:'$100 cap'},{name:'ManyChat',type:'core',cost:'Pre-sale flow'},{name:'Gumroad / Lemon Squeezy',type:'paid',cost:'Payment'},{name:'Beehiiv',type:'core',cost:'UTM tags'},{name:'Claude',type:'auto',cost:'Copy + analysis'}],
+  33: [{name:'Meta Ads Manager',type:'fire',cost:'80% budget'},{name:'Google Ads',type:'fire',cost:'20% budget'},{name:'Meta Pixel',type:'core',cost:'Install on 7 tools'},{name:'ManyChat',type:'core',cost:'DM flows'},{name:'Beehiiv',type:'core',cost:'Source tags'},{name:'Claude',type:'auto',cost:'Optimization'}],
+  34: [{name:'Meta Ads Manager',type:'fire',cost:'50% budget'},{name:'Google Ads',type:'fire',cost:'30% budget'},{name:'YouTube Ads',type:'fire',cost:'20% budget'},{name:'Meta Pixel',type:'core',cost:'Retargeting'},{name:'Google Remarketing',type:'core',cost:'Cross-platform'},{name:'ManyChat',type:'core',cost:'DM flows'},{name:'Beehiiv',type:'core',cost:'Full segmentation'},{name:'Wave',type:'auto',cost:'P&L tracking'}]
+};
+
+const chipClass = {core:'chip-core',auto:'chip-auto',paid:'chip-paid',free:'chip-free',util:'chip-util',fire:'chip-fire'};
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function toggleCard(header) {
+  const card = header.closest('.sys-card');
+  card.classList.toggle('open');
+}
+
+function copyPrompt(btn, field, id) {
+  const sys = GATES.find(s => s.id === id);
+  const text = sys[field] || '';
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function renderGates(filter='all', search='') {
+  const container = document.getElementById('systemsContainer');
+  container.innerHTML = '';
+  const searchLower = search.toLowerCase();
+
+  GATES.forEach(sys => {
+    if (filter !== 'all' && sys.gate !== parseInt(filter)) return;
+    if (search && !sys.title.toLowerCase().includes(searchLower) && !sys.prompt.toLowerCase().includes(searchLower) && !sys.subtitle.toLowerCase().includes(searchLower)) return;
+
+    // Phase divider
+    const div = document.createElement('div');
+    div.className = 'phase-div';
+    div.style.borderColor = 'rgba(255,77,0,0.3)';
+    div.style.background = 'linear-gradient(135deg,rgba(255,77,0,0.06),transparent)';
+    div.innerHTML = `<div class="phase-tag" style="color:var(--fire);">Gate ${sys.gate} // ${sys.phase}</div><h2>${sys.title}</h2><div class="phase-meta">${sys.phaseSystem} // Budget: ${sys.budget}</div>`;
+    container.appendChild(div);
+
+    const card = document.createElement('div');
+    card.className = 'sys-card gate-card';
+    card.dataset.id = sys.id;
+
+    card.innerHTML = `
+      <div class="sys-header" onclick="toggleCard(this)">
+        <div class="sys-num" style="background:linear-gradient(135deg,${sys.gateColor},#ff4d00)">G${sys.gate}</div>
+        <div class="sys-info">
+          <div class="sys-title">${sys.title}<span class="gate-badge">PAID ADS</span><span class="paid-badge">${sys.platform.split(':')[0]}</span></div>
+          <div class="sys-sub">${sys.subtitle}</div>
+        </div>
+        <div class="sys-toggle">+</div>
+      </div>
+      <div class="sys-body">
+
+        <!-- Tool Stack -->
+        <div class="tool-stack">
+          <div class="tool-stack-label">Tool Stack Required</div>
+          <div class="tool-row">
+            ${(TOOL_MAP[sys.id]||[]).map(t => `<span class="tool-chip ${chipClass[t.type]||'chip-util'}">${escapeHtml(t.name)}${t.cost ? ' <span class="chip-cost">'+escapeHtml(t.cost)+'</span>' : ''}</span>`).join('')}
+          </div>
+        </div>
+
+        <!-- Context Map -->
+        ${sys.context ? `<div class="sys-context">
+          <div class="ctx-block ctx-what"><div class="ctx-label">What It Does</div><div class="ctx-text">${sys.context.what}</div></div>
+          <div class="ctx-block ctx-why"><div class="ctx-label">Why It Matters</div><div class="ctx-text">${sys.context.why}</div></div>
+          <div class="ctx-block ctx-how"><div class="ctx-label">How to Build</div><div class="ctx-text">${sys.context.how}</div></div>
+          <div class="ctx-block ctx-budget"><div class="ctx-label">Budget Math</div><div class="ctx-text">${sys.context.budget}</div></div>
+        </div>` : ''}
+
+        <!-- Gate Trigger Conditions -->
+        <div class="gate-trigger">
+          <div class="gate-trigger-label">Gate Trigger Conditions (ALL Must Be True)</div>
+          ${sys.triggers.map(t => `<div class="trigger-condition"><div class="trigger-check">&#9633;</div><div class="trigger-text">${t}</div></div>`).join('')}
+        </div>
+
+        <!-- Dependency Map -->
+        <div class="dep-map">
+          <div class="dep-map-label">System Dependency Map</div>
+          <div class="dep-row">
+            <div class="dep-row-label">Requires (Upstream)</div>
+            ${sys.upstream.map(s => `<span class="dep-chip dep-upstream">Sys ${s}</span>`).join('')}
+          </div>
+          <div class="dep-row" style="margin-top:8px;">
+            <div class="dep-row-label">Feeds (Downstream)</div>
+            ${sys.downstream.map(s => `<span class="dep-chip dep-downstream">Sys ${s}</span>`).join('')}
+          </div>
+          <div class="dep-row" style="margin-top:8px;">
+            <div class="dep-row-label">Amplifies</div>
+            ${sys.amplified.map(s => `<span class="dep-chip dep-amplified">${s}</span>`).join('')}
+          </div>
+        </div>
+
+        <!-- Primary Prompt -->
+        <div class="prompt-section">
+          <div class="prompt-label label-primary">Primary Prompt (Copy-Paste Ready)</div>
+          <div class="prompt-box">${escapeHtml(sys.prompt)}<button class="copy-btn" onclick="copyPrompt(this, 'prompt', ${sys.id})">Copy</button></div>
+        </div>
+
+        <!-- Output Spec -->
+        <div class="prompt-section">
+          <div class="prompt-label label-output">Expected Output Specification</div>
+          <div class="prompt-box">${escapeHtml(sys.outputSpec)}<button class="copy-btn" onclick="copyPrompt(this, 'outputSpec', ${sys.id})">Copy</button></div>
+        </div>
+
+        <!-- Verification -->
+        <div class="prompt-section">
+          <div class="prompt-label label-verify">Verification Checklist</div>
+          <ul class="verify-list">
+            ${sys.verification.map(v => `<li class="check-${v.type}"><strong>${v.type === 'pass' ? '&#10003; PASS' : '&#10007; FAIL'}:</strong> ${escapeHtml(v.text)}</li>`).join('')}
+          </ul>
+        </div>
+
+        <!-- Kill Switch -->
+        <div class="kill-switch">
+          <div class="kill-switch-label">Kill Switch Protocol</div>
+          <div class="prompt-box" style="background:rgba(239,68,68,0.04);border-color:rgba(239,68,68,0.15);">${escapeHtml(sys.killSwitch)}<button class="copy-btn" onclick="copyPrompt(this, 'killSwitch', ${sys.id})">Copy</button></div>
+        </div>
+
+        <!-- Escalation -->
+        <div class="prompt-section">
+          <div class="prompt-label label-escalation">Escalation Prompt (Performance Diagnosis)</div>
+          <div class="prompt-box">${escapeHtml(sys.escalation)}<button class="copy-btn" onclick="copyPrompt(this, 'escalation', ${sys.id})">Copy</button></div>
+        </div>
+
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// NAV
+document.querySelectorAll('.gate-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.gate-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderGates(btn.dataset.gate, document.getElementById('searchInput').value);
+  });
+});
+
+// SEARCH
+let searchTimeout;
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    const activeGate = document.querySelector('.gate-btn.active').dataset.gate;
+    renderGates(activeGate, e.target.value);
+  }, 300);
+});
+
+renderGates();
+</script>
+</body>
+</html>
