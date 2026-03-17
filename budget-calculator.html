@@ -365,7 +365,9 @@
                             <div class="gate-value-item"><span class="gate-value-check">&#10003;</span> How your archetype compares to the other 4 and what you'd lose by switching</div>
                             <div class="gate-value-item"><span class="gate-value-check">&#10003;</span> Your Financial DNA card to download and share</div>
                         </div>
-                        <div class="gate-beehiiv">
+                       <div class="gate-beehiiv" id="gateBeehiivWrap"
+                             onclick="setTimeout(function(){ document.getElementById('gateBeehiivWrap').scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);"
+                             ontouchstart="setTimeout(function(){ document.getElementById('gateBeehiivWrap').scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);">
                             <!-- DOC 1 - STEP 5: src removed. Injected dynamically in showReveal()
                                  with session_id appended for Supabase cross-table attribution. -->
                             <iframe id="beehiivFrame" style="width: 100%; max-width: 400px; height: 100%; min-height: 400px; border: none;" scrolling="no"></iframe>
@@ -748,13 +750,33 @@
     // Only fires on 'submission_success' from the exact Beehiiv domain.
     // No false positives, no height-change guessing.
     // =========================================
-    function activateGateRedirect() {
+if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', function() {
+            var wrap = document.getElementById('gateBeehiivWrap');
+            if (!wrap) return;
+            if (window.visualViewport.height < window.innerHeight * 0.75) {
+                setTimeout(function() {
+                    wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.body.style.paddingBottom = (window.innerHeight - window.visualViewport.height + 60) + 'px';
+                }, 300);
+            } else {
+                document.body.style.paddingBottom = '0px';
+            }
+        });
+    }
+   function activateGateRedirect() {
         window.addEventListener('message', function(event) {
             if (event.origin !== 'https://subscribe-forms.beehiiv.com') return;
             if (event.data && event.data.type === 'submission_success') {
                 doGateRedirect();
             }
         });
+        window._budgetEmailPoller = setInterval(function() {
+            if (localStorage.getItem('budgetCalc_gate_email') === 'true') {
+                clearInterval(window._budgetEmailPoller);
+                doGateRedirect();
+            }
+        }, 2000);
     }
 
     // =========================================
