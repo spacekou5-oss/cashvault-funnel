@@ -1398,6 +1398,10 @@
             var vaultCode = urlParams.get('vault_code');
             if (vaultCode && simpleHash(vaultCode.trim().toUpperCase()) === VAULT_HASH) { localStorage.setItem('vault_unlocked', 'true'); }
 
+           if (budgetCode || vaultCode) {
+                try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
+            }
+
             var paramId = urlParams.get('id');
             if (paramId) {
                 paramId = paramId.trim().toUpperCase();
@@ -1433,7 +1437,7 @@
             var input = document.getElementById('gateIdInput'), error = document.getElementById('gateError');
             var id = input.value.trim().toUpperCase();
             if (/^KOU-[A-Z0-9]{6}$/.test(id)) {
-                localStorage.setItem('cashvault_architect_id', id); localStorage.setItem('command_center_architect_id', id);
+               try { localStorage.setItem('cashvault_architect_id', id); localStorage.setItem('command_center_architect_id', id); } catch(e) {}
                 error.style.display = 'none'; trackArchitect(id, false, 'gate_manual'); runVerificationCeremony(id);
             } else { error.style.display = 'block'; input.style.borderColor = 'var(--danger)'; setTimeout(function() { input.style.borderColor = ''; }, 2000); }
         }
@@ -1445,7 +1449,11 @@
             e.target.value = value.slice(0, 10);
         });
         document.getElementById('gateIdInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') gateManualEntry(); });
-        document.addEventListener('DOMContentLoaded', function() { checkAccess(); });
+       document.addEventListener('DOMContentLoaded', function() {
+            // Track ALL visitors immediately, even if they bounce at the gate
+            sbInsert('visits', { architect_id: 'gate_visitor_' + Date.now(), page: 'command-center', entry_point: new URLSearchParams(window.location.search).get('src') || document.referrer || 'direct', user_agent: navigator.userAgent.substring(0, 255) });
+            checkAccess();
+        });
 
         /* ================================================
            DASHBOARD INIT
