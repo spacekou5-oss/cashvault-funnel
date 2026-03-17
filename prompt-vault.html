@@ -589,17 +589,17 @@
 
             const iframeUrl = `https://subscribe-forms.beehiiv.com/0eaa449a-fbba-4cff-96e5-88b3f0b82849?session_id=${window._sessionId || ''}`;
 
-            return (
-                <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto', minHeight: '120px' }}>
-                    <iframe
-                        src={iframeUrl}
-                        data-test-id="beehiiv-embed"
-                        frameBorder="0"
-                        scrolling="no"
-                        style={{ width: '100%', height: '100%', minHeight: '120px', borderRadius: '12px', backgroundColor: 'transparent', maxWidth: '100%' }}
-                    ></iframe>
-                </div>
-            );
+           return (
+                <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto', minHeight: '160px' }}>
+                    <iframe
+                        src={iframeUrl}
+                        data-test-id="beehiiv-embed"
+                        frameBorder="0"
+                        scrolling="no"
+                        style={{ width: '100%', height: '100%', minHeight: '160px', borderRadius: '12px', backgroundColor: 'transparent', maxWidth: '100%' }}
+                    ></iframe>
+                </div>
+            );
         }
         function Gatekeeper({ onUnlock }) {
             const [progress, setProgress] = useState(0);
@@ -803,9 +803,10 @@
             );
         }
 
-        function PdfUploadZone({ onTextExtracted }) {
+      function PdfUploadZone({ onTextExtracted }) {
             const [state, setState] = useState('idle');
             const [fileName, setFileName] = useState('');
+            
             const extractText = async (file) => {
                 setState('processing'); setFileName(file.name);
                 try {
@@ -820,20 +821,28 @@
                     onTextExtracted(cleaned); setState('success'); setTimeout(() => setState('idle'), 3000);
                 } catch (err) { setState('error'); setTimeout(() => setState('idle'), 4000); }
             };
-           const processFile = (f) => {
-                if (!f || f.type !== 'application/pdf') return;
-                if (f.size > 2 * 1024 * 1024) { // 2MB Limit
-                    setState('error'); 
-                    setFileName('File too large (Max 2MB). Paste text instead.');
-                    setTimeout(() => setState('idle'), 4000);
-                    return;
-                }
-                extractText(f);
-            };
-           const handleFile = (e) => {
-                processFile(e.target.files?.[0]);
-                e.target.value = null; // Clear input to allow re-uploading the same file
-            };
+            
+            const processFile = (f) => {
+                if (!f || f.type !== 'application/pdf') return;
+                if (f.size > 2 * 1024 * 1024) { // 2MB Limit
+                    setState('error'); 
+                    setFileName('File too large (Max 2MB). Paste text instead.');
+                    setTimeout(() => setState('idle'), 4000);
+                    return;
+                }
+                extractText(f);
+            };
+            
+            const handleFile = (e) => {
+                processFile(e.target.files?.[0]);
+                e.target.value = null; // Clear input to allow re-uploading the same file
+            };
+
+            const handleDrop = (e) => {
+                e.preventDefault();
+                processFile(e.dataTransfer.files?.[0]);
+            };
+
             return (
                 <div className={`pdf-upload-zone ${state === 'processing' ? 'processing' : state === 'success' ? 'success' : ''}`}
                     onDragOver={(e) => { e.preventDefault(); }} onDrop={handleDrop}>
