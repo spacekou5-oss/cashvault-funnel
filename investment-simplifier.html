@@ -7,14 +7,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const _sbUrl = 'https://wokoxddotlyuasmwylpx.supabase.co';
        const _sbUrl = 'https://wokoxddotlyuasmwylpx.supabase.co';
         // Breaking the JWT string bypasses GitHub's regex secret scanner
         const _sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9' + 
                        '.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0' + 
                        '.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
-        window._sb = null;
-        window._sb = null;
+     window._sb = null;
+        window._sbUrl = _sbUrl;
+        window._sbKey = _sbKey;
         try { window._sb = window.supabase.createClient(_sbUrl, _sbKey); } catch(e) {}
         window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         
@@ -1362,8 +1362,8 @@
             return id;
         }
 
-        function isReturningUser() {
-            return localStorage.getItem('investmentSimplifier_bridge_email') === 'true';
+     function isReturningUser() {
+            try { return localStorage.getItem('investmentSimplifier_bridge_email') === 'true'; } catch(e) { return false; }
         }
 
         function checkReturningUserRouter() {
@@ -1548,8 +1548,10 @@
 
         function initGeoSocialProof() {
             const proofTexts = document.querySelectorAll('[id^="geoText"]');
-            fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(3000) })
-                .then(r => r.json())
+          const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            fetch('https://ipapi.co/json/', { signal: controller.signal })
+                .then(r => { clearTimeout(timeoutId); return r.json(); })
                 .then(data => {
                     const city = data.city || 'your area';
                     const msgs = [
@@ -1819,10 +1821,12 @@
         }
 
         function personalizeWelcomeGate() {
-            const fromFreedom = localStorage.getItem('freedom_email') === 'true';
-            const fromCostOfWaiting = localStorage.getItem('cost_of_waiting_email') === 'true';
-            const fromAutopilot = localStorage.getItem('autopilot_completed') === 'true';
-            
+           let fromFreedom = false, fromCostOfWaiting = false, fromAutopilot = false;
+            try {
+                fromFreedom = localStorage.getItem('freedom_email') === 'true';
+                fromCostOfWaiting = localStorage.getItem('cost_of_waiting_email') === 'true';
+                fromAutopilot = localStorage.getItem('autopilot_completed') === 'true';
+            } catch(e) {}
             if (!fromFreedom && !fromCostOfWaiting && !fromAutopilot) return;
 
             const badge = document.querySelector('.welcome-badge span');
@@ -2019,12 +2023,12 @@
             currentPortfolioData = { stockPct, bondPct, alloc };
             
             // --- START HIGH-LEVERAGE DATA THROW ---
-            fetch(_sbUrl + '/rest/v1/funnel_events', {
+          fetch((window._sbUrl || _sbUrl) + '/rest/v1/funnel_events', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json', 
-                    'apikey': _sbKey, 
-                    'Authorization': 'Bearer ' + _sbKey,
+                    'apikey': window._sbKey || _sbKey, 
+                    'Authorization': 'Bearer ' + (window._sbKey || _sbKey),
                     'Prefer': 'return=minimal' 
                 },
                 body: JSON.stringify({
