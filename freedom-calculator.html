@@ -349,6 +349,7 @@
         <!-- Guru Test: "DEFINE YOUR FREEDOM" -> killed  -->
         <!-- Brandon-language question he actually asks  -->
         <!-- ========================================== -->
+       <div x-show="!showSmartRouter" x-cloak>
         <div class="mb-8 text-center">
             <h1 class="text-2xl sm:text-3xl font-black tracking-tight uppercase text-white leading-tight">
                 HOW LONG UNTIL YOU<br>
@@ -672,7 +673,10 @@
                     </div>
                 </div>
 
-                <div class="flex justify-center pb-2">
+               <div class="flex justify-center pb-2"
+                         x-init="if (window.visualViewport) { window.visualViewport.addEventListener('resize', () => { if (window.visualViewport.height < window.innerHeight * 0.75) { setTimeout(() => { $el.scrollIntoView({ behavior: 'smooth', block: 'start' }); document.body.style.paddingBottom = (window.innerHeight - window.visualViewport.height + 60) + 'px'; }, 300); } else { document.body.style.paddingBottom = '0px'; } }); }"
+                         @click="setTimeout(() => $el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)"
+                         @touchstart.passive="setTimeout(() => $el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)">
                     <iframe id="beehiivFrame"
                             :src="`https://subscribe-forms.beehiiv.com/63ac9ac6-ada8-47a5-b5b6-654bdf88a7b6?session_id=${window._sessionId}`" 
                             class="beehiiv-embed" 
@@ -701,6 +705,7 @@
             </div>
         </div>
 
+      </div>
         <footer class="site-footer w-full">
             <a href="https://instagram.com/koutalksmoney" target="_blank" rel="noopener noreferrer" class="font-mono text-xs">
                 @koutalksmoney
@@ -1214,7 +1219,7 @@
                     window.top.location.href = 'https://kou.money/investment-simplifier?from=freedom';
                 },
 
-                activateRedirectHandler() {
+               activateRedirectHandler() {
                     const self = this;
                     this._redirectHandler = function(event) {
                         if (!self.showModal) return;
@@ -1226,17 +1231,24 @@
                                 }
                             }
                             if (typeof data === 'object' && data !== null) {
-                                if (data.type === 'beehiiv:subscribe:success' || data.event === 'subscribed' || data.subscribed === true || data.type === 'subscribe_success') {
+                                if (data.type === 'beehiiv:subscribe:success' || data.event === 'subscribed' || data.subscribed === true || data.type === 'subscribe_success' || data.type === 'submission_success') {
                                     self.doBeehiivRedirect();
                                 }
                             }
                         }
                     };
                     window.addEventListener('message', this._redirectHandler);
+                    this._emailPoller = setInterval(() => {
+                        if (localStorage.getItem('freedom_calculator_email') === 'true') {
+                            clearInterval(self._emailPoller);
+                            self.doBeehiivRedirect();
+                        }
+                    }, 2000);
                 },
 
                 deactivateRedirectHandler() {
                     if (this._redirectHandler) { window.removeEventListener('message', this._redirectHandler); this._redirectHandler = null; }
+                    if (this._emailPoller) { clearInterval(this._emailPoller); this._emailPoller = null; }
                 },
 
                 // ===========================
