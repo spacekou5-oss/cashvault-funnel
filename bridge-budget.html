@@ -765,13 +765,50 @@
         }
     }
 
+   function isInstagramBrowser() {
+        return /instagram/i.test(navigator.userAgent || navigator.vendor || '');
+    }
+
     function captureCard() {
+        var fileName = 'financial-dna-' + SYSTEMS[selectedSystem].archetype.replace(/\s+/g, '-').toLowerCase() + '.png';
         html2canvas($('idCard'), { scale: 3, backgroundColor: '#0c0e1a', useCORS: true, logging: false }).then(function(canvas) {
-            var link = document.createElement('a');
-            link.download = 'financial-dna-' + SYSTEMS[selectedSystem].archetype.replace(/\s+/g, '-').toLowerCase() + '.png';
-            link.href = canvas.toDataURL('image/png'); link.click(); $('cardBtnText').innerHTML = '&#10003; Downloaded!';
-            setTimeout(function() { $('cardDownloadBtn').disabled = false; $('cardBtnText').innerHTML = '&#11015; Download Card'; }, 2000);
+            if (isInstagramBrowser() || /android/i.test(navigator.userAgent)) {
+                canvas.toBlob(function(blob) {
+                    if (navigator.share && navigator.canShare) {
+                        var file = new File([blob], fileName, { type: 'image/png' });
+                        if (navigator.canShare({ files: [file] })) {
+                            navigator.share({ files: [file] }).then(function() {
+                                $('cardBtnText').innerHTML = '&#10003; Shared!';
+                            }).catch(function() {
+                                openImageInNewTab(canvas);
+                            });
+                        } else {
+                            openImageInNewTab(canvas);
+                        }
+                    } else {
+                        openImageInNewTab(canvas);
+                    }
+                }, 'image/png');
+            } else {
+                var link = document.createElement('a');
+                link.download = fileName;
+                link.href = canvas.toDataURL('image/png'); link.click();
+                $('cardBtnText').innerHTML = '&#10003; Downloaded!';
+            }
+            setTimeout(function() { $('cardDownloadBtn').disabled = false; $('cardBtnText').innerHTML = '&#11015; Download Card'; }, 3000);
         }).catch(function() { $('cardBtnText').innerHTML = 'Download Failed'; setTimeout(function() { $('cardDownloadBtn').disabled = false; $('cardBtnText').innerHTML = '&#11015; Download Card'; }, 2000); });
+    }
+
+    function openImageInNewTab(canvas) {
+        var imgData = canvas.toDataURL('image/png');
+        var newTab = window.open();
+        if (newTab) {
+            newTab.document.write('<html><head><title>Your Financial DNA Card</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;}</style></head><body><img src="' + imgData + '" style="max-width:100%;border-radius:12px;"><p style="color:#f59e0b;font-size:14px;font-weight:700;margin-top:16px;text-align:center;">Long-press the image to save it.</p></body></html>');
+            newTab.document.close();
+            $('cardBtnText').innerHTML = '&#10003; Opened!';
+        } else {
+            $('cardBtnText').innerHTML = 'Open browser to download';
+        }
     }
 
     // FIX P07 (bonus): Direct URL in share text
