@@ -21,31 +21,57 @@
 
         window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         
-        function trackVisit() {
-            if (!window._sb) return;
-            try {
-                const p = new URLSearchParams(window.location.search);
-                window._sb.from('visits').insert({
-                    architect_id: window._sessionId,
-                    page: window.location.pathname.split('/').pop() || 'unknown',
-                    entry_point: p.get('from') || document.referrer || 'direct',
-                    user_agent: navigator.userAgent
-                }).then(() => {}).catch(() => {});
-            } catch(e) {}
-        }
-        trackVisit();
+       function queueData(table, data) {
+            try {
+                const q = JSON.parse(localStorage.getItem('sb_failed_queue') || '[]');
+                q.push({ table, data, time: Date.now() });
+                localStorage.setItem('sb_failed_queue', JSON.stringify(q));
+            } catch(e) {}
+        }
 
-        async function captureHighLeverageData(appName, userInputs) {
-            if (!window._sb) return;
-            try {
-                await window._sb.from('tool_completions').insert({
-                    architect_id: window._sessionId,
-                    tool_id: appName,
-                    context_data: userInputs,
-                    completed_at: new Date().toISOString()
-                });
-            } catch(e) { console.error("Data capture failed silently", e); }
-        }
+        function trackVisit() {
+            if (!window._sb) return;
+            try {
+                const p = new URLSearchParams(window.location.search);
+                const data = {
+                    architect_id: window._sessionId,
+                    page: window.location.pathname.split('/').pop() || 'unknown',
+                    entry_point: p.get('from') || document.referrer || 'direct',
+                    user_agent: navigator.userAgent
+                };
+                window._sb.from('visits').insert(data).then(() => {}).catch(() => queueData('visits', data));
+            } catch(e) {}
+        }
+
+        function retryQueuedAnalytics() {
+            if (!window._sb) return;
+            try {
+                const q = JSON.parse(localStorage.getItem('sb_failed_queue') || '[]');
+                if (q.length === 0) return;
+                localStorage.removeItem('sb_failed_queue');
+                q.forEach(item => {
+                    if (Date.now() - item.time < 86400000) {
+                        window._sb.from(item.table).insert(item.data).catch(() => queueData(item.table, item.data));
+                    }
+                });
+            } catch(e) {}
+        }
+
+        retryQueuedAnalytics();
+        trackVisit();
+
+        async function captureHighLeverageData(appName, userInputs) {
+            if (!window._sb) return;
+            const data = {
+                architect_id: window._sessionId,
+                tool_id: appName,
+                context_data: userInputs,
+                completed_at: new Date().toISOString()
+            };
+            try {
+                await window._sb.from('tool_completions').insert(data).catch(() => queueData('tool_completions', data));
+            } catch(e) { queueData('tool_completions', data); }
+        }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
@@ -510,17 +536,24 @@
             } catch(e) { return []; }
         }
 
-        function getVisiblePortion(text) {
-            if (!text) return { blurredStart: '', visible: '', blurredEnd: '' };
-            const lines = text.split('\n').filter(l => l.trim() !== '');
-            const visibleLines = lines.slice(0, 3).join('\n');
-            const blurredContent = lines.slice(3).join('\n');
-            return {
-                blurredStart: '',
-                visible: visibleLines,
-                blurredEnd: blurredContent
-            };
-        }
+       function getVisiblePortion(text) {
+            if (!text) return { blurredStart: '', visible: '', blurredEnd: '' };
+            const lines = text.split('\n').filter(l => l.trim() !== '');
+            const visibleLines = lines.slice(0, 3).join('\n');
+            
+            // Scramble the hidden text so Inspect Element reveals nothing useful
+            const realHiddenText = lines.slice(3).join('\n');
+            const scrambledContent = realHiddenText.replace(/[a-zA-Z0-9]/g, () => {
+                const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                return chars.charAt(Math.floor(Math.random() * chars.length));
+            });
+
+            return {
+                blurredStart: '',
+                visible: visibleLines,
+                blurredEnd: scrambledContent // Send the gibberish to the DOM
+            };
+        }
 
         function getTimeAgo(ts) {
             const s = Math.floor((Date.now() - ts) / 1000);
@@ -530,25 +563,29 @@
             return `${Math.floor(h / 24)}d ago`;
         }
 
-       function BeehiivEmbed({ onSubscribe, promptName, category, inputs }) {
-            useEffect(() => {
-                const handleMessage = (e) => {
-                    if (e.data && (e.data.type === 'beehiiv:subscribe:success' || (typeof e.data === 'string' && e.data.includes('subscribed')))) {
-                        const urlSrc = new URLSearchParams(window.location.search).get('src') || 'vault-gate';
-                        captureHighLeverageData('prompt_vault_conversion', {
-                            status: 'unlocked_via_beehiiv',
-                            source: urlSrc,
-                            category: category,
-                            prompt_name: promptName,
-                            user_inputs: inputs
-                        });
-                        localStorage.setItem('vault_email_captured', 'true');
-                        onSubscribe('beehiiv_subscriber');
-                    }
-                };
-                window.addEventListener('message', handleMessage);
-                return () => window.removeEventListener('message', handleMessage);
-            }, [onSubscribe, category, promptName, inputs]);
+      function BeehiivEmbed({ onSubscribe, promptName, category, inputs }) {
+            const latestData = useRef({ category, promptName, inputs });
+            useEffect(() => { latestData.current = { category, promptName, inputs }; }, [category, promptName, inputs]);
+
+            useEffect(() => {
+                const handleMessage = (e) => {
+                    if (e.data && (e.data.type === 'beehiiv:subscribe:success' || (typeof e.data === 'string' && e.data.includes('subscribed')))) {
+                        const urlSrc = new URLSearchParams(window.location.search).get('src') || 'vault-gate';
+                        const d = latestData.current;
+                        captureHighLeverageData('prompt_vault_conversion', {
+                            status: 'unlocked_via_beehiiv',
+                            source: urlSrc,
+                            category: d.category,
+                            prompt_name: d.promptName,
+                            user_inputs: d.inputs
+                        });
+                        localStorage.setItem('vault_email_captured', 'true');
+                        onSubscribe('beehiiv_subscriber');
+                    }
+                };
+                window.addEventListener('message', handleMessage);
+                return () => window.removeEventListener('message', handleMessage);
+            }, [onSubscribe]); // Removed rapid-changing dependencies to stabilize listener
 
             const iframeUrl = `https://subscribe-forms.beehiiv.com/0eaa449a-fbba-4cff-96e5-88b3f0b82849?session_id=${window._sessionId || ''}`;
 
@@ -783,8 +820,20 @@
                     onTextExtracted(cleaned); setState('success'); setTimeout(() => setState('idle'), 3000);
                 } catch (err) { setState('error'); setTimeout(() => setState('idle'), 4000); }
             };
-            const handleFile = (e) => { const f = e.target.files?.[0]; if (f && f.type === 'application/pdf') extractText(f); };
-            const handleDrop = (e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f && f.type === 'application/pdf') extractText(f); };
+           const processFile = (f) => {
+                if (!f || f.type !== 'application/pdf') return;
+                if (f.size > 2 * 1024 * 1024) { // 2MB Limit
+                    setState('error'); 
+                    setFileName('File too large (Max 2MB). Paste text instead.');
+                    setTimeout(() => setState('idle'), 4000);
+                    return;
+                }
+                extractText(f);
+            };
+           const handleFile = (e) => {
+                processFile(e.target.files?.[0]);
+                e.target.value = null; // Clear input to allow re-uploading the same file
+            };
             return (
                 <div className={`pdf-upload-zone ${state === 'processing' ? 'processing' : state === 'success' ? 'success' : ''}`}
                     onDragOver={(e) => { e.preventDefault(); }} onDrop={handleDrop}>
