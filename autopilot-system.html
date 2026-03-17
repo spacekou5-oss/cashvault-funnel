@@ -1060,31 +1060,40 @@
                 const wrapper = iframeWrapperRef.current;
                 if (!wrapper) return;
                 
-                const handleInteraction = () => {
+              const handleInteraction = () => {
                     wrapper.classList.add('focused');
-                    // Smooth scroll the iframe to center of viewport
                     setTimeout(() => {
                         wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }, 100);
                 };
-                
-                const handleBlur = () => {
-                    wrapper.classList.remove('focused');
+
+                const handleViewportResize = () => {
+                    if (!window.visualViewport) return;
+                    const vv = window.visualViewport;
+                    if (vv.height < window.innerHeight * 0.75) {
+                        setTimeout(() => {
+                            wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            document.body.style.paddingBottom = (window.innerHeight - vv.height + 60) + 'px';
+                        }, 300);
+                    } else {
+                        document.body.style.paddingBottom = '0px';
+                    }
                 };
 
                 wrapper.addEventListener('click', handleInteraction);
                 wrapper.addEventListener('touchstart', handleInteraction);
-                // Listen for focus events from iframe
                 window.addEventListener('blur', () => {
-                    // When window loses focus, the iframe likely got focus
-                    if (document.activeElement?.tagName === 'IFRAME') {
-                        handleInteraction();
-                    }
+                    if (document.activeElement?.tagName === 'IFRAME') handleInteraction();
                 });
+                if (window.visualViewport) {
+                    window.visualViewport.addEventListener('resize', handleViewportResize);
+                }
                 
                 return () => {
                     wrapper.removeEventListener('click', handleInteraction);
                     wrapper.removeEventListener('touchstart', handleInteraction);
+                    if (window.visualViewport) window.visualViewport.removeEventListener('resize', handleViewportResize);
+                   document.body.style.paddingBottom = '0px';
                 };
             }, []);
 
@@ -1146,7 +1155,7 @@
                 setTimeout(() => next(), 800);
             };
 
-            useEffect(() => { const handler = async (event) => { if (event.data && event.data.type === 'AUTOPILOT_EMAIL_CAPTURED') await completeGate(); }; window.addEventListener('message', handler); return () => window.removeEventListener('message', handler); }, []);
+          useEffect(() => { const handler = async (event) => { if (event.data && event.data.type === 'AUTOPILOT_EMAIL_CAPTURED') await completeGate(); }; window.addEventListener('message', handler); const poller = setInterval(() => { if (localStorage.getItem('autopilot_email_captured') === 'true') { clearInterval(poller); completeGate(); } }, 2000); return () => { window.removeEventListener('message', handler); clearInterval(poller); }; }, []);
 
             if (saving) return (
                 <div className="terminal-box p-8 animate-fade-in flex flex-col items-center justify-center min-h-[400px] rounded-xl">
