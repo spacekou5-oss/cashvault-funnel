@@ -1005,7 +1005,8 @@
                 </p>
 
                 <!-- BEEHIIV EMBED -->
-                <div class="flex justify-center pb-2 w-full"
+               <div class="flex justify-center pb-2 w-full"
+                     x-init="if (window.visualViewport) { window.visualViewport.addEventListener('resize', () => { if (window.visualViewport.height < window.innerHeight * 0.75) { setTimeout(() => { $el.scrollIntoView({ behavior: 'smooth', block: 'start' }); document.body.style.paddingBottom = (window.innerHeight - window.visualViewport.height + 60) + 'px'; }, 300); } else { document.body.style.paddingBottom = '0px'; } }); }"
                      @click="setTimeout(() => $el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)"
                      @touchstart.passive="setTimeout(() => $el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)">
                     <iframe id="beehiivFrame"
@@ -1426,7 +1427,7 @@
                     } catch(e) {}
                     window.top.location.href = 'https://kou.money/budget-calculator';
                 },
-                activateRedirectHandler() {
+               activateRedirectHandler() {
                     const self = this;
                     this._redirectHandler = function(event) {
                         if (!self.showModal) return;
@@ -1448,13 +1449,20 @@
                                 if (data.type === 'beehiiv:subscribe:success' || 
                                     data.event === 'subscribed' || 
                                     data.subscribed === true || 
-                                    data.type === 'subscribe_success') {
+                                    data.type === 'subscribe_success' ||
+                                    data.type === 'submission_success') {
                                     self.doBeehiivRedirect();
                                 }
                             }
                         }
                     };
                     window.addEventListener('message', this._redirectHandler);
+                    this._emailPoller = setInterval(() => {
+                        if (localStorage.getItem('eightclub_email') === 'true') {
+                            clearInterval(self._emailPoller);
+                            self.doBeehiivRedirect();
+                        }
+                    }, 2000);
                 },
 
                 deactivateRedirectHandler() {
@@ -1462,8 +1470,11 @@
                         window.removeEventListener('message', this._redirectHandler);
                         this._redirectHandler = null;
                     }
+                    if (this._emailPoller) {
+                        clearInterval(this._emailPoller);
+                        this._emailPoller = null;
+                    }
                 },
-
                 // ===========================
                 // COMPUTED PROPERTIES
                 // ===========================
