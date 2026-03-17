@@ -89,12 +89,11 @@
             100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0) rotate(var(--rot)); }
         }
 
-       /* ACCESS GATE */
-        .access-gate {
-            display: none; position: relative; z-index: 1;
-            min-height: 100vh; overflow-x: hidden; overflow-y: auto;
-            padding-bottom: 50px; /* Buffer for mobile keyboards */
-        }
+        /* ACCESS GATE */
+        .access-gate {
+            display: none; position: relative; z-index: 1;
+            min-height: 100vh; overflow: hidden;
+        }
         .access-gate.show { display: block; }
 
         .gate-preview {
@@ -1179,28 +1178,15 @@
         var SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
         var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
 
-       function sbInsert(table, data) {
-            try {
-                fetch(SUPABASE_URL + '/rest/v1/' + table, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Prefer': 'return=minimal,resolution=ignore-duplicates' },
-                    body: JSON.stringify(data)
-                }).catch(function(err) {
-                    var queue = JSON.parse(localStorage.getItem('sb_failed_queue') || '[]');
-                    queue.push({ table: table, data: data, time: Date.now() });
-                    localStorage.setItem('sb_failed_queue', JSON.stringify(queue));
-                });
-            } catch(e) {}
-        }
-
-        function retryQueuedAnalytics() {
-            var queue = JSON.parse(localStorage.getItem('sb_failed_queue') || '[]');
-            if (queue.length === 0) return;
-            localStorage.removeItem('sb_failed_queue');
-            queue.forEach(function(item) {
-                if (Date.now() - item.time < 86400000) { sbInsert(item.table, item.data); }
-            });
-        }
+        function sbInsert(table, data) {
+            try {
+                fetch(SUPABASE_URL + '/rest/v1/' + table, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Prefer': 'return=minimal,resolution=ignore-duplicates' },
+                    body: JSON.stringify(data)
+                }).catch(function() {});
+            } catch(e) {}
+        }
 
         function sbUpsert(table, data) {
             try {
@@ -1275,8 +1261,8 @@
 };
 
         function simpleHash(str) { var hash = 0; for (var i = 0; i < str.length; i++) { var ch = str.charCodeAt(i); hash = ((hash << 5) - hash) + ch; hash = hash & hash; } return hash; }
-       var BUDGET_HASH_EXPECTED = -1516044754;
-        var VAULT_HASH_EXPECTED = 1761406450;
+        var BUDGET_HASH = simpleHash('CASHFLOW');
+        var VAULT_HASH = simpleHash('CERTIFIED');
 
         var SYSTEM_CONFIG = {
             'autopilot': { primaryKey: 'autopilot_completed', fallbackKey: 'cashvault_architect_id', logic: function(p, f) { return p === 'true' || !!localStorage.getItem(f); } },
@@ -1372,18 +1358,17 @@
                 { title: 'Assigning Architect ID...', step: 'Generating credentials...', pct: 90, label: 'Your Architect ID', value: tempId + '  (complete Autopilot to claim permanent ID)' },
                 { title: 'Dashboard ready.', step: 'Access granted.', pct: 100, label: null, value: null }
             ];
-           var i = 0;
-            function advanceTheaterStep() {
-                if (i < steps.length) {
-                    titleEl.textContent = steps[i].title; stepEl.textContent = steps[i].step; progressFill.style.width = steps[i].pct + '%'; pctEl.textContent = steps[i].pct + '%';
-                    if (steps[i].value) { var labelEl = document.querySelector('.eco-theater-value-label'); if (labelEl && steps[i].label) labelEl.textContent = steps[i].label; valueText.textContent = steps[i].value; valueFrame.classList.add('show'); } else { valueFrame.classList.remove('show'); }
-                    i++;
-                    setTimeout(advanceTheaterStep, 950);
-                } else {
-                    setTimeout(function() { theater.classList.add('hidden'); document.getElementById('mainDashboard').style.display = 'block'; triggerCelebration(); initDashboard(); }, 500);
-                }
-            }
-            advanceTheaterStep();
+            var i = 0;
+            var interval = setInterval(function() {
+                if (i < steps.length) {
+                    titleEl.textContent = steps[i].title; stepEl.textContent = steps[i].step; progressFill.style.width = steps[i].pct + '%'; pctEl.textContent = steps[i].pct + '%';
+                    if (steps[i].value) { var labelEl = document.querySelector('.eco-theater-value-label'); if (labelEl && steps[i].label) labelEl.textContent = steps[i].label; valueText.textContent = steps[i].value; valueFrame.classList.add('show'); } else { valueFrame.classList.remove('show'); }
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(function() { theater.classList.add('hidden'); document.getElementById('mainDashboard').style.display = 'block'; triggerCelebration(); initDashboard(); }, 500);
+                }
+            }, 950);
         }
 
         function runVerificationCeremony(architectId) {
@@ -1407,11 +1392,11 @@
 
         function checkAccess() {
             var urlParams = new URLSearchParams(window.location.search);
-          /* CHANGE 9: Support auto-unlock via URL params */
-            var budgetCode = urlParams.get('budget_code');
-            if (budgetCode && simpleHash(budgetCode.trim().toUpperCase()) === BUDGET_HASH_EXPECTED) { localStorage.setItem('budget_unlocked', 'true'); }
-            var vaultCode = urlParams.get('vault_code');
-            if (vaultCode && simpleHash(vaultCode.trim().toUpperCase()) === VAULT_HASH_EXPECTED) { localStorage.setItem('vault_unlocked', 'true'); }
+            /* CHANGE 9: Support auto-unlock via URL params */
+            var budgetCode = urlParams.get('budget_code');
+            if (budgetCode && simpleHash(budgetCode.trim().toUpperCase()) === BUDGET_HASH) { localStorage.setItem('budget_unlocked', 'true'); }
+            var vaultCode = urlParams.get('vault_code');
+            if (vaultCode && simpleHash(vaultCode.trim().toUpperCase()) === VAULT_HASH) { localStorage.setItem('vault_unlocked', 'true'); }
 
             var paramId = urlParams.get('id');
             if (paramId) {
@@ -1465,9 +1450,8 @@
         /* ================================================
            DASHBOARD INIT
            ================================================ */
-       function initDashboard() {
-            retryQueuedAnalytics();
-            loadArchitectId(); loadCompletionStatus(); loadUnlockStatus(); renderDashboard(); trackStartDate();
+        function initDashboard() {
+            loadArchitectId(); loadCompletionStatus(); loadUnlockStatus(); renderDashboard(); trackStartDate();
             updateWelcomeBanner(); updateEmotionalHook(); updateReturnDashboard(); writeEcosystemContext(); renderSocialUnlocks();
             trackVisit(currentArchitectId, currentEntryPoint);
             var vel = getVelocityScore();
@@ -1528,14 +1512,13 @@
             }
         }
 
-       function getAutoSaveAmount() {
-            try {
-                var autopilotData = JSON.parse(localStorage.getItem('autopilot_savings_amount') || 'null');
-                var rounded = Math.round(autopilotData);
-                if (autopilotData && !isNaN(rounded)) return rounded;
-            } catch(e) {}
-            return 0;
-        }
+        function getAutoSaveAmount() {
+            try {
+                var autopilotData = JSON.parse(localStorage.getItem('autopilot_savings_amount') || 'null');
+                if (autopilotData) return Math.round(autopilotData);
+            } catch(e) {}
+            return 0;
+        }
 
         /* ================================================
            CHANGE 12: RETURN-VISIT DASHBOARD
@@ -1844,7 +1827,7 @@
         function closeBudgetCodeModal() { document.getElementById('budgetCodeModal').classList.remove('show'); }
         function verifyBudgetCode() {
             var input = document.getElementById('budgetCodeInput'), error = document.getElementById('budgetCodeError');
-           if (simpleHash(input.value.trim().toUpperCase()) === BUDGET_HASH_EXPECTED) {
+            if (simpleHash(input.value.trim().toUpperCase()) === BUDGET_HASH) {
                 localStorage.setItem('budget_unlocked', 'true'); closeBudgetCodeModal(); loadUnlockStatus(); renderDashboard(); showSuccessModal('Budget Calculator Unlocked!', 'Cash flow control activated.'); trackSocialAction(currentArchitectId, 'budget_code_success', input.value.trim().toUpperCase());
             } else { error.style.display = 'block'; input.style.borderColor = 'var(--danger)'; }
         }
@@ -1852,7 +1835,7 @@
         function closeVaultCodeModal() { document.getElementById('vaultCodeModal').classList.remove('show'); }
         function verifyVaultCode() {
             var input = document.getElementById('vaultCodeInput'), error = document.getElementById('vaultCodeError');
-           if (simpleHash(input.value.trim().toUpperCase()) === VAULT_HASH_EXPECTED) {
+            if (simpleHash(input.value.trim().toUpperCase()) === VAULT_HASH) {
                 localStorage.setItem('vault_unlocked', 'true'); closeVaultCodeModal(); loadUnlockStatus(); renderDashboard(); showSuccessModal('Prompt Vault Unlocked!', 'AI arsenal activated.'); trackSocialAction(currentArchitectId, 'vault_code_success', input.value.trim().toUpperCase());
             } else { error.style.display = 'block'; input.style.borderColor = 'var(--danger)'; }
         }
