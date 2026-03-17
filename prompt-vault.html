@@ -548,7 +548,7 @@
                 };
                 window.addEventListener('message', handleMessage);
                 return () => window.removeEventListener('message', handleMessage);
-            }, [onSubscribe, category, promptName, inputs]);
+          }, [onSubscribe, category, promptName]);
 
             const iframeUrl = `https://subscribe-forms.beehiiv.com/0eaa449a-fbba-4cff-96e5-88b3f0b82849?session_id=${window._sessionId || ''}`;
 
@@ -1383,16 +1383,19 @@
             const urlParams = new URLSearchParams(window.location.search);
             const isWarmTraffic = urlParams.get('src') === 'ig' || urlParams.get('src') === 'cheat';
 
-            const [locked, setLocked] = useState(() => {
-                const hasEmail = localStorage.getItem('vault_email_captured');
-                const hasSaved = localStorage.getItem('vault_saved_prompts');
-                const hasVisited = localStorage.getItem('vault_first_visit_complete');
-                return !(hasEmail || hasSaved || hasVisited);
+           const [locked, setLocked] = useState(() => {
+                try {
+                    const hasEmail = localStorage.getItem('vault_email_captured');
+                    const hasSaved = localStorage.getItem('vault_saved_prompts');
+                    const hasVisited = localStorage.getItem('vault_first_visit_complete');
+                    return !(hasEmail || hasSaved || hasVisited);
+                } catch(e) { return true; }
             });
 
-            const [showOnboarding, setShowOnboarding] = useState(
-                () => !isWarmTraffic && localStorage.getItem('vault_onboarding_complete') !== 'true'
-            );
+           const [showOnboarding, setShowOnboarding] = useState(() => {
+                try { return !isWarmTraffic && localStorage.getItem('vault_onboarding_complete') !== 'true'; }
+                catch(e) { return !isWarmTraffic; }
+            });
 
             const [activeTab, setActiveTab] = useState('CAREER');
             const [currentTip, setCurrentTip] = useState(0);
@@ -1412,8 +1415,21 @@
             useEffect(() => {
                 const e = localStorage.getItem('vault_user_email');
                 if (e) { setUserEmail(e); setIsUnlocked(true); }
-                const emailCaptured = localStorage.getItem('vault_email_captured');
+               const emailCaptured = localStorage.getItem('vault_email_captured');
                 if (emailCaptured === 'true') setIsUnlocked(true);
+                
+                // ECOSYSTEM GATE BYPASS: If user already captured on ANY CashVault tool, unlock here too
+                if (!emailCaptured) {
+                    const fromFreedom = localStorage.getItem('freedom_email') === 'true' || localStorage.getItem('freedom_completed') === 'true';
+                    const fromCow = localStorage.getItem('cost_of_waiting_email') === 'true' || localStorage.getItem('waiting_completed') === 'true';
+                    const fromAutopilot = localStorage.getItem('autopilot_completed') === 'true';
+                    const fromInvestment = localStorage.getItem('investmentSimplifier_bridge_email') === 'true';
+                    if (fromFreedom || fromCow || fromAutopilot || fromInvestment) {
+                        localStorage.setItem('vault_email_captured', 'true');
+                        setIsUnlocked(true);
+                    }
+                }
+                
                 const p = localStorage.getItem('vault_saved_prompts');
                 if (p) { try { setSavedPrompts(JSON.parse(p)); } catch(err) {} }
 
