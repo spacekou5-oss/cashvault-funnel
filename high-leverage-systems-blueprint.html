@@ -125,6 +125,26 @@ body{background:var(--bg);color:var(--text);font-family:var(--display);min-heigh
   .tool-ref-grid{grid-template-columns:1fr;}
 }
 .fw-badge{display:inline-block;font-family:var(--mono);font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:rgba(249,115,22,0.12);color:var(--orange);border:1px solid rgba(249,115,22,0.25);margin-left:6px;vertical-align:middle;}
+.sys-check-wrap{flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:4px;}
+.sys-check{appearance:none;-webkit-appearance:none;width:22px;height:22px;border:2px solid var(--border2);border-radius:5px;background:var(--bg);cursor:pointer;position:relative;transition:all 0.2s;flex-shrink:0;}
+.sys-check:hover{border-color:var(--green);box-shadow:0 0 8px rgba(16,185,129,0.15);}
+.sys-check:checked{background:rgba(16,185,129,0.15);border-color:var(--green);}
+.sys-check:checked::after{content:'\2713';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--green);font-size:14px;font-weight:700;line-height:1;}
+.sys-card.sys-done{border-color:rgba(16,185,129,0.3);}
+.sys-card.sys-done .sys-num{opacity:0.5;}
+.sys-card.sys-done .sys-title{color:var(--green);text-decoration:line-through;text-decoration-color:rgba(16,185,129,0.4);text-decoration-thickness:1px;}
+.sys-card.sys-done .sys-sub{opacity:0.5;}
+.done-badge{display:inline-block;font-family:var(--mono);font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:rgba(16,185,129,0.15);color:var(--green);border:1px solid rgba(16,185,129,0.3);margin-left:6px;vertical-align:middle;}
+.sys-note-section{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+.sys-note-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--electric);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.sys-note-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.sys-note-input{width:100%;min-height:60px;max-height:180px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-family:var(--mono);font-size:11px;line-height:1.6;resize:vertical;outline:none;transition:border-color 0.2s;}
+.sys-note-input:focus{border-color:var(--electric);color:var(--text);}
+.sys-note-input::placeholder{color:var(--text3);font-style:italic;}
+.sys-note-saved{font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--green);opacity:0;transition:opacity 0.3s;margin-top:4px;text-align:right;}
+.sys-note-saved.show{opacity:1;}
+.sys-note-dot{width:6px;height:6px;border-radius:50%;background:var(--electric);flex-shrink:0;margin-top:10px;display:none;}
+.sys-card.has-note .sys-note-dot{display:block;}
 </style>
 </head>
 <body>
@@ -202,6 +222,13 @@ const target=new Date('2030-11-30T23:59:59');
 const now=new Date();
 const days=Math.ceil((target-now)/(1000*60*60*24));
 document.getElementById('days').innerHTML=days.toLocaleString()+'<span>DAYS</span>';
+
+const TRACKER_KEY='ktm_sys_tracker';
+function loadTracker(){try{const r=localStorage.getItem(TRACKER_KEY);return r?JSON.parse(r):{};}catch(e){return {};}}
+function saveTracker(data){try{localStorage.setItem(TRACKER_KEY,JSON.stringify(data));}catch(e){}}
+function toggleCheck(sysId,checkbox){const tracker=loadTracker();if(!tracker[sysId])tracker[sysId]={done:false,note:''};tracker[sysId].done=checkbox.checked;saveTracker(tracker);const card=checkbox.closest('.sys-card');card.classList.toggle('sys-done',checkbox.checked);}
+let noteSaveTimers={};
+function updateNote(sysId,textarea){clearTimeout(noteSaveTimers[sysId]);noteSaveTimers[sysId]=setTimeout(()=>{const tracker=loadTracker();if(!tracker[sysId])tracker[sysId]={done:false,note:''};tracker[sysId].note=textarea.value;saveTracker(tracker);const saved=textarea.parentElement.querySelector('.sys-note-saved');if(saved){saved.classList.add('show');setTimeout(()=>saved.classList.remove('show'),1200);}textarea.closest('.sys-card').classList.toggle('has-note',textarea.value.trim().length>0);},500);}
 
 const SYSTEMS=[
 {
@@ -1904,7 +1931,8 @@ const container = document.getElementById('systemsContainer');
 function renderSystems(filter='all', search='') {
   container.innerHTML = '';
   let currentPhase = -1;
-  const searchLower = search.toLowerCase();
+ const searchLower = search.toLowerCase();
+  const tracker = loadTracker();
   SYSTEMS.forEach(sys => {
     if (filter !== 'all' && sys.phase !== parseInt(filter)) return;
     if (search && !sys.title.toLowerCase().includes(searchLower) && !sys.prompt.toLowerCase().includes(searchLower) && !sys.subtitle.toLowerCase().includes(searchLower) && !(CONTEXT_MAP[sys.id] && (CONTEXT_MAP[sys.id].what.toLowerCase().includes(searchLower) || CONTEXT_MAP[sys.id].why.toLowerCase().includes(searchLower) || CONTEXT_MAP[sys.id].how.toLowerCase().includes(searchLower)))) return;
@@ -1917,20 +1945,28 @@ function renderSystems(filter='all', search='') {
       div.innerHTML = '<div class="phase-tag" style="color:'+phaseColors[currentPhase]+'">'+phaseRevenue[currentPhase]+'</div><h2>'+phaseNames[currentPhase]+'</h2>';
       container.appendChild(div);
     }
-    const card = document.createElement('div');
-    card.className = 'sys-card';
+   const card = document.createElement('div');
+    const isDone = tracker[sys.id] && tracker[sys.id].done;
+    const noteVal = (tracker[sys.id] && tracker[sys.id].note) || '';
+    const hasNote = noteVal.trim().length > 0;
+    card.className = 'sys-card' + (isDone ? ' sys-done' : '') + (hasNote ? ' has-note' : '');
     card.dataset.id = sys.id;
     const isNew = newSystems.includes(sys.id);
     const newBadge = isNew ? '<span class="new-badge">NEW</span>' : '';
     const fwName = FRAMEWORK_MAP[sys.id] || null;
     const fwBadge = fwName ? '<span class="fw-badge">' + fwName + '</span>' : '';
+    const doneBadge = isDone ? '<span class="done-badge">DONE</span>' : '';
     card.innerHTML = `
-      <div class="sys-header" onclick="toggleCard(this)">
+     <div class="sys-header" onclick="toggleCard(this)">
+        <div class="sys-check-wrap" onclick="event.stopPropagation()">
+          <input type="checkbox" class="sys-check" ${isDone ? 'checked' : ''} onchange="toggleCheck(${sys.id}, this)" title="Mark system complete">
+        </div>
         <div class="sys-num" style="background:${sys.phaseColor}">${String(sys.id).padStart(2,'0')}</div>
         <div class="sys-info">
-          <div class="sys-title">${sys.title}${newBadge}${fwBadge}</div>
+          <div class="sys-title">${sys.title}${doneBadge}${newBadge}${fwBadge}</div>
           <div class="sys-sub">${sys.subtitle}</div>
         </div>
+        <div class="sys-note-dot" title="Has notes"></div>
         <div class="sys-toggle">+</div>
       </div>
       <div class="sys-body">
@@ -1979,8 +2015,13 @@ function renderSystems(filter='all', search='') {
           </ul>
         </div>
         <div class="prompt-section">
-          <div class="prompt-label label-escalation">Escalation Prompt (If First Output Fails)</div>
+         <div class="prompt-label label-escalation">Escalation Prompt (If First Output Fails)</div>
           <div class="prompt-box">${escapeHtml(sys.escalation)}<button class="copy-btn" onclick="copyPrompt(this, 'escalation', ${sys.id})">Copy</button></div>
+        </div>
+        <div class="sys-note-section">
+          <div class="sys-note-label">Notes // What still needs work</div>
+          <textarea class="sys-note-input" placeholder="Leave a note... what is done, what is broken, what is next." oninput="updateNote(${sys.id}, this)">${escapeHtml(noteVal)}</textarea>
+          <div class="sys-note-saved">Saved</div>
         </div>
       </div>
     `;
