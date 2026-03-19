@@ -1264,8 +1264,9 @@
                 // ===========================
                 _payloadSent: false,
 
-                handleCTA() {
+               handleCTA() {
                     this.showModal = true;
+                    try { localStorage.setItem('eightclub_completed', 'true'); } catch(e) {}
                     if (window._sb && !this._payloadSent) {
                         this._payloadSent = true;
                         window._sb.from('tool_completions').insert({
@@ -1418,16 +1419,35 @@
                     });
                 },
 
-                doBeehiivRedirect() {
-                    if (this._hasRedirected) return;
-                    this._hasRedirected = true;
-                    try {
-                        localStorage.setItem('eightclub_completed', 'true');
-                        localStorage.setItem('eightclub_email', 'true');
-                    } catch(e) {}
-                    window.top.location.href = 'https://kou.money/budget-calculator';
-                },
-               activateRedirectHandler() {
+async doBeehiivRedirect() {
+                    if (this._hasRedirected) return;
+                    this._hasRedirected = true;
+                    try {
+                        localStorage.setItem('eightclub_completed', 'true');
+                        localStorage.setItem('eightclub_email', 'true');
+                    } catch(e) {}
+
+                    // Fire tool_completions with email confirmation before redirect
+                    if (window._sb && window._sessionId) {
+                        try {
+                            await window._sb.from('tool_completions').insert({
+                                tool_id: '800_club',
+                                architect_id: window._sessionId,
+                                context_data: {
+                                    credit_score: this.userCreditScore,
+                                    progress_percent: this.progress,
+                                    steps_completed: this.checkedCount,
+                                    interest_penalty: this.getScorePenaltyRaw(this.userCreditScore),
+                                    completed_step_ids: this.items.filter(i => i.checked).map(i => i.id),
+                                    email_captured: true
+                                }
+                            });
+                        } catch(e) {}
+                    }
+
+                    window.top.location.href = 'https://kou.money/budget-calculator';
+                },
+             activateRedirectHandler() {
                     const self = this;
                     this._redirectHandler = function(event) {
                         if (!self.showModal) return;
@@ -1437,22 +1457,10 @@
                             self.doBeehiivRedirect();
                             return;
                         }
-                        // 2. Native Beehiiv broadcast
-                        if (event.origin && event.origin.includes('beehiiv.com')) {
-                            const data = event.data;
-                            if (typeof data === 'string') {
-                                if (data.includes('subscribed') || data.includes('success') || data.includes('confirmed')) {
-                                    self.doBeehiivRedirect();
-                                }
-                            }
-                            if (typeof data === 'object' && data !== null) {
-                                if (data.type === 'beehiiv:subscribe:success' || 
-                                    data.event === 'subscribed' || 
-                                    data.subscribed === true || 
-                                    data.type === 'subscribe_success' ||
-                                    data.type === 'submission_success') {
-                                    self.doBeehiivRedirect();
-                                }
+                        // 2. Strict Beehiiv origin + event type (ecosystem standard)
+                        if (event.origin === 'https://subscribe-forms.beehiiv.com') {
+                            if (event.data && event.data.type === 'submission_success') {
+                                self.doBeehiivRedirect();
                             }
                         }
                     };
