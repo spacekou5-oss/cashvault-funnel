@@ -838,7 +838,31 @@ if (window.visualViewport) {
             localStorage.setItem('budget_selected_system', winner);
             localStorage.setItem('budget_scores', JSON.stringify(state.scores));
             localStorage.setItem('budget_answers', JSON.stringify(state.answerHistory));
-        } catch(e) {}
+       } catch(e) {}
+
+        // --- FUNNEL EVENT TRACKING ---
+        fetch(SUPABASE_URL + '/rest/v1/funnel_events', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+                app: 'budget_calculator',
+                event: 'completed_quiz',
+                data: {
+                    archetype: SYSTEMS[winner].archetype,
+                    system_key: winner,
+                    scores: state.scores,
+                    architect_id: window._sessionId,
+                    from_800_club: isFrom800Club()
+                }
+            })
+        }).catch(function() {});
+        // --- END FUNNEL EVENT TRACKING ---
+
         showSection('s-processing'); runProcessingTheater();
     }
 
@@ -865,7 +889,11 @@ if (window.visualViewport) {
     // here so the iframe src is set dynamically with session_id
     // right before the gate is shown to the user.
     // =========================================
-    function showReveal() {
+   function showReveal() {
+        // --- TOOL COMPLETION ON QUIZ FINISH (unconditional) ---
+        trackCompletion();
+        // --- END TOOL COMPLETION ---
+
         if (isReturningUser() || isFrom800Club()) {
             if (isFrom800Club() && !isReturningUser()) { try { localStorage.setItem('budget_unlocked', 'true'); } catch(e) {} }
             state.isUnlocked = true;
