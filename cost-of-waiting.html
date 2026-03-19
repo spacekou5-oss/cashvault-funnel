@@ -1083,10 +1083,37 @@
                                     current_wealth: this.currentWealth,
                                     years_waited: this.waitYears,
                                     total_damage_calculated: this.freedomLoss || this.loss,
-                                    daily_cost_to_fix: this.dailyCost
+                                   daily_cost_to_fix: this.dailyCost
                                 }
                             })
                         });
+
+                        // --- TOOL COMPLETION TRACKING ---
+                        await fetch(SUPABASE_URL + '/rest/v1/tool_completions', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'apikey': SUPABASE_ANON_KEY,
+                                'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                                'Prefer': 'return=minimal'
+                            },
+                            body: JSON.stringify({
+                                architect_id: window._sessionId,
+                                tool_id: 'cost_of_waiting',
+                                context_data: {
+                                    age: this.age,
+                                    monthly_contribution: this.contribution,
+                                    current_wealth: this.currentWealth,
+                                    years_waited: this.waitYears,
+                                    total_damage_calculated: this.freedomLoss || this.loss,
+                                    daily_cost_to_fix: this.dailyCost,
+                                    freedom_age: this.freedomAge,
+                                    has_freedom_data: this.hasFreedomData
+                                }
+                            })
+                        });
+                        // --- END TOOL COMPLETION TRACKING ---
+
                     } catch(e) { console.error('Data capture failed silently'); }
                 },
 
