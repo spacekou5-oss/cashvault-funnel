@@ -1786,24 +1786,7 @@
                     localStorage.setItem('investmentSimplifier_bridge_email', 'true');
                     unlockPortfolio();
                     
-                    // HIGH-LEVERAGE PAYLOAD: tool_completions insert on email gate conversion
-                    if (window._sb && window._sessionId) {
-                        window._sb.from('tool_completions').insert({
-                            tool_id: 'investment_simplifier',
-                            architect_id: window._sessionId,
-                            context_data: {
-                                age: parseInt(document.getElementById('userAge').value),
-                                risk_style: document.getElementById('riskStyle').value,
-                                monthly_investment: parseInt(document.getElementById('monthlyInvestment').value) || 100,
-                                lump_sum_saved: parseFloat(document.getElementById('lumpSumInput').value) || 0,
-                                investment_period: parseInt(document.getElementById('investmentPeriod').value) || 30,
-                                projected_future_value: document.getElementById('projectedValue').innerText,
-                                stock_pct: currentPortfolioData?.stockPct || 0,
-                                bond_pct: currentPortfolioData?.bondPct || 0,
-                                portfolio_allocation: window.lastAllocation || currentPortfolioData?.alloc || 'Unknown'
-                            }
-                        }).then(() => {}).catch(() => {});
-                    }
+                  // tool_completions now fires on calculatePortfolio() instead
                 }
             });
         }
@@ -2043,8 +2026,29 @@
                     }
                 })
             }).catch(err => console.error('Throw failed:', err));
-            // --- END HIGH-LEVERAGE DATA THROW ---
-            
+           // --- END HIGH-LEVERAGE DATA THROW ---
+
+            // --- TOOL COMPLETION TRACKING ---
+            if (window._sb && window._sessionId) {
+                window._sb.from('tool_completions').insert({
+                    tool_id: 'investment_simplifier',
+                    architect_id: window._sessionId,
+                    context_data: {
+                        age: parseInt(document.getElementById('userAge').value),
+                        risk_style: riskStyle,
+                        monthly_investment: parseInt(document.getElementById('monthlyInvestment').value) || 100,
+                        stock_pct: stockPct,
+                        bond_pct: bondPct,
+                        portfolio_id: portfolioId,
+                        strategy: document.querySelector('.strategy-chip.active .strategy-chip-name')?.textContent?.trim() || 'custom',
+                        from_autopilot: useCoreFromAutopilot,
+                        from_freedom: !!localStorage.getItem('freedom_completed'),
+                        from_cow: !!localStorage.getItem('waiting_completed')
+                    }
+                }).then(() => {}).catch(() => {});
+            }
+            // --- END TOOL COMPLETION TRACKING ---
+
             displayPortfolio(stockPct, bondPct, alloc);
             updateProjectionHero();
             updateShareCardData(stockPct, bondPct, alloc);
