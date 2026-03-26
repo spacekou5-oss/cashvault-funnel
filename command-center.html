@@ -633,6 +633,20 @@
         .social-unlock-card.dm .social-unlock-arrow { color: var(--accent-pink); }
         .social-unlock-card.story .social-unlock-arrow { color: var(--accent-gold); }
         .social-unlock-card:hover .social-unlock-arrow { transform: translateX(4px); }
+
+        .inline-code-section { margin-top: 10px; border-top: 1px solid rgba(236, 72, 153, 0.15); padding-top: 10px; }
+        .inline-code-toggle { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--text-muted); cursor: pointer; transition: color 0.2s; background: none; border: none; padding: 0; font-weight: 600; }
+        .inline-code-toggle:hover { color: var(--accent-pink); }
+        .inline-code-form { display: none; margin-top: 8px; }
+        .inline-code-form.show { display: flex; gap: 8px; align-items: center; }
+        .inline-code-input { flex: 1; background: rgba(10,10,10,0.6); border: 1.5px solid var(--border); border-radius: 6px; padding: 8px 10px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; text-align: center; outline: none; transition: border-color 0.2s; }
+        .inline-code-input:focus { border-color: var(--accent-pink); box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.15); }
+        .inline-code-input::placeholder { color: var(--text-muted); font-weight: 400; text-transform: none; letter-spacing: normal; }
+        .inline-code-btn { background: var(--accent-pink); color: #fff; border: none; border-radius: 6px; padding: 8px 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .inline-code-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px var(--accent-pink-glow); }
+        .inline-code-error { font-size: 0.6rem; color: var(--danger); margin-top: 4px; display: none; }
+        .inline-code-success { font-size: 0.6rem; color: var(--accent-green); margin-top: 4px; display: none; font-weight: 600; }
+
         @media (max-width: 700px) {
             .social-unlock-reward { font-size: 0.7rem; }
         }
@@ -1121,11 +1135,20 @@
             </div>
             <!-- CHANGE 9: Simplified social unlock copy -->
             <div class="social-unlocks-grid">
-                <div class="social-unlock-card dm" id="socialDmCard" onclick="handleSocialDmClick()">
+               <div class="social-unlock-card dm" id="socialDmCard" onclick="handleSocialDmClick()">
                     <div class="social-unlock-icon">&#x1F4B0;</div>
                     <div class="social-unlock-info">
                         <div class="social-unlock-action">DM "INNERLOOP" to @koutalksmoney</div>
                         <div class="social-unlock-reward">Unlock the Budget Calculator. See where every dollar actually goes. I'll send you a direct link back instantly. One DM. Done.</div>
+                        <div class="inline-code-section" onclick="event.stopPropagation();">
+                            <button class="inline-code-toggle" id="inlineCodeToggle" onclick="toggleInlineCode()">Already have a code? &#x25BC;</button>
+                            <div class="inline-code-form" id="inlineCodeForm">
+                                <input type="text" class="inline-code-input" id="inlineCodeInput" placeholder="Enter code" maxlength="12" onkeypress="if(event.key==='Enter')verifyInlineCode();">
+                                <button class="inline-code-btn" onclick="verifyInlineCode()">&#x1F513; Unlock</button>
+                            </div>
+                            <div class="inline-code-error" id="inlineCodeError">Invalid code. DM "INNERLOOP" to get the correct code.</div>
+                            <div class="inline-code-success" id="inlineCodeSuccess">&#x2705; Unlocked! Loading...</div>
+                        </div>
                     </div>
                     <div class="social-unlock-arrow">&rarr;</div>
                 </div>
@@ -1678,6 +1701,34 @@
             if (budgetUnlocked) dmCard.classList.add('unlocked'); else dmCard.classList.remove('unlocked');
             if (vaultUnlocked) storyCard.classList.add('unlocked'); else storyCard.classList.remove('unlocked');
             countEl.textContent = ((budgetUnlocked ? 0 : 1) + (vaultUnlocked ? 0 : 1)) + ' Available';
+        }
+
+       function toggleInlineCode() {
+            var form = document.getElementById('inlineCodeForm');
+            var toggle = document.getElementById('inlineCodeToggle');
+            if (form.classList.contains('show')) { form.classList.remove('show'); toggle.innerHTML = 'Already have a code? &#x25BC;'; }
+            else { form.classList.add('show'); toggle.innerHTML = 'Hide code entry &#x25B2;'; setTimeout(function() { document.getElementById('inlineCodeInput').focus(); }, 100); }
+        }
+
+        function verifyInlineCode() {
+            var input = document.getElementById('inlineCodeInput');
+            var error = document.getElementById('inlineCodeError');
+            var success = document.getElementById('inlineCodeSuccess');
+            var code = input.value.trim().toUpperCase();
+            if (simpleHash(code) === BUDGET_HASH) {
+                localStorage.setItem('budget_unlocked', 'true');
+                error.style.display = 'none';
+                success.style.display = 'block';
+                input.style.borderColor = 'var(--accent-green)';
+                trackSocialAction(currentArchitectId, 'inline_code_success', code);
+                setTimeout(function() { loadUnlockStatus(); renderDashboard(); }, 800);
+            } else {
+                error.style.display = 'block';
+                success.style.display = 'none';
+                input.style.borderColor = 'var(--danger)';
+                trackSocialAction(currentArchitectId, 'inline_code_fail', code);
+                setTimeout(function() { input.style.borderColor = ''; }, 2000);
+            }
         }
 
         function handleSocialDmClick() {
