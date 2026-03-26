@@ -1413,18 +1413,26 @@
             useEffect(() => { setCurrentTip(0); const i = setInterval(() => setCurrentTip(p => (p + 1) % 3), 6000); return () => clearInterval(i); }, [activeTab]);
 
             useEffect(() => {
+               // URL param bypass: ?src=cc_unlock from Command Center DM links
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('src') === 'cc_unlock') {
+                    try { localStorage.setItem('vault_unlocked', 'true'); localStorage.setItem('vault_email_captured', 'true'); window.history.replaceState({}, document.title, window.location.pathname); } catch(e2) {}
+                }
+
                 const e = localStorage.getItem('vault_user_email');
                 if (e) { setUserEmail(e); setIsUnlocked(true); }
                const emailCaptured = localStorage.getItem('vault_email_captured');
                 if (emailCaptured === 'true') setIsUnlocked(true);
                 
-                // ECOSYSTEM GATE BYPASS: If user already captured on ANY CashVault tool, unlock here too
+               // ECOSYSTEM GATE BYPASS: If user already captured on ANY CashVault tool, unlock here too
+                // Also checks vault_unlocked (set by Command Center keyword CERTIFIED)
                 if (!emailCaptured) {
                     const fromFreedom = localStorage.getItem('freedom_email') === 'true' || localStorage.getItem('freedom_completed') === 'true';
                     const fromCow = localStorage.getItem('cost_of_waiting_email') === 'true' || localStorage.getItem('waiting_completed') === 'true';
                     const fromAutopilot = localStorage.getItem('autopilot_completed') === 'true';
                     const fromInvestment = localStorage.getItem('investmentSimplifier_bridge_email') === 'true';
-                    if (fromFreedom || fromCow || fromAutopilot || fromInvestment) {
+                    const fromCommandCenter = localStorage.getItem('vault_unlocked') === 'true';
+                    if (fromFreedom || fromCow || fromAutopilot || fromInvestment || fromCommandCenter) {
                         localStorage.setItem('vault_email_captured', 'true');
                         setIsUnlocked(true);
                     }
