@@ -681,6 +681,15 @@
     function getMonthly() { return state.incomePeriod === 'annual' ? state.income / 12 : state.income; }
    function isFrom800Club() { try { return localStorage.getItem('eightclub_email') === 'true' || localStorage.getItem('eightclub_completed') === 'true'; } catch(e) { return false; } }
     function isReturningUser() { try { return localStorage.getItem('budget_unlocked') === 'true'; } catch(e) { return false; } }
+      function captureBypassSource(source) {
+        try {
+            fetch(SUPABASE_URL + '/rest/v1/funnel_events', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Prefer': 'return=minimal' },
+                body: JSON.stringify({ app: 'budget_calculator', event: 'gate_bypass', data: { source: source, architect_id: window._sessionId, traffic_source: _trafficSource } })
+            }).catch(function() {});
+        } catch(e) {}
+    }
 
     // =========================================
     // UPSTREAM THEATER
@@ -894,11 +903,13 @@ if (window.visualViewport) {
         trackCompletion();
         // --- END TOOL COMPLETION ---
 
-        if (isReturningUser() || isFrom800Club()) {
+       if (isReturningUser() || isFrom800Club()) {
             if (isFrom800Club() && !isReturningUser()) { try { localStorage.setItem('budget_unlocked', 'true'); } catch(e) {} }
             state.isUnlocked = true;
-            // STEP 1: Secure data for 800-Club users bypassing the gate.
-            // upsert() silently harvests archetype + quiz payload with zero friction to the user.
+            // STEP 1: Secure data for 800-Club users AND Command Center keyword users bypassing the gate.
+            // Tracks bypass source for Supabase attribution.
+            var bypassSource = isFrom800Club() ? '800club_bypass' : 'cc_keyword_bypass';
+            captureBypassSource(bypassSource);
             trackCompletion();
             renderDashboard(); showSection('s-dashboard');
             var banner = $('dashBanner'); if (banner) { banner.classList.add('visible'); } return;
@@ -1243,7 +1254,8 @@ if (window.visualViewport) {
         var params = new URLSearchParams(window.location.search);
         if (params.get('sys') && SYSTEMS[params.get('sys')]) { savedSystem = params.get('sys'); try { localStorage.setItem('budget_selected_system', savedSystem); } catch(e) {} }
         if (params.get('inc')) { savedIncome = params.get('inc'); try { localStorage.setItem('budget_income', savedIncome); } catch(e) {} }
-        if (params.get('per')) { savedPeriod = params.get('per'); try { localStorage.setItem('budget_income_period', savedPeriod); } catch(e) {} }
+       if (params.get('per')) { savedPeriod = params.get('per'); try { localStorage.setItem('budget_income_period', savedPeriod); } catch(e) {} }
+        if (params.get('src') === 'cc_unlock') { try { localStorage.setItem('budget_unlocked', 'true'); } catch(e) {} isUnlocked = true; try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {} }
 
         if (savedSystem && SYSTEMS[savedSystem]) state.selectedSystem = savedSystem;
         if (savedIncome) state.income = parseFloat(savedIncome) || 0;
