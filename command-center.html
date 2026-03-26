@@ -1436,7 +1436,19 @@
             var vaultCode = urlParams.get('vault_code');
             if (vaultCode && simpleHash(vaultCode.trim().toUpperCase()) === VAULT_HASH) { localStorage.setItem('vault_unlocked', 'true'); }
 
-           if (budgetCode || vaultCode) {
+          var sourceParam = urlParams.get('source');
+            if (sourceParam === 'budget') {
+                localStorage.setItem('budget_completed', 'true');
+                localStorage.setItem('budget_unlocked', 'true');
+                var bSys = urlParams.get('sys');
+                if (bSys) localStorage.setItem('budget_selected_system', bSys);
+                var bInc = urlParams.get('inc');
+                if (bInc) localStorage.setItem('budget_income', bInc);
+                var bPer = urlParams.get('per');
+                if (bPer) localStorage.setItem('budget_income_period', bPer);
+            }
+
+           if (budgetCode || vaultCode || sourceParam) {
                 try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
             }
 
@@ -1451,8 +1463,7 @@
             }
             var storedId = localStorage.getItem('cashvault_architect_id') || localStorage.getItem('command_center_architect_id');
             if (storedId) { runVerificationCeremony(storedId); return 'ceremony'; }
-            var sourceParam = urlParams.get('source');
-            if (sourceParam === 'budget') {
+           if (sourceParam === 'budget') {
                 var btId = localStorage.getItem('command_center_temp_id');
                 if (!btId) { btId = generateTempArchitectId(); localStorage.setItem('command_center_temp_id', btId); }
                 localStorage.setItem('command_center_architect_id', btId); trackArchitect(btId, true, 'budget_bridge'); try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {} runVerificationCeremony(btId); return 'ceremony';
