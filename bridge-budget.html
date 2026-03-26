@@ -714,9 +714,10 @@
         // AUTO-LOGIN LOGIC: Fetch Architect ID and append unlock code
         var archId = '';
         try { archId = localStorage.getItem('cashvault_architect_id') || localStorage.getItem('command_center_architect_id') || ''; } catch(e) {}
-        var urlParams = '&budget_code=CASHFLOW';
+       var urlParams = '&budget_code=CASHFLOW';
         if (archId) urlParams += '&id=' + archId;
-
+        urlParams += '&sys=' + encodeURIComponent(selectedSystem);
+        if (income > 0) urlParams += '&inc=' + income + '&per=' + incomePeriod;
         if (monthly > 0) {
             var hoursEquiv = Math.round(investAmt / WAGE_RATE);
             $('crossSellTitle').textContent =
