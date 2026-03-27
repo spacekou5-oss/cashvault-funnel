@@ -1394,8 +1394,13 @@
             var urlParams = new URLSearchParams(window.location.search);
             /* CHANGE 9: Support auto-unlock via URL params */
             var budgetCode = urlParams.get('budget_code');
-            if (budgetCode && simpleHash(budgetCode.trim().toUpperCase()) === BUDGET_HASH) { localStorage.setItem('budget_unlocked', 'true'); }
-            var vaultCode = urlParams.get('vault_code');
+        if (budgetCode && simpleHash(budgetCode.trim().toUpperCase()) === BUDGET_HASH) { 
+            localStorage.setItem('budget_unlocked', 'true');
+            if (urlParams.get('sys')) localStorage.setItem('budget_selected_system', urlParams.get('sys'));
+            if (urlParams.get('inc')) localStorage.setItem('budget_monthly_income', urlParams.get('inc'));
+            if (urlParams.get('per')) localStorage.setItem('budget_frequency', urlParams.get('per'));
+        }
+        var vaultCode = urlParams.get('vault_code');
             if (vaultCode && simpleHash(vaultCode.trim().toUpperCase()) === VAULT_HASH) { localStorage.setItem('vault_unlocked', 'true'); }
 
            if (budgetCode || vaultCode) {
