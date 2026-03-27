@@ -179,6 +179,31 @@ body { font-family: 'JetBrains Mono', monospace; background: var(--void); color:
 .decision-card h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
 .decision-card p { font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
 
+/* Conversation Starters */
+.nav-tab.active-green { color: var(--green); border-bottom-color: var(--green); }
+.nav-tab .kw-green { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--green); margin-left: 6px; opacity: 0.7; }
+.pillar-header .keyword-badge-green { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--green); background: var(--green-glow); border: 1px solid var(--green-dim); padding: 3px 10px; border-radius: 4px; margin-right: 8px; }
+.overview-card.card-green:hover { border-color: var(--green-dim); }
+.flow-container.green-line::before { background: linear-gradient(180deg, var(--green) 0%, var(--void-border) 100%); }
+.flow-node.green-node::before { background: var(--green); border-color: var(--green); box-shadow: 0 0 12px var(--green-glow); }
+.node-header.green-header { background: rgba(34,197,94,0.06); }
+.timing-badge.green { background: var(--green-dim); color: var(--green); }
+.starter-preview { background: var(--void-light); border: 1px solid var(--green-dim); border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; transition: all 0.2s; }
+.starter-preview:hover { border-color: var(--green); background: rgba(34,197,94,0.04); }
+.starter-preview .sp-text { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+.starter-preview .sp-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.starter-preview .sp-keyword { font-size: 10px; font-weight: 600; color: var(--burn-orange); letter-spacing: 1px; }
+.starter-preview .sp-chars { font-size: 9px; color: var(--text-dim); }
+.starter-copy-btn { background: var(--void-card); border: 1px solid var(--void-border); color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 3px 8px; border-radius: 4px; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; flex-shrink: 0; }
+.starter-copy-btn:hover { border-color: var(--green); color: var(--green); }
+.starter-copy-btn.copied { border-color: var(--green); color: var(--green); }
+.dual-trigger-box { background: var(--void-card); border: 1px solid var(--void-border); border-radius: 8px; padding: 14px; margin-bottom: 16px; }
+.dual-trigger-box .dt-label { font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 2px; color: var(--green); margin-bottom: 10px; }
+.dual-trigger-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 11px; }
+.dual-trigger-row .dt-type { font-weight: 600; min-width: 100px; flex-shrink: 0; }
+.dual-trigger-row .dt-match { color: var(--text-dim); min-width: 100px; flex-shrink: 0; }
+.dual-trigger-row .dt-value { color: var(--text-primary); }
+
 @media (max-width: 768px) {
   .header { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
   .search-bar { max-width: 100%; order: 10; flex-basis: 100%; }
@@ -209,13 +234,14 @@ body { font-family: 'JetBrains Mono', monospace; background: var(--void); color:
       <div class="sub">MANYCHAT AUTOMATION REFERENCE</div>
     </div>
   </div>
-  <div class="header-clock" id="clock">🕒 THE CLOCK: 1,736 DAYS</div>
+  <div class="header-clock" id="clock">🕒 THE CLOCK: 1,709 DAYS</div>
   <div class="header-pmv">PMV RESEARCH ACTIVE</div>
   <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Search messages, keywords, URLs..." />
   </div>
   <div class="stats-bar">
     <div class="stat-chip"><span>9</span> Keyword Flows</div>
+    <div class="stat-chip"><span>4</span> Starters</div>
     <div class="stat-chip"><span>1</span> Welcome Flow</div>
     <div class="stat-chip"><span>1</span> PMV Tracker</div>
   </div>
@@ -223,6 +249,7 @@ body { font-family: 'JetBrains Mono', monospace; background: var(--void); color:
 
 <div class="nav-tabs" id="navTabs">
   <div class="nav-tab active" data-tab="overview">OVERVIEW</div>
+  <div class="nav-tab" data-tab="starters">STARTERS <span class="kw-green">CONVERSATION</span></div>
   <div class="nav-tab" data-tab="p1">P1: THE MACHINE <span class="kw">AUTOPILOT</span></div>
   <div class="nav-tab" data-tab="p2">P2: THE FUEL <span class="kw">TICKING</span></div>
   <div class="nav-tab" data-tab="p3">P3: THE LEVERAGE <span class="kw">SCORE</span></div>
@@ -438,9 +465,6 @@ const PILLARS = [
         button: { text: "\u{1F3AF} Calculate My Freedom Number", url: "https://kou.money/freedom-calculator" } }
     ]
   },
-  // ═══════════════════════════════════════════════
-  // P8: SETUP (MVO PRE-SALE) - SHORTER 3-MESSAGE SEQUENCE
-  // ═══════════════════════════════════════════════
   {
     id: "p8", name: "AUTOPILOT SETUP (MVO)", keyword: "SETUP",
     angle: '"Your paycheck has no system. I\'ll build one on your real bank account in 30 minutes."',
@@ -464,9 +488,6 @@ const PILLARS = [
        button: { text: "\u{1F4CB} Free: See the Blueprint", url: "https://kou.money/autopilot-system" } }
     ]
   },
-  // ═══════════════════════════════════════════════
-  // P9: INNER ACCESS (COMMAND CENTER → BUDGET UNLOCK)
-  // ═══════════════════════════════════════════════
   {
     id: "p9", name: "INNER ACCESS", keyword: "INNERFLOW",
     angle: '"You navigated the system. Here\'s the key."',
@@ -482,6 +503,108 @@ const PILLARS = [
       { timing: "INSTANT REPLY", delay: "Immediate", type: "CODE DELIVERY", isEntry: true,
         copy: "you came from Command Center. respect \u{1F511}\n\nyour unlock code is CASHFLOW.\n\ngo back to the Budget Calculator card on your dashboard, tap it, enter CASHFLOW when it asks. takes 3 seconds.\n\nthen enter your real paycheck. real expenses. the output only hits if the data is honest.\n\none screen. every dollar mapped to hours of your life.",
         button: { text: "\u{1F513} Open Command Center", url: "https://kou.money/command-center" } }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════
+// CONVERSATION STARTERS DATA (4 flows, separate from keyword pillars)
+// ═══════════════════════════════════════════════
+const CONVERSATION_STARTERS = [
+  {
+    id: "cs-mynumber",
+    starterText: "How much $ do I need to never work again?",
+    charCount: 42,
+    keyword: "MYNUMBER",
+    pillarRoute: "P4: THE MIND",
+    asset: "Freedom Number Calculator",
+    url: "https://kou.money/freedom-calculator",
+    position: 1,
+    psychology: "Aspirational hook. Biggest dream. Widest net. Every 19-year-old has thought this question but never calculated it.",
+    brandonTriggers: ["Recognition Shock", "Compound Shock"],
+    messages: [
+      { timing: "MSG 1", delay: "Immediate (0 sec)", type: "HOOK + CONTEXT", isEntry: true,
+        copy: "That question puts you ahead of 90% of people your age.\n\nMost people making $14-18/hr think financial freedom is for a different tax bracket.\n\nIt's not. It's one number. YOUR number.\n\nBased on YOUR bills. YOUR rent. YOUR actual life. Not some influencer's." },
+      { timing: "MSG 2", delay: "3 sec (typing indicator)", type: "TOOL DELIVERY",
+        copy: "I built a calculator that finds your Freedom Number in 10 seconds.\n\nNo signup. No paywall. Just your number.",
+        button: { text: "\u{1F3AF} Find My Number", url: "https://kou.money/freedom-calculator" } },
+      { timing: "MSG 3", delay: "5 sec after button", type: "COMPOUND MATH REINFORCEMENT",
+        copy: "One heads up: when you see your number, your brain will say \"that's too far away.\"\n\nThat's the wrong math.\n\n$25/week starting at 19 = $48,726 by 40. The market does 70% of the work. You just show up with twenty-five dollars.\n\nRun the calculator. I'll send you the exact system I use to start closing that gap." },
+      { timing: "FOLLOW-UP", delay: "30 min Smart Delay", type: "RE-ENGAGEMENT",
+        copy: "Did you find your number?\n\nIf you plugged in your expenses, check your email. I just sent you something that turns that number from \"someday\" into a system.\n\nIf you haven't run it yet, it takes 10 seconds. Literally.",
+        button: { text: "\u{1F3AF} Run It Now", url: "https://kou.money/freedom-calculator" } }
+    ]
+  },
+  {
+    id: "cs-ticking",
+    starterText: "How much is waiting to invest costing me?",
+    charCount: 42,
+    keyword: "TICKING",
+    pillarRoute: "P2: THE FUEL",
+    asset: "Cost of Waiting Calculator",
+    url: "https://kou.money/cost-of-waiting",
+    position: 2,
+    psychology: "Loss aversion. Frames delay as a cost, not a neutral decision. The word \"costing\" triggers loss aversion before they even tap.",
+    brandonTriggers: ["Invisible Bleed Reveal", "Compound Shock"],
+    messages: [
+      { timing: "MSG 1", delay: "Immediate (0 sec)", type: "HOOK + URGENCY", isEntry: true,
+        copy: "More than you think. And I can prove it with one number.\n\nEvery year you wait to invest $25/week, you lose over $17,000 by age 40.\n\nNot \"could lose.\" Lose. The math is already running. It ran while you read this message." },
+      { timing: "MSG 2", delay: "3 sec (typing indicator)", type: "TOOL DELIVERY",
+        copy: "I built a calculator that shows you YOUR exact cost of waiting.\n\nPlug in your age and what you can set aside weekly. Even $10. It calculates what every single day of delay is costing you in real dollars.\n\nThe number will make you sick. That's the point.",
+        button: { text: "\u23F3 Show Me The Damage", url: "https://kou.money/cost-of-waiting" } },
+      { timing: "MSG 3", delay: "5 sec after button", type: "ANTI-AUTHORITY + URGENCY",
+        copy: "Nobody showed you this math in school because your school doesn't lose money when you stay broke.\n\nYou do.\n\nRun the calculator. Then check your email for the exact setup that stops the bleeding in 10 minutes." },
+      { timing: "FOLLOW-UP", delay: "30 min Smart Delay", type: "RE-ENGAGEMENT",
+        copy: "Quick question: did you see your number?\n\nIf the cost of waiting made you feel something, good. That feeling has a shelf life of about 24 hours before your brain normalizes it again.\n\nThe tool I sent to your email is how you act on it before that window closes.",
+        button: { text: "\u23F3 Calculate Now", url: "https://kou.money/cost-of-waiting" } }
+    ]
+  },
+  {
+    id: "cs-score",
+    starterText: "How do I get my credit score to 800?",
+    charCount: 37,
+    keyword: "SCORE",
+    pillarRoute: "P3: THE LEVERAGE",
+    asset: "800-Club Interactive Checklist",
+    url: "https://kou.money/800-club",
+    position: 3,
+    psychology: "Specific number (800) is the scroll-stop. Not \"improve my credit.\" A target Brandon can visualize. Permission Grant + Anti-Authority.",
+    brandonTriggers: ["Permission Grant", "Anti-Authority Resonance"],
+    messages: [
+      { timing: "MSG 1", delay: "Immediate (0 sec)", type: "HOOK + DOLLAR COST", isEntry: true,
+        copy: "Straight answer: it's a checklist, not a mystery.\n\nNobody taught you credit because nobody who taught you makes money when you understand it. Banks make more when you're confused.\n\nHere's what they skipped: a 650 credit score costs you $3,000+ more on a car loan than an 800. That's 214 hours of work at $14/hr. For the same car." },
+      { timing: "MSG 2", delay: "3 sec (typing indicator)", type: "TOOL DELIVERY",
+        copy: "I built an interactive checklist that walks you through every step to 800.\n\nEach step takes under 10 minutes. No jargon. No \"it depends.\" Just do this, then this, then this, watch the number move.",
+        button: { text: "\u{1F6E1} Start The 800 Checklist", url: "https://kou.money/800-club" } },
+      { timing: "MSG 3", delay: "5 sec after button", type: "PERMISSION GRANT",
+        copy: "You don't need to understand everything about credit to start building it. You just need the steps in order.\n\nRun through the checklist. Then check your email. I'm sending you the tool that shows exactly where every dollar of your paycheck goes. That's where the real leverage is." },
+      { timing: "FOLLOW-UP", delay: "30 min Smart Delay", type: "RE-ENGAGEMENT",
+        copy: "Did you open the 800-Club checklist?\n\nMost people your age won't hit 800 until their 30s because nobody gave them the sequence.\n\nYou have the sequence. The only variable left is whether you run it.",
+        button: { text: "\u{1F6E1} Open The Checklist", url: "https://kou.money/800-club" } }
+    ]
+  },
+  {
+    id: "cs-autopilot",
+    starterText: "How do I save money without thinking?",
+    charCount: 38,
+    keyword: "AUTOPILOT",
+    pillarRoute: "P1: THE MACHINE",
+    asset: "Autopilot Architecture Map",
+    url: "https://kou.money/autopilot-system",
+    position: 4,
+    psychology: "\"Without thinking\" is the system promise in 2 words. Directly contrasts every failed willpower attempt Brandon has already made.",
+    brandonTriggers: ["System Promise", "Recognition Shock"],
+    messages: [
+      { timing: "MSG 1", delay: "Immediate (0 sec)", type: "HOOK + REFRAME", isEntry: true,
+        copy: "The honest answer: you stop relying on yourself to do it.\n\nEvery \"new month, new budget\" you've tried lasted about 11 days. Not because you're lazy. Because willpower-based saving has a 92% failure rate within 90 days. Across every income level. Every age group. It's not you. It's the architecture." },
+      { timing: "MSG 2", delay: "3 sec (typing indicator)", type: "TOOL DELIVERY",
+        copy: "I built a system that saves, invests, and builds an emergency fund from your paycheck automatically. Before you can touch the money. Before the 30 unnamed holes drain it.\n\nSet it up once. Takes 10 minutes. Then never think about it again. That's the whole point.",
+        button: { text: "\u2699 Show Me The System", url: "https://kou.money/autopilot-system" } },
+      { timing: "MSG 3", delay: "5 sec after button", type: "SYSTEM DESCRIPTION",
+        copy: "Here's what changes: on payday, your money splits BEFORE it hits your spending balance.\n\nSavings. Emergency buffer. Investment. All moved automatically. What's left in checking is what you actually get to spend. No guilt. No math. No willpower.\n\nThe machine runs whether you're disciplined or not." },
+      { timing: "FOLLOW-UP", delay: "30 min Smart Delay", type: "RE-ENGAGEMENT",
+        copy: "Did you check out the Autopilot system?\n\nIf you set it up, your next paycheck is the last one that leaks.\n\nIf you haven't yet, 10 minutes is all it takes. Less time than the DoorDash you ordered at midnight last week.",
+        button: { text: "\u2699 Set Up Autopilot", url: "https://kou.money/autopilot-system" } }
     ]
   }
 ];
@@ -542,9 +665,15 @@ function renderOverview() {
     <div class="pillar-section active" data-section="overview">
       <div class="pillar-header">
         <h2>SYSTEM OVERVIEW</h2>
-        <div class="angle">9 Keyword Flows + Welcome Flow + PMV Tracker. All converging to email capture and revenue validation.</div>
+        <div class="angle">9 Keyword Flows + 4 Conversation Starters + Welcome Flow + PMV Tracker. All converging to email capture and revenue validation.</div>
       </div>
       <div class="overview-grid">
+        <div class="overview-card card-green" onclick="switchTab('starters')">
+          <h3 style="color:var(--green)">\u{1F4AC} CONVERSATION STARTERS</h3>
+          <div class="oc-keyword" style="color:var(--green)">4 INSTAGRAM DM PROMPTS (NEW FOLLOWER ENTRY)</div>
+          <div class="oc-angle">Tappable questions that appear when new followers open your DM thread. Separate shorter flows from keyword pillars. Two triggers per flow.</div>
+          <div class="oc-stats"><div><span>4</span> starters</div><div><span>16</span> DM msgs</div><div><span>8</span> buttons</div></div>
+        </div>
         ${PILLARS.map((p, i) => `
           <div class="overview-card ${p.isMVO ? 'card-pmv' : ''}" onclick="switchTab('${p.id}')">
             <h3>${p.isMVO ? '\u{1F4B0} ' : 'P'+(i+1)+': '}${p.name}</h3>
@@ -570,7 +699,12 @@ function renderOverview() {
           <div class="oc-stats"><div><span>3</span> concepts tested</div><div><span>20+</span> min responses</div></div>
         </div>
       </div>
-      <div class="flow-divider" style="margin-top:40px"><span>DAY 7 CONVERGENCE MAP</span></div>
+      <div class="flow-divider" style="margin-top:40px"><span>CONVERSATION STARTERS \u2192 ENTRY POINT MAP</span></div>
+      <div class="info-box">
+        ${CONVERSATION_STARTERS.map(cs => `<div><span class="val-green" style="font-family:'JetBrains Mono',monospace;">SLOT ${cs.position}</span> "${cs.starterText}" <span style="color:var(--text-dim);">(${cs.charCount} chars)</span> \u2192 <span class="val-orange">${cs.keyword}</span> starter flow \u2192 <span class="val-blue">${cs.url}</span></div>`).join('')}
+        <div style="margin-top:12px;font-size:11px;color:var(--green);font-weight:600;">STARTERS USE SEPARATE DM SEQUENCES FROM KEYWORD PILLAR FLOWS. TWO DOORS, SAME TOOLS, DIFFERENT COPY.</div>
+      </div>
+      <div class="flow-divider"><span>DAY 7 CONVERGENCE MAP (KEYWORD FLOWS)</span></div>
       <div class="info-box">
         ${PILLARS.filter(p => !p.isMVO).map((p, i) => {
           const d7 = p.messages[p.messages.length - 1];
@@ -584,6 +718,136 @@ function renderOverview() {
         <div><span class="label val-orange">P8 SETUP</span> Day 1 \u2192 <span class="val-blue">Value Reinforcement + MVO Link</span></div>
         <div><span class="label val-orange">P8 SETUP</span> Day 3 \u2192 <span class="val-green">Free Redirect to Autopilot Map (soft exit)</span></div>
         <div style="margin-top:12px;font-size:11px;color:var(--burn-orange);font-weight:600;">SETUP FLOW IS REVENUE VALIDATION. ALL OTHER FLOWS ARE EMAIL CAPTURE.</div>
+      </div>
+    </div>`;
+}
+
+function renderConversationStarters() {
+  return `
+    <div class="pillar-section" data-section="starters">
+      <div class="pillar-header">
+        <h2 style="color:var(--green)">\u{1F4AC} CONVERSATION STARTERS</h2>
+        <span class="keyword-badge-green">4 INSTAGRAM DM PROMPTS</span>
+        <div class="angle">Tappable questions that appear when new followers open your DM thread. Each fires a separate, shorter DM sequence from the keyword pillar flows. Two triggers per flow: one for the starter tap, one for the keyword DM.</div>
+        <div class="asset-link">SETUP: Instagram Settings \u2192 Business \u2192 Conversation Starters \u2192 Create Question</div>
+      </div>
+
+      <div class="flow-divider"><span>THE 4 STARTERS (COPY/PASTE READY, 80 CHAR LIMIT)</span></div>
+      ${CONVERSATION_STARTERS.map(cs => `
+        <div class="starter-preview" onclick="copyStarterText(this, '${escapeForAttr(cs.starterText)}')">
+          <div>
+            <div style="font-size:9px;color:var(--green);font-weight:600;letter-spacing:1px;margin-bottom:4px;">SLOT ${cs.position}</div>
+            <div class="sp-text">${escapeHtml(cs.starterText)}</div>
+            <div style="font-size:10px;color:var(--text-dim);margin-top:4px;">${cs.psychology}</div>
+          </div>
+          <div class="sp-meta">
+            <span class="sp-keyword">${cs.keyword}</span>
+            <span class="sp-chars">${cs.charCount}/80</span>
+            <button class="starter-copy-btn" onclick="event.stopPropagation(); copyStarterText(this.closest('.starter-preview'), '${escapeForAttr(cs.starterText)}')">COPY</button>
+          </div>
+        </div>
+      `).join('')}
+
+      <div class="flow-divider"><span>DUAL TRIGGER CONFIGURATION (CRITICAL)</span></div>
+      <div class="info-box" style="margin-bottom:24px;">
+        <div style="font-size:11px;color:var(--green);font-weight:600;margin-bottom:10px;">Each conversation starter flow needs TWO triggers in ManyChat so it fires from both starter taps AND keyword DMs from content.</div>
+        ${CONVERSATION_STARTERS.map(cs => `
+          <div class="dual-trigger-box" style="margin-top:12px;">
+            <div class="dt-label">${cs.keyword} FLOW (Slot ${cs.position})</div>
+            <div class="dual-trigger-row">
+              <span class="dt-type" style="color:var(--green);">TRIGGER 1:</span>
+              <span class="dt-match">Message is</span>
+              <span class="dt-value">"${cs.starterText}"</span>
+            </div>
+            <div class="dual-trigger-row">
+              <span class="dt-type" style="color:var(--burn-orange);">TRIGGER 2:</span>
+              <span class="dt-match">Message contains</span>
+              <span class="dt-value">${cs.keyword}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="flow-divider"><span>PSYCHOLOGICAL ARCHITECTURE (SLOT ORDER)</span></div>
+      <div class="info-box" style="margin-bottom:24px;">
+        <div style="margin-bottom:8px;">The 4 starters appear vertically in Brandon's DM thread. The order is the funnel:</div>
+        <div><span class="val-green">SLOT 1 (TOP):</span> MYNUMBER. Aspirational hook. Biggest dream. Casts the widest net.</div>
+        <div><span class="val-green">SLOT 2:</span> TICKING. Loss aversion. If the dream didn't hook them, the fear will.</div>
+        <div><span class="val-green">SLOT 3:</span> SCORE. Practical + immediate. For the Brandon who skipped the big questions.</div>
+        <div><span class="val-green">SLOT 4 (BOTTOM):</span> AUTOPILOT. System promise. Catches the "I've tried everything" Brandon.</div>
+        <div style="margin-top:12px;font-size:11px;color:var(--text-dim);">Zero emotional overlap. Four different pain points. Three email funnel entries. One brand philosophy anchor.</div>
+      </div>
+
+      ${CONVERSATION_STARTERS.map((cs, ci) => `
+        <div class="flow-divider"><span>STARTER ${cs.position}: ${cs.keyword} FLOW \u2192 ${cs.asset.toUpperCase()}</span></div>
+        <div style="margin-bottom:8px;">
+          <span style="font-size:10px;color:var(--text-dim);">BRANDON TRIGGERS: </span>
+          ${cs.brandonTriggers.map(t => `<span style="font-size:10px;padding:2px 8px;background:var(--green-glow);border:1px solid var(--green-dim);border-radius:3px;color:var(--green);margin-right:4px;">${t}</span>`).join('')}
+          <span style="font-size:10px;color:var(--text-dim);margin-left:8px;">ROUTES TO: </span>
+          <span style="font-size:10px;color:var(--tape-blue);">${cs.url}</span>
+        </div>
+        <div class="flow-container green-line">
+          ${cs.messages.map((msg, mi) => `
+            <div class="flow-node ${msg.isEntry ? 'green-node' : ''}">
+              <div class="node-card">
+                <div class="node-header ${msg.isEntry ? 'green-header' : ''}">
+                  <div class="node-timing">
+                    <span class="timing-badge ${msg.isEntry ? 'green' : ''}">${msg.timing}</span>
+                    <span class="timing-delay">${msg.delay}</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="node-type">${msg.type}</span>
+                    <button class="node-copy-btn" onclick="copyStarterNode(this, ${ci}, ${mi})">COPY ALL</button>
+                  </div>
+                </div>
+                <div class="node-body">
+                  <div class="message-copy">${escapeHtml(msg.copy)}</div>
+                  ${msg.button ? `<div class="button-block" style="background:var(--green-glow);border-color:var(--green-dim);"><span class="btn-label">BUTTON</span><span class="btn-text" style="color:var(--green);">${escapeHtml(msg.button.text)}</span><button class="url-copy-btn" onclick="copyUrl(this, '${escapeForAttr(msg.button.url)}')">COPY URL</button><span class="btn-url">${escapeHtml(msg.button.url)}</span></div>` : ''}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+
+      <div class="flow-divider"><span>MANYCHAT BUILD CHECKLIST</span></div>
+      <div class="info-box">
+        <div style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:1px;margin-bottom:10px;">PHASE 1: INSTAGRAM CONVERSATION STARTERS</div>
+        <div>1. Go to Instagram Settings \u2192 Business \u2192 Conversation Starters</div>
+        <div>2. Tap "Create Question"</div>
+        <div>3. Enter Starter 1: <span class="val-green">${CONVERSATION_STARTERS[0].starterText}</span></div>
+        <div>4. Enter Starter 2: <span class="val-green">${CONVERSATION_STARTERS[1].starterText}</span></div>
+        <div>5. Enter Starter 3: <span class="val-green">${CONVERSATION_STARTERS[2].starterText}</span></div>
+        <div>6. Enter Starter 4: <span class="val-green">${CONVERSATION_STARTERS[3].starterText}</span></div>
+        <div>7. Save and verify they appear in DM thread preview</div>
+        <div style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:1px;margin-top:16px;margin-bottom:10px;">PHASE 2: MANYCHAT FLOWS (4 NEW AUTOMATIONS)</div>
+        <div>For each flow (MYNUMBER, TICKING, SCORE, AUTOPILOT):</div>
+        <div>1. Create new automation in ManyChat</div>
+        <div>2. Add Trigger 1: <span class="val-green">"Message is"</span> \u2192 paste exact conversation starter text</div>
+        <div>3. Add Trigger 2: <span class="val-orange">"Message contains"</span> \u2192 type keyword</div>
+        <div>4. Build MSG 1 (immediate, no delay)</div>
+        <div>5. Add typing indicator (3 sec)</div>
+        <div>6. Build MSG 2 (with button/link)</div>
+        <div>7. Add typing indicator (4 sec)</div>
+        <div>8. Build MSG 3 (reinforcement, no button)</div>
+        <div>9. Add Smart Delay (30 min)</div>
+        <div>10. Build Follow-Up Message (with button)</div>
+        <div>11. Tag subscriber with <span class="val-orange">{KEYWORD}</span> + <span class="val-green">source_starter</span></div>
+        <div style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:1px;margin-top:16px;margin-bottom:10px;">PHASE 3: VERIFICATION</div>
+        <div>1. Open Instagram DMs from a test account (or have a friend check)</div>
+        <div>2. Confirm all 4 starters appear as tappable buttons</div>
+        <div>3. Tap each one and verify ManyChat responds correctly</div>
+        <div>4. Type each keyword manually and verify same flow triggers</div>
+        <div>5. Check all links open correctly on mobile</div>
+        <div>6. Confirm typing indicators create natural pacing</div>
+        <div>7. Verify follow-up messages fire at 30 minutes</div>
+      </div>
+
+      <div class="flow-divider"><span>STARTERS vs KEYWORD FLOWS: KEY DIFFERENCES</span></div>
+      <div class="info-box">
+        <div><span class="val-green">CONVERSATION STARTERS:</span> 4 messages. Shorter. Conversational tone. Designed for cold traffic (new followers who have never seen your content). No comment replies needed (starters are DM-only).</div>
+        <div style="margin-top:8px;"><span class="val-orange">KEYWORD FLOWS:</span> 5 messages (Day 1-7). Longer sequences with deepening content. Designed for warm traffic (followers who watched a Reel, saw a CTA, and typed the keyword). Include comment replies for public engagement.</div>
+        <div style="margin-top:12px;font-size:11px;color:var(--text-dim);">Both route to the same tools. The copy is calibrated differently because the intent level is different. A starter tap is curiosity. A keyword DM is commitment.</div>
       </div>
     </div>`;
 }
@@ -833,6 +1097,7 @@ function renderPMV() {
 
 function buildAll() {
   let html = renderOverview();
+  html += renderConversationStarters();
   PILLARS.forEach((p, i) => { html += renderPillar(p, i); });
   html += renderWelcome();
   html += renderPMV();
@@ -849,12 +1114,13 @@ function showSection(id) {
 function switchTab(id) {
   activeTab = id;
   document.querySelectorAll('.nav-tab').forEach(t => {
-    t.classList.remove('active','active-cyan','active-pmv');
+    t.classList.remove('active','active-cyan','active-pmv','active-green');
   });
   const tab = document.querySelector(`.nav-tab[data-tab="${id}"]`);
   if (tab) {
     if (id === 'welcome') tab.classList.add('active-cyan');
     else if (id === 'pmv') tab.classList.add('active-pmv');
+    else if (id === 'starters') tab.classList.add('active-green');
     else tab.classList.add('active');
   }
   showSection(id);
@@ -883,6 +1149,24 @@ function copyNodeText(btn, pillarIdx, msgIdx) {
   });
 }
 
+function copyStarterNode(btn, starterIdx, msgIdx) {
+  const msg = CONVERSATION_STARTERS[starterIdx].messages[msgIdx];
+  let fullText = msg.copy;
+  if (msg.button) fullText += '\n\n[BUTTON] "' + msg.button.text + '" \u2192 ' + msg.button.url;
+  navigator.clipboard.writeText(fullText).then(() => {
+    btn.textContent = 'COPIED'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY ALL'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function copyStarterText(el, text) {
+  const decoded = text.replace(/\\n/g, '\n').replace(/\\'/g, "'").replace(/\\\\/g, '\\');
+  navigator.clipboard.writeText(decoded).then(() => {
+    const btn = el.querySelector('.starter-copy-btn');
+    if (btn) { btn.textContent = 'COPIED'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1500); }
+  });
+}
+
 function copyUrl(btn, url) {
   navigator.clipboard.writeText(url).then(() => {
     btn.textContent = 'COPIED'; btn.classList.add('copied');
@@ -893,7 +1177,7 @@ function copyUrl(btn, url) {
 searchInput.addEventListener('input', (e) => {
   const query = e.target.value.toLowerCase().trim();
   if (!query) {
-    document.querySelectorAll('.flow-node, .reply-card').forEach(el => { el.style.display = ''; });
+    document.querySelectorAll('.flow-node, .reply-card, .starter-preview').forEach(el => { el.style.display = ''; });
     showSection(activeTab);
     return;
   }
@@ -909,7 +1193,11 @@ searchInput.addEventListener('input', (e) => {
     const text = card.textContent.toLowerCase();
     card.style.display = text.includes(query) ? '' : 'none';
   });
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active','active-cyan','active-pmv'));
+  document.querySelectorAll('.starter-preview').forEach(sp => {
+    const text = sp.textContent.toLowerCase();
+    sp.style.display = text.includes(query) ? '' : 'none';
+  });
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active','active-cyan','active-pmv','active-green'));
 });
 
 const scrollTopBtn = document.getElementById('scrollTop');
