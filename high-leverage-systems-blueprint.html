@@ -685,9 +685,10 @@ STEP 1: ENTRY TRIGGER
 - Trigger: New subscriber added to list (any source)
 - Configuration: [Exact Beehiiv menu path to set this up]
 
-STEP 2: CONDITION CHECK — BUYER EXCLUSION
+STEP 2: CONDITION CHECK — BUYER EXCLUSION & LAUNCH HOLD
 - IF subscriber has tag "buyer-bronze" OR "buyer-silver": EXIT automation immediately
-- WHY: Buyers get System 17 upsell sequence instead. Sending welcome emails to buyers is redundant and damages segmentation.
+- IF subscriber has tag "active-launch-hold": PAUSE subscriber here until tag is removed (prevents automated sequences colliding with live pre-sale blasts).
+- WHY: Protects segmentation and prevents burning leads with double-emails.
 - Configuration: [Exact condition node setup in Beehiiv]
 
 STEP 3: DELAY — Wait for System 29
@@ -1332,7 +1333,7 @@ AFTER THIS SYSTEM:
 EVENT 1: subscription.confirmed
 FIRES WHEN: New subscriber confirms their email
 PAYLOAD INCLUDES: subscriber email, tags (source tag reveals which tool), timestamp
-SUPABASE DESTINATION: New table "email_subscribers" with columns: id, email, source_tag, subscribed_at, status
+SUPABASE DESTINATION: New table "email_subscribers" with columns: id, email, source_tag, subscribed_at, status (Note: System 32 Zapier updates this status to buyer_bronze upon purchase)
 
 EVENT 2: subscription.deleted
 FIRES WHEN: Subscriber unsubscribes or is auto-removed by System 30
@@ -1971,15 +1972,16 @@ Pick one. Justify in one sentence.
 
 3. ZAPIER CONFIGURATION (exact steps):
 - Trigger: "New Sale" on selected platform
-- Action: "Add/Update Subscriber" in Beehiiv
+- Action 1: "Add/Update Subscriber" in Beehiiv
+- Action 2: Supabase "Update Row" (Match by email, update status to buyer_bronze in email_subscribers table)
 - Field mapping: buyer email from payment platform mapped to Beehiiv subscriber email
 - Tag: "buyer-bronze" applied on trigger
 - Test: walk through exact test protocol
 
-4. $0 TEST PURCHASE PROTOCOL:
-Step-by-step to verify the entire chain:
-a) Create a $0 or $1 test product (or use platform's test mode)
-b) Complete purchase from a test email
+4. $1 LIVE PURCHASE PROTOCOL:
+Step-by-step to verify the real payment gateway and database chain:
+a) Create a $1 test product (do NOT use test mode, use real Stripe/PayPal clearing)
+b) Complete purchase from a test email using a real card, then immediately refund yourself
 c) Verify: product delivery arrives in under 60 seconds
 d) Verify: Zapier fires (check Zapier task history)
 e) Verify: "buyer-bronze" tag appears on test subscriber in Beehiiv within 2 minutes
@@ -2000,7 +2002,7 @@ FORMAT: Comparison table first. Setup steps second. Zapier config third. Test pr
 - Zapier budget note: threshold and contingency
 - Total: 600-900 words. Zero sales page work. Zero buyer email templates. Pure infrastructure.`,
   verification:[
-    {type:'pass',text:'$0 test purchase completes end to end (purchase to delivery)'},
+    {type:'pass',text:'$1 live test purchase completes and clears the payment gateway'},
     {type:'pass',text:'Zapier fires within 60 seconds of test purchase'},
     {type:'pass',text:'buyer-bronze tag appears in Beehiiv subscriber profile within 2 minutes'},
     {type:'pass',text:'Checkout link works on mobile (test from iPhone)'},
@@ -2064,7 +2066,7 @@ EACH PAGE MUST INCLUDE (7 elements):
 2. 3-5 outcome-focused bullet points (what changes in Brandon's life, not what is in the product)
 3. Price with time anchor: "Less than [X] hours at your hourly rate"
 4. Single CTA button with specific text (not "Sign Up" or "Buy Now", something like "Lock My $29 Spot Before It Closes")
-5. Exit-capture 3-button survey: "Too expensive?" / "Not what I need?" / "Not sure what I get?"
+5. Exit-capture 3-button survey: "Too expensive?" / "Not what I need?" / "Not sure what I get?" (MOBILE TRIGGERS: Must fire on fast scroll-up, 15+ seconds idle at pricing section, or back-button popstate intercept. Do NOT rely on desktop mouse-leave.)
 6. Public delivery date (for pre-sale pages)
 7. Zero Wallpaper. Every sentence passes: "Would this stop me in a parking lot?"
 
@@ -2116,7 +2118,7 @@ FORMAT: Two-phase delivery with mandatory review gate.\n\nPHASE 1 (deliver first
   verification:[
     {type:'pass',text:'Pages load under 3 seconds on mobile'},
     {type:'pass',text:'Waitlist/payment form submits correctly with correct unique tag'},
-    {type:'pass',text:'Exit-capture survey buttons fire and log responses'},
+    {type:'pass',text:'Exit-capture survey buttons fire on mobile triggers (fast scroll up, idle, or back-button) and log responses'},
     {type:'pass',text:'Headlines pass parking lot test (would stop a stranger)'},
     {type:'pass',text:'Price anchor uses hours-worked reference at $18/hr'},
     {type:'pass',text:'Zero PERSONALITY anti-patterns detected in any copy'},
@@ -2252,7 +2254,7 @@ Must include all 7 elements:
 
 BUILD 2 — WAVE STRATEGY:
 Wave 1 (Week 1, Warm): Beehiiv email blast + ManyChat broadcast to winning pillar subscribers + 2-3 content pieces driving to MVO page. All links: ?utm_source=warm
-Wave 2 (Week 2, Cold): Share in relevant communities, ask for referrals from engaged followers. All links: ?utm_source=cold
+Wave 2 (Week 2, Cold): 2-Step Community Outreach. Do NOT post the MVO link directly (causes instant bans). Post the Top DM Question/Value framework. Send the MVO link via DM only to those who reply. Ask for referrals from engaged followers. All links: ?utm_source=cold
 
 BUILD 3 — TRACKING INFRASTRUCTURE:
 UTM parameters separating warm vs cold. Beehiiv or payment platform tracking purchases by source.
@@ -2263,7 +2265,7 @@ Day 1: Wave 1 launches. Beehiiv email sent. ManyChat broadcast fired. Content pi
 Day 3: Content piece 2. Check warm conversion. If 0 purchases and 50+ visits, audit page immediately.
 Day 5: Content piece 3 (different angle). End of Wave 1. Finalize community target list for Wave 2 (5-8 communities identified, posting rules reviewed, angle per community defined). Do NOT wait until Day 8 to research communities.
 Day 7: Mid-point check. Calculate warm conversion rate. Decision criteria:\n  - Warm below 1% with 50+ visitors: REVISE headline and first paragraph before Wave 2.\n  - Warm 1-2% with 50+ visitors: PROCEED without changes (Yellow territory, not worth pausing).\n  - Warm 2%+ with 50+ visitors: PROCEED confidently.\n  - Under 50 warm visitors: TRAFFIC problem, not conversion. Push 2 extra content pieces before starting Wave 2.
-Day 8: Wave 2 launches. Share in 3-5 communities. Ask 5 engaged followers to share.
+Day 8: Wave 2 launches. Execute 2-step outreach in 3-5 communities (Post value, DM link to commenters). Ask 5 engaged followers to share.
 Day 10: Wave 2 content push.
 Day 14: Close pre-sale. Pull all data. Apply validation matrix.
 
