@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYSTEM 37 // Beehiiv Publication Analytics Protocol</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0f;--bg2:#111119;--bg3:#18182a;--border:#1e1e2e;--border2:#2a2a3e;
+  --blue:#3b82f6;--electric:#60a5fa;--cyan:#22d3ee;--green:#10b981;
+  --amber:#f59e0b;--red:#ef4444;--purple:#c084fc;--orange:#f97316;
+  --text:#f0f0f5;--text2:#8888a0;--text3:#55556a;
+  --mono:'Space Mono',monospace;--display:'Outfit',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--display);min-height:100vh;-webkit-font-smoothing:antialiased;}
+.page{max-width:720px;margin:0 auto;padding:20px 16px 100px;}
+
+.tape{background:linear-gradient(135deg,#1e3a6e,#2d5bb9,#3b82f6);border-radius:2px;padding:12px 16px;margin-bottom:20px;transform:rotate(-0.3deg);box-shadow:0 4px 24px rgba(59,130,246,0.2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;}
+.tape-label{font-family:var(--mono);font-size:8px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.5);}
+.tape-num{font-family:var(--mono);font-size:22px;font-weight:700;color:#fff;}
+.tape-num span{font-size:10px;opacity:0.6;margin-left:4px;}
+.tape-meta{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.4);text-align:right;letter-spacing:1px;line-height:1.6;}
+
+.header{text-align:center;margin-bottom:24px;padding:24px 16px;background:var(--bg2);border:1px solid rgba(34,211,238,0.2);border-radius:12px;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(34,211,238,0.06),transparent 70%);pointer-events:none;}
+.header .badge{font-family:var(--mono);font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:6px;position:relative;}
+.header h1{font-size:20px;font-weight:900;position:relative;margin-bottom:4px;letter-spacing:-0.5px;}
+.header .sub{font-size:11px;color:var(--text2);font-weight:300;position:relative;line-height:1.5;}
+
+/* Column Map */
+.col-map{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px;}
+.col-map-header{padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);display:flex;justify-content:space-between;align-items:center;}
+.col-map-toggle{font-family:var(--mono);font-size:8px;letter-spacing:1px;padding:3px 8px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all 0.2s;}
+.col-map-toggle:hover{border-color:var(--cyan);color:var(--cyan);}
+.col-map-body{display:none;}
+.col-map-body.open{display:block;}
+.col-row{display:grid;grid-template-columns:44px 1fr 1fr;border-bottom:1px solid var(--border);font-size:10px;}
+.col-row:last-child{border-bottom:none;}
+.col-row.col-new{background:rgba(34,211,238,0.04);}
+.col-letter{padding:7px 8px;font-family:var(--mono);font-weight:700;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;}
+.col-existing{color:var(--text3);}
+.col-added{color:var(--cyan);}
+.col-name{padding:7px 8px;font-weight:500;border-right:1px solid var(--border);display:flex;align-items:center;}
+.col-source{padding:7px 8px;color:var(--text2);display:flex;align-items:center;}
+.new-tag{font-family:var(--mono);font-size:7px;letter-spacing:1px;padding:1px 5px;border-radius:2px;background:rgba(34,211,238,0.12);color:var(--cyan);border:1px solid rgba(34,211,238,0.25);margin-left:4px;}
+
+/* Mode Toggle */
+.mode-toggle{display:flex;gap:6px;margin-bottom:20px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:4px;}
+.mode-btn{flex:1;font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:10px 6px;border-radius:6px;border:none;background:transparent;color:var(--text3);cursor:pointer;transition:all 0.2s;text-align:center;}
+.mode-btn.active{background:rgba(34,211,238,0.1);color:var(--cyan);border:1px solid rgba(34,211,238,0.25);}
+.mode-btn:hover:not(.active){color:var(--text2);}
+
+.section{display:none;}
+.section.visible{display:block;}
+
+/* Timer */
+.timer-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;}
+.timer-icon{font-size:18px;}
+.timer-info{flex:1;}
+.timer-label{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);}
+.timer-time{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--cyan);}
+.timer-time.warning{color:var(--amber);}
+.timer-time.over{color:var(--red);}
+.timer-btn{font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:8px 14px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;transition:all 0.2s;}
+.timer-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+.timer-btn.running{border-color:var(--green);color:var(--green);}
+
+/* Progress */
+.progress-wrap{margin-bottom:20px;}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.progress-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);}
+.progress-pct{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--cyan);}
+.progress-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:3px;transition:width 0.4s ease;}
+
+/* Steps */
+.step{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all 0.2s;}
+.step.completed{border-color:rgba(16,185,129,0.3);}
+.step-header{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;cursor:pointer;user-select:none;}
+.step-check{appearance:none;-webkit-appearance:none;width:24px;height:24px;border:2px solid var(--border2);border-radius:6px;background:var(--bg);cursor:pointer;position:relative;transition:all 0.2s;flex-shrink:0;margin-top:1px;}
+.step-check:hover{border-color:var(--cyan);}
+.step-check:checked{background:rgba(16,185,129,0.15);border-color:var(--green);}
+.step-check:checked::after{content:'\2713';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--green);font-size:14px;font-weight:700;}
+.step-num{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);width:20px;flex-shrink:0;margin-top:3px;}
+.step-content{flex:1;}
+.step-title{font-size:13px;font-weight:600;margin-bottom:2px;line-height:1.4;}
+.step.completed .step-title{color:var(--green);opacity:0.7;}
+.step-detail{font-size:11px;color:var(--text2);line-height:1.5;}
+.step-nav{font-family:var(--mono);font-size:9px;color:var(--cyan);background:rgba(34,211,238,0.08);padding:3px 8px;border-radius:4px;display:inline-block;margin-top:4px;}
+.step-col{font-family:var(--mono);font-size:9px;color:var(--amber);background:rgba(245,158,11,0.08);padding:3px 8px;border-radius:4px;display:inline-block;margin-top:4px;margin-left:4px;}
+.step-col-new{font-family:var(--mono);font-size:9px;color:var(--cyan);background:rgba(34,211,238,0.08);padding:3px 8px;border-radius:4px;display:inline-block;margin-top:4px;margin-left:4px;border:1px solid rgba(34,211,238,0.2);}
+.step-ignore{font-size:10px;color:var(--text3);margin-top:6px;padding:8px 10px;background:var(--bg);border-radius:6px;border-left:2px solid var(--border2);}
+.step-note{font-size:10px;color:var(--purple);margin-top:6px;padding:8px 10px;background:rgba(192,132,252,0.04);border-radius:6px;border-left:2px solid rgba(192,132,252,0.3);}
+
+/* Divider */
+.divider{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin:20px 0 12px;display:flex;align-items:center;gap:8px;}
+.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* Decision Tree */
+.decision{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px;}
+.decision-header{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--amber);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.rule{padding:10px 12px;background:var(--bg);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--border2);transition:border-color 0.2s;}
+.rule:last-child{margin-bottom:0;}
+.rule-if{font-family:var(--mono);font-size:10px;color:var(--cyan);font-weight:700;margin-bottom:4px;}
+.rule-then{font-size:11px;color:var(--text2);line-height:1.5;}
+.rule-ref{font-family:var(--mono);font-size:9px;color:var(--purple);margin-top:4px;}
+.rule.r-green{border-left-color:var(--green);}
+.rule.r-amber{border-left-color:var(--amber);}
+.rule.r-red{border-left-color:var(--red);}
+.rule.r-purple{border-left-color:var(--purple);}
+
+/* Formula Box */
+.formula-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:var(--mono);font-size:10px;color:var(--electric);margin:8px 0;position:relative;line-height:1.6;word-break:break-all;}
+.formula-copy{position:absolute;top:6px;right:6px;font-family:var(--mono);font-size:7px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:3px;border:1px solid var(--border2);background:var(--bg2);color:var(--text3);cursor:pointer;transition:all 0.2s;}
+.formula-copy:hover{border-color:var(--cyan);color:var(--cyan);}
+.formula-copy.copied{border-color:var(--green);color:var(--green);}
+
+/* Formatting Legend */
+.format-legend{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px;}
+.format-legend-title{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+.format-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px;color:var(--text2);}
+.format-row:last-child{margin-bottom:0;}
+.swatch{width:14px;height:14px;border-radius:3px;}
+.swatch-green{background:#10b981;}
+.swatch-red{background:#ef4444;}
+.swatch-yellow{background:#f59e0b;}
+
+/* CEO Duties */
+.duty{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;}
+.duty-num{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--orange);margin-bottom:4px;}
+.duty-name{font-size:14px;font-weight:700;margin-bottom:6px;}
+.duty-question{font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:8px;font-style:italic;}
+.duty-data{font-size:10px;color:var(--cyan);margin-bottom:8px;padding:6px 10px;background:rgba(34,211,238,0.05);border-radius:6px;border-left:2px solid rgba(34,211,238,0.3);}
+.duty-rubric{display:flex;flex-direction:column;gap:4px;}
+.rubric-row{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--text2);}
+.rubric-score{font-family:var(--mono);font-size:10px;font-weight:700;width:36px;text-align:center;padding:2px 4px;border-radius:3px;flex-shrink:0;}
+.sc-hi{color:var(--green);background:rgba(16,185,129,0.1);}
+.sc-md{color:var(--amber);background:rgba(245,158,11,0.1);}
+.sc-lo{color:var(--red);background:rgba(239,68,68,0.1);}
+
+/* Monthly */
+.monthly-item{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;}
+.monthly-check{appearance:none;-webkit-appearance:none;width:20px;height:20px;border:2px solid var(--border2);border-radius:5px;background:var(--bg);cursor:pointer;position:relative;transition:all 0.2s;flex-shrink:0;margin-top:1px;}
+.monthly-check:checked{background:rgba(16,185,129,0.15);border-color:var(--green);}
+.monthly-check:checked::after{content:'\2713';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--green);font-size:12px;font-weight:700;}
+.monthly-text{flex:1;font-size:12px;line-height:1.5;}
+.monthly-text strong{color:var(--text);font-weight:600;}
+
+/* Log */
+.log-section{margin-top:20px;}
+.log-header{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.log-header::after{content:'';flex:1;height:1px;background:var(--border);}
+.log-entry{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;font-size:11px;}
+.log-date{font-family:var(--mono);font-size:10px;color:var(--cyan);}
+.log-time{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.log-complete{color:var(--green);font-family:var(--mono);font-size:9px;}
+
+.reset-bar{margin-top:24px;text-align:center;}
+.reset-btn{font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:6px 14px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all 0.2s;}
+.reset-btn:hover{border-color:var(--red);color:var(--red);}
+
+@media(max-width:480px){
+  .col-row{grid-template-columns:36px 1fr 1fr;}
+  .tape-num{font-size:18px;}
+  .mode-btn{font-size:8px;padding:8px 4px;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="tape">
+  <div>
+    <div class="tape-label">Blue Tape // Days to $1M</div>
+    <div class="tape-num" id="daysLeft">---<span>DAYS</span></div>
+  </div>
+  <div class="tape-meta">SYSTEM 37 v2<br>BEEHIIV ANALYTICS PROTOCOL<br>EVERGREEN // EVERY SUNDAY</div>
+</div>
+
+<div class="header">
+  <div class="badge">System 37 // Phase 1: Activate + Signal</div>
+  <h1>Publication Analytics Protocol</h1>
+  <div class="sub">5 minutes weekly. 15 minutes monthly. Reads Beehiiv Analytics and feeds System 9 dashboard (Columns A-M existing, N-O new).</div>
+</div>
+
+<!-- Column Map (collapsible reference) -->
+<div class="col-map">
+  <div class="col-map-header">
+    <span>System 9 Column Map // Your Actual Dashboard</span>
+    <button class="col-map-toggle" id="colMapBtn" onclick="document.getElementById('colMapBody').classList.toggle('open');this.textContent=this.textContent==='Show'?'Hide':'Show';">Show</button>
+  </div>
+  <div class="col-map-body" id="colMapBody">
+    <div class="col-row"><div class="col-letter col-existing">A</div><div class="col-name">Week #</div><div class="col-source">Manual</div></div>
+    <div class="col-row"><div class="col-letter col-existing">B</div><div class="col-name">Date</div><div class="col-source">Manual</div></div>
+    <div class="col-row"><div class="col-letter col-existing">C</div><div class="col-name">New Subs</div><div class="col-source">Beehiiv</div></div>
+    <div class="col-row"><div class="col-letter col-existing">D</div><div class="col-name">Total List</div><div class="col-source">Beehiiv</div></div>
+    <div class="col-row"><div class="col-letter col-existing">E</div><div class="col-name">Open Rate %</div><div class="col-source">Beehiiv</div></div>
+    <div class="col-row"><div class="col-letter col-existing">F</div><div class="col-name">Click Rate %</div><div class="col-source">Beehiiv (this IS your email CTR)</div></div>
+    <div class="col-row"><div class="col-letter col-existing">G</div><div class="col-name">IG Followers</div><div class="col-source">IG Insights</div></div>
+    <div class="col-row"><div class="col-letter col-existing">H</div><div class="col-name">Avg Views/Video</div><div class="col-source">IG Insights</div></div>
+    <div class="col-row"><div class="col-letter col-existing">I</div><div class="col-name">Engagement %</div><div class="col-source">IG Insights</div></div>
+    <div class="col-row"><div class="col-letter col-existing">J</div><div class="col-name">ManyChat Triggers</div><div class="col-source">ManyChat</div></div>
+    <div class="col-row"><div class="col-letter col-existing">K</div><div class="col-name">Waitlist/Signups</div><div class="col-source">Supabase / kou.money</div></div>
+    <div class="col-row"><div class="col-letter col-existing">L</div><div class="col-name">Revenue $</div><div class="col-source">Manual</div></div>
+    <div class="col-row"><div class="col-letter col-existing">M</div><div class="col-name">Notes</div><div class="col-source">Manual</div></div>
+    <div class="col-row col-new"><div class="col-letter col-added">N</div><div class="col-name">Pub Visitors <span class="new-tag">NEW</span></div><div class="col-source">Beehiiv Website Analytics</div></div>
+    <div class="col-row col-new"><div class="col-letter col-added">O</div><div class="col-name">Top Post <span class="new-tag">NEW</span></div><div class="col-source">Beehiiv Website Analytics</div></div>
+  </div>
+</div>
+
+<div class="mode-toggle">
+  <button class="mode-btn active" data-mode="weekly" onclick="switchMode('weekly')">Weekly</button>
+  <button class="mode-btn" data-mode="dashboard" onclick="switchMode('dashboard')">Setup</button>
+  <button class="mode-btn" data-mode="ceo" onclick="switchMode('ceo')">CEO Audit</button>
+  <button class="mode-btn" data-mode="decisions" onclick="switchMode('decisions')">Decisions</button>
+  <button class="mode-btn" data-mode="monthly" onclick="switchMode('monthly')">Monthly</button>
+</div>
+
+<!-- ========== WEEKLY ========== -->
+<div class="section visible" id="sec-weekly">
+
+<div class="timer-bar">
+  <div class="timer-icon">⏱</div>
+  <div class="timer-info">
+    <div class="timer-label">Target: 5 Minutes</div>
+    <div class="timer-time" id="timerDisplay">0:00</div>
+  </div>
+  <button class="timer-btn" id="timerBtn" onclick="toggleTimer()">Start</button>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-header">
+    <div class="progress-label">Weekly Protocol</div>
+    <div class="progress-pct" id="weeklyPct">0%</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="weeklyFill" style="width:0%"></div></div>
+</div>
+
+<div id="weeklySteps">
+
+<div class="step" data-step="1">
+  <div class="step-header">
+    <input type="checkbox" class="step-check" onchange="updateProgress()">
+    <div class="step-num">01</div>
+    <div class="step-content">
+      <div class="step-title">Pull subscriber numbers</div>
+      <div class="step-detail">Write down <strong>New Subscribers (last 7 days)</strong> and <strong>Total Subscribers</strong>.</div>
+      <span class="step-nav">Beehiiv > Audience > Overview</span>
+      <span class="step-col">Col C: New Subs</span>
+      <span class="step-col">Col D: Total List</span>
+    </div>
+  </div>
+</div>
+
+<div class="step" data-step="2">
+  <div class="step-header">
+    <input type="checkbox" class="step-check" onchange="updateProgress()">
+    <div class="step-num">02</div>
+    <div class="step-content">
+      <div class="step-title">Pull this week's email performance</div>
+      <div class="step-detail">Open this week's sent email. Write down <strong>Open Rate %</strong> and <strong>Click Rate %</strong>.</div>
+      <span class="step-nav">Beehiiv > Posts > [This Week's Email]</span>
+      <span class="step-col">Col E: Open Rate %</span>
+      <span class="step-col">Col F: Click Rate %</span>
+      <div class="step-note">Column F is your email CTR. No separate CTR column needed. One email per week = one click rate number.</div>
+    </div>
+  </div>
+</div>
+
+<div class="step" data-step="3">
+  <div class="step-header">
+    <input type="checkbox" class="step-check" onchange="updateProgress()">
+    <div class="step-num">03</div>
+    <div class="step-content">
+      <div class="step-title">Check which tool got clicks</div>
+      <div class="step-detail">Still on the same email stats page from Step 2. Scroll down past the open/click summary. You will see a <strong>Click Map</strong> section showing every link in the email ranked by number of clicks. Find the kou.money link (e.g., kou.money/freedom-calculator, kou.money/budget-calculator). Note which tool URL got the most clicks. Do not log this number anywhere. Just remember it.</div>
+      <span class="step-nav">Same email stats page > scroll below open/click chart > Click Map section</span>
+      <div class="step-note">This observation feeds the Decisions tab. If your email linked to multiple tools, the top-clicked one tells you which pillar your audience is voting for. If you only linked one tool, this step takes 5 seconds: confirm it got clicks, move on.</div>
+    </div>
+  </div>
+</div>
+
+<div class="step" data-step="4">
+  <div class="step-header">
+    <input type="checkbox" class="step-check" onchange="updateProgress()">
+    <div class="step-num">04</div>
+    <div class="step-content">
+      <div class="step-title">Pull publication unique visitors</div>
+      <div class="step-detail">Set date range to <strong>Last 7 days</strong>. Write down <strong>Unique Visitors</strong>.</div>
+      <span class="step-nav">Beehiiv > Website > Analytics</span>
+      <span class="step-col-new">Col N: Pub Visitors (NEW)</span>
+    </div>
+  </div>
+</div>
+
+<div class="step" data-step="5">
+  <div class="step-header">
+    <input type="checkbox" class="step-check" onchange="updateProgress()">
+    <div class="step-num">05</div>
+    <div class="step-content">
+      <div class="step-title">Identify top post by traffic</div>
+      <div class="step-detail">Still on the Website Analytics page from Step 4. Below the visitor chart, you will see a <strong>Top Pages</strong> table listing your publication URLs ranked by views. The #1 row is your highest-traffic post this week. Write down its title (not the URL slug, the actual post title). If the top result is your homepage or a generic page (like "/subscribe"), skip it and take the first actual post.</div>
+      <span class="step-nav">Beehiiv > Website > Analytics > scroll below visitor chart > Top Pages table > Row 1</span>
+      <span class="step-col-new">Col O: Top Post (NEW)</span>
+      <div class="step-ignore">Ignore this week: geographic data, device breakdown, browser stats, referrer sources. Those are monthly only (Monthly tab).</div>
+    </div>
+  </div>
+</div>
+
+<div class="step" data-step="6">
+  <div class="step-header">
+    <input type="checkbox" class="step-check" onchange="updateProgress()">
+    <div class="step-num">06</div>
+    <div class="step-content">
+      <div class="step-title">Enter everything into System 9</div>
+      <div class="step-detail">Open your Google Sheet. Find this week's row. Type in: <strong>C</strong> (New Subs), <strong>D</strong> (Total List), <strong>E</strong> (Open Rate), <strong>F</strong> (Click Rate), <strong>N</strong> (Pub Visitors), <strong>O</strong> (Top Post). Done.</div>
+      <span class="step-nav">Google Sheets > System 9 Dashboard</span>
+      <div class="step-note">Columns G-M come from other sources (IG Insights, ManyChat, Supabase, manual). Fill those from their respective platforms during the same Sunday session.</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="log-section">
+  <div class="log-header">Completion Log</div>
+  <div id="logEntries"></div>
+</div>
+
+<div class="reset-bar">
+  <button class="reset-btn" onclick="resetWeekly()">Reset Weekly Checklist</button>
+</div>
+</div>
+
+<!-- ========== SETUP ========== -->
+<div class="section" id="sec-dashboard">
+
+<div class="divider">One-Time Setup: Add 2 Columns to System 9</div>
+
+<p style="font-size:11px;color:var(--text2);margin-bottom:12px;">Your dashboard currently runs A through M. Add these two columns to the right of Column M (Notes). Data starts Row 5.</p>
+
+<div class="col-map" style="margin-bottom:16px;">
+  <div class="col-map-header"><span>New Columns</span></div>
+  <div class="col-map-body open">
+    <div class="col-row col-new"><div class="col-letter col-added">N</div><div class="col-name">Pub Visitors</div><div class="col-source">Weekly unique visitors from Beehiiv Website Analytics (7-day)</div></div>
+    <div class="col-row col-new"><div class="col-letter col-added">O</div><div class="col-name">Top Post</div><div class="col-source">Title of #1 post by views from Beehiiv Website Analytics</div></div>
+  </div>
+</div>
+
+<div class="divider">Trend Formula for Column N</div>
+
+<p style="font-size:11px;color:var(--text2);margin-bottom:4px;">Week-over-week change. Put this in a helper column or next to N. Start from Row 6 (Row 5 has no prior week). Copy down.</p>
+<div class="formula-box">
+  =IF(N5=0,"—",(N6-N5)/N5)
+  <button class="formula-copy" onclick="copyFormula(this)">Copy</button>
+</div>
+<p style="font-size:10px;color:var(--text3);margin-top:4px;">Format as percentage. This tells you if publication traffic is growing, flat, or declining week over week.</p>
+
+<div class="divider">Conditional Formatting for Column N</div>
+
+<div class="format-legend">
+  <div class="format-legend-title">Apply to N6:N200 (same rules as your existing C-L formatting)</div>
+  <div class="format-row"><div class="swatch swatch-green"></div><strong style="color:var(--text);width:60px;">Green</strong> Growth above +2% &nbsp;(#10B981)</div>
+  <div class="format-row"><div class="swatch swatch-red"></div><strong style="color:var(--text);width:60px;">Red</strong> Decline below -2% &nbsp;(#EF4444)</div>
+  <div class="format-row"><div class="swatch swatch-yellow"></div><strong style="color:var(--text);width:60px;">Yellow</strong> Flat, within +/-2% &nbsp;(#F59E0B)</div>
+</div>
+
+<p style="font-size:10px;color:var(--text3);line-height:1.8;margin-bottom:8px;">
+Google Sheets: Format > Conditional Formatting > Custom formula.<br>
+Green: <code style="color:var(--green);">=AND(N6&lt;&gt;"",N5&lt;&gt;"",N5&gt;0,(N6-N5)/N5&gt;0.02)</code><br>
+Red: <code style="color:var(--red);">=AND(N6&lt;&gt;"",N5&lt;&gt;"",N5&gt;0,(N6-N5)/N5&lt;-0.02)</code><br>
+Yellow: <code style="color:var(--amber);">=AND(N6&lt;&gt;"",N5&lt;&gt;"",N5&gt;0,ABS((N6-N5)/N5)&lt;=0.02)</code>
+</p>
+
+<p style="font-size:10px;color:var(--text3);margin-top:12px;">Column O is text (post title). No formula or formatting needed. It exists so you can spot patterns over time: "Budget post was #1 three weeks in a row."</p>
+
+<div class="divider">Update Data Sources Reference (Row 3)</div>
+<p style="font-size:11px;color:var(--text2);line-height:1.6;">Your Row 3 currently reads:<br><code style="color:var(--text3);">Beehiiv (C-F) | IG Insights (G-I) | ManyChat (J) | Supabase/kou.money (K) | Manual (L-M)</code><br><br>Update to:<br><code style="color:var(--cyan);">Beehiiv (C-F, N-O) | IG Insights (G-I) | ManyChat (J) | Supabase/kou.money (K) | Manual (L-M)</code></p>
+
+</div>
+
+<!-- ========== CEO ========== -->
+<div class="section" id="sec-ceo">
+
+<div class="divider">System 11 CEO Audit: 3 Duties Fed by This Protocol</div>
+<p style="font-size:11px;color:var(--text2);margin-bottom:16px;">When you score System 11, these three duties pull directly from data you collect here.</p>
+
+<div class="duty">
+  <div class="duty-num">Duty 1 of 12</div>
+  <div class="duty-name">Demand Generation</div>
+  <div class="duty-question">"Is more of the world finding out I exist this week than last week?"</div>
+  <div class="duty-data">Data source: Column N (Pub Visitors) trend. Look at the green/red/yellow conditional formatting.</div>
+  <div class="duty-rubric">
+    <div class="rubric-row"><span class="rubric-score sc-hi">8-10</span> Col N green 3 consecutive weeks (visitors growing)</div>
+    <div class="rubric-row"><span class="rubric-score sc-md">6-7</span> Col N green this week vs last</div>
+    <div class="rubric-row"><span class="rubric-score sc-md">4-5</span> Col N yellow (flat)</div>
+    <div class="rubric-row"><span class="rubric-score sc-lo">1-3</span> Col N red (declining)</div>
+  </div>
+</div>
+
+<div class="duty">
+  <div class="duty-num">Duty 4 of 12</div>
+  <div class="duty-name">Channel Strategy</div>
+  <div class="duty-question">"Is my email channel driving people to the tools I want them to use?"</div>
+  <div class="duty-data">Data source: Step 3 click map observation. Which kou.money tool got the most email clicks?</div>
+  <div class="duty-rubric">
+    <div class="rubric-row"><span class="rubric-score sc-hi">8-10</span> Top-clicked tool matches the pillar you featured in content this week</div>
+    <div class="rubric-row"><span class="rubric-score sc-md">5-7</span> Can name top tool but it does not match your content pillar</div>
+    <div class="rubric-row"><span class="rubric-score sc-lo">1-4</span> Did not check the click map (skipped Step 3)</div>
+  </div>
+</div>
+
+<div class="duty">
+  <div class="duty-num">Duty 8 of 12</div>
+  <div class="duty-name">Measurement & Analytics</div>
+  <div class="duty-question">"Am I actually reading my own data, or flying blind?"</div>
+  <div class="duty-data">Data source: Did you complete all 6 steps of this protocol AND fill Columns N and O?</div>
+  <div class="duty-rubric">
+    <div class="rubric-row"><span class="rubric-score sc-hi">8-10</span> All 6 steps done. Columns C, D, E, F, N, O filled this week</div>
+    <div class="rubric-row"><span class="rubric-score sc-md">4-7</span> Some steps done but skipped others</div>
+    <div class="rubric-row"><span class="rubric-score sc-lo">1-3</span> Skipped the analytics read entirely</div>
+  </div>
+</div>
+
+</div>
+
+<!-- ========== DECISIONS ========== -->
+<div class="section" id="sec-decisions">
+
+<div class="divider">Content Decision Framework</div>
+<p style="font-size:11px;color:var(--text2);margin-bottom:16px;">Check after filling the dashboard. If none trigger, change nothing. That is also a valid decision.</p>
+
+<div class="decision">
+  <div class="decision-header">IF / THEN Rules</div>
+
+  <div class="rule r-green">
+    <div class="rule-if">RULE 1: Double Down</div>
+    <div class="rule-then">IF Column O (Top Post) is about a specific pillar AND Step 3 click map shows the matching tool got the most clicks: <strong>next week, feature that same pillar with that tool's keyword CTA.</strong> Your audience is voting. Listen.</div>
+  </div>
+
+  <div class="rule r-amber">
+    <div class="rule-if">RULE 2: Subject Line Intervention</div>
+    <div class="rule-then">IF Column E (Open Rate %) drops 3 consecutive weeks: <strong>your subject lines are going stale.</strong> Test a completely different format. Number-based ("$840/year in subscriptions") vs question ("When did you last check your credit?") vs statement ("Your paycheck has 30 holes").</div>
+    <div class="rule-ref">Reference: System 14 A/B testing structure</div>
+  </div>
+
+  <div class="rule r-red">
+    <div class="rule-if">RULE 3: Conversion Leak</div>
+    <div class="rule-then">IF Column N (Pub Visitors) trending up BUT Column C (New Subs) flat or declining: <strong>traffic is coming but not converting.</strong> Audit email capture popup on publication site. Is the Beehiiv subscribe form visible? Is it firing?</div>
+    <div class="rule-ref">Reference: System 3 QA protocol</div>
+  </div>
+
+  <div class="rule r-purple">
+    <div class="rule-if">RULE 4: CTA Mismatch</div>
+    <div class="rule-then">IF Column F (Click Rate %) drops below 2% for 2 consecutive weeks: <strong>your CTA is buried or irrelevant to the email topic.</strong> Next email: move the tool link to paragraph 2, not the bottom. Match the tool to the email's pillar.</div>
+  </div>
+
+</div>
+</div>
+
+<!-- ========== MONTHLY ========== -->
+<div class="section" id="sec-monthly">
+
+<div class="timer-bar">
+  <div class="timer-icon">📊</div>
+  <div class="timer-info">
+    <div class="timer-label">Monthly Deep Read // First Sunday of Month</div>
+    <div class="timer-time" style="color:var(--purple);">15 min</div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-header">
+    <div class="progress-label">Monthly Checklist</div>
+    <div class="progress-pct" id="monthlyPct">0%</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="monthlyFill" style="width:0%"></div></div>
+</div>
+
+<div class="monthly-item">
+  <input type="checkbox" class="monthly-check" onchange="updateMonthly()">
+  <div class="monthly-text"><strong>30-day traffic by page.</strong> Beehiiv > Website > Analytics > set to Last 30 Days. Which 3 posts drove the most traffic? Same pillar or spread? Concentrated in one pillar = audience signaling demand. Feed into System 22 if active.</div>
+</div>
+
+<div class="monthly-item">
+  <input type="checkbox" class="monthly-check" onchange="updateMonthly()">
+  <div class="monthly-text"><strong>Device breakdown.</strong> Same screen, check device split. 70%+ mobile (expected for Brandon): all CashVault tools must be mobile-first. Desktop unexpectedly high (30%+): email clicks may open on work/school computers. Informs send time.</div>
+</div>
+
+<div class="monthly-item">
+  <input type="checkbox" class="monthly-check" onchange="updateMonthly()">
+  <div class="monthly-text"><strong>Geographic concentration.</strong> Check top locations. If 50%+ from one time zone: adjust Wednesday email send time to 7-8 AM local. If spread evenly: stick with 11 AM EST.</div>
+</div>
+
+<div class="monthly-item">
+  <input type="checkbox" class="monthly-check" onchange="updateMonthly()">
+  <div class="monthly-text"><strong>Email CTR benchmark.</strong> Creator newsletter average: 2-4%. Pull your 30-day average from Column F. Above 4% = strong. 2-4% = healthy. Below 2% = trigger Decision Rule 4.</div>
+</div>
+
+<div class="monthly-item">
+  <input type="checkbox" class="monthly-check" onchange="updateMonthly()">
+  <div class="monthly-text"><strong>Log summary in Column M (Notes).</strong> One line in this week's Notes cell: "Month [X]: [top pillar], [mobile/desktop %], [CTR vs benchmark]." Creates a searchable log over time.</div>
+</div>
+
+<div class="reset-bar">
+  <button class="reset-btn" onclick="resetMonthly()">Reset Monthly Checklist</button>
+</div>
+
+</div>
+
+</div>
+
+<script>
+// Days
+const target=new Date('2030-11-30T23:59:59');
+const daysLeft=Math.ceil((target-new Date())/(1000*60*60*24));
+document.getElementById('daysLeft').innerHTML=daysLeft.toLocaleString()+'<span>DAYS</span>';
+
+// Mode
+function switchMode(mode){
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  document.querySelectorAll('.section').forEach(s=>s.classList.toggle('visible',s.id==='sec-'+mode));
+}
+
+// Timer
+let timerInterval=null,timerSeconds=0;
+function toggleTimer(){
+  const btn=document.getElementById('timerBtn');
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;btn.textContent='Start';btn.classList.remove('running');}
+  else{timerInterval=setInterval(()=>{timerSeconds++;const m=Math.floor(timerSeconds/60),s=timerSeconds%60;const el=document.getElementById('timerDisplay');el.textContent=m+':'+(s<10?'0':'')+s;el.className='timer-time'+(timerSeconds>300?' over':timerSeconds>240?' warning':'');},1000);btn.textContent='Stop';btn.classList.add('running');}
+}
+
+// Weekly progress
+function updateProgress(){
+  const checks=document.querySelectorAll('#weeklySteps .step-check');
+  let done=0;
+  checks.forEach(c=>{c.closest('.step').classList.toggle('completed',c.checked);if(c.checked)done++;});
+  const pct=Math.round((done/checks.length)*100);
+  document.getElementById('weeklyPct').textContent=pct+'%';
+  document.getElementById('weeklyFill').style.width=pct+'%';
+  if(done===checks.length)logCompletion();
+  saveState();
+}
+
+// Monthly progress
+function updateMonthly(){
+  const checks=document.querySelectorAll('.monthly-check');
+  let done=0;checks.forEach(c=>{if(c.checked)done++;});
+  const pct=Math.round((done/checks.length)*100);
+  document.getElementById('monthlyPct').textContent=pct+'%';
+  document.getElementById('monthlyFill').style.width=pct+'%';
+  saveState();
+}
+
+// Log
+function logCompletion(){
+  const logs=JSON.parse(localStorage.getItem('s37v2_logs')||'[]');
+  const today=new Date().toISOString().split('T')[0];
+  if(logs.length&&logs[0].date===today)return;
+  const m=Math.floor(timerSeconds/60),s=timerSeconds%60;
+  logs.unshift({date:today,time:m+':'+(s<10?'0':'')+s});
+  if(logs.length>12)logs.length=12;
+  localStorage.setItem('s37v2_logs',JSON.stringify(logs));
+  renderLogs();
+}
+function renderLogs(){
+  const logs=JSON.parse(localStorage.getItem('s37v2_logs')||'[]');
+  const el=document.getElementById('logEntries');
+  if(!logs.length){el.innerHTML='<p style="font-size:10px;color:var(--text3);text-align:center;padding:12px;">No completions logged yet. Finish all 6 steps to log.</p>';return;}
+  el.innerHTML=logs.map(l=>`<div class="log-entry"><span class="log-date">${l.date}</span><span class="log-time">${l.time}</span><span class="log-complete">COMPLETE</span></div>`).join('');
+}
+
+// Reset
+function resetWeekly(){
+  document.querySelectorAll('#weeklySteps .step-check').forEach(c=>{c.checked=false;c.closest('.step').classList.remove('completed');});
+  timerSeconds=0;document.getElementById('timerDisplay').textContent='0:00';document.getElementById('timerDisplay').className='timer-time';
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;document.getElementById('timerBtn').textContent='Start';document.getElementById('timerBtn').classList.remove('running');}
+  updateProgress();
+}
+function resetMonthly(){
+  document.querySelectorAll('.monthly-check').forEach(c=>{c.checked=false;});
+  updateMonthly();
+}
+
+// Persistence
+function saveState(){
+  const weekly=[];document.querySelectorAll('#weeklySteps .step-check').forEach(c=>weekly.push(c.checked));
+  const monthly=[];document.querySelectorAll('.monthly-check').forEach(c=>monthly.push(c.checked));
+  localStorage.setItem('s37v2_state',JSON.stringify({weekly,monthly}));
+}
+function loadState(){
+  try{
+    const s=JSON.parse(localStorage.getItem('s37v2_state')||'{}');
+    if(s.weekly){const checks=document.querySelectorAll('#weeklySteps .step-check');s.weekly.forEach((v,i)=>{if(checks[i]){checks[i].checked=v;checks[i].closest('.step').classList.toggle('completed',v);}});}
+    if(s.monthly){const checks=document.querySelectorAll('.monthly-check');s.monthly.forEach((v,i)=>{if(checks[i])checks[i].checked=v;});}
+    updateProgress();updateMonthly();
+  }catch(e){}
+}
+
+// Copy formula
+function copyFormula(btn){
+  const text=btn.parentElement.textContent.replace('Copy','').replace('Copied','').trim();
+  navigator.clipboard.writeText(text).then(()=>{btn.textContent='Copied';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);});
+}
+
+loadState();renderLogs();
+</script>
+</body>
+</html>
