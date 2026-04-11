@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANUS AI COMMAND CENTER // Kou Talks Money</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0f;--bg2:#111119;--bg3:#18182a;--border:#1e1e2e;--border2:#2a2a3e;
+  --blue:#3b82f6;--electric:#60a5fa;--cyan:#22d3ee;--green:#10b981;
+  --amber:#f59e0b;--red:#ef4444;--purple:#c084fc;--orange:#f97316;
+  --text:#f0f0f5;--text2:#8888a0;--text3:#55556a;
+  --mono:'Space Mono',monospace;--display:'Outfit',sans-serif;
+  --manus:#a855f7;--manus-dim:rgba(168,85,247,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--display);min-height:100vh;}
+.page{max-width:960px;margin:0 auto;padding:24px 20px 100px;}
+
+.tape{background:linear-gradient(135deg,#1e3a6e,#2d5bb9,#3b82f6);border-radius:2px;padding:14px 20px;margin-bottom:24px;transform:rotate(-0.3deg);box-shadow:0 4px 24px rgba(59,130,246,0.2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.tape-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.5);}
+.tape-num{font-family:var(--mono);font-size:26px;font-weight:700;color:#fff;}
+.tape-num span{font-size:11px;opacity:0.6;margin-left:5px;}
+
+.header{text-align:center;margin-bottom:24px;padding:28px 20px;background:var(--bg2);border:1px solid rgba(168,85,247,0.25);border-radius:14px;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(168,85,247,0.08),transparent 70%);pointer-events:none;}
+.header .badge{font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--manus);margin-bottom:8px;position:relative;}
+.header h1{font-size:24px;font-weight:900;position:relative;margin-bottom:6px;}
+.header .sub{font-size:12px;color:var(--text2);font-weight:300;position:relative;line-height:1.6;max-width:640px;margin:0 auto;}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px;}
+.stat{padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center;}
+.stat-num{font-family:var(--mono);font-size:20px;font-weight:700;}
+.stat-label{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-top:4px;}
+
+.phase-nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;position:sticky;top:0;z-index:100;background:var(--bg);padding:12px 0;border-bottom:1px solid var(--border);}
+.phase-btn{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:8px 14px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.phase-btn:hover{border-color:var(--border2);color:var(--text);}
+.phase-btn.active{border-color:var(--manus);color:var(--manus);background:var(--manus-dim);}
+
+.search-wrap{margin-bottom:20px;}
+.search-input{width:100%;padding:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--display);font-size:13px;outline:none;transition:border-color 0.2s;}
+.search-input:focus{border-color:var(--manus);}
+.search-input::placeholder{color:var(--text3);}
+
+.phase-div{margin:28px 0 16px;padding:16px 20px;border-radius:10px;border:1px solid;}
+.phase-tag{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.phase-div h2{font-size:17px;font-weight:800;margin-bottom:3px;}
+.phase-meta{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;}
+
+.sys-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;transition:border-color 0.2s;}
+.sys-card:hover{border-color:var(--border2);}
+.sys-header{padding:16px 20px;cursor:pointer;display:flex;align-items:flex-start;gap:12px;user-select:none;}
+.sys-num{font-family:var(--mono);font-size:12px;font-weight:700;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:7px;color:#fff;flex-shrink:0;}
+.sys-info{flex:1;}
+.sys-title{font-size:14px;font-weight:700;margin-bottom:2px;}
+.sys-sub{font-size:11px;color:var(--text2);line-height:1.4;}
+.sys-toggle{font-family:var(--mono);font-size:18px;color:var(--text3);transition:transform 0.2s;flex-shrink:0;margin-top:4px;}
+.sys-card.open .sys-toggle{transform:rotate(45deg);}
+.sys-body{display:none;padding:0 20px 20px;border-top:1px solid var(--border);margin-top:0;}
+.sys-card.open .sys-body{display:block;}
+
+.sys-check-wrap{flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:4px;}
+.sys-check{appearance:none;-webkit-appearance:none;width:22px;height:22px;border:2px solid var(--border2);border-radius:5px;background:var(--bg);cursor:pointer;position:relative;transition:all 0.2s;flex-shrink:0;}
+.sys-check:hover{border-color:var(--green);box-shadow:0 0 8px rgba(16,185,129,0.15);}
+.sys-check:checked{background:rgba(16,185,129,0.15);border-color:var(--green);}
+.sys-check:checked::after{content:'\2713';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--green);font-size:14px;font-weight:700;line-height:1;}
+.sys-card.sys-done{border-color:rgba(16,185,129,0.3);}
+.sys-card.sys-done .sys-num{opacity:0.5;}
+.sys-card.sys-done .sys-title{color:var(--green);text-decoration:line-through;text-decoration-color:rgba(16,185,129,0.4);text-decoration-thickness:1px;}
+
+.done-badge{display:inline-block;font-family:var(--mono);font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:rgba(16,185,129,0.15);color:var(--green);border:1px solid rgba(16,185,129,0.3);margin-left:6px;vertical-align:middle;}
+.fw-badge{display:inline-block;font-family:var(--mono);font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:var(--manus-dim);color:var(--manus);border:1px solid rgba(168,85,247,0.3);margin-left:6px;vertical-align:middle;}
+.status-badge{display:inline-block;font-family:var(--mono);font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:2px 6px;border-radius:3px;margin-left:6px;vertical-align:middle;}
+.status-claude{background:rgba(34,211,238,0.1);color:var(--cyan);border:1px solid rgba(34,211,238,0.25);}
+.status-manus{background:var(--manus-dim);color:var(--manus);border:1px solid rgba(168,85,247,0.3);}
+.status-hybrid{background:rgba(245,158,11,0.1);color:var(--amber);border:1px solid rgba(245,158,11,0.25);}
+
+.sys-context{margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ctx-block{padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;border-left:3px solid;}
+.ctx-block.ctx-what{border-left-color:var(--manus);}
+.ctx-block.ctx-why{border-left-color:var(--orange);}
+.ctx-block.ctx-how{border-left-color:var(--green);}
+.ctx-block.ctx-time{border-left-color:var(--amber);}
+.ctx-label{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.ctx-what .ctx-label{color:var(--manus);}
+.ctx-why .ctx-label{color:var(--orange);}
+.ctx-how .ctx-label{color:var(--green);}
+.ctx-time .ctx-label{color:var(--amber);}
+.ctx-text{font-size:11px;color:var(--text2);line-height:1.6;}
+.ctx-text strong{color:var(--text);font-weight:600;}
+.ctx-time-data{display:flex;gap:12px;margin-top:6px;}
+.ctx-time-item{display:flex;flex-direction:column;align-items:center;}
+.ctx-time-num{font-family:var(--mono);font-size:16px;font-weight:700;}
+.ctx-time-unit{font-family:var(--mono);font-size:7px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-top:2px;}
+
+.prompt-section{margin-top:16px;}
+.prompt-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.prompt-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.label-primary{color:var(--manus);}
+.label-output{color:var(--green);}
+.label-verify{color:var(--amber);}
+.label-connector{color:var(--cyan);}
+.label-credits{color:var(--orange);}
+.label-escalation{color:var(--red);}
+
+.prompt-box{position:relative;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:11px;color:var(--text2);line-height:1.7;white-space:pre-wrap;word-break:break-word;max-height:400px;overflow-y:auto;}
+.prompt-box::-webkit-scrollbar{width:4px;}
+.prompt-box::-webkit-scrollbar-track{background:transparent;}
+.prompt-box::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.copy-btn{position:absolute;top:8px;right:8px;font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:4px;border:1px solid var(--border2);background:var(--bg2);color:var(--text3);cursor:pointer;transition:all 0.2s;z-index:2;}
+.copy-btn:hover{border-color:var(--manus);color:var(--manus);}
+.copy-btn.copied{border-color:var(--green);color:var(--green);background:rgba(16,185,129,0.1);}
+
+.verify-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.verify-list li{padding:8px 12px;background:var(--bg);border-radius:6px;font-size:11px;color:var(--text2);line-height:1.5;border-left:2px solid var(--border2);}
+.verify-list li strong{color:var(--text);font-weight:600;}
+.verify-list li.check-pass{border-left-color:var(--green);}
+.verify-list li.check-fail{border-left-color:var(--red);}
+
+.connector-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.connector-card{padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;gap:10px;transition:border-color 0.2s;}
+.connector-card:hover{border-color:var(--border2);}
+.connector-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.connector-name{font-size:12px;font-weight:600;}
+.connector-desc{font-size:9px;color:var(--text3);margin-top:1px;}
+.connector-status{font-family:var(--mono);font-size:7px;letter-spacing:1px;padding:2px 6px;border-radius:3px;margin-left:auto;flex-shrink:0;}
+.cs-required{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2);}
+.cs-optional{background:rgba(245,158,11,0.1);color:var(--amber);border:1px solid rgba(245,158,11,0.2);}
+
+.credit-box{padding:14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;}
+.credit-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:10px;}
+.credit-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:11px;color:var(--text2);}
+.credit-row span:last-child{font-family:var(--mono);font-weight:700;color:var(--text);}
+.credit-bar{height:6px;background:var(--bg3);border-radius:3px;margin-top:10px;overflow:hidden;}
+.credit-fill{height:100%;border-radius:3px;transition:width 0.4s;}
+
+.sys-note-section{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+.sys-note-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--electric);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.sys-note-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.sys-note-input{width:100%;min-height:60px;max-height:180px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-family:var(--mono);font-size:11px;line-height:1.6;resize:vertical;outline:none;transition:border-color 0.2s;}
+.sys-note-input:focus{border-color:var(--electric);color:var(--text);}
+.sys-note-input::placeholder{color:var(--text3);font-style:italic;}
+.sys-note-saved{font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--green);opacity:0;transition:opacity 0.3s;margin-top:4px;text-align:right;}
+.sys-note-saved.show{opacity:1;}
+
+.overlap-box{padding:12px 14px;background:rgba(34,211,238,0.04);border:1px solid rgba(34,211,238,0.15);border-radius:8px;margin-bottom:16px;}
+.overlap-label{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:6px;}
+.overlap-text{font-size:11px;color:var(--text2);line-height:1.6;}
+
+.tool-ref{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:24px;}
+.tool-ref-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--manus);margin-bottom:14px;}
+
+.bottom{margin-top:36px;padding:24px;background:var(--bg2);border:1px solid rgba(168,85,247,0.2);border-radius:14px;text-align:center;}
+.bottom p{font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:1px;line-height:1.8;}
+.bottom .final{color:var(--manus);font-weight:700;}
+
+@media(max-width:640px){
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .sys-context{grid-template-columns:1fr;}
+  .connector-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="tape">
+  <div>
+    <div class="tape-label">Blue Tape // Days to $1M</div>
+    <div class="tape-num" id="days">---<span>DAYS</span></div>
+  </div>
+  <div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.5);text-align:right;letter-spacing:1px;">MANUS AI COMMAND CENTER<br>v1.0 // 5 SYSTEMS // 4 PHASES // 12 FRAMEWORKS</div>
+</div>
+
+<div class="header">
+  <div class="badge">5 Autonomous Systems // 5 Prompts // 4 Connectors // 4 Phases // Execution-Sequenced</div>
+  <h1>MANUS AI COMMAND CENTER</h1>
+  <div class="sub">Every system Claude CANNOT run. Manus reads your Instagram, pulls your Supabase data, publishes your content, scans your DMs, and recycles your winners. These 5 systems reclaim 4.5-7 hours/week of manual labor and convert it into pure creative time. Each prompt is copy-paste ready for Manus Pro. Connect. Deploy. Automate.</div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num" style="color:var(--manus);">5</div><div class="stat-label">Systems</div></div>
+  <div class="stat"><div class="stat-num" style="color:var(--green);" id="completedCount">0</div><div class="stat-label">Built</div></div>
+  <div class="stat"><div class="stat-num" style="color:var(--orange);">8,000</div><div class="stat-label">Credits/Mo</div></div>
+  <div class="stat"><div class="stat-num" style="color:var(--cyan);" id="savedHours">0</div><div class="stat-label">Hrs Saved/Wk</div></div>
+</div>
+
+<div class="search-wrap">
+  <input type="text" class="search-input" placeholder="Search systems, prompts, connectors..." id="searchInput">
+</div>
+
+<div class="phase-nav" id="phaseNav">
+  <button class="phase-btn active" data-phase="all">All</button>
+  <button class="phase-btn" data-phase="0">0: Connect</button>
+  <button class="phase-btn" data-phase="1">1: Intelligence</button>
+  <button class="phase-btn" data-phase="2">2: Multiply</button>
+  <button class="phase-btn" data-phase="3">3: Execute</button>
+  <button class="phase-btn" data-phase="4">4: Scale</button>
+</div>
+
+<div id="systemsContainer"></div>
+
+<div class="tool-ref">
+  <div class="tool-ref-label">Credit Budget Planner // 8,000 Credits + 300 Daily Refresh</div>
+  <div class="credit-box">
+    <div class="credit-row"><span>Content Growth Analyst (weekly)</span><span>~800-1,500/run</span></div>
+    <div class="credit-row"><span>CashVault Funnel Monitor (weekly)</span><span>~200-500/run</span></div>
+    <div class="credit-row"><span>Content Recycler (weekly)</span><span>~500-900/run</span></div>
+    <div class="credit-row"><span>Auto-Publisher (per post)</span><span>~50-200/run</span></div>
+    <div class="credit-row"><span>Engagement Scanner (daily)</span><span>~100-300/run</span></div>
+    <div class="credit-row"><span>Competitor Scraper (monthly)</span><span>~800-1,500/run</span></div>
+    <div class="credit-row" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;"><span>Estimated Weekly Total</span><span style="color:var(--amber);">~2,500-4,500</span></div>
+    <div class="credit-row"><span>Monthly Estimate (4 weeks)</span><span style="color:var(--amber);">~5,000-7,200</span></div>
+    <div class="credit-bar"><div class="credit-fill" style="width:75%;background:linear-gradient(90deg,var(--green),var(--amber));"></div></div>
+    <div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-top:6px;text-align:right;">75% estimated utilization // safe zone</div>
+  </div>
+</div>
+
+<div class="bottom">
+  <p>5 SYSTEMS. 5 PROMPTS. 4 CONNECTORS. ZERO MANUAL DATA PULLS.<br>INTELLIGENCE + MULTIPLICATION + EXECUTION + SCALE<br>MANUS READS. MANUS WRITES. MANUS PUBLISHES.<br>CLAUDE THINKS. MANUS ACTS.<br><span class="final">The prompts are the brain. Manus is the hands. Together they build the machine.</span></p>
+</div>
+
+</div>
+
+<script>
+const target=new Date('2030-11-30T23:59:59');
+const now=new Date();
+const days=Math.ceil((target-now)/(1000*60*60*24));
+document.getElementById('days').innerHTML=days.toLocaleString()+'<span>DAYS</span>';
+
+const TK='manus_sys_tracker';
+function loadT(){try{const r=localStorage.getItem(TK);return r?JSON.parse(r):{};}catch(e){return {};}}
+function saveT(d){try{localStorage.setItem(TK,JSON.stringify(d));}catch(e){}}
+function toggleCheck(id,cb){const t=loadT();if(!t[id])t[id]={done:false,note:''};t[id].done=cb.checked;saveT(t);cb.closest('.sys-card').classList.toggle('sys-done',cb.checked);updateStats();}
+let nts={};
+function updateNote(id,ta){clearTimeout(nts[id]);nts[id]=setTimeout(()=>{const t=loadT();if(!t[id])t[id]={done:false,note:''};t[id].note=ta.value;saveT(t);const s=ta.parentElement.querySelector('.sys-note-saved');if(s){s.classList.add('show');setTimeout(()=>s.classList.remove('show'),1200);}},500);}
+
+function updateStats(){
+  const t=loadT();
+  let done=0,hrs=0;
+  const hrMap={1:1,2:0.5,3:1.5,4:0.5,5:0.5};
+  SYSTEMS.forEach(s=>{if(t[s.id]&&t[s.id].done){done++;hrs+=(hrMap[s.id]||0);}});
+  document.getElementById('completedCount').textContent=done;
+  document.getElementById('savedHours').textContent=hrs.toFixed(1);
+}
+
+const SYSTEMS=[
+{
+  id:1, phase:1, color:'#a855f7',
+  title:'Content Growth Analyst',
+  subtitle:'Pulls all IG data, runs 80/20, produces weekly growth report with 15 content ideas',
+  status:'manus',
+  frameworks:'PARETO + CARR + DMAIC + OKR + BAB + STAR + PAS',
+  overlap:'ktm-chief-analytics does the same analysis but requires you to PASTE data manually. Manus pulls it directly from Instagram. Same brain, automated hands.',
+  connectors:['Instagram'],
+  credits:{per:'~800-1,500',cadence:'Weekly',monthly:'~3,200-6,000'},
+  context:{
+    what:'Pulls all post-level and account-level data from @koutalksmoney. Scores every post. Identifies top 20%. Extracts winning mechanisms. Generates 15 content ideas using BAB/STAR/PAS. Produces a 7-day posting plan.',
+    why:'<strong>Eliminates 1-2 hours/week of manual analytics.</strong> Every content decision backed by data instead of gut feeling.',
+    how:'Paste the v2 prompt into Manus with Instagram connected. Run weekly on Sundays.',
+    buildTime:'0',buildUnit:'hrs (done)',maintainTime:'15',maintainUnit:'min/wk',savedTime:'1-2 hrs/week of manual IG Insights checking + content planning'
+  },
+  prompt:'[ALREADY BUILT] Use the KTM Content Growth Analyst v2.0 prompt delivered earlier in this conversation. Copy the full prompt from the file provided and paste into Manus with Instagram connector active.',
+  outputSpec:'Full 14-section growth report: Pareto summary, CARR post-mortems, Winning Mechanism Profile, Stop Doing list, Growth Velocity table, RED ALERTS, Funnel Health, OKR trajectory, 15 content ideas, 7-day plan, A/B tests, Post Scorecard template, and THE ONE MOVE.',
+  verification:[
+    {type:'pass',text:'Manus pulls post-level data from @koutalksmoney without manual input'},
+    {type:'pass',text:'POST SCORE formula applied to all posts with math shown'},
+    {type:'pass',text:'15 content ideas use correct frameworks (BAB/STAR/PAS)'},
+    {type:'pass',text:'All CashVault tool links correct in CONVERT ideas'},
+    {type:'pass',text:'Report completes in under 15 minutes'},
+    {type:'fail',text:'Manus cannot access IG data = Instagram connector not activated'},
+    {type:'fail',text:'Generic content ideas = Anti-wallpaper rules not enforced, re-paste the Brand Constraints section'},
+    {type:'fail',text:'Missing sections = prompt too long for single run, split into 2 sequential tasks'}
+  ],
+  escalation:'Content Growth Analyst ran but output is incomplete or inaccurate.\nSections missing: [LIST WHICH SECTIONS]\nData pulled: [DESCRIBE what Manus did pull vs what it missed]\nRe-run with this instruction: "You missed sections [X]. Complete ONLY the missing sections using the data you already extracted. Do not re-pull Instagram data."'
+},
+{
+  id:2, phase:1, color:'#a855f7',
+  title:'CashVault Funnel Monitor',
+  subtitle:'Pulls Supabase data across all 7 tools, diagnoses funnel leaks, flags broken tools',
+  status:'manus',
+  frameworks:'AARRR + DMAIC',
+  overlap:'ktm-chief-analytics + cashvault-webapp handle this in Claude, but require you to manually query Supabase and paste results. Manus connects directly to Supabase and pulls autonomously.',
+  connectors:['Supabase'],
+  credits:{per:'~200-500',cadence:'Weekly',monthly:'~800-2,000'},
+  context:{
+    what:'Queries Supabase visits, funnel_events, and tool_completions tables for all 7 CashVault tools. Calculates start rate, completion rate, email capture rate, and drop-off points per tool. Flags broken tools or declining metrics.',
+    why:'<strong>You could have a broken email gate for 2 weeks and never notice.</strong> This catches dead funnels before they cost you subscribers.',
+    how:'Paste prompt into Manus with Supabase connector active. Run weekly after Content Growth Analyst.',
+    buildTime:'0.5',buildUnit:'hrs',maintainTime:'5',maintainUnit:'min/wk',savedTime:'30 min/week of manual Supabase queries + cross-referencing'
+  },
+  prompt:`You are a funnel analytics engine for "Kou Talks Money." You have direct access to the Supabase database (project: wokoxddotlyuasmwylpx).
+
+TASK: Pull data from all 3 analytics tables and produce a weekly funnel health report for the 7 CashVault tools.
+
+STEP 1: QUERY THESE 3 TABLES (last 7 days + last 30 days for trend comparison)
+
+TABLE: visits
+Query: SELECT tool_name, COUNT(*) as visit_count FROM visits WHERE created_at > NOW() - INTERVAL '7 days' GROUP BY tool_name ORDER BY visit_count DESC;
+Also run for 30-day window for trend comparison.
+
+TABLE: funnel_events
+Query: SELECT tool_name, event_type, step, COUNT(*) as event_count FROM funnel_events WHERE created_at > NOW() - INTERVAL '7 days' GROUP BY tool_name, event_type, step ORDER BY tool_name, step;
+
+TABLE: tool_completions
+Query: SELECT tool_name, COUNT(*) as completions FROM tool_completions WHERE created_at > NOW() - INTERVAL '7 days' GROUP BY tool_name ORDER BY completions DESC;
+Also run for 30-day window.
+
+STEP 2: CALCULATE PER-TOOL METRICS
+
+For each of the 7 tools, calculate:
+
+| TOOL | URL | 7d Visits | 7d Completions | Completion Rate % | 30d Avg Rate % | Trend | Drop-off Step |
+|------|-----|-----------|----------------|-------------------|----------------|-------|---------------|
+
+The 7 tools:
+1. Freedom Calculator: /freedom-calculator
+2. Cost of Waiting: /cost-of-waiting
+3. 800-Club: /800-club
+4. Autopilot System: /autopilot-system
+5. Prompt Vault: /prompt-vault
+6. Investment Simplifier: /investment-simplifier
+7. Budget Calculator: /budget-calculator
+
+Completion Rate = tool_completions / visits x 100
+Drop-off Step = the funnel_events step with the largest user loss (step N count minus step N+1 count)
+Trend = 7-day rate vs 30-day average rate (UP if 7d > 30d by 10%+, DOWN if 7d < 30d by 10%+, FLAT otherwise)
+
+STEP 3: RED ALERT PROTOCOL (DMAIC)
+
+If ANY tool shows:
+- Completion rate below 10%: FLAG as CRITICAL. Run DMAIC diagnosis.
+- Completion rate dropped 25%+ vs 30-day average: FLAG as DECLINING.
+- Zero completions in 7 days with visits > 0: FLAG as BROKEN.
+
+For each flagged tool:
+DEFINE: What metric is failing?
+MEASURE: How severe? (% decline, absolute numbers)
+ANALYZE: What is the most likely cause? (Code bug, UX friction, traffic source change, email gate broken)
+IMPROVE: One specific fix recommendation.
+CONTROL: What to check next week to confirm the fix worked.
+
+STEP 4: FUNNEL HEALTH SUMMARY (AARRR)
+
+ACQUISITION: Total visits across all tools this week vs last week.
+ACTIVATION: Average completion rate across all tools.
+RETENTION: Any returning visitors? (Check if same session_id appears in multiple tool visits)
+REFERRAL: Cross-tool bridge rate (users who completed Tool A and visited Tool B in same session)
+REVENUE BRIDGE: Email captures this week (funnel_events where event_type = 'email_submitted')
+
+LEAK LOCATION: Which AARRR stage is weakest?
+LEAK FIX: One action.
+
+STEP 5: OUTPUT FORMAT
+
+\`\`\`
+CASHVAULT FUNNEL REPORT — [DATE]
+
+TOOL PERFORMANCE TABLE
+[7-row table from Step 2]
+
+RED ALERTS
+[Any DMAIC diagnoses from Step 3, or "NONE"]
+
+FUNNEL HEALTH (AARRR)
+[From Step 4]
+
+THE ONE FIX
+[Single highest-leverage fix for this week]
+[Which tool, what to change, expected impact]
+\`\`\`
+
+CONSTRAINTS:
+- Do not guess at data. If a table returns empty, state it.
+- If Supabase connection fails, state the error. Do not fabricate results.
+- Compare 7-day to 30-day for every metric. Trends matter more than absolutes.
+- One fix, not a menu. I have 5-8 hours/week total.`,
+  outputSpec:'7-tool performance table with completion rates and trends. RED ALERTS with DMAIC diagnosis for any flagged tool. AARRR funnel health with leak location. One specific fix recommendation. Total: 400-700 words.',
+  verification:[
+    {type:'pass',text:'Manus returns data from all 3 Supabase tables'},
+    {type:'pass',text:'All 7 tools appear in performance table with calculated rates'},
+    {type:'pass',text:'7-day vs 30-day trend comparison shown for each tool'},
+    {type:'pass',text:'Any tool with 0 completions flagged as BROKEN'},
+    {type:'pass',text:'Report completes in under 5 minutes'},
+    {type:'fail',text:'Empty tables = Supabase connector not authorized or project ID wrong'},
+    {type:'fail',text:'Missing tools = tool_name values in DB do not match expected names'},
+    {type:'fail',text:'Completion rate over 100% = counting duplicate rows, add DISTINCT'}
+  ],
+  escalation:'Funnel Monitor returned errors or incomplete data.\nError: [PASTE EXACT ERROR from Manus]\nTables that returned data: [visits / funnel_events / tool_completions]\nTables that failed: [LIST]\nFix: Check Supabase connector authorization. Verify project ID matches wokoxddotlyuasmwylpx. Check if RLS policies allow SELECT for the connected role.'
+},
+{
+  id:3, phase:2, color:'#f472b6',
+  title:'Content Recycler',
+  subtitle:'Identifies top 20% posts by POST SCORE, generates 3 spin-off variations per winner, queues for publish',
+  status:'hybrid',
+  frameworks:'PARETO + BAB + STAR + PAS',
+  overlap:'ktm-content-strategist generates NEW content from strategy. ktm-scriptwriter writes scripts. Content Recycler does neither. It reads PROVEN winners from your data and generates variations. Different input, different output.',
+  connectors:['Instagram'],
+  credits:{per:'~500-900',cadence:'Weekly',monthly:'~2,000-3,600'},
+  context:{
+    what:'Reads your last 30 posts from Instagram. Identifies the top 20% by engagement. For each winner, generates 3 spin-off content ideas with new hooks but the same proven structure. Outputs ready-to-film briefs.',
+    why:'<strong>Highest-leverage creative system after the analyst.</strong> You already KNOW what works. The bottleneck is producing MORE of what works. This eliminates the ideation bottleneck.',
+    how:'Paste prompt into Manus. Run weekly after Content Growth Analyst (uses the same data).',
+    buildTime:'0.5',buildUnit:'hrs',maintainTime:'10',maintainUnit:'min/wk',savedTime:'1-2 hrs/week of brainstorming and ideation'
+  },
+  prompt:`You are a content multiplication engine for "Kou Talks Money" (@koutalksmoney). You have direct access to the Instagram account.
+
+TASK: Identify the top-performing posts, extract what made them win, and generate spin-off variations that reuse proven mechanisms.
+
+STEP 1: PULL LAST 30 POSTS
+
+For each post, extract: Date, Format, Caption (first line), Duration (if Reel), Views, Shares, Saves, Comments, Retention %.
+
+STEP 2: SCORE AND RANK
+
+Apply: POST SCORE = (Shares x 3) + (Saves x 2) + (Comments x 1.5)
+
+Rank highest to lowest. Identify top 20% (top 6 of 30). Label these HIGH-LEVERAGE POSTS.
+
+STEP 3: MECHANISM EXTRACTION (Top 6 only)
+
+For each high-leverage post, extract:
+- Hook type: What made the first line work?
+- Structure: Problem>Fix? Story>Lesson? Myth>Math?
+- CTA: What did they ask the viewer to do?
+- Why it won: One sentence explaining the mechanism (not "it was good" but "specific dollar amount in hook created urgency")
+
+STEP 4: GENERATE 3 SPIN-OFFS PER WINNER (18 total)
+
+For each of the 6 winners, create 3 new content briefs:
+
+SPIN-OFF A (Same hook type, different topic):
+  Hook: [New first line using same hook TYPE]
+  Pillar: [Rotate to a different pillar than original]
+  3-Beat Outline: [Beat 1 / Beat 2 / Beat 3]
+  CTA: [Match winning CTA type]
+  Framework: [BAB for REACH / STAR for TRUST / PAS for CONVERT]
+
+SPIN-OFF B (Same structure, new angle):
+  Hook: [New angle on the same topic]
+  Pillar: [Can be same pillar, different subtopic]
+  3-Beat Outline: [Beat 1 / Beat 2 / Beat 3]
+  CTA: [Match winning CTA type]
+  Framework: [Assign BAB/STAR/PAS]
+
+SPIN-OFF C (Contrarian flip):
+  Hook: [Take the opposite position or unexpected angle]
+  Pillar: [Different pillar]
+  3-Beat Outline: [Beat 1 / Beat 2 / Beat 3]
+  CTA: [Match winning CTA type]
+  Framework: [Assign BAB/STAR/PAS]
+
+STEP 5: PRIORITIZE TOP 7
+
+From the 18 spin-offs, select the 7 strongest for next week. Assign:
+
+| DAY | SPIN-OFF | ORIGINAL WINNER | FRAMEWORK | HOOK |
+|-----|----------|----------------|-----------|------|
+| Mon |          |                | BAB       |      |
+| Tue |          |                | STAR      |      |
+| Wed |          |                | PAS       |      |
+| Thu |          |                | BAB       |      |
+| Fri |          |                | STAR      |      |
+| Sat |          |                | PAS       |      |
+| Sun |          |                | BAB       |      |
+
+CONSTRAINTS:
+- Every hook must pass the anti-wallpaper test: If any finance page could post it, delete and rewrite.
+- No more than 2 spin-offs from the same original winner in the weekly plan.
+- Pillar distribution: at least 4 different pillars across the 7 posts.
+- DM Keywords for CONVERT posts: AUTOPILOT, TICKING, SCORE, MYNUMBER, COPY, SEED, PAYDAY.
+- CashVault tool links:
+  Freedom Calculator: https://kou.money/freedom-calculator
+  Cost of Waiting: https://kou.money/cost-of-waiting
+  800-Club: https://kou.money/800-club
+  Autopilot System: https://kou.money/autopilot-system
+  Investment Simplifier: https://kou.money/investment-simplifier
+  Budget Calculator: https://kou.money/budget-calculator
+  Prompt Vault: https://kou.money/prompt-vault
+
+OUTPUT FORMAT:
+1. Top 6 Winners Table (POST SCORE, hook, mechanism)
+2. 18 Spin-Off Briefs (6 winners x 3 each)
+3. Top 7 Weekly Plan (table)
+4. Credit to original: which winner inspired each spin-off
+
+Do not generate generic ideas. Every spin-off must trace back to a proven winner with a documented mechanism.`,
+  outputSpec:'Top 6 winners with POST SCORES and mechanism extraction. 18 spin-off briefs (3 per winner). 7-day posting plan. Every idea traces to a proven winner. Total: 800-1,200 words.',
+  verification:[
+    {type:'pass',text:'All 6 winners have documented mechanisms (not just "performed well")'},
+    {type:'pass',text:'18 spin-offs generated, each referencing its source winner'},
+    {type:'pass',text:'7-day plan covers 4+ different pillars'},
+    {type:'pass',text:'No more than 2 spin-offs from same winner in weekly plan'},
+    {type:'pass',text:'CONVERT posts include correct DM keywords and tool URLs'},
+    {type:'fail',text:'Spin-offs sound generic = anti-wallpaper constraint not enforced'},
+    {type:'fail',text:'All spin-offs from 2 winners = mechanism extraction too shallow, re-extract'},
+    {type:'fail',text:'Manus pulls fewer than 30 posts = account has fewer, adjust to available data'}
+  ],
+  escalation:'Content Recycler output quality low.\nProblem: [Spin-offs too similar to originals / hooks too generic / wrong pillar distribution]\nTop 3 spin-offs that failed the anti-wallpaper test: [PASTE]\nRewrite ONLY the failing spin-offs. Show the original winner mechanism and explain why the spin-off diverged from it.'
+},
+{
+  id:4, phase:3, color:'#ef4444',
+  title:'Auto-Publisher',
+  subtitle:'Takes approved content queue and publishes to Instagram at optimal times',
+  status:'manus',
+  frameworks:'None (execution layer)',
+  overlap:'Claude CANNOT post to Instagram. This is 100% Manus-exclusive.',
+  connectors:['Instagram'],
+  credits:{per:'~50-200',cadence:'Per post',monthly:'~700-2,800 (7 posts/wk)'},
+  context:{
+    what:'Takes a content queue (caption + media file reference) and publishes directly to Instagram at specified times. Formats captions, adds hashtags, and schedules posts.',
+    why:'<strong>Eliminates 15-20 min/week of manual uploading.</strong> More importantly, eliminates the "I forgot to post" failure mode.',
+    how:'After Content Recycler generates the 7-day plan, paste this prompt with the approved captions and media references. Manus publishes on schedule.',
+    buildTime:'0.5',buildUnit:'hrs',maintainTime:'5',maintainUnit:'min/wk',savedTime:'15-20 min/week of manual posting + eliminates missed posts'
+  },
+  prompt:`You are a content publishing assistant for "Kou Talks Money" (@koutalksmoney). You have direct write access to the Instagram account.
+
+TASK: Publish the following content queue to Instagram according to the schedule below.
+
+CONTENT QUEUE:
+[PASTE YOUR 7-DAY PLAN FROM CONTENT RECYCLER OR CONTENT GROWTH ANALYST]
+
+For each post:
+- Post #: [NUMBER]
+- Type: [Reel / Carousel / Static Post]
+- Caption: [PASTE FULL CAPTION]
+- Hashtags: [PASTE OR GENERATE 15-20 relevant hashtags mixing broad and niche]
+- Publish Time: [DAY + TIME in EST]
+- Media: [DESCRIBE the media file or reference its location]
+
+PUBLISHING RULES:
+1. Post at the exact scheduled time. If a time is missed, post within the next 30 minutes.
+2. Caption formatting: line breaks after every 2-3 sentences for mobile readability.
+3. Hashtags: place in FIRST COMMENT, not in caption body.
+4. If the post is a CONVERT type (has a DM keyword CTA), verify the keyword is one of: AUTOPILOT, TICKING, SCORE, MYNUMBER, COPY, SEED, PAYDAY.
+5. Do not modify the caption copy. Publish exactly as provided.
+6. After publishing each post, confirm: Post # | Published Time | Post URL | Status (success/fail).
+
+SCHEDULE FOR THIS WEEK:
+| Day | Time (EST) | Post # | Type |
+|-----|-----------|--------|------|
+| Mon | 11:00 AM  |        |      |
+| Tue | 12:00 PM  |        |      |
+| Wed | 11:00 AM  |        |      |
+| Thu | 11:00 AM  |        |      |
+| Fri | 12:00 PM  |        |      |
+| Sat | 10:00 AM  |        |      |
+| Sun | 11:00 AM  |        |      |
+
+CONFIRMATION FORMAT:
+After ALL posts are published, provide:
+\`\`\`
+PUBLISHING REPORT — [WEEK]
+| Post # | Scheduled | Actual | URL | Status |
+|--------|-----------|--------|-----|--------|
+\`\`\`
+
+If any post FAILS to publish, state the exact error and do not retry without instruction.`,
+  outputSpec:'Publishing confirmation report with post URLs and status per post. Any failures documented with error messages.',
+  verification:[
+    {type:'pass',text:'All 7 posts published at scheduled times'},
+    {type:'pass',text:'Hashtags in first comment, not caption body'},
+    {type:'pass',text:'Caption formatting preserved (line breaks intact)'},
+    {type:'pass',text:'Confirmation report received with all post URLs'},
+    {type:'fail',text:'Post failed to publish = Instagram connector permissions insufficient (check write access)'},
+    {type:'fail',text:'Wrong time = timezone mismatch, specify EST explicitly'},
+    {type:'fail',text:'Caption modified = Manus added AI commentary, re-paste with "publish EXACTLY as written"'}
+  ],
+  escalation:'Auto-Publisher failed on specific post(s).\nPost # that failed: [X]\nError message from Manus: [PASTE]\nWas it a permissions error, content policy error, or scheduling error?\nDo NOT retry automatically. Wait for diagnosis.'
+},
+{
+  id:5, phase:3, color:'#ef4444',
+  title:'Engagement Scanner',
+  subtitle:'Scans all comments and DMs daily, flags high-intent signals, drafts reply suggestions',
+  status:'manus',
+  frameworks:'PARETO (signal filtering)',
+  overlap:'Claude CANNOT read your Instagram DMs or comments. This is 100% Manus-exclusive.',
+  connectors:['Instagram'],
+  credits:{per:'~100-300',cadence:'Daily',monthly:'~3,000-9,000'},
+  context:{
+    what:'Scans all new comments and DMs from the last 24 hours. Classifies each as high-intent, neutral, or noise. Flags comments that indicate purchase interest, confusion about tools, or collaboration opportunities. Drafts reply suggestions for high-intent signals.',
+    why:'<strong>Eliminates 30 min/week of scrolling through noise.</strong> Surfaces the 5-10 comments/DMs that actually deserve a response.',
+    how:'Run daily as a lightweight task using daily refresh credits (300/day). Paste prompt, Manus scans and delivers a digest.',
+    buildTime:'0.5',buildUnit:'hrs',maintainTime:'5',maintainUnit:'min/day',savedTime:'30 min/week of manual DM/comment scanning'
+  },
+  prompt:`You are an engagement intelligence scanner for "Kou Talks Money" (@koutalksmoney). You have direct read access to the Instagram account.
+
+TASK: Scan all new comments and DMs from the last 24 hours. Classify, prioritize, and surface only what matters.
+
+STEP 1: PULL ALL NEW ACTIVITY (Last 24 Hours)
+
+Collect:
+- All new comments across all posts
+- All new DMs (excluding ManyChat automated flows)
+- All new story replies
+- All new mentions/tags
+
+STEP 2: CLASSIFY EACH INTERACTION
+
+For every comment/DM, assign ONE classification:
+
+HIGH-INTENT (respond personally):
+- Purchase signals: "how much," "is this worth it," "where do I buy," "do you have a course"
+- Tool questions: "how do I use," "it's not working," "what do I put for," "the calculator says"
+- Deep engagement: "this changed how I think about," "I showed this to my friend," "I tried the autopilot"
+- Collaboration signals: "let's collab," "I run a similar page," "can I interview you"
+- Content requests: "can you make a video about," "do you cover [topic]"
+
+NEUTRAL (optional reply, batch later):
+- Simple praise: "great video," "love this," fire emojis
+- Generic questions answered by existing content
+- Shares without comment
+
+NOISE (ignore):
+- Bot comments, spam, irrelevant tags
+- Single-emoji responses
+- Self-promotional comments from other pages
+
+STEP 3: HIGH-INTENT DIGEST
+
+For each HIGH-INTENT interaction, provide:
+
+\`\`\`
+SIGNAL #[X]
+Type: [Comment / DM / Story Reply / Mention]
+From: @[username]
+On: [Which post or DM thread]
+Message: "[Exact text]"
+Classification: [Purchase / Tool Question / Deep Engagement / Collaboration / Content Request]
+Suggested Reply: [Draft a reply in Kou's voice: direct, helpful, systems-focused, under 30 words]
+Priority: [URGENT / NORMAL]
+\`\`\`
+
+URGENT = purchase signals and broken tool reports. These need same-day response.
+NORMAL = everything else high-intent. Respond within 48 hours.
+
+STEP 4: DAILY SUMMARY
+
+\`\`\`
+ENGAGEMENT SCAN — [DATE]
+Total interactions: [X]
+High-intent: [X] (respond today)
+Neutral: [X] (batch later)
+Noise: [X] (ignored)
+
+TOP SIGNAL: [Most important interaction and why]
+TREND: [Any pattern across multiple comments: e.g., "3 people asked about credit scores this week"]
+\`\`\`
+
+CONSTRAINTS:
+- Do NOT reply to anything. Only scan and report. I reply personally.
+- Suggested replies must sound like a 19-year-old systems thinker, not a customer service bot.
+- If someone reports a broken tool, flag as URGENT and include the tool name.
+- If someone asks "how do I start investing," suggest the Investment Simplifier: https://kou.money/investment-simplifier
+- Keep the digest under 500 words. Only high-intent gets individual entries.`,
+  outputSpec:'Daily engagement digest: total counts by classification, individual entries for each high-intent signal with suggested reply drafts, trend detection. Under 500 words.',
+  verification:[
+    {type:'pass',text:'Manus scans comments and DMs without manual input'},
+    {type:'pass',text:'High-intent signals correctly identified (not just praise)'},
+    {type:'pass',text:'Suggested replies sound like Kou, not a chatbot'},
+    {type:'pass',text:'URGENT items flagged for same-day response'},
+    {type:'pass',text:'Broken tool reports immediately surfaced'},
+    {type:'fail',text:'Missing DMs = Manus may not have DM read access (check connector permissions)'},
+    {type:'fail',text:'Everything classified as high-intent = classification criteria too loose'},
+    {type:'fail',text:'Zero interactions found = no new activity or wrong time window, verify 24hr scan'}
+  ],
+  escalation:'Engagement Scanner not surfacing expected interactions.\nKnown interactions that should have appeared: [DESCRIBE]\nManus output: [PASTE what it returned]\nLikely cause: DM read permissions not granted, or comment scanning limited to recent posts only. Check Instagram connector scope in Manus settings.'
+},
+{
+  id:6, phase:4, color:'#3b82f6',
+  title:'Competitor Pattern Scraper',
+  subtitle:'Pulls winning hooks, formats, and engagement patterns from 5-10 niche finance accounts',
+  status:'manus',
+  frameworks:'PARETO + CARR',
+  overlap:'senior-researcher does domain research but cannot scrape live Instagram accounts. This is net-new capability.',
+  connectors:['Instagram'],
+  credits:{per:'~800-1,500',cadence:'Monthly',monthly:'~800-1,500'},
+  context:{
+    what:'Scans 5-10 competitor/inspiration accounts. Pulls their top-performing posts (by visible engagement). Extracts hook patterns, content formats, posting cadence, and CTA strategies. Identifies gaps KTM can exploit.',
+    why:'<strong>Lower priority but high value at scale.</strong> Once your own content engine is running, competitor intel sharpens your edge.',
+    how:'Run monthly. Provide account handles. Manus scrapes and produces a pattern report.',
+    buildTime:'0.5',buildUnit:'hrs',maintainTime:'0',maintainUnit:'(monthly run)',savedTime:'2-3 hrs/month of manual competitor research'
+  },
+  prompt:`You are a competitive content intelligence analyst for "Kou Talks Money" (@koutalksmoney). You have access to Instagram.
+
+TASK: Scan the following competitor/inspiration accounts and extract content patterns I can learn from.
+
+ACCOUNTS TO SCAN:
+[PASTE 5-10 INSTAGRAM HANDLES, one per line]
+
+FOR EACH ACCOUNT, EXTRACT:
+
+1. ACCOUNT OVERVIEW:
+   - Handle, follower count, posting frequency (posts/week estimated from last 30 days)
+   - Content mix: % Reels vs Carousels vs Static
+   - Bio CTA: Where does their bio link go?
+
+2. TOP 5 POSTS (by visible engagement: likes + comments):
+   For each of the 5 highest-engagement posts from the last 90 days:
+   - Hook (first line of caption or first 2 seconds)
+   - Format (Reel/Carousel/Static)
+   - Estimated engagement: likes + comments visible
+   - Topic category
+   - CTA used (if any)
+
+3. PATTERN EXTRACTION:
+   - Hook patterns that repeat across top posts (list the top 3 hook structures)
+   - Content format that dominates (which format gets highest engagement)
+   - CTA strategy: Do they use DM keywords? Link in bio? "Follow for part 2"?
+   - Posting cadence sweet spot: How often do they post?
+
+4. GAP ANALYSIS (compared to KTM):
+   - What are they doing that KTM is NOT doing?
+   - What is KTM doing that THEY are not? (tools, automation, Blue Tape, etc.)
+   - Audience overlap: Would their followers also follow KTM? (YES/PARTIAL/NO with reasoning)
+
+AFTER ALL ACCOUNTS, PRODUCE:
+
+CROSS-ACCOUNT PATTERN SUMMARY:
+- Top 5 hook structures across ALL scanned accounts (with examples)
+- Most common content format for high engagement
+- Most common CTA type
+- Biggest content gap that KTM can fill
+
+5 CONTENT IDEAS INSPIRED BY COMPETITOR PATTERNS:
+(Not copies. Take the MECHANISM and apply it to KTM's unique angle, pillars, and tools.)
+
+\`\`\`
+IDEA [#]:
+  Inspired by: @[handle] post about [topic]
+  Mechanism borrowed: [What structural element you are reusing]
+  KTM version: [How KTM would execute this differently]
+  Hook: [Exact first line]
+  Pillar: [AUTOPILOT/TICKING/SCORE/MYNUMBER/COPY/SEED/PAYDAY]
+  Tool Bridge: [CashVault tool if applicable]
+\`\`\`
+
+CONSTRAINTS:
+- Do NOT recommend copying content. Extract MECHANISMS, not messages.
+- Focus on accounts with 1K-100K followers (similar stage or one level ahead).
+- If an account is private, skip it and note why.
+- If engagement data is not visible (hidden likes), estimate from comments and note [ESTIMATED].`,
+  outputSpec:'Per-account overview with top 5 posts and pattern extraction. Cross-account summary with top 5 hook structures. Gap analysis. 5 content ideas inspired by competitor mechanisms. Total: 800-1,200 words.',
+  verification:[
+    {type:'pass',text:'Data pulled from all provided accounts (or private accounts flagged)'},
+    {type:'pass',text:'Top 5 posts per account identified with hooks extracted'},
+    {type:'pass',text:'Cross-account patterns synthesized (not just per-account summaries)'},
+    {type:'pass',text:'5 content ideas reference specific mechanisms, not copied content'},
+    {type:'pass',text:'Gap analysis identifies at least 1 thing KTM does that competitors do not'},
+    {type:'fail',text:'Manus cannot access account = account is private or Instagram rate-limited'},
+    {type:'fail',text:'Generic patterns ("post Reels") = extraction too shallow, add "be specific about hook STRUCTURE"'},
+    {type:'fail',text:'Content ideas sound like competitor copies = mechanism extraction failed, rewrite with KTM pillars'}
+  ],
+  escalation:'Competitor Scraper returning shallow results.\nAccounts scanned: [X]\nProblem: [Patterns too generic / cannot access accounts / ideas not KTM-aligned]\nFix: Provide more specific extraction criteria or replace inaccessible accounts with alternatives.'
+}
+];
+
+const phaseNames={0:'Phase 0: Connect the Pipes',1:'Phase 1: Intelligence Layer',2:'Phase 2: Multiplication Layer',3:'Phase 3: Execution Layer',4:'Phase 4: Scale Layer'};
+const phaseColors={0:'#22d3ee',1:'#a855f7',2:'#f472b6',3:'#ef4444',4:'#3b82f6'};
+const phaseBorders={0:'rgba(34,211,238,0.3)',1:'rgba(168,85,247,0.3)',2:'rgba(244,114,182,0.3)',3:'rgba(239,68,68,0.3)',4:'rgba(59,130,246,0.3)'};
+const phaseBgs={0:'rgba(34,211,238,0.06)',1:'rgba(168,85,247,0.06)',2:'rgba(244,114,182,0.06)',3:'rgba(239,68,68,0.06)',4:'rgba(59,130,246,0.06)'};
+const phaseMeta={0:'One-time setup. Connect Instagram + Supabase in Manus.',1:'Weekly automated reports replacing manual data pulls.',2:'Content multiplication. Proven winners spawn new content.',3:'Manus publishes and scans. Zero manual uploading.',4:'Monthly competitor intel. Deploy after Phase 3 is stable.'};
+
+const CONNECTOR_SETUP = {
+  id:0, phase:0, color:'#22d3ee',
+  title:'Manus Connector Setup',
+  subtitle:'Connect Instagram + Supabase + Canva + Vercel before any system runs',
+  status:'manus',
+  frameworks:'None (infrastructure)',
+  context:{
+    what:'Activates the 4 connectors Manus needs to run all 5 systems. Claude connectors do NOT carry over. Each must be connected independently inside Manus.',
+    why:'<strong>Nothing works without this.</strong> Every system depends on at least one connector.',
+    how:'Open Manus > Add connectors > Apps tab > Connect each one.',
+    buildTime:'10',buildUnit:'min',maintainTime:'0',maintainUnit:'',savedTime:'Prerequisite for everything'
+  }
+};
+
+const container = document.getElementById('systemsContainer');
+
+function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+
+function renderSystems(filter='all',search=''){
+  container.innerHTML='';
+  const tracker=loadT();
+  const sl=search.toLowerCase();
+
+  // Phase 0: Connector Setup
+  if(filter==='all'||filter==='0'){
+    if(!search||'connector'.includes(sl)||'setup'.includes(sl)||'instagram'.includes(sl)||'supabase'.includes(sl)){
+      const cs=CONNECTOR_SETUP;
+      const pd=document.createElement('div');
+      pd.className='phase-div';
+      pd.style.borderColor=phaseBorders[0];
+      pd.style.background='linear-gradient(135deg,'+phaseBgs[0]+',transparent)';
+      pd.innerHTML='<div class="phase-tag" style="color:'+phaseColors[0]+'">'+phaseMeta[0]+'</div><h2>'+phaseNames[0]+'</h2>';
+      container.appendChild(pd);
+
+      const card=document.createElement('div');
+      const isDone=tracker[0]&&tracker[0].done;
+      const noteVal=(tracker[0]&&tracker[0].note)||'';
+      card.className='sys-card'+(isDone?' sys-done':'');
+      card.innerHTML=`
+        <div class="sys-header" onclick="this.closest('.sys-card').classList.toggle('open')">
+          <div class="sys-check-wrap" onclick="event.stopPropagation()">
+            <input type="checkbox" class="sys-check" ${isDone?'checked':''} onchange="toggleCheck(0,this)">
+          </div>
+          <div class="sys-num" style="background:${cs.color}">00</div>
+          <div class="sys-info">
+            <div class="sys-title">${cs.title}${isDone?'<span class="done-badge">DONE</span>':''}</div>
+            <div class="sys-sub">${cs.subtitle}</div>
+          </div>
+          <div class="sys-toggle">+</div>
+        </div>
+        <div class="sys-body">
+          <div class="sys-context">
+            <div class="ctx-block ctx-what"><div class="ctx-label">What It Does</div><div class="ctx-text">${cs.context.what}</div></div>
+            <div class="ctx-block ctx-why"><div class="ctx-label">Why It Matters</div><div class="ctx-text">${cs.context.why}</div></div>
+            <div class="ctx-block ctx-how"><div class="ctx-label">How to Build</div><div class="ctx-text">${cs.context.how}</div></div>
+            <div class="ctx-block ctx-time"><div class="ctx-label">Time</div><div class="ctx-time-data"><div class="ctx-time-item"><div class="ctx-time-num" style="color:var(--cyan)">${cs.context.buildTime}</div><div class="ctx-time-unit">${cs.context.buildUnit}</div></div></div></div>
+          </div>
+          <div class="connector-grid">
+            <div class="connector-card">
+              <div class="connector-icon" style="background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;font-size:16px;">📷</div>
+              <div><div class="connector-name">Instagram</div><div class="connector-desc">READ + WRITE. Posts, DMs, comments, analytics.</div></div>
+              <span class="connector-status cs-required">Required</span>
+            </div>
+            <div class="connector-card">
+              <div class="connector-icon" style="background:#3ecf8e;color:#fff;font-size:14px;">⚡</div>
+              <div><div class="connector-name">Supabase</div><div class="connector-desc">READ. Queries visits, funnel_events, tool_completions.</div></div>
+              <span class="connector-status cs-required">Required</span>
+            </div>
+            <div class="connector-card">
+              <div class="connector-icon" style="background:#7b68ee;color:#fff;font-size:14px;">🎨</div>
+              <div><div class="connector-name">Canva</div><div class="connector-desc">Design automation. Carousel + thumbnail generation.</div></div>
+              <span class="connector-status cs-optional">Phase 4</span>
+            </div>
+            <div class="connector-card">
+              <div class="connector-icon" style="background:#000;color:#fff;font-size:14px;border:1px solid #333;">▲</div>
+              <div><div class="connector-name">Vercel</div><div class="connector-desc">Deployment monitoring. kou.money health checks.</div></div>
+              <span class="connector-status cs-optional">Phase 4</span>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label label-connector">Setup Steps (One-Time)</div>
+            <div class="prompt-box">MANUS CONNECTOR SETUP (10 minutes, one-time)
+
+1. Open Manus app or web interface
+2. Navigate to Settings or Profile
+3. Find "Add connectors" (Apps tab)
+4. INSTAGRAM (REQUIRED):
+   - Tap "Instagram" (should show "Generate and publish Posts, Stories, or Reels")
+   - Authorize with your @koutalksmoney account
+   - Confirm BOTH read and write permissions are granted
+   - Test: Ask Manus "How many followers does @koutalksmoney have?" If it returns a number, READ works.
+   - Test: Ask Manus "Draft a test caption for @koutalksmoney but do NOT publish." If it drafts, WRITE access is ready.
+
+5. SUPABASE (REQUIRED):
+   - Tap "Supabase" in Apps tab
+   - Connect to project: wokoxddotlyuasmwylpx
+   - Authorize database read access
+   - Test: Ask Manus "Query the visits table in Supabase and return the 5 most recent rows."
+   - If it returns rows with tool_name and timestamps, connection is live.
+
+6. CANVA (OPTIONAL, Phase 4):
+   - Connect when ready for carousel auto-building
+   - Not needed for Systems 1-5
+
+7. VERCEL (OPTIONAL, Phase 4):
+   - Connect when ready for deployment monitoring
+   - Not needed for Systems 1-5
+
+VERIFICATION: All 4 connectors should show green checkmarks in the Manus connectors panel. Instagram and Supabase are REQUIRED before any system prompt will work.<button class="copy-btn" onclick="copyText(this,this.closest('.prompt-box'))">Copy</button></div>
+          </div>
+          <div class="sys-note-section">
+            <div class="sys-note-label">Notes</div>
+            <textarea class="sys-note-input" placeholder="Track connector status..." oninput="updateNote(0,this)">${esc(noteVal)}</textarea>
+            <div class="sys-note-saved">Saved</div>
+          </div>
+        </div>`;
+      container.appendChild(card);
+    }
+  }
+
+  let currentPhase=-1;
+  SYSTEMS.forEach(sys=>{
+    if(filter!=='all'&&sys.phase!==parseInt(filter))return;
+    if(sl&&!sys.title.toLowerCase().includes(sl)&&!sys.prompt.toLowerCase().includes(sl)&&!sys.subtitle.toLowerCase().includes(sl))return;
+
+    if(sys.phase!==currentPhase){
+      currentPhase=sys.phase;
+      const pd=document.createElement('div');
+      pd.className='phase-div';
+      pd.style.borderColor=phaseBorders[currentPhase];
+      pd.style.background='linear-gradient(135deg,'+phaseBgs[currentPhase]+',transparent)';
+      pd.innerHTML='<div class="phase-tag" style="color:'+phaseColors[currentPhase]+'">'+phaseMeta[currentPhase]+'</div><h2>'+phaseNames[currentPhase]+'</h2>';
+      container.appendChild(pd);
+    }
+
+    const isDone=tracker[sys.id]&&tracker[sys.id].done;
+    const noteVal=(tracker[sys.id]&&tracker[sys.id].note)||'';
+    const card=document.createElement('div');
+    card.className='sys-card'+(isDone?' sys-done':'');
+
+    const statusBadge=sys.status==='manus'?'<span class="status-badge status-manus">MANUS ONLY</span>':sys.status==='hybrid'?'<span class="status-badge status-hybrid">HYBRID</span>':'<span class="status-badge status-claude">CLAUDE OVERLAP</span>';
+    const fwBadge=sys.frameworks!=='None (execution layer)'&&sys.frameworks!=='None (infrastructure)'?'<span class="fw-badge">'+sys.frameworks.split(' + ')[0]+(sys.frameworks.split(' + ').length>1?' +':'')+'</span>':'';
+
+    card.innerHTML=`
+      <div class="sys-header" onclick="this.closest('.sys-card').classList.toggle('open')">
+        <div class="sys-check-wrap" onclick="event.stopPropagation()">
+          <input type="checkbox" class="sys-check" ${isDone?'checked':''} onchange="toggleCheck(${sys.id},this)">
+        </div>
+        <div class="sys-num" style="background:${sys.color}">${String(sys.id).padStart(2,'0')}</div>
+        <div class="sys-info">
+          <div class="sys-title">${sys.title}${isDone?'<span class="done-badge">DONE</span>':''}${statusBadge}${fwBadge}</div>
+          <div class="sys-sub">${sys.subtitle}</div>
+        </div>
+        <div class="sys-toggle">+</div>
+      </div>
+      <div class="sys-body">
+        ${sys.context?`<div class="sys-context">
+          <div class="ctx-block ctx-what"><div class="ctx-label">What It Does</div><div class="ctx-text">${sys.context.what}</div></div>
+          <div class="ctx-block ctx-why"><div class="ctx-label">Why It Matters</div><div class="ctx-text">${sys.context.why}</div></div>
+          <div class="ctx-block ctx-how"><div class="ctx-label">How to Execute</div><div class="ctx-text">${sys.context.how}</div></div>
+          <div class="ctx-block ctx-time"><div class="ctx-label">Time Leverage</div>
+            <div class="ctx-time-data">
+              <div class="ctx-time-item"><div class="ctx-time-num" style="color:var(--manus)">${sys.context.buildTime}</div><div class="ctx-time-unit">${sys.context.buildUnit} to build</div></div>
+              <div class="ctx-time-item"><div class="ctx-time-num" style="color:var(--green)">${sys.context.maintainTime}</div><div class="ctx-time-unit">${sys.context.maintainUnit} ongoing</div></div>
+            </div>
+            <div class="ctx-text" style="margin-top:8px;font-size:10px;">${sys.context.savedTime}</div>
+          </div>
+        </div>`:''}
+
+        <div class="overlap-box">
+          <div class="overlap-label">Claude Skill Overlap</div>
+          <div class="overlap-text">${sys.overlap}</div>
+        </div>
+
+        <div class="credit-box">
+          <div class="credit-label">Credit Budget</div>
+          <div class="credit-row"><span>Per Run</span><span>${sys.credits.per}</span></div>
+          <div class="credit-row"><span>Cadence</span><span>${sys.credits.cadence}</span></div>
+          <div class="credit-row"><span>Monthly Estimate</span><span style="color:var(--amber)">${sys.credits.monthly}</span></div>
+        </div>
+
+        <div class="prompt-section">
+          <div class="prompt-label label-primary">Manus Prompt (Copy-Paste Ready)</div>
+          <div class="prompt-box">${esc(sys.prompt)}<button class="copy-btn" onclick="copyText(this,this.closest('.prompt-box'))">Copy</button></div>
+        </div>
+
+        <div class="prompt-section">
+          <div class="prompt-label label-output">Expected Output</div>
+          <div class="prompt-box">${esc(sys.outputSpec)}<button class="copy-btn" onclick="copyText(this,this.closest('.prompt-box'))">Copy</button></div>
+        </div>
+
+        <div class="prompt-section">
+          <div class="prompt-label label-verify">Verification Checklist</div>
+          <ul class="verify-list">
+            ${sys.verification.map(v=>`<li class="check-${v.type}"><strong>${v.type==='pass'?'✓ PASS':'✗ FAIL'}:</strong> ${esc(v.text)}</li>`).join('')}
+          </ul>
+        </div>
+
+        <div class="prompt-section">
+          <div class="prompt-label label-escalation">Escalation (If System Fails)</div>
+          <div class="prompt-box">${esc(sys.escalation)}<button class="copy-btn" onclick="copyText(this,this.closest('.prompt-box'))">Copy</button></div>
+        </div>
+
+        <div class="sys-note-section">
+          <div class="sys-note-label">Notes // Build Status</div>
+          <textarea class="sys-note-input" placeholder="Track what is working, what broke, what is next..." oninput="updateNote(${sys.id},this)">${esc(noteVal)}</textarea>
+          <div class="sys-note-saved">Saved</div>
+        </div>
+      </div>`;
+    container.appendChild(card);
+  });
+  updateStats();
+}
+
+function copyText(btn,box){
+  const text=box.textContent.replace('Copy','').replace('Copied','').trim();
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='Copied';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);
+  });
+}
+
+document.querySelectorAll('.phase-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.phase-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderSystems(btn.dataset.phase,document.getElementById('searchInput').value);
+  });
+});
+
+let st;
+document.getElementById('searchInput').addEventListener('input',(e)=>{
+  clearTimeout(st);
+  st=setTimeout(()=>{
+    const ap=document.querySelector('.phase-btn.active').dataset.phase;
+    renderSystems(ap,e.target.value);
+  },300);
+});
+
+renderSystems();
+</script>
+</body>
+</html>
