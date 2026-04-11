@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYSTEM 11 // CEO Sunday Audit // Kou Talks Money</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0f;--bg2:#111119;--bg3:#18182a;--border:#1e1e2e;--border2:#2a2a3e;
+  --blue:#3b82f6;--electric:#60a5fa;--cyan:#22d3ee;--green:#10b981;
+  --amber:#f59e0b;--red:#ef4444;--purple:#c084fc;--orange:#f97316;
+  --text:#f0f0f5;--text2:#8888a0;--text3:#55556a;
+  --mono:'Space Mono',monospace;--display:'Outfit',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--display);min-height:100vh;-webkit-font-smoothing:antialiased;}
+.page{max-width:720px;margin:0 auto;padding:20px 16px 100px;}
+
+.tape{background:linear-gradient(135deg,#1e3a6e,#2d5bb9,#3b82f6);border-radius:2px;padding:12px 16px;margin-bottom:20px;transform:rotate(-0.3deg);box-shadow:0 4px 24px rgba(59,130,246,0.2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;}
+.tape-label{font-family:var(--mono);font-size:8px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.5);}
+.tape-num{font-family:var(--mono);font-size:22px;font-weight:700;color:#fff;}
+.tape-num span{font-size:10px;opacity:0.6;margin-left:4px;}
+.tape-meta{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.4);text-align:right;letter-spacing:1px;line-height:1.6;}
+
+.header{text-align:center;margin-bottom:24px;padding:24px 16px;background:var(--bg2);border:1px solid rgba(249,115,22,0.25);border-radius:12px;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(249,115,22,0.06),transparent 70%);pointer-events:none;}
+.header .badge{font-family:var(--mono);font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:6px;position:relative;}
+.header h1{font-size:20px;font-weight:900;position:relative;margin-bottom:4px;letter-spacing:-0.5px;}
+.header .sub{font-size:11px;color:var(--text2);font-weight:300;position:relative;line-height:1.5;}
+
+.mode-toggle{display:flex;gap:6px;margin-bottom:20px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:4px;}
+.mode-btn{flex:1;font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:10px 6px;border-radius:6px;border:none;background:transparent;color:var(--text3);cursor:pointer;transition:all 0.2s;text-align:center;}
+.mode-btn.active{background:rgba(249,115,22,0.1);color:var(--orange);border:1px solid rgba(249,115,22,0.25);}
+.mode-btn:hover:not(.active){color:var(--text2);}
+
+.section{display:none;}
+.section.visible{display:block;}
+
+.timer-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;}
+.timer-icon{font-size:18px;}
+.timer-info{flex:1;}
+.timer-label{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);}
+.timer-time{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--orange);}
+.timer-time.warning{color:var(--amber);}
+.timer-time.over{color:var(--red);}
+.timer-btn{font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:8px 14px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;transition:all 0.2s;}
+.timer-btn:hover{border-color:var(--orange);color:var(--orange);}
+.timer-btn.running{border-color:var(--green);color:var(--green);}
+
+.avg-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;}
+.avg-label{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);flex-shrink:0;}
+.avg-track{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;}
+.avg-fill{height:100%;border-radius:4px;transition:width 0.4s ease;}
+.avg-num{font-family:var(--mono);font-size:14px;font-weight:700;width:36px;text-align:right;flex-shrink:0;}
+
+.divider{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin:20px 0 12px;display:flex;align-items:center;gap:8px;}
+.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* Duty */
+.duty{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all 0.3s;}
+.duty.lowest{border-color:var(--red);box-shadow:0 0 16px rgba(239,68,68,0.1);}
+.duty.highest{border-color:var(--green);box-shadow:0 0 16px rgba(16,185,129,0.1);}
+.duty-header{display:flex;align-items:center;gap:10px;padding:12px 14px;}
+.duty-num-badge{font-family:var(--mono);font-size:10px;font-weight:700;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;color:#fff;flex-shrink:0;background:var(--orange);}
+.duty-info{flex:1;}
+.duty-name{font-size:13px;font-weight:700;margin-bottom:1px;}
+.duty-question{font-size:10px;color:var(--text2);line-height:1.4;font-style:italic;}
+.duty-data-hint{font-family:var(--mono);font-size:8px;color:var(--cyan);background:rgba(34,211,238,0.08);padding:2px 6px;border-radius:3px;margin-top:3px;display:inline-block;}
+.duty-score-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.score-input{width:50px;height:36px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:16px;font-weight:700;text-align:center;outline:none;transition:border-color 0.2s;}
+.score-input:focus{border-color:var(--orange);}
+.score-input::placeholder{color:var(--text3);font-size:12px;}
+.duty-rubric-toggle{font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all 0.2s;margin-left:4px;}
+.duty-rubric-toggle:hover{border-color:var(--orange);color:var(--orange);}
+.duty-rubric{display:none;padding:0 14px 12px;border-top:1px solid var(--border);}
+.duty-rubric.open{display:block;}
+.rubric-row{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--text2);padding:4px 0;}
+.rubric-score{font-family:var(--mono);font-size:9px;font-weight:700;width:32px;text-align:center;padding:2px 4px;border-radius:3px;flex-shrink:0;}
+.sc-hi{color:var(--green);background:rgba(16,185,129,0.1);}
+.sc-md{color:var(--amber);background:rgba(245,158,11,0.1);}
+.sc-lo{color:var(--red);background:rgba(239,68,68,0.1);}
+
+/* Result + Context */
+.result-card{background:var(--bg2);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:16px;margin-bottom:16px;}
+.result-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+.result-duty{font-size:16px;font-weight:800;margin-bottom:4px;}
+.result-score{font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:10px;}
+.context-area{margin-bottom:10px;}
+.context-area label{font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:4px;}
+.context-area textarea{width:100%;min-height:60px;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-family:var(--mono);font-size:10px;line-height:1.6;resize:vertical;outline:none;}
+.context-area textarea:focus{border-color:var(--red);color:var(--text);}
+.context-area textarea::placeholder{color:var(--text3);}
+
+/* Metrics input */
+.metrics-input{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;}
+.metrics-input-label{font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px;}
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.metric-field{display:flex;flex-direction:column;gap:2px;}
+.metric-field label{font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:0.5px;}
+.metric-field input{padding:6px 8px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:10px;outline:none;width:100%;}
+.metric-field input:focus{border-color:var(--cyan);}
+.metric-field input::placeholder{color:var(--text3);}
+
+/* Submit */
+.submit-bar{display:flex;gap:8px;margin:20px 0;}
+.submit-btn{flex:1;font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:12px 20px;border-radius:8px;border:1px solid var(--orange);background:rgba(249,115,22,0.1);color:var(--orange);cursor:pointer;transition:all 0.2s;}
+.submit-btn:hover{background:rgba(249,115,22,0.2);box-shadow:0 0 20px rgba(249,115,22,0.15);}
+.submit-btn:disabled{opacity:0.3;cursor:not-allowed;}
+.analyze-btn{flex:1;font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:12px 20px;border-radius:8px;border:1px solid var(--cyan);background:rgba(34,211,238,0.1);color:var(--cyan);cursor:pointer;transition:all 0.2s;}
+.analyze-btn:hover{background:rgba(34,211,238,0.2);box-shadow:0 0 20px rgba(34,211,238,0.15);}
+.analyze-btn:disabled{opacity:0.3;cursor:not-allowed;}
+
+/* AI Response */
+.ai-response{background:var(--bg2);border:1px solid rgba(34,211,238,0.25);border-radius:12px;padding:20px;margin:16px 0;position:relative;overflow:hidden;}
+.ai-response::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top left,rgba(34,211,238,0.04),transparent 60%);pointer-events:none;}
+.ai-header{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;display:flex;align-items:center;gap:8px;position:relative;}
+.ai-header::after{content:'';flex:1;height:1px;background:rgba(34,211,238,0.2);}
+.ai-body{font-size:12px;color:var(--text2);line-height:1.7;white-space:pre-wrap;word-break:break-word;position:relative;}
+.ai-body h3{color:var(--text);font-size:13px;font-weight:700;margin:16px 0 6px;}
+.ai-body strong{color:var(--text);font-weight:600;}
+.ai-loading{text-align:center;padding:30px;position:relative;}
+.ai-loading-text{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:1px;}
+.ai-loading .dots{display:inline-block;animation:dots 1.5s steps(4,end) infinite;}
+@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+.ai-loading .dots::after{content:'';animation:dots 1.5s steps(4,end) infinite;}
+
+/* Confidence */
+.confidence-bar{display:flex;align-items:center;gap:8px;margin-top:16px;padding:10px 12px;background:var(--bg);border-radius:8px;}
+.confidence-label{font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);flex-shrink:0;}
+.confidence-track{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.confidence-fill{height:100%;border-radius:3px;transition:width 0.6s ease;}
+.confidence-num{font-family:var(--mono);font-size:12px;font-weight:700;width:36px;text-align:right;flex-shrink:0;}
+
+/* History */
+.history-entry{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;}
+.history-header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer;user-select:none;flex-wrap:wrap;gap:4px;}
+.history-date{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);}
+.history-avg{font-family:var(--mono);font-size:11px;font-weight:700;}
+.history-lowest{font-family:var(--mono);font-size:9px;color:var(--red);background:rgba(239,68,68,0.08);padding:2px 8px;border-radius:3px;}
+.history-toggle{font-family:var(--mono);font-size:16px;color:var(--text3);transition:transform 0.2s;}
+.history-entry.open .history-toggle{transform:rotate(45deg);}
+.history-body{display:none;padding:0 14px 12px;border-top:1px solid var(--border);}
+.history-entry.open .history-body{display:block;}
+.history-scores{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px;}
+.history-score-item{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--bg);border-radius:4px;font-size:10px;}
+.history-score-name{color:var(--text2);}
+.history-score-val{font-family:var(--mono);font-weight:700;}
+.history-context{margin-top:10px;font-size:10px;color:var(--text2);padding:8px 10px;background:var(--bg);border-radius:6px;border-left:2px solid var(--red);line-height:1.5;}
+.history-ai{margin-top:10px;font-size:10px;color:var(--text2);padding:8px 10px;background:var(--bg);border-radius:6px;border-left:2px solid var(--cyan);line-height:1.5;white-space:pre-wrap;}
+.history-ai-label{font-family:var(--mono);font-size:8px;color:var(--cyan);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.delete-entry{font-family:var(--mono);font-size:7px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all 0.2s;margin-top:8px;}
+.delete-entry:hover{border-color:var(--red);color:var(--red);}
+
+/* Trends */
+.trend-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px;}
+.trend-card{padding:8px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center;}
+.trend-duty{font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:0.5px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.trend-val{font-family:var(--mono);font-size:14px;font-weight:700;}
+.trend-dir{font-family:var(--mono);font-size:9px;margin-top:2px;}
+.trend-up{color:var(--green);}
+.trend-down{color:var(--red);}
+.trend-flat{color:var(--text3);}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3);font-size:12px;}
+
+@media(max-width:480px){
+  .trend-grid{grid-template-columns:repeat(3,1fr);}
+  .history-scores{grid-template-columns:repeat(2,1fr);}
+  .metrics-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="tape">
+  <div>
+    <div class="tape-label">Blue Tape // Days to $1M</div>
+    <div class="tape-num" id="daysLeft">---<span>DAYS</span></div>
+  </div>
+  <div class="tape-meta">SYSTEM 11 v2<br>CEO SUNDAY AUDIT<br>CHIEF ANALYTICS POWERED</div>
+</div>
+
+<div class="header">
+  <div class="badge">System 11 // Chief Analytics Engine</div>
+  <h1>CEO Sunday Audit</h1>
+  <div class="sub">12 CMO duties scored 1-10. Lowest duty identified. Chief Analytics decomposes the problem and delivers one high-leverage fix under 2 hours.</div>
+</div>
+
+<div class="mode-toggle">
+  <button class="mode-btn active" data-mode="score" onclick="switchMode('score')">Score</button>
+  <button class="mode-btn" data-mode="history" onclick="switchMode('history')">History</button>
+  <button class="mode-btn" data-mode="trends" onclick="switchMode('trends')">Trends</button>
+</div>
+
+<!-- SCORE -->
+<div class="section visible" id="sec-score">
+
+<div class="timer-bar">
+  <div class="timer-icon">⏱</div>
+  <div class="timer-info">
+    <div class="timer-label">Target: 15 Minutes</div>
+    <div class="timer-time" id="timerDisplay">0:00</div>
+  </div>
+  <button class="timer-btn" id="timerBtn" onclick="toggleTimer()">Start</button>
+</div>
+
+<div class="avg-bar">
+  <div class="avg-label">Average</div>
+  <div class="avg-track"><div class="avg-fill" id="avgFill" style="width:0%;background:var(--text3);"></div></div>
+  <div class="avg-num" id="avgNum" style="color:var(--text3);">--</div>
+</div>
+
+<div id="dutiesContainer"></div>
+<div id="resultArea"></div>
+<div id="aiArea"></div>
+
+<div class="submit-bar">
+  <button class="submit-btn" id="submitBtn" onclick="submitAudit()" disabled>Log Audit</button>
+  <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()" disabled>Chief Analytics: Diagnose</button>
+</div>
+
+</div>
+
+<!-- HISTORY -->
+<div class="section" id="sec-history">
+  <div class="divider">Audit History (Last 52 Weeks)</div>
+  <div id="historyContainer"></div>
+</div>
+
+<!-- TRENDS -->
+<div class="section" id="sec-trends">
+  <div class="divider">Duty Trends (Last vs Previous)</div>
+  <div id="trendContainer"></div>
+  <div class="divider" style="margin-top:24px;">Lowest Duty Frequency</div>
+  <div id="frequencyContainer"></div>
+</div>
+
+</div>
+
+<script>
+const STORAGE_KEY='s11v2_audits';
+const DUTIES=[
+  {id:1,name:'Demand Generation',question:'Is more of the world finding out I exist this week than last week?',dataHint:'System 37: Col N (Pub Visitors) trend',rubric:[{s:'8-10',t:'Col N green 3 consecutive weeks',c:'sc-hi'},{s:'6-7',t:'Visitors up this week vs last',c:'sc-md'},{s:'4-5',t:'Flat',c:'sc-md'},{s:'1-3',t:'Visitors declining',c:'sc-lo'}]},
+  {id:2,name:'Brand Positioning',question:'Would a stranger know exactly who I am for and what I stand against in 10 seconds?',rubric:[{s:'8-10',t:'Anti-guru voice consistent across all content',c:'sc-hi'},{s:'5-7',t:'Some on-brand, some generic',c:'sc-md'},{s:'1-4',t:'Sounds like every finance page',c:'sc-lo'}]},
+  {id:3,name:'Messaging & Voice',question:'Did every piece of content pass the Anti-Wallpaper test?',rubric:[{s:'8-10',t:'Zero wallpaper. Every sentence stops someone in a parking lot',c:'sc-hi'},{s:'5-7',t:'Some sharp, some filler',c:'sc-md'},{s:'1-4',t:'Most copy could come from any brand',c:'sc-lo'}]},
+  {id:4,name:'Channel Strategy',question:'Is my email channel driving people to the tools I want them to use?',dataHint:'System 37: Email click map (top-clicked tool)',rubric:[{s:'8-10',t:'Top tool matches content pillar this week',c:'sc-hi'},{s:'5-7',t:'Can name top tool but pillar mismatch',c:'sc-md'},{s:'1-4',t:'Did not check click map',c:'sc-lo'}]},
+  {id:5,name:'Offer Design',question:'Does my current offer make Brandon think "this was built for me"?',rubric:[{s:'8-10',t:'Offer tested, exit-survey reviewed, deliverables clear',c:'sc-hi'},{s:'5-7',t:'Offer exists but not validated',c:'sc-md'},{s:'1-4',t:'No offer live',c:'sc-lo'}]},
+  {id:6,name:'Creative Quality',question:'Would I rewatch my own content from this week?',rubric:[{s:'8-10',t:'Hooks sharp, pacing tight, CTA clear',c:'sc-hi'},{s:'5-7',t:'Decent but pacing issues',c:'sc-md'},{s:'1-4',t:'Would not rewatch. Rushed',c:'sc-lo'}]},
+  {id:7,name:'Conversion Optimization',question:'Is every step from attention to action frictionless?',rubric:[{s:'8-10',t:'CTA > DM > tool > email tested and working',c:'sc-hi'},{s:'5-7',t:'Pipeline works but known friction',c:'sc-md'},{s:'1-4',t:'Broken links, missing CTAs, untested',c:'sc-lo'}]},
+  {id:8,name:'Measurement & Analytics',question:'Am I actually reading my own data, or flying blind?',dataHint:'System 37: Did you complete the 6-step weekly read?',rubric:[{s:'8-10',t:'All 6 System 37 steps done, Cols N+O filled',c:'sc-hi'},{s:'4-7',t:'Some steps done',c:'sc-md'},{s:'1-3',t:'Skipped analytics read',c:'sc-lo'}]},
+  {id:9,name:'Experimentation',question:'Did I test anything new this week?',rubric:[{s:'8-10',t:'Ran a test with hypothesis and measured result',c:'sc-hi'},{s:'5-7',t:'Tried something new but did not measure',c:'sc-md'},{s:'1-4',t:'Same thing as last week',c:'sc-lo'}]},
+  {id:10,name:'Brand Building',question:'Did I invest in anything that compounds over months?',rubric:[{s:'8-10',t:'Built an automation, system, or asset that runs without me',c:'sc-hi'},{s:'5-7',t:'Maintained existing systems',c:'sc-md'},{s:'1-4',t:'Only reactive, one-time tasks',c:'sc-lo'}]},
+  {id:11,name:'Team Alignment (Solo)',question:'Am I aligned with my own priorities, or scattered?',rubric:[{s:'8-10',t:'1-2 priorities. Said no to distractions',c:'sc-hi'},{s:'5-7',t:'Mostly focused but got pulled into side tasks',c:'sc-md'},{s:'1-4',t:'Scattered. Cannot name what I prioritized',c:'sc-lo'}]},
+  {id:12,name:'Revenue Growth',question:'Did revenue move? If pre-revenue: did I take a revenue-generating action?',rubric:[{s:'8-10',t:'Made money OR completed a system that directly enables it',c:'sc-hi'},{s:'5-7',t:'Revenue-adjacent tasks',c:'sc-md'},{s:'1-4',t:'No revenue action. Only content or admin',c:'sc-lo'}]}
+];
+
+const target=new Date('2030-11-30T23:59:59');
+const daysLeft=Math.ceil((target-new Date())/(1000*60*60*24));
+document.getElementById('daysLeft').innerHTML=daysLeft.toLocaleString()+'<span>DAYS</span>';
+
+function switchMode(mode){
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  document.querySelectorAll('.section').forEach(s=>s.classList.toggle('visible',s.id==='sec-'+mode));
+  if(mode==='history')renderHistory();
+  if(mode==='trends')renderTrends();
+}
+
+let timerInterval=null,timerSeconds=0;
+function toggleTimer(){
+  const btn=document.getElementById('timerBtn');
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;btn.textContent='Start';btn.classList.remove('running');}
+  else{timerInterval=setInterval(()=>{timerSeconds++;const m=Math.floor(timerSeconds/60),s=timerSeconds%60;const el=document.getElementById('timerDisplay');el.textContent=m+':'+(s<10?'0':'')+s;el.className='timer-time'+(timerSeconds>900?' over':timerSeconds>780?' warning':'');},1000);btn.textContent='Stop';btn.classList.add('running');}
+}
+
+function renderDuties(){
+  document.getElementById('dutiesContainer').innerHTML=DUTIES.map(d=>`
+    <div class="duty" id="duty-${d.id}">
+      <div class="duty-header">
+        <div class="duty-num-badge">${String(d.id).padStart(2,'0')}</div>
+        <div class="duty-info">
+          <div class="duty-name">${d.name}</div>
+          <div class="duty-question">${d.question}</div>
+          ${d.dataHint?`<div class="duty-data-hint">${d.dataHint}</div>`:''}
+        </div>
+        <div class="duty-score-wrap">
+          <input type="number" class="score-input" id="score-${d.id}" min="1" max="10" placeholder="1-10" oninput="onScoreChange()">
+          <button class="duty-rubric-toggle" onclick="document.getElementById('rubric-${d.id}').classList.toggle('open')">?</button>
+        </div>
+      </div>
+      <div class="duty-rubric" id="rubric-${d.id}">
+        ${d.rubric.map(r=>`<div class="rubric-row"><span class="rubric-score ${r.c}">${r.s}</span>${r.t}</div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function getScores(){
+  const scores={};let filled=0;
+  DUTIES.forEach(d=>{const v=parseInt(document.getElementById('score-'+d.id).value);if(v>=1&&v<=10){scores[d.id]=v;filled++;}});
+  return{scores,filled};
+}
+
+function getLowest(scores){
+  let min=11,minId=1;
+  Object.entries(scores).forEach(([id,v])=>{if(v<min){min=v;minId=parseInt(id);}});
+  return{id:minId,score:min,duty:DUTIES.find(d=>d.id===minId)};
+}
+
+function onScoreChange(){
+  const{scores,filled}=getScores();
+  document.getElementById('submitBtn').disabled=filled<12;
+  document.getElementById('analyzeBtn').disabled=filled<12;
+  document.querySelectorAll('.duty').forEach(el=>el.classList.remove('lowest','highest'));
+
+  if(filled===12){
+    const low=getLowest(scores);
+    document.getElementById('duty-'+low.id).classList.add('lowest');
+    const vals=Object.entries(scores);vals.sort((a,b)=>b[1]-a[1]);
+    document.getElementById('duty-'+vals[0][0]).classList.add('highest');
+
+    document.getElementById('resultArea').innerHTML=`
+      <div class="result-card">
+        <div class="result-label">Lowest Duty: Next Week's Focus</div>
+        <div class="result-duty">${low.duty.name}</div>
+        <div class="result-score">Scored ${low.score}/10</div>
+        <div class="context-area">
+          <label>What happened? What blocked you?</label>
+          <textarea id="contextInput" placeholder="Describe what happened for this duty. What blocked you? This context feeds the Chief Analytics diagnosis."></textarea>
+        </div>
+        <div class="metrics-input">
+          <div class="metrics-input-label">Optional: Paste Key Metrics (Improves Diagnosis)</div>
+          <div class="metrics-grid">
+            <div class="metric-field"><label>Pub Visitors (Col N)</label><input type="text" id="metric-visitors" placeholder="e.g., 142"></div>
+            <div class="metric-field"><label>Open Rate % (Col E)</label><input type="text" id="metric-open" placeholder="e.g., 45%"></div>
+            <div class="metric-field"><label>Click Rate % (Col F)</label><input type="text" id="metric-click" placeholder="e.g., 3.2%"></div>
+            <div class="metric-field"><label>New Subs (Col C)</label><input type="text" id="metric-subs" placeholder="e.g., 12"></div>
+            <div class="metric-field"><label>IG Views (Col H)</label><input type="text" id="metric-views" placeholder="e.g., 850"></div>
+            <div class="metric-field"><label>ManyChat Triggers (Col J)</label><input type="text" id="metric-triggers" placeholder="e.g., 8"></div>
+          </div>
+        </div>
+      </div>`;
+  } else {
+    document.getElementById('resultArea').innerHTML='';
+    document.getElementById('aiArea').innerHTML='';
+  }
+
+  if(filled>0){
+    const sum=Object.values(scores).reduce((a,b)=>a+b,0);
+    const avg=(sum/filled).toFixed(1);
+    document.getElementById('avgNum').textContent=avg;
+    document.getElementById('avgNum').style.color=avg>=7?'var(--green)':avg>=4?'var(--amber)':'var(--red)';
+    document.getElementById('avgFill').style.width=(avg/10*100)+'%';
+    document.getElementById('avgFill').style.background=avg>=7?'var(--green)':avg>=4?'var(--amber)':'var(--red)';
+  }
+}
+
+async function runAnalysis(){
+  const{scores,filled}=getScores();
+  if(filled<12)return;
+  const low=getLowest(scores);
+  const context=document.getElementById('contextInput')?.value||'';
+  const metrics={
+    visitors:document.getElementById('metric-visitors')?.value||'',
+    open:document.getElementById('metric-open')?.value||'',
+    click:document.getElementById('metric-click')?.value||'',
+    subs:document.getElementById('metric-subs')?.value||'',
+    views:document.getElementById('metric-views')?.value||'',
+    triggers:document.getElementById('metric-triggers')?.value||''
+  };
+  const prevAudits=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]').slice(0,4);
+
+  const aiArea=document.getElementById('aiArea');
+  aiArea.innerHTML=`<div class="ai-response"><div class="ai-loading"><div class="ai-loading-text">Chief Analytics decomposing problem<span class="dots"></span></div></div></div>`;
+
+  const scoreList=DUTIES.map(d=>`${d.name}: ${scores[d.id]}/10`).join('\n');
+  const prevData=prevAudits.length?prevAudits.map(a=>`${a.date}: avg ${a.avg}, lowest: ${DUTIES.find(d=>d.id===a.lowestId)?.name||'?'} (${a.scores[a.lowestId]}/10)`).join('\n'):'No prior audits.';
+  const metricsStr=Object.entries(metrics).filter(([k,v])=>v).map(([k,v])=>`${k}: ${v}`).join(', ')||'No metrics provided.';
+
+  const systemPrompt=`You are the Chief Analytics Officer for "Kou Talks Money," a pre-revenue Gen Z personal finance brand run by a solo 19-year-old creator with 5-8 hours/week.
+
+YOUR JOB: Receive CEO Sunday Audit scores (12 CMO duties, each 1-10). Identify the lowest-scoring duty. Decompose the problem. Deliver ONE high-leverage fix executable in under 2 hours this week.
+
+CONSTRAINTS (non-negotiable):
+- Solo operator. No delegation.
+- 5-8 hours/week total. The fix IS a chunk of the week.
+- Pre-revenue. $170 max ad budget total.
+- Every recommendation must pass the $18/hr ROI test: is this worth more than 2 hours at $18/hr ($36)?
+- Never use em dashes. Use periods, commas, or colons.
+- No "you should consider" or "it depends." State the recommendation directly.
+- ONE fix. Not a menu of options.
+
+REASONING PROTOCOL:
+1) DECOMPOSE: Break the lowest duty into 2-3 sub-problems. State assumptions. Identify missing info.
+2) SOLVE: Address the most impactful sub-problem. Provide confidence (0-100).
+3) VERIFY: Check coverage, contradictions, constraints, format.
+4) SYNTHESIZE: One clear action with success signal, failure signal, and checkpoint question.
+
+OUTPUT FORMAT (strict):
+DIAGNOSIS:
+[2-3 sentences. What is actually broken and why. Root cause, not symptom.]
+
+THE MOVE:
+[One specific action. What to do. Which tool to use. Exact steps.]
+
+TIME BOX:
+[Exact hours/minutes. Must be under 2 hours.]
+
+SUCCESS SIGNAL:
+[What you should observe if done correctly.]
+
+FAILURE SIGNAL:
+[What indicates it was done wrong.]
+
+CHECKPOINT:
+[One yes/no question to confirm completion.]
+
+METRIC TO WATCH:
+[Exact metric name, where to find it, when to check.]
+
+CONFIDENCE: [0-100]
+
+KEY CAVEATS:
+[1-3 bullet points of limits or conditions.]
+
+Keep the entire response under 300 words. No introductions. No pleasantries. Start with DIAGNOSIS.`;
+
+  const userMsg=`CEO SUNDAY AUDIT SCORES:
+${scoreList}
+
+AVERAGE: ${(Object.values(scores).reduce((a,b)=>a+b,0)/12).toFixed(1)}/10
+
+LOWEST DUTY: ${low.duty.name} (${low.score}/10)
+Question this duty asks: "${low.duty.question}"
+
+CONTEXT FROM OPERATOR: ${context||'No context provided.'}
+
+THIS WEEK'S METRICS: ${metricsStr}
+
+PREVIOUS AUDITS:
+${prevData}
+
+Days remaining to $1M goal: ${daysLeft}
+
+Decompose the problem with ${low.duty.name} scoring ${low.score}/10. Deliver ONE fix under 2 hours.`;
+
+  try{
+    const response=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:systemPrompt,
+        messages:[{role:'user',content:userMsg}]
+      })
+    });
+    const data=await response.json();
+    const text=data.content?.map(c=>c.text||'').join('\n')||'No response received.';
+
+    // Extract confidence
+    const confMatch=text.match(/CONFIDENCE:\s*(\d+)/i);
+    const confidence=confMatch?parseInt(confMatch[1]):0;
+    const confColor=confidence>=80?'var(--green)':confidence>=60?'var(--amber)':'var(--red)';
+
+    // Store for history
+    window._lastAiResponse=text;
+
+    aiArea.innerHTML=`
+      <div class="ai-response">
+        <div class="ai-header">Chief Analytics Diagnosis</div>
+        <div class="ai-body">${formatAiResponse(text)}</div>
+        ${confidence?`<div class="confidence-bar">
+          <div class="confidence-label">Confidence</div>
+          <div class="confidence-track"><div class="confidence-fill" style="width:${confidence}%;background:${confColor};"></div></div>
+          <div class="confidence-num" style="color:${confColor}">${confidence}</div>
+        </div>`:''}
+      </div>`;
+  }catch(err){
+    aiArea.innerHTML=`<div class="ai-response"><div class="ai-body" style="color:var(--red);">API call failed: ${err.message}. Check your connection and try again.</div></div>`;
+  }
+}
+
+function formatAiResponse(text){
+  return text
+    .replace(/^(DIAGNOSIS:|THE MOVE:|TIME BOX:|SUCCESS SIGNAL:|FAILURE SIGNAL:|CHECKPOINT:|METRIC TO WATCH:|CONFIDENCE:|KEY CAVEATS:)/gm,'<h3>$1</h3>')
+    .replace(/^- /gm,'• ')
+    .replace(/\n/g,'<br>');
+}
+
+function submitAudit(){
+  const{scores,filled}=getScores();
+  if(filled<12)return;
+  const context=document.getElementById('contextInput')?.value||'';
+  const aiResponse=window._lastAiResponse||'';
+  const low=getLowest(scores);
+  const avg=(Object.values(scores).reduce((a,b)=>a+b,0)/12).toFixed(1);
+
+  const audits=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+  const today=new Date().toISOString().split('T')[0];
+
+  const entry={date:today,scores,lowestId:low.id,avg:parseFloat(avg),context,aiResponse,timer:timerSeconds};
+  if(audits.length&&audits[0].date===today){audits[0]=entry;}
+  else{audits.unshift(entry);}
+  if(audits.length>52)audits.length=52;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(audits));
+
+  // Reset
+  DUTIES.forEach(d=>{document.getElementById('score-'+d.id).value='';});
+  document.querySelectorAll('.duty').forEach(el=>el.classList.remove('lowest','highest'));
+  document.getElementById('resultArea').innerHTML='';
+  document.getElementById('aiArea').innerHTML='';
+  document.getElementById('avgNum').textContent='--';document.getElementById('avgNum').style.color='var(--text3)';
+  document.getElementById('avgFill').style.width='0%';
+  document.getElementById('submitBtn').disabled=true;
+  document.getElementById('analyzeBtn').disabled=true;
+  window._lastAiResponse='';
+  timerSeconds=0;document.getElementById('timerDisplay').textContent='0:00';document.getElementById('timerDisplay').className='timer-time';
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;document.getElementById('timerBtn').textContent='Start';document.getElementById('timerBtn').classList.remove('running');}
+  switchMode('history');
+}
+
+function renderHistory(){
+  const audits=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+  const c=document.getElementById('historyContainer');
+  if(!audits.length){c.innerHTML='<div class="empty-state">No audits logged yet.</div>';return;}
+  c.innerHTML=audits.map((a,i)=>{
+    const low=DUTIES.find(d=>d.id===a.lowestId);
+    const ac=a.avg>=7?'var(--green)':a.avg>=4?'var(--amber)':'var(--red)';
+    return`<div class="history-entry" id="h-${i}">
+      <div class="history-header" onclick="document.getElementById('h-${i}').classList.toggle('open')">
+        <span class="history-date">${a.date}</span>
+        <span class="history-lowest">LOW: ${low?.name||'?'}</span>
+        <span class="history-avg" style="color:${ac}">${a.avg}/10</span>
+        <span class="history-toggle">+</span>
+      </div>
+      <div class="history-body">
+        <div class="history-scores">${DUTIES.map(d=>{const v=a.scores[d.id]||'--';const cl=v>=8?'var(--green)':v>=5?'var(--amber)':'var(--red)';return`<div class="history-score-item" style="${d.id===a.lowestId?'border:1px solid rgba(239,68,68,0.3);':''}"><span class="history-score-name">${d.name.split(' ').slice(0,2).join(' ')}</span><span class="history-score-val" style="color:${cl}">${v}</span></div>`;}).join('')}</div>
+        ${a.context?`<div class="history-context"><div style="font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Context</div>${a.context}</div>`:''}
+        ${a.aiResponse?`<div class="history-ai"><div class="history-ai-label">Chief Analytics Diagnosis</div>${a.aiResponse.substring(0,500)}${a.aiResponse.length>500?'...':''}</div>`:''}
+        <button class="delete-entry" onclick="deleteAudit(${i})">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteAudit(i){
+  if(!confirm('Delete this audit?'))return;
+  const a=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+  a.splice(i,1);localStorage.setItem(STORAGE_KEY,JSON.stringify(a));renderHistory();
+}
+
+function renderTrends(){
+  const audits=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+  const tc=document.getElementById('trendContainer');
+  const fc=document.getElementById('frequencyContainer');
+  if(audits.length<2){tc.innerHTML='<div class="empty-state">Need 2+ audits for trends.</div>';fc.innerHTML='';return;}
+  const l=audits[0],p=audits[1];
+  tc.innerHTML='<div class="trend-grid">'+DUTIES.map(d=>{
+    const cur=l.scores[d.id]||0,old=p.scores[d.id]||0,diff=cur-old;
+    const dc=diff>0?'trend-up':diff<0?'trend-down':'trend-flat';
+    const arrow=diff>0?'▲ +'+diff:diff<0?'▼ '+diff:'—';
+    const color=cur>=8?'var(--green)':cur>=5?'var(--amber)':'var(--red)';
+    return`<div class="trend-card"><div class="trend-duty">${d.name.split(' ').slice(0,2).join(' ')}</div><div class="trend-val" style="color:${color}">${cur}</div><div class="trend-dir ${dc}">${arrow}</div></div>`;
+  }).join('')+'</div>';
+  const freq={};audits.forEach(a=>{const n=DUTIES.find(d=>d.id===a.lowestId);if(n)freq[n.name]=(freq[n.name]||0)+1;});
+  const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]);
+  fc.innerHTML=sorted.map(([name,count])=>{const pct=Math.round(count/audits.length*100);
+    return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;">
+      <span style="flex:1;font-size:12px;font-weight:600;">${name}</span>
+      <div style="width:120px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:var(--red);border-radius:3px;"></div></div>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--red);width:40px;text-align:right;">${count}x</span>
+    </div>`;}).join('');
+}
+
+renderDuties();
+</script>
+</body>
+</html>
