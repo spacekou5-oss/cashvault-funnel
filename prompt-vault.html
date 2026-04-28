@@ -21,16 +21,37 @@
 
         window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         
-        function trackVisit() {
+       function trackVisit() {
             if (!window._sb) return;
             try {
                 const p = new URLSearchParams(window.location.search);
+                const utm_source = p.get('utm_source');
+                const utm_medium = p.get('utm_medium');
+                const utm_campaign = p.get('utm_campaign');
+                const pageName = window.location.pathname.split('/').pop() || 'unknown';
+
+                // Existing visits log (unchanged behavior)
                 window._sb.from('visits').insert({
                     architect_id: window._sessionId,
-                    page: window.location.pathname.split('/').pop() || 'unknown',
+                    page: pageName,
                     entry_point: p.get('from') || document.referrer || 'direct',
                     user_agent: navigator.userAgent
                 }).then(() => {}).catch(() => {});
+
+                // NEW: UTM attribution log to funnel_events when any UTM is present
+                if (utm_source || utm_medium || utm_campaign) {
+                    window._sb.from('funnel_events').insert({
+                        app: pageName,
+                        event: 'utm_visit',
+                        session_id: window._sessionId,
+                        utm_source: utm_source,
+                        utm_medium: utm_medium,
+                        utm_campaign: utm_campaign,
+                        referrer: document.referrer || null,
+                        device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+                        data: {}
+                    }).then(() => {}).catch(() => {});
+                }
             } catch(e) {}
         }
         trackVisit();
