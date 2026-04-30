@@ -1209,6 +1209,88 @@
             }).catch(function() { return null; });
         }
 
+        /* ================================================
+   UTM ATTRIBUTION + IDENTITY STITCHING
+   ================================================ */
+function getOrCreateGateSession() {
+    var existing = localStorage.getItem('cv_gate_session');
+    if (existing) return existing;
+    var newId = 'gate_' + (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now() + '_' + Math.random().toString(36).slice(2, 9));
+    try { localStorage.setItem('cv_gate_session', newId); } catch(e) {}
+    return newId;
+}
+
+function getUTMParams() {
+    var p = new URLSearchParams(window.location.search);
+    return {
+        utm_source: p.get('utm_source'),
+        utm_medium: p.get('utm_medium'),
+        utm_campaign: p.get('utm_campaign')
+    };
+}
+
+function getDevice() {
+    return /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+}
+
+function stampFirstTouch() {
+    if (localStorage.getItem('cv_first_touch')) return;
+    var utm = getUTMParams();
+    if (!utm.utm_source && !utm.utm_medium && !utm.utm_campaign) return;
+    var firstTouch = {
+        utm_source: utm.utm_source,
+        utm_medium: utm.utm_medium,
+        utm_campaign: utm.utm_campaign,
+        landing_page: 'command-center',
+        referrer: document.referrer || null,
+        timestamp: new Date().toISOString()
+    };
+    try { localStorage.setItem('cv_first_touch', JSON.stringify(firstTouch)); } catch(e) {}
+}
+
+function getFirstTouch() {
+    try { return JSON.parse(localStorage.getItem('cv_first_touch') || 'null'); } catch(e) { return null; }
+}
+
+function trackUTMVisit(sessionId) {
+    var utm = getUTMParams();
+    if (!utm.utm_source && !utm.utm_medium && !utm.utm_campaign) return;
+    sbInsert('funnel_events', {
+        app: 'command-center',
+        event: 'utm_visit',
+        session_id: sessionId,
+        utm_source: utm.utm_source,
+        utm_medium: utm.utm_medium,
+        utm_campaign: utm.utm_campaign,
+        referrer: document.referrer || null,
+        device: getDevice(),
+        data: {}
+    });
+}
+
+function trackIdentityBridge(architectId, bridgeType) {
+    if (!architectId || architectId === 'KOU-??????') return;
+    if (localStorage.getItem('cv_bridge_fired') === architectId) return;
+    var firstTouch = getFirstTouch();
+    var gateSession = localStorage.getItem('cv_gate_session');
+    if (!gateSession && !firstTouch) return;
+    sbInsert('funnel_events', {
+        app: 'command-center',
+        event: 'identity_bridge',
+        session_id: gateSession || architectId,
+        utm_source: firstTouch ? firstTouch.utm_source : null,
+        utm_medium: firstTouch ? firstTouch.utm_medium : null,
+        utm_campaign: firstTouch ? firstTouch.utm_campaign : null,
+        referrer: firstTouch ? firstTouch.referrer : (document.referrer || null),
+        device: getDevice(),
+        data: {
+            architect_id: architectId,
+            bridge_type: bridgeType || 'unknown',
+            first_touch_timestamp: firstTouch ? firstTouch.timestamp : null
+        }
+    });
+    try { localStorage.setItem('cv_bridge_fired', architectId); } catch(e) {}
+}
         function trackArchitect(architectId, isTemp, source) { sbInsert('architects', { architect_id: architectId, is_temp: isTemp, source: source || 'direct' }); }
         function trackVisit(architectId, entryPoint) { sbInsert('visits', { architect_id: architectId, page: 'command-center', entry_point: entryPoint || 'direct', user_agent: navigator.userAgent.substring(0, 255) }); }
        function trackToolCompletion(architectId, toolId, contextData) { sbInsert('tool_completions', { architect_id: architectId, tool_id: toolId, context_data: contextData || {} }); }
@@ -1454,9 +1536,16 @@
             e.target.value = value.slice(0, 10);
         });
         document.getElementById('gateIdInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') gateManualEntry(); });
-       document.addEventListener('DOMContentLoaded', function() {
-            // Track ALL visitors immediately, even if they bounce at the gate
-            sbInsert('visits', { architect_id: 'gate_visitor_' + Date.now(), page: 'command-center', entry_point: new URLSearchParams(window.location.search).get('src') || document.referrer || 'direct', user_agent: navigator.userAgent.substring(0, 255) });
+      document.addEventListener('DOMContentLoaded', function() {
+            var gateSession = getOrCreateGateSession();
+            stampFirstTouch();
+            sbInsert('visits', { 
+                architect_id: gateSession, 
+                page: 'command-center', 
+                entry_point: new URLSearchParams(window.location.search).get('src') || document.referrer || 'direct', 
+                user_agent: navigator.userAgent.substring(0, 255) 
+            });
+            trackUTMVisit(gateSession);
             checkAccess();
         });
 
@@ -1464,7 +1553,9 @@
            DASHBOARD INIT
            ================================================ */
         function initDashboard() {
-            loadArchitectId(); loadCompletionStatus(); loadUnlockStatus(); renderDashboard(); trackStartDate();
+            loadArchitectId(); 
+            trackIdentityBridge(currentArchitectId, currentEntryPoint);
+            loadCompletionStatus(); loadUnlockStatus(); renderDashboard(); trackStartDate();
             updateWelcomeBanner(); updateEmotionalHook(); updateReturnDashboard(); writeEcosystemContext(); renderSocialUnlocks();
             trackVisit(currentArchitectId, currentEntryPoint);
             var vel = getVelocityScore();
