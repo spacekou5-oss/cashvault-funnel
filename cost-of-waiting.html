@@ -40,40 +40,107 @@
 
         window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
-       function trackVisit() {
+        // ============================================
+        // KTM UNIVERSAL TRACKER v2.0
+        // ============================================
+        (function() {
             if (!window._sb) return;
-            try {
-                const p = new URLSearchParams(window.location.search);
-                const utm_source = p.get('utm_source');
-                const utm_medium = p.get('utm_medium');
-                const utm_campaign = p.get('utm_campaign');
-                const pageName = window.location.pathname.split('/').pop() || 'unknown';
-
-                // Existing visits log (unchanged behavior)
-                window._sb.from('visits').insert({
-                    architect_id: window._sessionId,
-                    page: pageName,
-                    entry_point: p.get('from') || document.referrer || 'direct',
-                    user_agent: navigator.userAgent
-                }).then(() => {}).catch(() => {});
-
-                // NEW: UTM attribution log to funnel_events when any UTM is present
-                if (utm_source || utm_medium || utm_campaign) {
+            
+            const isMobile = /Mobile|Android|iPhone/i.test(navigator.userAgent);
+            const pageName = window.location.pathname.split('/').pop().replace('.html','') || 'unknown';
+            const params = new URLSearchParams(window.location.search);
+            const utm_source = params.get('utm_source');
+            const utm_medium = params.get('utm_medium');
+            const utm_campaign = params.get('utm_campaign');
+            
+            function logEvent(eventName, extraData) {
+                try {
                     window._sb.from('funnel_events').insert({
                         app: pageName,
-                        event: 'utm_visit',
+                        event: eventName,
                         session_id: window._sessionId,
                         utm_source: utm_source,
                         utm_medium: utm_medium,
                         utm_campaign: utm_campaign,
                         referrer: document.referrer || null,
-                        device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-                        data: {}
+                        device: isMobile ? 'mobile' : 'desktop',
+                        data: extraData || {}
                     }).then(() => {}).catch(() => {});
+                } catch(e) {}
+            }
+            
+            function trackPageView() {
+                logEvent('page_view', {
+                    entry_point: params.get('from') || document.referrer || 'direct',
+                    path: window.location.pathname
+                });
+                
+                window._sb.from('visits').insert({
+                    architect_id: window._sessionId,
+                    page: pageName,
+                    entry_point: params.get('from') || document.referrer || 'direct',
+                    user_agent: navigator.userAgent
+                }).then(() => {}).catch(() => {});
+            }
+            
+            function trackUtmVisit() {
+                if (utm_source || utm_medium || utm_campaign) {
+                    logEvent('utm_visit', {});
                 }
-            } catch(e) {}
-        }
-        trackVisit();
+            }
+            
+            window.ktmTrack = {
+                resultDisplayed: function(resultData) {
+                    logEvent('result_displayed', { result_summary: resultData || {} });
+                },
+                popupShown: function() {
+                    logEvent('popup_shown', {});
+                },
+                popupDismissed: function() {
+                    logEvent('popup_dismissed', {});
+                },
+                emailSubmitted: function(email) {
+                    logEvent('email_submitted', {
+                        email_hash: email ? btoa(email).substring(0,12) : null
+                    });
+                },
+                toolCompletion: function(metadata) {
+                    logEvent('tool_completion', metadata || {});
+                },
+                custom: function(eventName, extraData) {
+                    logEvent(eventName, extraData || {});
+                }
+            };
+            
+            window.addEventListener('message', function(e) {
+                if (!e.origin || !e.origin.includes('beehiiv')) return;
+                const msg = e.data;
+                if (!msg) return;
+                
+                if (typeof msg === 'string') {
+                    if (msg.includes('form-loaded') || msg.includes('embed-loaded')) {
+                        window.ktmTrack.popupShown();
+                    } else if (msg.includes('form-submit') || msg.includes('subscribe-success')) {
+                        window.ktmTrack.emailSubmitted(null);
+                        window.ktmTrack.toolCompletion({ source: 'beehiiv_iframe' });
+                    } else if (msg.includes('form-close') || msg.includes('embed-close')) {
+                        window.ktmTrack.popupDismissed();
+                    }
+                } else if (typeof msg === 'object' && msg.type) {
+                    if (msg.type === 'beehiiv-form-loaded') {
+                        window.ktmTrack.popupShown();
+                    } else if (msg.type === 'beehiiv-subscribe-success') {
+                        window.ktmTrack.emailSubmitted(msg.email || null);
+                        window.ktmTrack.toolCompletion({ source: 'beehiiv_iframe' });
+                    } else if (msg.type === 'beehiiv-form-close') {
+                        window.ktmTrack.popupDismissed();
+                    }
+                }
+            });
+            
+            trackPageView();
+            trackUtmVisit();
+        })();
     </script>
     
     <script>
@@ -511,7 +578,7 @@
                                 class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-cyber-green hover:shadow-[0_0_20px_rgba(0,255,65,0.4)] transition-all cursor-pointer shadow-[0_0_15px_rgba(0,255,65,0.3)] border-none">
                             SHOW ME WHAT TO BUY &#x279C;
                         </button>
-                        <button @click="showReturnPopup = false" 
+                      <button @click="showReturnPopup = false" 
                                 class="w-full py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-cyber-gray bg-transparent border border-cyber-gray hover:border-white hover:text-white transition-all cursor-pointer">
                             Run new numbers
                         </button>
@@ -752,14 +819,14 @@
                  x-transition:leave-start="opacity-100"
                  x-transition:leave-end="opacity-0">
 
-                <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showSubPopup = false"></div>
+               <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showSubPopup = false; if (window.ktmTrack) window.ktmTrack.popupDismissed();"></div>
 
                 <div class="relative sub-popup"
                      x-transition:enter="transition ease-out duration-300"
                      x-transition:enter-start="opacity-0 scale-90"
                      x-transition:enter-end="opacity-100 scale-100">
 
-                    <button @click="showSubPopup = false"
+                   <button @click="showSubPopup = false; if (window.ktmTrack) window.ktmTrack.popupDismissed();"
                             class="absolute top-3 right-3 text-cyber-gray/50 hover:text-cyber-gray transition-colors z-10 cursor-pointer">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -780,7 +847,7 @@
                                 class="block w-full py-3 rounded-lg font-bold uppercase tracking-widest text-sm text-black bg-cyber-green hover:bg-green-400 transition-all cursor-pointer text-center shadow-[0_0_20px_rgba(0,255,65,0.3)] border-none">
                             Open Investment Simplifier &#x279C;
                         </button>
-                        <button @click="showSubPopup = false"
+                      <button @click="showSubPopup = false; if (window.ktmTrack) window.ktmTrack.popupDismissed();"
                                 class="block w-full py-3 rounded-lg font-bold uppercase tracking-widest text-sm text-gray-400 bg-transparent border border-cyber-gray hover:border-white hover:text-white transition-all cursor-pointer">
                             Keep Using Calculator
                         </button>
@@ -798,14 +865,14 @@
                  x-transition:leave-start="opacity-100"
                  x-transition:leave-end="opacity-0">
                 
-                <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showModal = false"></div>
+                <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showModal = false; if (window.ktmTrack) window.ktmTrack.popupDismissed();"></div>
                 
                 <div class="relative bg-cyber-dark border-2 border-cyber-green rounded-2xl p-4 w-full max-w-md shadow-[0_0_30px_rgba(0,255,65,0.2)] max-h-[95vh] overflow-y-auto"
                      x-transition:enter="transition ease-out duration-300"
                      x-transition:enter-start="opacity-0 scale-90"
                      x-transition:enter-end="opacity-100 scale-100">
                     
-                    <button @click="showModal = false" 
+                    <button @click="showModal = false; if (window.ktmTrack) window.ktmTrack.popupDismissed();" 
                             class="absolute top-3 right-3 text-cyber-gray/50 hover:text-cyber-gray transition-colors z-10 cursor-pointer">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -981,7 +1048,7 @@
                     setTimeout(() => { this.runScanPhase(index + 1); }, durations[index]);
                 },
 
-                // STEP 2: trackEvent('scan_completed') removed.
+               // STEP 2: trackEvent('scan_completed') removed.
                 // No partial data pings on scan exit. Zero Noise rule enforced.
                 exitScanScreen() {
                     this.showScanScreen = false;
@@ -990,6 +1057,24 @@
                         this.saveState();
                         this.displayLoss = this.loss;
                         this.displayFreedomLoss = this.freedomLoss;
+                        
+                        // KTM TRACKING: Result first displayed (first-time user path)
+                        if (window.ktmTrack && !window._resultLoggedAlready) {
+                            window.ktmTrack.resultDisplayed({
+                                age: this.age,
+                                contribution: this.contribution,
+                                current_wealth: this.currentWealth,
+                                wait_years: this.waitYears,
+                                wealth_now: Math.round(this.wealthNow),
+                                loss_at_65: Math.round(this.loss),
+                                freedom_loss: Math.round(this.freedomLoss),
+                                freedom_age: this.freedomAge,
+                                has_freedom_data: this.hasFreedomData,
+                                daily_cost_to_fix: Math.round(this.dailyCost),
+                                user_path: 'first_time'
+                            });
+                            window._resultLoggedAlready = true;
+                        }
                     }, 300);
                 },
 
@@ -1098,7 +1183,7 @@
                                 'Prefer': 'return=minimal'
                             },
                             body: JSON.stringify({
-                                app: 'cost_of_waiting',
+                                app: 'cost-of-waiting',
                                 event: 'calculated_cost_of_waiting',
                                 data: {
                                     architect_id: window._sessionId,
@@ -1123,7 +1208,7 @@
                             },
                             body: JSON.stringify({
                                 architect_id: window._sessionId,
-                                tool_id: 'cost_of_waiting',
+                                tool_id: 'cost-of-waiting',
                                 context_data: {
                                     age: this.age,
                                     monthly_contribution: this.contribution,
@@ -1148,7 +1233,7 @@
                 // This is the intent capture: user saw their damage and acted.
                 // upsert() means this safely re-fires without duplicate rows.
                 // =========================================
-                handleCtaClick() {
+               handleCtaClick() {
                     try {
                         // Ecosystem-wide bypass. Recognizes all upstream apps.
                         const isSubscribed = localStorage.getItem('cost_of_waiting_email') === 'true' ||
@@ -1159,11 +1244,16 @@
 
                         if (isSubscribed) {
                             this.showSubPopup = true;
+                            // KTM TRACKING: Sub-popup shown (already-subscribed path)
+                            if (window.ktmTrack) window.ktmTrack.popupShown();
                         } else {
                             this.showModal = true;
+                            // KTM TRACKING: Modal opened (defensive, fires regardless of iframe state)
+                            if (window.ktmTrack) window.ktmTrack.popupShown();
                         }
                     } catch(e) {
                         this.showModal = true;
+                        if (window.ktmTrack) window.ktmTrack.popupShown();
                     }
                 },
 
@@ -1194,7 +1284,7 @@
                     
                     this.prefillFromFreedomCalc();
 
-                    if (hasSavedState) {
+                   if (hasSavedState) {
                         this.isReturningUser = true;
                         this.state = 'active';
                         this.displayLoss = 0;
@@ -1206,6 +1296,22 @@
                             this.animateFreedomLossCounter(0, this.freedomLoss);
                             if (this.loss > 500000) this.isShaking = true;
                         });
+                        
+                        // KTM TRACKING: Result first displayed (returning user path)
+                        if (window.ktmTrack && !window._resultLoggedAlready) {
+                            window.ktmTrack.resultDisplayed({
+                                age: this.age,
+                                contribution: this.contribution,
+                                current_wealth: this.currentWealth,
+                                wait_years: this.waitYears,
+                                loss_at_65: Math.round(this.loss),
+                                freedom_loss: Math.round(this.freedomLoss),
+                                is_returning_user: true,
+                                return_state: this.returnState,
+                                user_path: 'returning'
+                            });
+                            window._resultLoggedAlready = true;
+                        }
                     } else {
                         this.startScanSequence();
                     }
