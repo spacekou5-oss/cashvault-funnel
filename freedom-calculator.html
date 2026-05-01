@@ -32,40 +32,146 @@
 
         window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         
-        function trackVisit() {
-            if (!window._sb) return;
-            try {
-                const p = new URLSearchParams(window.location.search);
-                const utm_source = p.get('utm_source');
-                const utm_medium = p.get('utm_medium');
-                const utm_campaign = p.get('utm_campaign');
-                const pageName = window.location.pathname.split('/').pop() || 'unknown';
+       // ============================================
+// KTM UNIVERSAL TRACKER v2.0
+// Extends existing trackVisit() with full funnel instrumentation
+// ============================================
 
-                // Existing visits log (unchanged behavior)
-                window._sb.from('visits').insert({
-                    architect_id: window._sessionId,
-                    page: pageName,
-                    entry_point: p.get('from') || document.referrer || 'direct',
-                    user_agent: navigator.userAgent
-                }).then(() => {}).catch(() => {});
-
-                // NEW: UTM attribution log to funnel_events when any UTM is present
-                if (utm_source || utm_medium || utm_campaign) {
-                    window._sb.from('funnel_events').insert({
-                        app: pageName,
-                        event: 'utm_visit',
-                        session_id: window._sessionId,
-                        utm_source: utm_source,
-                        utm_medium: utm_medium,
-                        utm_campaign: utm_campaign,
-                        referrer: document.referrer || null,
-                        device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-                        data: {}
-                    }).then(() => {}).catch(() => {});
-                }
-            } catch(e) {}
+(function() {
+    if (!window._sb) return;
+    
+    const isMobile = /Mobile|Android|iPhone/i.test(navigator.userAgent);
+    const pageName = window.location.pathname.split('/').pop().replace('.html','') || 'unknown';
+    const params = new URLSearchParams(window.location.search);
+    const utm_source = params.get('utm_source');
+    const utm_medium = params.get('utm_medium');
+    const utm_campaign = params.get('utm_campaign');
+    
+    // Helper: insert event into funnel_events
+    function logEvent(eventName, extraData) {
+        try {
+            window._sb.from('funnel_events').insert({
+                app: pageName,
+                event: eventName,
+                session_id: window._sessionId,
+                utm_source: utm_source,
+                utm_medium: utm_medium,
+                utm_campaign: utm_campaign,
+                referrer: document.referrer || null,
+                device: isMobile ? 'mobile' : 'desktop',
+                data: extraData || {}
+            }).then(() => {}).catch(() => {});
+        } catch(e) {}
+    }
+    
+    // ============================================
+    // EVENT 1: PAGE_VIEW (every visit, not just UTM)
+    // ============================================
+    function trackPageView() {
+        logEvent('page_view', {
+            entry_point: params.get('from') || document.referrer || 'direct',
+            path: window.location.pathname
+        });
+        
+        // Existing visits table behavior (unchanged)
+        window._sb.from('visits').insert({
+            architect_id: window._sessionId,
+            page: pageName,
+            entry_point: params.get('from') || document.referrer || 'direct',
+            user_agent: navigator.userAgent
+        }).then(() => {}).catch(() => {});
+    }
+    
+    // ============================================
+    // EVENT 2: UTM_VISIT (preserved from v1, only fires with UTMs)
+    // ============================================
+    function trackUtmVisit() {
+        if (utm_source || utm_medium || utm_campaign) {
+            logEvent('utm_visit', {});
         }
-        trackVisit();
+    }
+    
+    // ============================================
+    // EVENT 3-6: EXPOSED HELPER FUNCTIONS
+    // Tools call these at the right moment
+    // ============================================
+    window.ktmTrack = {
+        // Fire when calculator/tool result first renders on screen
+        resultDisplayed: function(resultData) {
+            logEvent('result_displayed', {
+                result_summary: resultData || {}
+            });
+        },
+        
+        // Fire when Beehiiv popup/email gate appears
+        popupShown: function() {
+            logEvent('popup_shown', {});
+        },
+        
+        // Fire when user closes popup without submitting email
+        popupDismissed: function() {
+            logEvent('popup_dismissed', {});
+        },
+        
+        // Fire when email successfully submits to Beehiiv
+        emailSubmitted: function(email) {
+            logEvent('email_submitted', {
+                email_hash: email ? btoa(email).substring(0,12) : null
+            });
+        },
+        
+        // Fire when full tool completion confirmed (result + email)
+        toolCompletion: function(metadata) {
+            logEvent('tool_completion', metadata || {});
+        },
+        
+        // Generic event for tool-specific actions
+        custom: function(eventName, extraData) {
+            logEvent(eventName, extraData || {});
+        }
+    };
+    
+    // ============================================
+    // BEEHIIV POSTMESSAGE LISTENER
+    // Auto-detects iframe events from Beehiiv embed
+    // ============================================
+    window.addEventListener('message', function(e) {
+        // Beehiiv sends messages from beehiiv.com domains
+        if (!e.origin || !e.origin.includes('beehiiv')) return;
+        
+        const msg = e.data;
+        if (!msg) return;
+        
+        // Beehiiv signals form-loaded, form-submit, form-close
+        // We map these to our event taxonomy
+        if (typeof msg === 'string') {
+            if (msg.includes('form-loaded') || msg.includes('embed-loaded')) {
+                window.ktmTrack.popupShown();
+            } else if (msg.includes('form-submit') || msg.includes('subscribe-success')) {
+                window.ktmTrack.emailSubmitted(null);
+                window.ktmTrack.toolCompletion({ source: 'beehiiv_iframe' });
+            } else if (msg.includes('form-close') || msg.includes('embed-close')) {
+                window.ktmTrack.popupDismissed();
+            }
+        } else if (typeof msg === 'object' && msg.type) {
+            if (msg.type === 'beehiiv-form-loaded') {
+                window.ktmTrack.popupShown();
+            } else if (msg.type === 'beehiiv-subscribe-success') {
+                window.ktmTrack.emailSubmitted(msg.email || null);
+                window.ktmTrack.toolCompletion({ source: 'beehiiv_iframe' });
+            } else if (msg.type === 'beehiiv-form-close') {
+                window.ktmTrack.popupDismissed();
+            }
+        }
+    });
+    
+    // ============================================
+    // INITIALIZE
+    // ============================================
+    trackPageView();
+    trackUtmVisit();
+    
+})();
     </script>
     
     <script>
@@ -629,15 +735,15 @@
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0">
             
-            <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showModal = false"></div>
+            <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showModal = false; if (window.ktmTrack) window.ktmTrack.popupDismissed();"></div>
             
             <div class="relative bg-cyber-dark border-2 border-cyber-green rounded-2xl p-4 w-full max-w-md shadow-[0_0_30px_rgba(0,255,65,0.2)] max-h-[95vh] overflow-y-auto z-10"
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 scale-90"
                  x-transition:enter-end="opacity-100 scale-100">
                 
-                <button @click="showModal = false" 
-                        class="absolute top-3 right-3 text-cyber-gray/50 hover:text-cyber-gray transition-colors z-10 cursor-pointer">
+                <button @click="showModal = false; if (window.ktmTrack) window.ktmTrack.popupDismissed();" 
+        class="absolute top-3 right-3 text-cyber-gray/50 hover:text-cyber-gray transition-colors z-10 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -794,7 +900,16 @@
                     if (hasSavedState) {
                         this.isReturningUser = true;
                         this._hasCalculatedOnce = true;
-
+// KTM TRACKING: Returning user, result already displayed
+if (window.ktmTrack && !window._resultLoggedAlready) {
+    window.ktmTrack.resultDisplayed({
+        freedom_number: this.freedomNumber,
+        exit_age: this.yearsToGoal >= 100 ? 'NEVER' : Math.round(this.exitAge),
+        is_returning_user: true,
+        using_defaults: false
+    });
+    window._resultLoggedAlready = true;
+}
                         try {
                             const hasEmail = localStorage.getItem('freedom_calculator_email');
                             if (hasEmail === 'true') this.isReturningSubscriber = true;
@@ -887,16 +1002,28 @@
                     this.calculatingText = phases[0];
                     const interval = setInterval(() => {
                         i++;
-                        if (i < phases.length) {
-                            this.calculatingText = phases[i];
-                        } else {
-                            clearInterval(interval);
-                            this.isCalculating = false;
-                            this.previousExitAge = this.exitAge;
-                            this.saveResults();
-                        }
-                    }, 400);
-                },
+                      if (i < phases.length) {
+            this.calculatingText = phases[i];
+        } else {
+            clearInterval(interval);
+            this.isCalculating = false;
+            this.previousExitAge = this.exitAge;
+            this.saveResults();
+            
+            // KTM TRACKING: Result first displayed
+            if (window.ktmTrack && !window._resultLoggedAlready) {
+                window.ktmTrack.resultDisplayed({
+                    freedom_number: this.freedomNumber,
+                    exit_age: this.yearsToGoal >= 100 ? 'NEVER' : Math.round(this.exitAge),
+                    years_to_goal: Math.round(this.yearsToGoal),
+                    using_defaults: this.isUsingDefaults,
+                    cost_of_waiting: Math.round(this.costOfWaitingPerYear)
+                });
+                window._resultLoggedAlready = true;
+            }
+        }
+    }, 400);
+},
 
                 // ===========================
                 // VALIDATION
@@ -1194,10 +1321,15 @@
                         if (alreadySubscribed) { 
                             this.showSubPopup = true; 
                         } else { 
-                            this.showModal = true; 
-                            
-                           // SUPABASE HIGH-LEVERAGE DATA CAPTURE
-                            fetch(SUPABASE_URL + '/rest/v1/funnel_events', {
+    this.showModal = true; 
+    
+    // KTM TRACKING: Modal opened (defensive, fires regardless of iframe state)
+    if (window.ktmTrack) {
+        window.ktmTrack.popupShown();
+    }
+    
+    // SUPABASE HIGH-LEVERAGE DATA CAPTURE
+    fetch(SUPABASE_URL + '/rest/v1/funnel_events', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -1205,10 +1337,10 @@
                                     'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
                                     'Prefer': 'return=minimal'
                                 },
-                                body: JSON.stringify({
-                                    app: 'freedom_calculator',
-                                    event: 'calculated_freedom_number',
-                                    data: {
+                               body: JSON.stringify({
+    app: 'freedom-calculator',
+    event: 'calculated_freedom_number',
+    data: {
                                         architect_id: window._sessionId,
                                         age: this.age,
                                         current_wealth: this.currentWealth,
