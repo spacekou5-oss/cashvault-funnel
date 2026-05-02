@@ -20,55 +20,103 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- =========================================
-         DOC 1 - STEP 1: UNIVERSAL HEAD SCRIPT
-         Centralized Supabase init. Fires trackVisit()
-         immediately on page load - before any JS below runs.
-         _sessionId links this visit to the eventual
-         tool_completions insert for cross-table attribution.
+         KTM UNIVERSAL TRACKER v2.0
+         App: budget-calculator
+         
+         Replaces legacy single-purpose trackVisit().
+         OPTION B retained: legacy `visits` table write
+         preserved for backward compatibility.
+         
+         Auto-fires page_view + utm_visit on load.
+         Exposes window.ktmTrack.{resultDisplayed, popupShown,
+         popupDismissed, emailSubmitted, toolCompletion, custom}.
+         Auto-listens for Beehiiv postMessage submission_success.
          ========================================= -->
-   <script>
+    <script>
         var SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
         var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
-        
+
         window._sb = null;
         try { window._sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) {}
-        
+
         window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
-        function trackVisit() {
-            if (!window._sb) return;
-            try {
-                const p = new URLSearchParams(window.location.search);
-                const utm_source = p.get('utm_source');
-                const utm_medium = p.get('utm_medium');
-                const utm_campaign = p.get('utm_campaign');
-                const pageName = window.location.pathname.split('/').pop() || 'unknown';
+        (function() {
+            var APP_NAME = 'budget-calculator';
+            var device = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
 
-                // Existing visits log (unchanged behavior)
-                window._sb.from('visits').insert({
-                    architect_id: window._sessionId,
-                    page: pageName,
-                    entry_point: p.get('from') || document.referrer || 'direct',
-                    user_agent: navigator.userAgent
-                }).then(() => {}).catch(() => {});
+            function getUtm() {
+                var p = new URLSearchParams(window.location.search);
+                return {
+                    utm_source: p.get('utm_source'),
+                    utm_medium: p.get('utm_medium'),
+                    utm_campaign: p.get('utm_campaign')
+                };
+            }
 
-                // NEW: UTM attribution log to funnel_events when any UTM is present
-                if (utm_source || utm_medium || utm_campaign) {
+            function logEvent(eventName, dataPayload) {
+                if (!window._sb) return;
+                try {
+                    var utm = getUtm();
                     window._sb.from('funnel_events').insert({
-                        app: pageName,
-                        event: 'utm_visit',
+                        app: APP_NAME,
+                        event: eventName,
                         session_id: window._sessionId,
-                        utm_source: utm_source,
-                        utm_medium: utm_medium,
-                        utm_campaign: utm_campaign,
+                        device: device,
                         referrer: document.referrer || null,
-                        device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-                        data: {}
-                    }).then(() => {}).catch(() => {});
+                        utm_source: utm.utm_source,
+                        utm_medium: utm.utm_medium,
+                        utm_campaign: utm.utm_campaign,
+                        data: dataPayload || {}
+                    }).then(function(){}).catch(function(){});
+                } catch(e) {}
+            }
+
+            // ---------- AUTO-FIRE ON LOAD ----------
+
+            // Legacy visits table write (Option B - backward compatibility preserved)
+            try {
+                if (window._sb) {
+                    var p = new URLSearchParams(window.location.search);
+                    window._sb.from('visits').insert({
+                        architect_id: window._sessionId,
+                        page: APP_NAME,
+                        entry_point: p.get('from') || document.referrer || 'direct',
+                        user_agent: navigator.userAgent
+                    }).then(function(){}).catch(function(){});
                 }
             } catch(e) {}
-        }
-        trackVisit();
+
+            // page_view fires for ALL visits
+            logEvent('page_view', {
+                path: window.location.pathname,
+                entry_point: (new URLSearchParams(window.location.search)).get('from') || document.referrer || 'direct'
+            });
+
+            // utm_visit fires only when UTM present
+            var utm = getUtm();
+            if (utm.utm_source || utm.utm_medium || utm.utm_campaign) {
+                logEvent('utm_visit', {});
+            }
+
+            // ---------- BEEHIIV POSTMESSAGE LISTENER ----------
+            window.addEventListener('message', function(event) {
+                if (event.origin !== 'https://subscribe-forms.beehiiv.com') return;
+                if (event.data && event.data.type === 'submission_success') {
+                    logEvent('email_submitted', { source: 'beehiiv_postmessage' });
+                }
+            });
+
+            // ---------- PUBLIC API ----------
+            window.ktmTrack = {
+                resultDisplayed: function(payload) { logEvent('result_displayed', { result_summary: payload || {} }); },
+                popupShown: function(payload) { logEvent('popup_shown', payload || {}); },
+                popupDismissed: function(payload) { logEvent('popup_dismissed', payload || {}); },
+                emailSubmitted: function(payload) { logEvent('email_submitted', payload || {}); },
+                toolCompletion: function(payload) { logEvent('tool_completion', payload || {}); },
+                custom: function(eventName, payload) { logEvent(eventName, payload || {}); }
+            };
+        })();
     </script>
 
     <style>
@@ -186,9 +234,12 @@
         .gate-value-check{color:var(--green);font-size:0.8rem;flex-shrink:0;}
         .gate-beehiiv{width:100%;max-width:460px;margin:0 auto;flex-shrink:0;}
 
-        /* DOC 1 - STEP 5: Updated iframe styles. Removed fixed height, added max-width
-           so it renders correctly on all viewports without overflow. */
         .gate-beehiiv iframe{width:100%;max-width:400px;height:100%;min-height:400px;border:none;border-radius:12px;background:transparent;display:block;}
+        .gate-soft-dismiss{background:none;border:none;color:var(--text-muted);font-size:0.72rem;font-family:'Inter',sans-serif;text-decoration:underline;cursor:pointer;margin:18px auto 0;padding:8px 12px;display:block;transition:color 0.2s;letter-spacing:0.02em;}
+        .gate-soft-dismiss:hover{color:var(--accent);}
+        .gate-rearm-banner{position:sticky;top:0;z-index:30;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;padding:12px 16px;text-align:center;font-size:0.78rem;font-weight:700;cursor:pointer;display:none;letter-spacing:0.02em;border-bottom:2px solid rgba(0,0,0,0.15);transition:transform 0.2s;}
+        .gate-rearm-banner:hover{transform:translateY(-1px);}
+        .gate-rearm-banner.visible{display:block;animation:fadeSlide 0.4s ease;}
 
         .dash-preview{filter:blur(10px);user-select:none;pointer-events:none;padding:24px;opacity:0.4;}
         .dash-preview.unlocked{filter:none;user-select:auto;pointer-events:auto;opacity:1;transition:all 0.6s ease;}
@@ -372,7 +423,8 @@
                     <div class="reveal-why-summary" id="revealWhy"></div>
                     <div class="reveal-number" id="revealNumber" style="display:none;"></div>
                 </div>
-                <div class="gate-wrapper">
+               <div class="gate-wrapper">
+                    <div class="gate-rearm-banner" id="gateRearmBanner" onclick="rearmGate()">🔒 You're seeing the blur. Tap to unlock the live blueprint.</div>
                     <div class="gate-overlay" id="gateOverlay">
                         <div class="gate-lock-icon">
                             <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
@@ -388,10 +440,9 @@
                        <div class="gate-beehiiv" id="gateBeehiivWrap"
                              onclick="setTimeout(function(){ document.getElementById('gateBeehiivWrap').scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);"
                              ontouchstart="setTimeout(function(){ document.getElementById('gateBeehiivWrap').scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);">
-                            <!-- DOC 1 - STEP 5: src removed. Injected dynamically in showReveal()
-                                 with session_id appended for Supabase cross-table attribution. -->
-                            <iframe id="beehiivFrame" style="width: 100%; max-width: 400px; height: 100%; min-height: 400px; border: none;" scrolling="no"></iframe>
+                           <iframe id="beehiivFrame" style="width: 100%; max-width: 400px; height: 100%; min-height: 400px; border: none;" scrolling="no"></iframe>
                         </div>
+                        <button class="gate-soft-dismiss" id="gateSoftDismiss" onclick="softDismissGate()">I'll skip for now. Show me the blur.</button>
                     </div>
                     <div class="dash-preview" id="dashPreview">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -509,9 +560,6 @@
         </main>
 
         <footer class="footer">
-            <!-- OPTIMIZATION 9: Footer copy updated to accurate language.
-                 Original "Nothing is sent to our servers" was factually wrong
-                 while Supabase tracking is active. -->
             <div class="footer-privacy">Quiz results are stored anonymously to improve this tool. Your email is handled securely by Beehiiv. No personal data is sold or shared.</div>
             <div class="footer-social">
                 <a href="https://instagram.com/koutalksmoney" target="_blank" class="footer-social-link">
@@ -528,36 +576,27 @@
 
     <script>
     // =========================================
-    // DOC 1 - STEP 2: OLD SUPABASE INIT BLOCK NUKED.
-    // window._sb, window._sessionId, and trackVisit()
-    // now live in the <head> and fire before this script runs.
-    // Only _trafficSource is kept here as a standalone attribution var.
+    // KTM v2.0: Universal tracker lives in <head>.
+    // window._sb, window._sessionId, and window.ktmTrack
+    // are already initialized before this script runs.
+    // page_view + utm_visit + Beehiiv listener auto-fire on load.
     // =========================================
 
-   // Supabase Connection (The Pipe)
+    // Supabase Connection (legacy direct-fetch usage for tool_completions table)
     var SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
 
-    // OPTIMIZATION 11: Standalone traffic source var preserved for context_data attribution.
     var _trafficSource = (new URLSearchParams(window.location.search)).get('src') || 'direct';
 
-    // =========================================
-    // OPTIMIZATION 10: Ecosystem-wide return rate constant.
-    // Standardized at 8% across all CashVault apps.
-    // Freedom Calculator, Autopilot, and Investment Simplifier
-    // should all reference this same figure for credibility.
-    // =========================================
-    var ECOSYSTEM_RETURN_RATE = 0.08; // 8% annual - ecosystem standard
+    // Ecosystem-wide return rate (8% standardized across CashVault apps)
+    var ECOSYSTEM_RETURN_RATE = 0.08;
+
+    // KTM v2.0: dedup flags to prevent duplicate event fires across re-renders
+    var _resultLoggedAlready = false;
+    var _popupLoggedAlready = false;
 
     // =========================================
-    // DOC 1 - STEP 3 + STEP 1 UPGRADE: trackCompletion()
-    // Async. Uses window._sb and window._sessionId from head.
-    // Changed from .insert() to .upsert() with onConflict: 'architect_id'
-    // so re-fires from downloadCard() and crossSellBtn update the SAME row
-    // instead of creating duplicate entries. Zero Noise rule enforced.
-    // Requires architect_id to be a unique column in tool_completions.
-    // If not yet set as unique in Supabase, add a UNIQUE constraint on
-    // the architect_id column or the upsert falls back to insert behavior.
+    // trackCompletion() - upserts to tool_completions table
     // =========================================
     async function trackCompletion() {
         try {
@@ -573,14 +612,14 @@
                 from_800_club: isFrom800Club(),
                 traffic_source: _trafficSource
             };
-            
+
             await fetch(SUPABASE_URL + '/rest/v1/tool_completions', {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json', 
-                    'apikey': SUPABASE_ANON_KEY, 
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': SUPABASE_ANON_KEY,
                     'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-                    'Prefer': 'return=minimal' // CRITICAL: Strict append-only insert
+                    'Prefer': 'return=minimal'
                 },
                 body: JSON.stringify({
                     architect_id: window._sessionId,
@@ -593,10 +632,46 @@
     }
 
     // =========================================
+    // KTM v2.0: logResultDisplayed() - centralized
+    // result_displayed event firing with full payload.
+    // Dedup'd via _resultLoggedAlready flag.
+    // user_path differentiates first_time vs bypass paths.
+    // =========================================
+    function logResultDisplayed(userPath) {
+        if (_resultLoggedAlready) return;
+        _resultLoggedAlready = true;
+        if (!window.ktmTrack) return;
+        var sys = SYSTEMS[state.selectedSystem] || {};
+        var topScore = 0;
+        Object.keys(state.scores || {}).forEach(function(k) {
+            if (state.scores[k] > topScore) topScore = state.scores[k];
+        });
+        window.ktmTrack.resultDisplayed({
+            archetype: sys.archetype || null,
+            system_key: state.selectedSystem,
+            system_title: sys.title || null,
+            invest_pct: sys.investPct || null,
+            monthly_income: getMonthly() || 0,
+            user_path: userPath,
+            is_returning_user: isReturningUser(),
+            from_800_club: isFrom800Club(),
+            top_score: topScore,
+            score_distribution: state.scores
+        });
+    }
+
+    function logPopupShown(reason) {
+        if (_popupLoggedAlready) return;
+        _popupLoggedAlready = true;
+        if (!window.ktmTrack) return;
+        window.ktmTrack.popupShown({ trigger: reason || 'reveal_screen_with_gate' });
+    }
+
+    // =========================================
     // CONSTANTS
     // =========================================
     var COMMAND_CENTER_URL = 'https://kou.money/command-center';
-    var BRIDGE_URL = 'https://kou.money/bridge-budget'; // Or bridge-budget.html depending on your routing
+    var BRIDGE_URL = 'https://kou.money/bridge-budget';
     var WAGE_RATE = 18;
     var SYSTEMS = {
         '50-30-20': {
@@ -705,7 +780,7 @@
             fetch(SUPABASE_URL + '/rest/v1/funnel_events', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Prefer': 'return=minimal' },
-                body: JSON.stringify({ app: 'budget_calculator', event: 'gate_bypass', data: { source: source, architect_id: window._sessionId, traffic_source: _trafficSource } })
+                body: JSON.stringify({ app: 'budget-calculator', event: 'gate_bypass', data: { source: source, architect_id: window._sessionId, traffic_source: _trafficSource } })
             }).catch(function() {});
         } catch(e) {}
     }
@@ -736,12 +811,6 @@
         if (revealEyebrow) revealEyebrow.textContent = 'Phase 2 Complete \u2022 Based on 6 answers, you are';
     }
 
-    // =========================================
-    // DOC 1 - STEP 5 (PART 2): IFRAME SESSION INJECTION HELPER
-    // Called in both showReveal() and the init quizDone path
-    // to guarantee session_id is always on the iframe src.
-    // Guard: !iframe.src prevents double-injection on re-renders.
-    // =========================================
     function injectBeehiivSessionId() {
         var iframe = $('beehiivFrame');
         if (iframe && !iframe.src) {
@@ -751,14 +820,26 @@
 
     // =========================================
     // GATE REDIRECT
-    // OPTIMIZATION 6: doGateRedirect is now async.
-    // Awaits trackCompletion() so Supabase insert completes
-    // before the redirect fires. Prevents data loss on slow connections.
+    // KTM v2.0: fires email_submitted to funnel_events BEFORE
+    // tool_completions insert, so taxonomy event log is clean.
     // =========================================
     var _gateRedirected = false;
     async function doGateRedirect() {
         if (_gateRedirected) return;
         _gateRedirected = true;
+
+       // KTM v2.0: email_submitted already fires from universal tracker's
+        // Beehiiv postMessage listener. Only fire tool_completion here so we
+        // don't double-count conversions in funnel_events.
+        if (window.ktmTrack) {
+            var sys = SYSTEMS[state.selectedSystem] || {};
+            window.ktmTrack.toolCompletion({
+                archetype: sys.archetype || null,
+                system_key: state.selectedSystem,
+                monthly_income: getMonthly() || 0,
+                from_800_club: isFrom800Club()
+            });
+        }
 
         try {
             localStorage.setItem('budget_unlocked', 'true');
@@ -766,19 +847,12 @@
             localStorage.setItem('budgetCalc_gate_email', 'true');
         } catch(e) {}
 
-        // Await Supabase insert before redirect so data is never lost
         await trackCompletion();
 
         window.location.href = BRIDGE_URL;
     }
 
-    // =========================================
-    // DOC 1 - STEP 4: KILL THE MUTATIONOBSERVER
-    // Replaced bloated observer with a strict origin check.
-    // Only fires on 'submission_success' from the exact Beehiiv domain.
-    // No false positives, no height-change guessing.
-    // =========================================
-if (window.visualViewport) {
+    if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', function() {
             var wrap = document.getElementById('gateBeehiivWrap');
             if (!wrap) return;
@@ -804,7 +878,43 @@ if (window.visualViewport) {
                 clearInterval(window._budgetEmailPoller);
                 doGateRedirect();
             }
-        }, 2000);
+     }, 2000);
+    }
+
+    // =========================================
+    // SOFT-DISMISS + REARM (Option A escape hatch)
+    // KTM v2.0: closes the data hole on popup_dismissed
+    // without destroying conversion. User can peek at the
+    // blurred dashboard, but a sticky banner pulls them
+    // back to the gate. Every dismiss + every rearm is
+    // logged so we can compute true gate bounce rate.
+    // =========================================
+    function softDismissGate() {
+        if (window.ktmTrack) {
+            window.ktmTrack.popupDismissed({
+                reason: 'soft_dismiss_peek',
+                archetype: (SYSTEMS[state.selectedSystem] || {}).archetype || null,
+                system_key: state.selectedSystem,
+                had_income_entered: getMonthly() > 0
+            });
+        }
+        var overlay = $('gateOverlay');
+        if (overlay) overlay.classList.add('hidden-gate');
+        var banner = $('gateRearmBanner');
+        if (banner) banner.classList.add('visible');
+    }
+
+    function rearmGate() {
+        var overlay = $('gateOverlay');
+        if (overlay) overlay.classList.remove('hidden-gate');
+        var banner = $('gateRearmBanner');
+        if (banner) banner.classList.remove('visible');
+        _popupLoggedAlready = false;
+        logPopupShown('rearmed_after_peek');
+        setTimeout(function() {
+            var w = $('gateBeehiivWrap');
+            if (w && w.scrollIntoView) w.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 150);
     }
 
     // =========================================
@@ -868,7 +978,7 @@ if (window.visualViewport) {
             localStorage.setItem('budget_answers', JSON.stringify(state.answerHistory));
        } catch(e) {}
 
-        // --- FUNNEL EVENT TRACKING ---
+        // KTM v2.0: completed_quiz custom event (preserved, app fixed to kebab-case)
         fetch(SUPABASE_URL + '/rest/v1/funnel_events', {
             method: 'POST',
             headers: {
@@ -878,18 +988,17 @@ if (window.visualViewport) {
                 'Prefer': 'return=minimal'
             },
             body: JSON.stringify({
-                app: 'budget_calculator',
+                app: 'budget-calculator',
                 event: 'completed_quiz',
+                session_id: window._sessionId,
                 data: {
                     archetype: SYSTEMS[winner].archetype,
                     system_key: winner,
                     scores: state.scores,
-                    architect_id: window._sessionId,
                     from_800_club: isFrom800Club()
                 }
             })
         }).catch(function() {});
-        // --- END FUNNEL EVENT TRACKING ---
 
         showSection('s-processing'); runProcessingTheater();
     }
@@ -913,23 +1022,22 @@ if (window.visualViewport) {
 
     // =========================================
     // REVEAL + GATE
-    // DOC 1 - STEP 5 (PART 2): injectBeehiivSessionId() called
-    // here so the iframe src is set dynamically with session_id
-    // right before the gate is shown to the user.
+    // KTM v2.0: fires result_displayed at the moment user
+    // first sees their archetype (4 possible paths handled).
     // =========================================
    function showReveal() {
-        // --- TOOL COMPLETION ON QUIZ FINISH (unconditional) ---
         trackCompletion();
-        // --- END TOOL COMPLETION ---
 
        if (isReturningUser() || isFrom800Club()) {
             if (isFrom800Club() && !isReturningUser()) { try { localStorage.setItem('budget_unlocked', 'true'); } catch(e) {} }
             state.isUnlocked = true;
-            // STEP 1: Secure data for 800-Club users AND Command Center keyword users bypassing the gate.
-            // Tracks bypass source for Supabase attribution.
             var bypassSource = isFrom800Club() ? '800club_bypass' : 'cc_keyword_bypass';
             captureBypassSource(bypassSource);
             trackCompletion();
+
+            // KTM v2.0: result_displayed for bypass-to-dashboard path
+            logResultDisplayed(isFrom800Club() ? '800_club_bypass' : 'cc_keyword_bypass');
+
             renderDashboard(); showSection('s-dashboard');
             var banner = $('dashBanner'); if (banner) { banner.classList.add('visible'); } return;
         }
@@ -957,10 +1065,13 @@ if (window.visualViewport) {
         var gateText = $('gateText');
         if (gateText) { gateText.textContent = 'Your exact allocation down to the dollar is calculated and waiting.'; }
 
-        // DOC 1 - STEP 5: Inject Beehiiv iframe src with session_id right before gate shows.
         injectBeehiivSessionId();
 
+        // KTM v2.0: result_displayed + popup_shown for first-time path
+        logResultDisplayed('first_time');
         showSection('s-reveal');
+        logPopupShown('reveal_screen_with_gate');
+
         activateGateRedirect();
     }
 
@@ -1115,8 +1226,6 @@ if (window.visualViewport) {
 
     // =========================================
     // CROSS-SELL WITH HOURS-AT-WAGE TRANSLATION
-    // OPTIMIZATION 10: References ECOSYSTEM_RETURN_RATE (8%)
-    // for credibility consistency across all CashVault tools.
     // =========================================
     function updateCrossSell() {
         var sys = SYSTEMS[state.selectedSystem]; var monthly = getMonthly();
@@ -1160,8 +1269,6 @@ if (window.visualViewport) {
 
     function downloadCard() {
         var btn = $('cardDownloadBtn'); var btnText = $('cardBtnText'); btn.disabled = true; btnText.innerHTML = 'Generating...';
-        // STEP 2: Capture the final typed income and envelope overrides before card downloads.
-        // trackCompletion() uses upsert - updates the existing session row, never creates a duplicate.
         trackCompletion();
         if (window.html2canvas) { captureCard(); } else {
             var script = document.createElement('script'); script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
@@ -1227,12 +1334,7 @@ if (window.visualViewport) {
     });
 
     // =========================================
-    // STEP 3: CROSS-SELL CLICK INTERCEPTOR
-    // Intercepts the Command Center link, fires trackCompletion()
-    // with the user's final income + system state, then redirects.
-    // This is the highest-signal data point: a user who typed their
-    // real income AND decided to go deeper into the ecosystem.
-    // upsert() means this updates the existing row. Zero duplicates.
+    // CROSS-SELL CLICK INTERCEPTOR
     // =========================================
     $('crossSellBtn').addEventListener('click', async function(e) {
         e.preventDefault();
@@ -1245,10 +1347,6 @@ if (window.visualViewport) {
 
     // =========================================
     // INITIALIZATION
-    // OPTIMIZATION 7: trackVisit() call REMOVED from init.
-    // It now fires in the <head> script on page load, before
-    // any DOM is ready. Calling it here again would create
-    // duplicate visit rows in Supabase (violates Zero Noise rule).
     // =========================================
     (function init() {
         var quizDone = false; var isUnlocked = false; var savedSystem = null; var savedIncome = null; var savedPeriod = null;
@@ -1289,23 +1387,27 @@ if (window.visualViewport) {
         personalizeForUpstream();
 
         if (quizDone && isUnlocked) {
-            state.isUnlocked = true; renderDashboard(); showSection('s-dashboard');
+            state.isUnlocked = true;
+            // KTM v2.0: result_displayed for returning unlocked user
+            logResultDisplayed('returning_unlocked');
+            renderDashboard(); showSection('s-dashboard');
         } else if (quizDone && !isUnlocked && isFrom800Club()) {
             try { localStorage.setItem('budget_unlocked', 'true'); } catch(e) {}
             state.isUnlocked = true;
-            // STEP 2: Secure data on auto-load bypass (page reload after quiz, before gate).
-            // Catches 800-Club users who refreshed mid-funnel.
             trackCompletion();
+            // KTM v2.0: result_displayed for 800-Club auto-bypass on reload
+            logResultDisplayed('800_club_auto_bypass');
             renderDashboard(); showSection('s-dashboard');
         } else if (quizDone && !isUnlocked) {
-            // OPTIMIZATION 8: Inject iframe src in this second code path too.
-            // Without this, the gate would show an empty iframe for returning
-            // quiz-complete but not-yet-subscribed users.
             var sys = SYSTEMS[state.selectedSystem];
             $('revealArchetype').textContent = sys.archetype; $('revealSystem').textContent = sys.title;
             renderDynamicWhyForReveal(); showRevealStaticGutPunch();
             injectBeehiivSessionId();
-            showSection('s-reveal'); activateGateRedirect();
+            // KTM v2.0: result_displayed + popup_shown for returning quiz-done not-unlocked
+            logResultDisplayed('returning_quiz_done');
+            showSection('s-reveal');
+            logPopupShown('reveal_screen_with_gate_returning');
+            activateGateRedirect();
         } else {
             if (isFrom800Club() && !quizDone) { runUpstreamTheater(function() { showSection('s-intro'); }); }
             else { showSection('s-intro'); }
