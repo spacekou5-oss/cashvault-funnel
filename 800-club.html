@@ -32,48 +32,105 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     
+   <!-- =========================================
+         KTM UNIVERSAL TRACKER v2.0
+         App: 800-club
+         
+         Replaces legacy single-purpose trackVisit().
+         OPTION B retained: legacy `visits` table write
+         preserved for backward compatibility.
+         
+         Auto-fires page_view + utm_visit on load.
+         Exposes window.ktmTrack.{resultDisplayed, popupShown,
+         popupDismissed, emailSubmitted, toolCompletion, custom}.
+         Auto-listens for Beehiiv postMessage submission_success.
+         ========================================= -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const _sbUrl = 'https://wokoxddotlyuasmwylpx.supabase.co';
-        const _sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+        var SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
+        var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+
         window._sb = null;
-        try { window._sb = window.supabase.createClient(_sbUrl, _sbKey); } catch(e) {}
+        try { window._sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) {}
+
         window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        
-        function trackVisit() {
-            if (!window._sb) return;
-            try {
-                const p = new URLSearchParams(window.location.search);
-                const utm_source = p.get('utm_source');
-                const utm_medium = p.get('utm_medium');
-                const utm_campaign = p.get('utm_campaign');
-                const pageName = window.location.pathname.split('/').pop() || 'unknown';
 
-                // Existing visits log (unchanged behavior)
-                window._sb.from('visits').insert({
-                    architect_id: window._sessionId,
-                    page: pageName,
-                    entry_point: p.get('from') || document.referrer || 'direct',
-                    user_agent: navigator.userAgent
-                }).then(() => {}).catch(() => {});
+        (function() {
+            var APP_NAME = '800-club';
+            var device = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
 
-                // NEW: UTM attribution log to funnel_events when any UTM is present
-                if (utm_source || utm_medium || utm_campaign) {
+            function getUtm() {
+                var p = new URLSearchParams(window.location.search);
+                return {
+                    utm_source: p.get('utm_source'),
+                    utm_medium: p.get('utm_medium'),
+                    utm_campaign: p.get('utm_campaign')
+                };
+            }
+
+            function logEvent(eventName, dataPayload) {
+                if (!window._sb) return;
+                try {
+                    var utm = getUtm();
                     window._sb.from('funnel_events').insert({
-                        app: pageName,
-                        event: 'utm_visit',
+                        app: APP_NAME,
+                        event: eventName,
                         session_id: window._sessionId,
-                        utm_source: utm_source,
-                        utm_medium: utm_medium,
-                        utm_campaign: utm_campaign,
+                        device: device,
                         referrer: document.referrer || null,
-                        device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-                        data: {}
-                    }).then(() => {}).catch(() => {});
+                        utm_source: utm.utm_source,
+                        utm_medium: utm.utm_medium,
+                        utm_campaign: utm.utm_campaign,
+                        data: dataPayload || {}
+                    }).then(function(){}).catch(function(){});
+                } catch(e) {}
+            }
+
+            // ---------- AUTO-FIRE ON LOAD ----------
+
+            // Legacy visits table write (Option B - backward compatibility preserved)
+            try {
+                if (window._sb) {
+                    var p = new URLSearchParams(window.location.search);
+                    window._sb.from('visits').insert({
+                        architect_id: window._sessionId,
+                        page: APP_NAME,
+                        entry_point: p.get('from') || document.referrer || 'direct',
+                        user_agent: navigator.userAgent
+                    }).then(function(){}).catch(function(){});
                 }
             } catch(e) {}
-        }
-        trackVisit();
+
+            // page_view fires for ALL visits
+            logEvent('page_view', {
+                path: window.location.pathname,
+                entry_point: (new URLSearchParams(window.location.search)).get('from') || document.referrer || 'direct'
+            });
+
+            // utm_visit fires only when UTM present
+            var utm = getUtm();
+            if (utm.utm_source || utm.utm_medium || utm.utm_campaign) {
+                logEvent('utm_visit', {});
+            }
+
+            // ---------- BEEHIIV POSTMESSAGE LISTENER ----------
+            window.addEventListener('message', function(event) {
+                if (event.origin !== 'https://subscribe-forms.beehiiv.com') return;
+                if (event.data && event.data.type === 'submission_success') {
+                    logEvent('email_submitted', { source: 'beehiiv_postmessage' });
+                }
+            });
+
+            // ---------- PUBLIC API ----------
+            window.ktmTrack = {
+                resultDisplayed: function(payload) { logEvent('result_displayed', { result_summary: payload || {} }); },
+                popupShown: function(payload) { logEvent('popup_shown', payload || {}); },
+                popupDismissed: function(payload) { logEvent('popup_dismissed', payload || {}); },
+                emailSubmitted: function(payload) { logEvent('email_submitted', payload || {}); },
+                toolCompletion: function(payload) { logEvent('tool_completion', payload || {}); },
+                custom: function(eventName, payload) { logEvent(eventName, payload || {}); }
+            };
+        })();
     </script>
     
     <script>
@@ -601,7 +658,7 @@
                         Your credit protocol is solid. Most people find $50-200/mo in spending they didn't know they were losing. Ready to see yours?
                     </p>
                     <div class="space-y-2 pt-1">
-                        <button @click="showReturnPopup = false; handleCTA();" 
+                        <button @click="showReturnPopup = false; handleCTA('returning_unlock_popup');" 
                                 class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black uppercase text-sm text-black bg-stealth-gold hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all cursor-pointer">
                             &#x1F50D; SEE WHERE MY PAYCHECK GOES
                         </button>
@@ -886,9 +943,9 @@
                 </template>
 
                 <!-- LOCKED LEVEL 2 PREVIEW (Change #1: Brandon-language labels) -->
-                <div class="mt-12 relative pt-6 pb-6">
+               <div class="mt-12 relative pt-6 pb-6">
                     <div class="absolute inset-0 z-20 flex flex-col items-center justify-center"
-                         @click="progress >= 70 ? handleCTA() : null"
+                         @click="progress >= 70 ? handleCTA('unlock_overlay') : null"
                          :class="progress >= 70 ? 'cursor-pointer' : ''">
                          <div class="bg-black/90 border border-stealth-gold px-6 py-3 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(255,215,0,0.2)] flex flex-col items-center gap-2 transform transition-transform duration-300 hover:scale-105">
                             <span class="text-2xl animate-bounce" x-text="progress >= 70 ? '&#x1F513;' : '&#x1F512;'"></span>
@@ -938,7 +995,7 @@
              x-transition:enter-end="translate-y-0">
             
             <button x-show="progress >= 70" 
-                    @click="handleCTA()"
+                    @click="handleCTA('cta_bar_70')"
                     class="flex items-center justify-center gap-3 w-full max-w-lg mx-auto py-4 rounded-xl font-black uppercase text-center transition-all duration-500 bg-stealth-gold text-black shadow-[0_0_20px_#FFD700] hover:scale-[1.02] animate-pulse-fast cursor-pointer">
                <span>&#x1F513;</span>
                <span>SEE WHERE YOUR PAYCHECK GOES</span>
@@ -967,14 +1024,14 @@
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0">
             
-            <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showModal = false"></div>
+            <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="showModal = false; if (window.ktmTrack) window.ktmTrack.popupDismissed({reason: 'backdrop_click', open_count: $data._popupOpenCount || 1, progress_percent: progress, items_completed: checkedCount, credit_score: userCreditScore || 0});"></div>
             
             <div class="relative bg-stealth-card border-2 border-stealth-gold rounded-2xl p-4 w-full max-w-md shadow-[0_0_30px_rgba(255,215,0,0.3)] max-h-[95vh] overflow-y-auto"
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 scale-90"
                  x-transition:enter-end="opacity-100 scale-100">
                 
-                <button @click="showModal = false" 
+                <button @click="showModal = false; if (window.ktmTrack) window.ktmTrack.popupDismissed({reason: 'x_button', open_count: $data._popupOpenCount || 1, progress_percent: progress, items_completed: checkedCount, credit_score: userCreditScore || 0});" 
                         class="absolute top-3 right-3 text-stealth-text/50 hover:text-stealth-text transition-colors z-10 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -1217,7 +1274,7 @@
                     setTimeout(() => { this.showScoreInput = true; }, 300);
                 },
 
-                // ===========================
+               // ===========================
                 // RETURNING USER ROUTING
                 // ===========================
                 determineReturnState() {
@@ -1225,13 +1282,19 @@
                         const hasEmail = localStorage.getItem('eightclub_email');
                         if (hasEmail === 'true') {
                             this.returnState = 'completed';
+                            // KTM v2.0: result_displayed for returning user who already converted
+                            this.fireResultDisplayed('returning_completed');
                             return;
                         }
                     } catch(e) {}
                     if (this.progress >= 70) {
                         this.returnState = 'unlocked';
+                        // KTM v2.0: result_displayed for returning user with unlock-eligible progress
+                        this.fireResultDisplayed('returning_unlocked');
                     } else {
                         this.returnState = 'inprogress';
+                        // KTM v2.0: result_displayed for returning user mid-protocol
+                        this.fireResultDisplayed('returning_inprogress');
                     }
                 },
 
@@ -1287,14 +1350,64 @@
                 // HIGH-LEVERAGE CTA HANDLER
                 // ===========================
                 _payloadSent: false,
+                _resultLoggedAlready: false,
+                _popupOpenCount: 0,
 
-               handleCTA() {
+                // KTM v2.0: centralized result_displayed firing with dedup + rich payload
+                fireResultDisplayed(userPath) {
+                    if (this._resultLoggedAlready) return;
+                    this._resultLoggedAlready = true;
+                    if (!window.ktmTrack) return;
+                    var statusBand = 'GHOST';
+                    var p = this.progress;
+                    if (p >= 100) statusBand = 'BOSS';
+                    else if (p >= 60) statusBand = 'PLAYER';
+                    else if (p >= 30) statusBand = 'RISK';
+                    window.ktmTrack.resultDisplayed({
+                        user_path: userPath,
+                        current_score_band: this.userCreditScore || 0,
+                        items_completed: this.checkedCount,
+                        target_score: 800,
+                        progress_percent: this.progress,
+                        status_band: statusBand,
+                        is_returning_user: this.isReturningUser,
+                        has_email: (function() {
+                            try { return localStorage.getItem('eightclub_email') === 'true'; } catch(e) { return false; }
+                        })()
+                    });
+                },
+
+               handleCTA(triggerSource) {
                     this.showModal = true;
                     try { localStorage.setItem('eightclub_completed', 'true'); } catch(e) {}
+
+                    // KTM v2.0: defensive popup_shown call with re-open trigger discriminator
+                    if (window.ktmTrack) {
+                        var trigger = triggerSource || 'first_open';
+                        if (this._popupOpenCount && this._popupOpenCount > 0) {
+                            window.ktmTrack.popupShown({
+                                trigger: trigger,
+                                open_count: this._popupOpenCount + 1,
+                                progress_percent: this.progress,
+                                items_completed: this.checkedCount,
+                                credit_score: this.userCreditScore || 0
+                            });
+                        } else {
+                            window.ktmTrack.popupShown({
+                                trigger: trigger,
+                                open_count: 1,
+                                progress_percent: this.progress,
+                                items_completed: this.checkedCount,
+                                credit_score: this.userCreditScore || 0
+                            });
+                        }
+                        this._popupOpenCount = (this._popupOpenCount || 0) + 1;
+                    }
+
                     if (window._sb && !this._payloadSent) {
                         this._payloadSent = true;
                         window._sb.from('tool_completions').insert({
-                            tool_id: '800_club',
+                            tool_id: '800-club',
                             architect_id: window._sessionId,
                             context_data: {
                                 credit_score: this.userCreditScore,
@@ -1307,23 +1420,44 @@
                     }
                 },
 
-                submitScore() {
+               submitScore() {
                     this.showScoreInput = false;
                     this.saveProgress();
+                    // KTM v2.0: result_displayed for first_time_new_user with score path
+                    this.fireResultDisplayed('first_time_with_score');
                 },
 
-                skipScore() {
+               skipScore() {
                     this.userCreditScore = 0;
                     this.showScoreInput = false;
                     this.saveProgress();
+                    // KTM v2.0: result_displayed for first_time_new_user without score path
+                    this.fireResultDisplayed('first_time_no_score');
                 },
-
-                // ===========================
+               // ===========================
                 // CERTIFICATE (Change #3)
                 // ===========================
                 showCompletionCertificate() {
                     this.showCertificate = true;
                     this.certCountdown = 7;
+
+                    // KTM v2.0 (Decision 2A): certificate IS the ultimate result reveal.
+                    // Reset dedup flag so this fires even after earlier first-checklist result_displayed.
+                    if (window.ktmTrack) {
+                        window.ktmTrack.resultDisplayed({
+                            user_path: 'completion_100',
+                            current_score_band: this.userCreditScore || 0,
+                            items_completed: this.checkedCount,
+                            target_score: 800,
+                            progress_percent: 100,
+                            status_band: 'BOSS',
+                            is_returning_user: this.isReturningUser,
+                            has_email: (function() {
+                                try { return localStorage.getItem('eightclub_email') === 'true'; } catch(e) { return false; }
+                            })(),
+                            certificate_shown: true
+                        });
+                    }
                     
                     // Countdown display
                     this.certCountdownInterval = setInterval(() => {
@@ -1339,7 +1473,7 @@
                     }, 7000);
                 },
 
-                dismissCertificate() {
+               dismissCertificate() {
                     if (this.certTimer) clearTimeout(this.certTimer);
                     if (this.certCountdownInterval) clearInterval(this.certCountdownInterval);
                     this.showCertificate = false;
@@ -1348,7 +1482,7 @@
                     if (!this.modalAutoTriggered) {
                         this.modalAutoTriggered = true;
                         setTimeout(() => { 
-                            this.handleCTA();
+                            this.handleCTA('certificate_auto');
                         }, 300);
                     }
                 },
@@ -1451,11 +1585,24 @@ async doBeehiivRedirect() {
                         localStorage.setItem('eightclub_email', 'true');
                     } catch(e) {}
 
+                    // KTM v2.0: fire tool_completion to funnel_events for unified taxonomy
+                    if (window.ktmTrack) {
+                        window.ktmTrack.toolCompletion({
+                            credit_score: this.userCreditScore || 0,
+                            progress_percent: this.progress,
+                            steps_completed: this.checkedCount,
+                            interest_penalty: this.getScorePenaltyRaw(this.userCreditScore),
+                            completed_step_ids: this.items.filter(function(i) { return i.checked; }).map(function(i) { return i.id; }),
+                            email_captured: true,
+                            triggered_at_progress: this.progress
+                        });
+                    }
+
                     // Fire tool_completions with email confirmation before redirect
                     if (window._sb && window._sessionId) {
                         try {
                             await window._sb.from('tool_completions').insert({
-                                tool_id: '800_club',
+                                tool_id: '800-club',
                                 architect_id: window._sessionId,
                                 context_data: {
                                     credit_score: this.userCreditScore,
@@ -1469,7 +1616,9 @@ async doBeehiivRedirect() {
                         } catch(e) {}
                     }
 
-                    window.top.location.href = 'https://kou.money/budget-calculator';
+                    // KTM v2.0 (Decision 3): tag the redirect with UTM params so Flow 3 is queryable
+                    // SQL: SELECT * FROM funnel_events WHERE app = 'budget-calculator' AND utm_source = '800-club'
+                    window.top.location.href = 'https://kou.money/budget-calculator?from=800-club&utm_source=800-club&utm_medium=internal-funnel&utm_campaign=elite800';
                 },
              activateRedirectHandler() {
                     const self = this;
