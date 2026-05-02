@@ -1585,17 +1585,47 @@ async doBeehiivRedirect() {
                         localStorage.setItem('eightclub_email', 'true');
                     } catch(e) {}
 
-                    // KTM v2.0: fire tool_completion to funnel_events for unified taxonomy
-                    if (window.ktmTrack) {
-                        window.ktmTrack.toolCompletion({
-                            credit_score: this.userCreditScore || 0,
-                            progress_percent: this.progress,
-                            steps_completed: this.checkedCount,
-                            interest_penalty: this.getScorePenaltyRaw(this.userCreditScore),
-                            completed_step_ids: this.items.filter(function(i) { return i.checked; }).map(function(i) { return i.id; }),
-                            email_captured: true,
-                            triggered_at_progress: this.progress
-                        });
+                    // KTM v2.0: BOTH email_submitted and tool_completion need to actually
+                    // land in funnel_events BEFORE the redirect. Without explicit awaits,
+                    // window.location.href kills the in-flight async inserts and the
+                    // conversion events get lost (events go silent at exactly the moment
+                    // they matter most).
+                    if (window._sb) {
+                        try {
+                            await window._sb.from('funnel_events').insert({
+                                app: '800-club',
+                                event: 'email_submitted',
+                                session_id: window._sessionId,
+                                device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+                                referrer: document.referrer || null,
+                                utm_source: (new URLSearchParams(window.location.search)).get('utm_source'),
+                                utm_medium: (new URLSearchParams(window.location.search)).get('utm_medium'),
+                                utm_campaign: (new URLSearchParams(window.location.search)).get('utm_campaign'),
+                                data: { source: 'redirect_handler_explicit' }
+                            });
+                        } catch(e) {}
+
+                        try {
+                            await window._sb.from('funnel_events').insert({
+                                app: '800-club',
+                                event: 'tool_completion',
+                                session_id: window._sessionId,
+                                device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+                                referrer: document.referrer || null,
+                                utm_source: (new URLSearchParams(window.location.search)).get('utm_source'),
+                                utm_medium: (new URLSearchParams(window.location.search)).get('utm_medium'),
+                                utm_campaign: (new URLSearchParams(window.location.search)).get('utm_campaign'),
+                                data: {
+                                    credit_score: this.userCreditScore || 0,
+                                    progress_percent: this.progress,
+                                    steps_completed: this.checkedCount,
+                                    interest_penalty: this.getScorePenaltyRaw(this.userCreditScore),
+                                    completed_step_ids: this.items.filter(function(i) { return i.checked; }).map(function(i) { return i.id; }),
+                                    email_captured: true,
+                                    triggered_at_progress: this.progress
+                                }
+                            });
+                        } catch(e) {}
                     }
 
                     // Fire tool_completions with email confirmation before redirect
