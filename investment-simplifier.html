@@ -5,55 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Investment Simplifier | @koutalksmoney</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
+
+    <!-- Supabase client library (required for window._sb) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- =========================================
+         KTM UNIVERSAL TRACKER v2.0
+         App: investment-simplifier
+         ========================================= -->
     <script>
-       const _sbUrl = 'https://wokoxddotlyuasmwylpx.supabase.co';
-        // Breaking the JWT string bypasses GitHub's regex secret scanner
-        const _sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9' + 
-                       '.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0' + 
-                       '.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
-     window._sb = null;
-        window._sbUrl = _sbUrl;
-        window._sbKey = _sbKey;
-        try { window._sb = window.supabase.createClient(_sbUrl, _sbKey); } catch(e) {}
+        var SUPABASE_URL = 'https://wokoxddotlyuasmwylpx.supabase.co';
+        var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indva294ZGRvdGx5dWFzbXd5bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NjY0MjgsImV4cCI6MjA4NzA0MjQyOH0.Le7dof_ZonZuabOEoHGUsKqeZkkfrEr7SNSbvR5lJHg';
+
+        window._sb = null;
+        try { window._sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) {}
         window._sessionId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        
-        function trackVisit() {
-            if (!window._sb) return;
-            try {
-                const p = new URLSearchParams(window.location.search);
-                const utm_source = p.get('utm_source');
-                const utm_medium = p.get('utm_medium');
-                const utm_campaign = p.get('utm_campaign');
-                const pageName = window.location.pathname.split('/').pop() || 'unknown';
 
-                // Existing visits log (unchanged behavior)
-                window._sb.from('visits').insert({
-                    architect_id: window._sessionId,
-                    page: pageName,
-                    entry_point: p.get('from') || document.referrer || 'direct',
-                    user_agent: navigator.userAgent
-                }).then(() => {}).catch(() => {});
+        (function() {
+            var APP_NAME = 'investment-simplifier';
+            var device = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
 
-                // NEW: UTM attribution log to funnel_events when any UTM is present
-                if (utm_source || utm_medium || utm_campaign) {
+            function getUtm() {
+                var p = new URLSearchParams(window.location.search);
+                return {
+                    utm_source: p.get('utm_source'),
+                    utm_medium: p.get('utm_medium'),
+                    utm_campaign: p.get('utm_campaign')
+                };
+            }
+
+            function logEvent(eventName, dataPayload) {
+                if (!window._sb) return;
+                try {
+                    var utm = getUtm();
                     window._sb.from('funnel_events').insert({
-                        app: pageName,
-                        event: 'utm_visit',
+                        app: APP_NAME,
+                        event: eventName,
                         session_id: window._sessionId,
-                        utm_source: utm_source,
-                        utm_medium: utm_medium,
-                        utm_campaign: utm_campaign,
+                        device: device,
                         referrer: document.referrer || null,
-                        device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-                        data: {}
-                    }).then(() => {}).catch(() => {});
+                        utm_source: utm.utm_source,
+                        utm_medium: utm.utm_medium,
+                        utm_campaign: utm.utm_campaign,
+                        data: dataPayload || {}
+                    }).then(function(){}).catch(function(){});
+                } catch(e) {}
+            }
+
+            // Legacy visits table preserved for backward compatibility
+            try {
+                if (window._sb) {
+                    var p = new URLSearchParams(window.location.search);
+                    window._sb.from('visits').insert({
+                        architect_id: window._sessionId,
+                        page: APP_NAME,
+                        entry_point: p.get('from') || document.referrer || 'direct',
+                        user_agent: navigator.userAgent
+                    }).then(function(){}).catch(function(){});
                 }
             } catch(e) {}
-        }
-        trackVisit();
+
+            logEvent('page_view', {
+                path: window.location.pathname,
+                entry_point: (new URLSearchParams(window.location.search)).get('from') || document.referrer || 'direct'
+            });
+
+            var utm = getUtm();
+            if (utm.utm_source || utm.utm_medium || utm.utm_campaign) {
+                logEvent('utm_visit', {});
+            }
+
+            window.addEventListener('message', function(event) {
+                if (event.origin !== 'https://subscribe-forms.beehiiv.com') return;
+                if (event.data && event.data.type === 'submission_success') {
+                    logEvent('email_submitted', { source: 'beehiiv_postmessage' });
+                }
+            });
+
+            window.ktmTrack = {
+                resultDisplayed: function(payload) { logEvent('result_displayed', { result_summary: payload || {} }); },
+                popupShown: function(payload) { logEvent('popup_shown', payload || {}); },
+                popupDismissed: function(payload) { logEvent('popup_dismissed', payload || {}); },
+                emailSubmitted: function(payload) { logEvent('email_submitted', payload || {}); },
+                toolCompletion: function(payload) { logEvent('tool_completion', payload || {}); },
+                custom: function(eventName, payload) { logEvent(eventName, payload || {}); }
+            };
+        })();
     </script>
-    <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -870,7 +909,7 @@
                 </div>
             </div>
             <div class="rr-options">
-                <a href="https://kou.money/command-center" class="rr-option opt-command">
+               <a href="https://kou.money/command-center?utm_source=investment-simplifier&utm_medium=returning_router&utm_campaign=cross_tool_attribution" class="rr-option opt-command" onclick="logReturningRoute('command_center')">
                     <div class="rr-option-icon">&#x1F3AF;</div>
                     <div class="rr-option-text">
                         <div class="rr-option-title">Command Center</div>
@@ -1415,7 +1454,14 @@
             return false;
         }
 
+        function logReturningRoute(destination) {
+            if (window.ktmTrack) {
+                window.ktmTrack.custom('returning_user_routed', { destination: destination });
+            }
+        }
+
         function viewSavedPortfolio() {
+            logReturningRoute('view_saved');
             document.getElementById('returningRouter').classList.add('hidden');
             portfolioId = generatePortfolioId();
             const saved = checkSavedState();
@@ -1434,8 +1480,10 @@
         }
 
         function startFreshFromRouter() {
+            logReturningRoute('fresh_build');
             document.getElementById('returningRouter').classList.add('hidden');
             portfolioId = generatePortfolioId();
+            window._resultLoggedAlready = false;
             unlockPortfolio();
             try { localStorage.removeItem(CONFIG.SAVE_KEY); } catch(e) {}
         }
@@ -1798,18 +1846,84 @@
                 }
             });
             
-           window.addEventListener('message', (e) => {
-    // Dynamically adjust iframe height for mobile responsiveness
-    if (e.data && (e.data.type === 'beehiiv:resize' || e.data.event === 'resize')) {
-        const frame = document.getElementById('beehiivFrame');
-        if (frame && e.data.height) frame.style.height = e.data.height + 'px';
-    }
+           window.addEventListener('message', async (e) => {
+                // Dynamically adjust iframe height for mobile responsiveness
+                if (e.data && (e.data.type === 'beehiiv:resize' || e.data.event === 'resize')) {
+                    const frame = document.getElementById('beehiivFrame');
+                    if (frame && e.data.height) frame.style.height = e.data.height + 'px';
+                }
 
-    if (e.data && (e.data.type === 'beehiiv:subscribe:success' || (typeof e.data === 'string' && e.data.includes('subscribed')))) {
+                if (e.data && (e.data.type === 'beehiiv:subscribe:success' || (typeof e.data === 'string' && e.data.includes('subscribed')))) {
+                    if (window._postSubmissionFired) return;
+                    window._postSubmissionFired = true;
+
                     localStorage.setItem('investmentSimplifier_bridge_email', 'true');
+
+                    // Build payload from current portfolio state
+                    const submitPayload = {
+                        portfolio_id: portfolioId,
+                        age: parseInt(document.getElementById('userAge').value) || null,
+                        risk_style: document.getElementById('riskStyle').value || 'unknown',
+                        monthly_investment: parseInt(document.getElementById('monthlyInvestment').value) || 100,
+                        stock_pct: currentPortfolioData ? currentPortfolioData.stockPct : null,
+                        bond_pct: currentPortfolioData ? currentPortfolioData.bondPct : null,
+                        from_autopilot: useCoreFromAutopilot,
+                        from_freedom: !!localStorage.getItem('freedom_completed'),
+                        from_cow: !!localStorage.getItem('waiting_completed'),
+                        email_captured: true,
+                        capture_path: 'native_gate'
+                    };
+
+                    if (window._sb) {
+                        const deviceType = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const utm_source = urlParams.get('utm_source');
+                        const utm_medium = urlParams.get('utm_medium');
+                        const utm_campaign = urlParams.get('utm_campaign');
+
+                        // Awaited insert 1: email_submitted (kebab-case)
+                        try {
+                            await window._sb.from('funnel_events').insert({
+                                app: 'investment-simplifier',
+                                event: 'email_submitted',
+                                session_id: window._sessionId,
+                                device: deviceType,
+                                referrer: document.referrer || null,
+                                utm_source: utm_source,
+                                utm_medium: utm_medium,
+                                utm_campaign: utm_campaign,
+                                data: { source: 'postmessage_handler_explicit', portfolio_id: portfolioId }
+                            });
+                        } catch(err) {}
+
+                        // Awaited insert 2: tool_completion (kebab-case, fires HERE not on calculation)
+                        try {
+                            await window._sb.from('funnel_events').insert({
+                                app: 'investment-simplifier',
+                                event: 'tool_completion',
+                                session_id: window._sessionId,
+                                device: deviceType,
+                                referrer: document.referrer || null,
+                                utm_source: utm_source,
+                                utm_medium: utm_medium,
+                                utm_campaign: utm_campaign,
+                                data: submitPayload
+                            });
+                        } catch(err) {}
+
+                        // Awaited insert 3: tool_completions row (kebab-case tool_id)
+                        try {
+                            await window._sb.from('tool_completions').insert({
+                                tool_id: 'investment-simplifier',
+                                architect_id: window._sessionId,
+                                context_data: submitPayload
+                            });
+                        } catch(err) {}
+                    }
+
+                    // Unlock AFTER awaits resolve. Belt-and-suspenders against
+                    // any future redirect being added to this handler.
                     unlockPortfolio();
-                    
-                  // tool_completions now fires on calculatePortfolio() instead
                 }
             });
         }
@@ -1872,7 +1986,9 @@
             initGeoSocialProof();
             setupEmailUnlockListener();
             
-            // ECOSYSTEM GATE BYPASS: Check if user already entered funnel via Freedom, CoW, or Autopilot
+            // ECOSYSTEM GATE BYPASS: Check if user already entered funnel via Freedom, CoW, or Autopilot.
+            // Asymmetric firing: tool_completion fires (they finished THIS tool) but email_submitted
+            // does NOT fire (the email was captured by an upstream tool, not by this one).
             const bridgeEmail = localStorage.getItem('investmentSimplifier_bridge_email');
             const fromFreedom = localStorage.getItem('freedom_email') === 'true' || localStorage.getItem('freedom_completed') === 'true';
             const fromCow = localStorage.getItem('cost_of_waiting_email') === 'true' || localStorage.getItem('waiting_completed') === 'true';
@@ -1883,6 +1999,43 @@
                     localStorage.setItem('investmentSimplifier_bridge_email', 'true');
                 }
                 unlockPortfolio();
+
+                // Asymmetric tool_completion fire (NO email_submitted — that belongs to upstream tool).
+                // Deferred via setTimeout(0) so window.ktmTrack and window._sb are guaranteed initialized.
+                setTimeout(async function() {
+                    if (window._bypassCompletionFired) return;
+                    window._bypassCompletionFired = true;
+
+                    var bypassSource = 'unknown';
+                    if (fromAutopilot) bypassSource = 'autopilot';
+                    else if (fromFreedom) bypassSource = 'freedom_calculator';
+                    else if (fromCow) bypassSource = 'cost_of_waiting';
+                    else if (bridgeEmail) bypassSource = 'returning_user';
+
+                    var bypassPayload = {
+                        capture_path: 'ecosystem_bypass',
+                        bypass_source: bypassSource,
+                        from_freedom: fromFreedom,
+                        from_cow: fromCow,
+                        from_autopilot: fromAutopilot,
+                        was_returning: !!bridgeEmail,
+                        email_captured: false
+                    };
+
+                    if (window.ktmTrack) {
+                        window.ktmTrack.toolCompletion(bypassPayload);
+                    }
+
+                    if (window._sb && window._sessionId) {
+                        try {
+                            await window._sb.from('tool_completions').insert({
+                                tool_id: 'investment-simplifier',
+                                architect_id: window._sessionId,
+                                context_data: bypassPayload
+                            });
+                        } catch(err) {}
+                    }
+                }, 0);
             }
 
             personalizeWelcomeGate();
@@ -2027,50 +2180,33 @@
 
            window.lastAllocation = alloc;
             currentPortfolioData = { stockPct, bondPct, alloc };
-            
-            // --- START HIGH-LEVERAGE DATA THROW ---
-          fetch((window._sbUrl || _sbUrl) + '/rest/v1/funnel_events', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json', 
-                    'apikey': window._sbKey || _sbKey, 
-                    'Authorization': 'Bearer ' + (window._sbKey || _sbKey),
-                    'Prefer': 'return=minimal' 
-                },
-                body: JSON.stringify({
-                    app: 'investment_simplifier',
-                    event: 'calculated_portfolio',
-                    data: { 
-                        age: parseInt(document.getElementById('userAge').value) || null,
-                        riskStyle: document.getElementById('riskStyle').value || 'unknown',
-                        monthlyInvestment: parseInt(document.getElementById('monthlyInvestment').value) || 100,
-                        stockPct: stockPct,
-                        bondPct: bondPct
-                    }
-                })
-            }).catch(err => console.error('Throw failed:', err));
-           // --- END HIGH-LEVERAGE DATA THROW ---
 
-            // --- TOOL COMPLETION TRACKING ---
-            if (window._sb && window._sessionId) {
-                window._sb.from('tool_completions').insert({
-                    tool_id: 'investment_simplifier',
-                    architect_id: window._sessionId,
-                    context_data: {
-                        age: parseInt(document.getElementById('userAge').value),
-                        risk_style: riskStyle,
-                        monthly_investment: parseInt(document.getElementById('monthlyInvestment').value) || 100,
-                        stock_pct: stockPct,
-                        bond_pct: bondPct,
-                        portfolio_id: portfolioId,
-                        strategy: document.querySelector('.strategy-chip.active .strategy-chip-name')?.textContent?.trim() || 'custom',
-                        from_autopilot: useCoreFromAutopilot,
-                        from_freedom: !!localStorage.getItem('freedom_completed'),
-                        from_cow: !!localStorage.getItem('waiting_completed')
-                    }
-                }).then(() => {}).catch(() => {});
+            // --- RESULT DISPLAYED (kebab-case, deduped) ---
+            // Fires once per session at end of calculatePortfolio.
+            // Re-calculations (style/age tweaks) do not re-fire.
+            if (!window._resultLoggedAlready && window.ktmTrack) {
+                window._resultLoggedAlready = true;
+                var monthly_for_result = parseInt(document.getElementById('monthlyInvestment').value) || 100;
+                var rate_for_result = 0.07;
+                var FV_30yr = Math.round(monthly_for_result * ((Math.pow(1 + rate_for_result/12, 12*30) - 1) / (rate_for_result/12)));
+                var coreEtfForResult = alloc.find(function(a){return a.isCore;}) || alloc[0];
+                var coreTickerForResult = etfData[coreEtfForResult.id] ? etfData[coreEtfForResult.id].ticker : coreEtfForResult.id.toUpperCase();
+                window.ktmTrack.resultDisplayed({
+                    age: parseInt(document.getElementById('userAge').value),
+                    risk_style: riskStyle,
+                    monthly_investment: monthly_for_result,
+                    stock_pct: stockPct,
+                    bond_pct: bondPct,
+                    etf_count: alloc.length,
+                    core_etf_ticker: coreTickerForResult,
+                    portfolio_id: portfolioId,
+                    projection_30yr: FV_30yr,
+                    from_autopilot: useCoreFromAutopilot,
+                    from_freedom: !!localStorage.getItem('freedom_completed'),
+                    from_cow: !!localStorage.getItem('waiting_completed')
+                });
             }
-            // --- END TOOL COMPLETION TRACKING ---
+            // --- END RESULT DISPLAYED ---
 
             displayPortfolio(stockPct, bondPct, alloc);
             updateProjectionHero();
@@ -2191,14 +2327,24 @@
                 container.insertAdjacentHTML('beforeend', html);
             });
             
-            const bridgeEmail = localStorage.getItem('investmentSimplifier_bridge_email');
+           const bridgeEmail = localStorage.getItem('investmentSimplifier_bridge_email');
             if (bridgeEmail) {
                 container.classList.add('unlocked');
                 const overlay = document.getElementById('unlockOverlay');
                 if (overlay) overlay.classList.add('hidden');
                 document.getElementById('firstBuyCard').classList.add('show');
+            } else {
+                // Email gate is visible. Fire popup_shown once per session.
+                if (!window._popupShownFired && window.ktmTrack) {
+                    window._popupShownFired = true;
+                    window.ktmTrack.popupShown({
+                        portfolio_id: portfolioId,
+                        gate_type: 'unlock_overlay',
+                        monthly_investment: parseInt(document.getElementById('monthlyInvestment').value) || 100
+                    });
+                }
             }
-            
+
             updateDollarValues();
             
             requestAnimationFrame(() => {
@@ -2304,8 +2450,8 @@
             const fromCow = localStorage.getItem('cost_of_waiting_email') === 'true' || localStorage.getItem('waiting_completed') === 'true';
             const fromAutopilot = localStorage.getItem('autopilot_completed') === 'true';
             
-            let title, desc, btnText, btnHref;
-            btnHref = CONFIG.COMMAND_CENTER_URL;
+           let title, desc, btnText, btnHref;
+            btnHref = CONFIG.COMMAND_CENTER_URL + '?utm_source=investment-simplifier&utm_medium=bridge_cta&utm_campaign=cross_tool_attribution';
             
             if (fromFreedom) {
                 let freedomNumber = '';
